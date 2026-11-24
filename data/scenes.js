@@ -34,6 +34,9 @@ window.SITE = {
   // 把你取的代碼填在這裡，例如 "svg-atlas"（或完整網址 https://svg-atlas.goatcounter.com/count）。
   // 留空時完全不載入統計程式。後台會看到每組的 open/SC-xx（打開）、download/SC-xx/…（下載）排行。
   analytics: "erwin50331",
+  // MP4／GIF 下載：放在 GitHub Releases 的資料夾網址（結尾要有 /）。檔名是場景檔名把 .html 換成 .mp4／.gif。
+  // 留空時下載視窗只提供 HTML。
+  clips: "",
   // Threads、LinkedIn 等個人連結，可留空
   links: [],
   // 作者精選：填場景編號，順序就是精選區的排列順序；留空陣列就不顯示精選區

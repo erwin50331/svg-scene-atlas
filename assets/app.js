@@ -166,6 +166,7 @@
   }
 
   const dd = $("dlDlg"), form = $("dlForm");
+  const CLIPS = String(SITE.clips || "").trim().replace(/([^/])$/, "$1/").replace(/^\/$/, "");
   // 下載鈕：箭頭落下 → 進度圈 → 打勾（約 1 秒），再關視窗
   function downloadAnim(b) {
     if (!b || reduceMotion) return Promise.resolve();
@@ -185,6 +186,9 @@
   let dlScene = null, dlInfo = { music: false, sfx: false };
   async function refreshDlOpts() {
     const ver = form.ver.value, s = dlScene;
+    const clip = form.fmt && form.fmt.value !== "html";
+    $("dlVer").hidden = clip;
+    if (clip) { $("dlSound").hidden = true; $("dlNoSound").hidden = true; return; }
     try { dlInfo = soundsOf(await getText(fileUrl(s, ver))); } catch (e) { dlInfo = { music: false, sfx: false, offline: true }; }
     if (s !== dlScene) return;
     $("optSfx").hidden = !dlInfo.sfx; $("optMusic").hidden = !dlInfo.music;
@@ -197,15 +201,27 @@
     dlScene = s; dlOpener = window.__lastBtn || (document.activeElement && document.activeElement.closest ? document.activeElement.closest(".btn") : null);
     $("dlSub").textContent = `${s.id}　${s.title}`;
     form.ver.value = ver || "pure"; form.sfx.checked = true; form.music.checked = true;
+    $("dlFmt").hidden = !CLIPS; form.fmt.value = "html"; $("dlVer").hidden = false;
     $("dlSound").hidden = true; $("dlNoSound").hidden = true;
     refreshDlOpts();
     dd.showModal();
   }
-  form.addEventListener("change", (e) => { if (e.target.name === "ver") refreshDlOpts(); });
+  form.addEventListener("change", (e) => { if (e.target.name === "ver" || e.target.name === "fmt") refreshDlOpts(); });
   $("dlCancel").addEventListener("click", () => dd.close());
   dd.addEventListener("click", (e) => { if (e.target === dd) dd.close(); });
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
+    if (CLIPS && form.fmt.value !== "html") {
+      const s = dlScene, fmt = form.fmt.value, url = CLIPS + s.file.replace(/\.html$/, "." + fmt);
+      await downloadAnim($("dlGo"));
+      dd.close();
+      if (dlOpener) flashDone(dlOpener, "已下載");
+      track("download", s.id, fmt);
+      if (framed) { window.open(url, "_blank", "noopener"); toast(`已在新分頁開啟 ${fmt.toUpperCase()}`); return; }
+      const a = document.createElement("a"); a.href = url; a.rel = "noopener";
+      document.body.appendChild(a); a.click(); a.remove();
+      toast(`開始下載 ${fmt.toUpperCase()}`); return;
+    }
     const s = dlScene, ver = form.ver.value, label = ver === "pure" ? "純插畫版" : "完整版";
     const o = { sfx: !dlInfo.sfx || form.sfx.checked, music: !dlInfo.music || form.music.checked };
     await downloadAnim($("dlGo"));
@@ -382,7 +398,7 @@
         <div class="meta">${isPick(s) ? `<span class="tag pick">${ICON.star}作者精選</span>` : ""}<span class="tag style">${esc(s.style)}</span>${(s.tags || []).map((t) => `<span class="tag">${esc(t)}</span>`).join("")}</div>
         <p class="desc">${esc(s.summary)}</p>
         <div class="actions">
-          <button type="button" class="btn primary" data-act="download">${ICON.down}<span>下載 HTML</span></button>
+          <button type="button" class="btn primary" data-act="download">${ICON.down}<span>下載</span></button>
           <button type="button" class="btn" data-act="copy">${ICON.copy}<span>複製 Prompt</span></button>
         </div>
       </div>
