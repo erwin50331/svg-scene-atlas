@@ -33,7 +33,7 @@ window.SITE = {
   // 網站統計（GoatCounter，免費、不追蹤個人、不用 cookie）。到 goatcounter.com 註冊後，
   // 把你取的代碼填在這裡，例如 "svg-atlas"（或完整網址 https://svg-atlas.goatcounter.com/count）。
   // 留空時完全不載入統計程式。後台會看到每組的 open/SC-xx（打開）、download/SC-xx/…（下載）排行。
-  analytics: "",
+  analytics: "erwin50331",
   // Threads、LinkedIn 等個人連結，可留空
   links: [],
   // 作者精選：填場景編號，順序就是精選區的排列順序；留空陣列就不顯示精選區
