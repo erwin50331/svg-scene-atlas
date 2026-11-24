@@ -1,5 +1,5 @@
 <p align="center">
-  <a href="https://erwin50331.github.io/svg-scene-atlas/"><img src="assets/readme/banner.jpg" alt="SVG 動畫圖鑑 SVG Scene Atlas：101 組原創動畫場景" width="100%"></a>
+  <a href="https://svg-scene-atlas.pages.dev/"><img src="assets/readme/banner.jpg" alt="SVG 動畫圖鑑 SVG Scene Atlas：101 組原創動畫場景" width="100%"></a>
 </p>
 
 <h1 align="center">SVG 動畫圖鑑 · SVG Scene Atlas</h1>
@@ -10,7 +10,7 @@
 </p>
 
 <h2 align="center">
-  <a href="https://erwin50331.github.io/svg-scene-atlas/">🌐 逛逛網站 →</a>
+  <a href="https://svg-scene-atlas.pages.dev/">🌐 逛逛網站 →</a>
 </h2>
 
 <p align="center">
@@ -50,11 +50,11 @@
 
 | | | |
 |:-:|:-:|:-:|
-| <a href="https://erwin50331.github.io/svg-scene-atlas/#sc-19"><img src="thumbs/sc-19-day.jpg" alt="里斯本坡道電車"></a><br>**里斯本坡道電車**<br><sub>扁平插畫 · 葡萄牙</sub> | <a href="https://erwin50331.github.io/svg-scene-atlas/#sc-56"><img src="thumbs/sc-56-day.jpg" alt="水族館海底隧道的鯨鯊巡游"></a><br>**水族館海底隧道的鯨鯊巡游**<br><sub>剪紙層疊 · 🎥 第一視角</sub> | <a href="https://erwin50331.github.io/svg-scene-atlas/#sc-73"><img src="thumbs/sc-73-night.jpg" alt="東京隅田川的花火大會"></a><br>**東京隅田川的花火大會**<br><sub>剪紙層疊 · 日本</sub> |
-| <a href="https://erwin50331.github.io/svg-scene-atlas/#sc-84"><img src="thumbs/sc-84-day.jpg" alt="卡帕多奇亞的熱氣球日出"></a><br>**卡帕多奇亞的熱氣球日出**<br><sub>水彩感 · 土耳其</sub> | <a href="https://erwin50331.github.io/svg-scene-atlas/#sc-33"><img src="thumbs/sc-33-night.jpg" alt="梵蒂岡聖伯多祿廣場"></a><br>**梵蒂岡聖伯多祿廣場**<br><sub>CGI 電影質感 · 梵蒂岡</sub> | <a href="https://erwin50331.github.io/svg-scene-atlas/#sc-101"><img src="thumbs/sc-101-day.jpg" alt="恩格羅恩格羅火山口的紅鶴湖"></a><br>**恩格羅恩格羅火山口的紅鶴湖**<br><sub>扁平插畫 · 坦尚尼亞</sub> |
-| <a href="https://erwin50331.github.io/svg-scene-atlas/#sc-94"><img src="thumbs/sc-94-night.jpg" alt="麥加天房的萬人繞行"></a><br>**麥加天房的萬人繞行**<br><sub>水彩感 · 沙烏地阿拉伯</sub> | <a href="https://erwin50331.github.io/svg-scene-atlas/#sc-32"><img src="thumbs/sc-32-day.jpg" alt="坦尚尼亞草原大遷徙"></a><br>**坦尚尼亞草原大遷徙**<br><sub>扁平插畫 · 坦尚尼亞</sub> | <a href="https://erwin50331.github.io/svg-scene-atlas/#sc-43"><img src="thumbs/sc-43-night.jpg" alt="南極半島的冰山與企鵝"></a><br>**南極半島的冰山與企鵝**<br><sub>CGI 電影質感 · 南極</sub> |
+| <a href="https://svg-scene-atlas.pages.dev/#sc-19"><img src="thumbs/sc-19-day.jpg" alt="里斯本坡道電車"></a><br>**里斯本坡道電車**<br><sub>扁平插畫 · 葡萄牙</sub> | <a href="https://svg-scene-atlas.pages.dev/#sc-56"><img src="thumbs/sc-56-day.jpg" alt="水族館海底隧道的鯨鯊巡游"></a><br>**水族館海底隧道的鯨鯊巡游**<br><sub>剪紙層疊 · 🎥 第一視角</sub> | <a href="https://svg-scene-atlas.pages.dev/#sc-73"><img src="thumbs/sc-73-night.jpg" alt="東京隅田川的花火大會"></a><br>**東京隅田川的花火大會**<br><sub>剪紙層疊 · 日本</sub> |
+| <a href="https://svg-scene-atlas.pages.dev/#sc-84"><img src="thumbs/sc-84-day.jpg" alt="卡帕多奇亞的熱氣球日出"></a><br>**卡帕多奇亞的熱氣球日出**<br><sub>水彩感 · 土耳其</sub> | <a href="https://svg-scene-atlas.pages.dev/#sc-33"><img src="thumbs/sc-33-night.jpg" alt="梵蒂岡聖伯多祿廣場"></a><br>**梵蒂岡聖伯多祿廣場**<br><sub>CGI 電影質感 · 梵蒂岡</sub> | <a href="https://svg-scene-atlas.pages.dev/#sc-101"><img src="thumbs/sc-101-day.jpg" alt="恩格羅恩格羅火山口的紅鶴湖"></a><br>**恩格羅恩格羅火山口的紅鶴湖**<br><sub>扁平插畫 · 坦尚尼亞</sub> |
+| <a href="https://svg-scene-atlas.pages.dev/#sc-94"><img src="thumbs/sc-94-night.jpg" alt="麥加天房的萬人繞行"></a><br>**麥加天房的萬人繞行**<br><sub>水彩感 · 沙烏地阿拉伯</sub> | <a href="https://svg-scene-atlas.pages.dev/#sc-32"><img src="thumbs/sc-32-day.jpg" alt="坦尚尼亞草原大遷徙"></a><br>**坦尚尼亞草原大遷徙**<br><sub>扁平插畫 · 坦尚尼亞</sub> | <a href="https://svg-scene-atlas.pages.dev/#sc-43"><img src="thumbs/sc-43-night.jpg" alt="南極半島的冰山與企鵝"></a><br>**南極半島的冰山與企鵝**<br><sub>CGI 電影質感 · 南極</sub> |
 
-<p align="center"><a href="https://erwin50331.github.io/svg-scene-atlas/"><b>看全部 101 組 →</b></a></p>
+<p align="center"><a href="https://svg-scene-atlas.pages.dev/"><b>看全部 101 組 →</b></a></p>
 
 ## 🎨 19 種畫風
 
@@ -163,6 +163,6 @@ python3 -m http.server 8000
 
 **SVG Scene Atlas** is a collection of 101 original, animated, widescreen (1600×600) SVG scenes, from Lisbon's hillside trams to an Earthrise over the lunar south pole. Each scene is a single self-contained HTML file (SVG + vanilla JavaScript, no libraries) with a day/night cycle, clickable characters, a triggerable "show", and optional procedurally generated music. 19 art styles, 47 countries and regions.
 
-Download any scene from the [website](https://erwin50331.github.io/svg-scene-atlas/), open it in a browser, or drop it into your page with an `<iframe>`. Code is MIT; artwork is CC BY 4.0. Scenes were conceived and directed by the author and built with [Claude](https://claude.ai).
+Download any scene from the [website](https://svg-scene-atlas.pages.dev/), open it in a browser, or drop it into your page with an `<iframe>`. Code is MIT; artwork is CC BY 4.0. Scenes were conceived and directed by the author and built with [Claude](https://claude.ai).
 
 </details>
