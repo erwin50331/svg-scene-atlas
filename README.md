@@ -30,7 +30,7 @@
 
 <p align="center">
   <img src="assets/readme/preview.gif" alt="六組場景的動態預覽：里斯本、水族館、卡帕多奇亞、隅田川、恩格羅恩格羅、梵蒂岡" width="100%"><br>
-  <a href="https://youtu.be/a6wIkbDMGFw">▶ 花 40 秒，看它們動起來</a>
+  <a href="https://youtu.be/a6wIkbDMGFw">▶ 40 秒快速導覽</a>
 </p>
 
 ---
