@@ -1,0 +1,2020 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>亞馬遜雨林深處</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<style>
+/* =========================================================
+   SC-98 亞馬遜雨林深處｜剪紙層疊（紙雕立體光影）
+   地點：巴西亞馬遜雨林內部，像自然紀錄片的鏡頭走進森林最深處。
+        畫面裡沒有人：一層層越遠越淡的樹幹與霧氣，陽光從樹冠的縫隙斜斜照下來；
+        中間是有板根的巨型木棉、絞殺榕、號角樹和會「走路」的高跷根棕櫚，
+        林下有一條黑水小溪和一根橫倒的大樹幹。
+        動物：美洲豹、南美貘、角鵰、凱門鱷、樹懶、松鼠猴、紅吼猴、巨嘴鳥、
+        金剛鸚鵡、切葉蟻、箭毒蛙、藍閃蝶、蜂鳥、螢火蟲、夜裡發光的蕈菇。
+   ---------------------------------------------------------
+   【色票 token】所有顏色集中在這裡，改這裡就能換色。
+   --d-名稱 = 白天、--n-名稱 = 夜晚、--k-名稱 = 黃昏（--n／--k 可省略，省略時程式自動算出夜色與暮色）。
+   JS 依時間混色，輸出成 --名稱，並自動產生 .f-名稱（填色）、.s-名稱（線色）兩個 class。
+   沒有 --d- 前綴的（例如 --lamp）是固定色，不隨日夜改變。
+   ========================================================= */
+:root{
+  color-scheme: light;
+  /* —— 樹冠縫隙裡的天空 —— */
+  --d-skyT:#7cc8ea; --k-skyT:#8a78c0; --n-skyT:#0a1630;
+  --d-skyB:#e6f6e0; --k-skyB:#ffbe86; --n-skyB:#1c2e48;
+  /* —— 林中空氣（越深越藍綠，像紀錄片裡的霧氣） —— */
+  --d-airT:#bfdc9c; --k-airT:#d8b890; --n-airT:#0c1c22;
+  --d-airB:#86b89c; --k-airB:#a49a86; --n-airB:#0a1a1e;
+  /* —— 一層層的樹幹與葉叢（越遠越淡） —— */
+  --d-far1:#94c2a0; --k-far1:#b8a896; --n-far1:#132a2c;
+  --d-far2:#6ca883; --k-far2:#94907a; --n-far2:#102426;
+  --d-far3:#4a8a62; --n-far3:#0c2022;
+  --d-trunk1:#a4c3a8; --n-trunk1:#16292c;
+  --d-trunk2:#7aa285; --n-trunk2:#122428;
+  --d-trunk3:#5a7c61; --n-trunk3:#0e1e20;
+  /* —— 樹葉（紙板由深到淺） —— */
+  --d-leafDk:#1a5232; --n-leafDk:#06141a;
+  --d-leaf1:#2a7740; --n-leaf1:#09191c;
+  --d-leaf2:#3c9449; --n-leaf2:#0c2220;
+  --d-leaf3:#58b455; --n-leaf3:#112a24;
+  --d-leaf4:#8acb5a; --n-leaf4:#163226;
+  --d-leafLt:#b6e27c; --n-leafLt:#1c3a2c;
+  --d-vine:#566830; --n-vine:#101814;
+  --d-moss:#7aa83e; --n-moss:#142418;
+  --d-cecro:#d2dcc8; --n-cecro:#24303a;
+  /* —— 樹幹 —— */
+  --d-bark:#ada48a; --k-bark:#c0a084; --n-bark:#262830;
+  --d-barkSh:#857c64; --n-barkSh:#1a1a22;
+  --d-barkLt:#cdc5aa; --n-barkLt:#34363e;
+  --d-fig:#8e7a5e; --n-fig:#221e22;            /* 絞殺榕纏繞的氣根 */
+  --d-figLt:#ae9876; --n-figLt:#2e2a2c;
+  --d-trunk2b:#dcd6c6; --n-trunk2b:#30343c;    /* 號角樹淺色樹幹 */
+  --d-palm:#6a5a40; --n-palm:#1c1a1a;          /* 高跷根棕櫚 */
+  /* —— 林地與小溪 —— */
+  --d-floor:#6f5a38; --k-floor:#7e5c3e; --n-floor:#161414;
+  --d-floorLt:#8e7446; --n-floorLt:#201c1a;
+  --d-litter:#b0864a; --n-litter:#2a2218;      /* 落葉 */
+  --d-creek:#2c2a1e; --k-creek:#4a2c20; --n-creek:#07080e;    /* 黑水小溪 */
+  --d-creekLt:#55704a; --n-creekLt:#181a26;
+  --d-creekHi:#d4e2b8; --n-creekHi:#34384e;
+  --d-log:#7a5634; --n-log:#1e1616;            /* 倒木 */
+  --d-logDk:#56391f; --n-logDk:#140e0e;
+  --d-logLt:#a07448; --n-logLt:#2a2020;
+  --d-fungus:#efe2c6; --n-fungus:#9fe0b8;      /* 夜裡會發光的蕈菇 */
+  /* —— 王蓮 —— */
+  --d-lily:#4e9b3c; --n-lily:#122a1e;
+  --d-lilyLt:#6fbb50; --n-lilyLt:#183424;
+  --d-lilyRim:#9b3f3a; --n-lilyRim:#2a1418;
+  --d-lilyFlw:#fbf8ee; --n-lilyFlw:#e8e6f0;
+  /* —— 動物 —— */
+  --d-jag:#d9a043; --k-jag:#e0a050; --n-jag:#4a3a28;      /* 美洲豹 */
+  --d-jagLt:#f3dcae; --n-jagLt:#5e5040;
+  --d-jagSpot:#2a1c14; --n-jagSpot:#0e0a0a;
+  --d-tapir:#5a4a44; --n-tapir:#1a1618;        /* 南美貘 */
+  --d-tapirDk:#3c302c; --n-tapirDk:#100c0e;
+  --d-harpy:#8c8c92; --n-harpy:#2a2a32;        /* 角鵰 */
+  --d-harpyDk:#2e2e34; --n-harpyDk:#0e0e12;
+  --d-harpyW:#f2f0ea; --n-harpyW:#4a4a54;
+  --d-caiman:#7d8a50; --n-caiman:#1a2018;
+  --d-caimanDk:#4f5a32; --n-caimanDk:#101410;
+  --d-sloth:#ab9474; --n-sloth:#2e2a28;
+  --d-slothDk:#7c6650; --n-slothDk:#1e1a1a;
+  --d-slothFace:#ece0c6; --n-slothFace:#3e3a36;
+  --d-monkey:#8d8a40; --n-monkey:#22241a;
+  --d-monkeyY:#efb63a; --n-monkeyY:#3a3020;
+  --d-howler:#9c3e22; --n-howler:#2a1614;
+  --d-howlerDk:#702a16; --n-howlerDk:#1c0e0e;
+  --d-toucanB:#1c1a1c; --n-toucanB:#0a0a0e;
+  --d-toucanBill:#f39a28; --n-toucanBill:#6a4220;
+  --d-toucanW:#fff1b8; --n-toucanW:#4a4636;
+  --d-macawR:#e0322e; --n-macawR:#4a1a1e;
+  --d-macawY:#f6c331; --n-macawY:#5a4a22;
+  --d-macawB:#2e6fd0; --n-macawB:#1a2a4a;
+  --d-macawG:#3aa860; --n-macawG:#163a2a;
+  --d-morpho:#2aa6ff; --n-morpho:#1a4a7a;
+  --d-morphoDk:#123a6a;
+  --d-frog:#2b7fe6; --n-frog:#1a3a6a;
+  --d-heli:#e8402e; --n-heli:#4a1a1e;
+  --d-heliY:#f6c331; --n-heliY:#4a3a1e;
+  --d-hum:#2fbf8a; --n-hum:#163a2e;
+  --d-brom:#e0476a; --n-brom:#3a1624;
+  --d-orchid:#e98ad0; --n-orchid:#4a2442;
+  --d-ant:#5a2a1a; --n-ant:#1a0c0a;            /* 切葉蟻 */
+  --d-white:#fbfbf6; --n-white:#5a5e74;
+  --d-shadow:#12241a; --n-shadow:#000000;
+
+  /* —— 固定色：光束、天體、特效 —— */
+  --sun:#ffe08a; --sunCore:#fff6d2; --moon:#f7f0d4; --star:#fff6da;
+  --ray:#fff6c8; --glow:#ffcf6a;
+  --firefly:#e4ff7a; --fireflyGlow:#b8ff5a; --funGlow:#8affc8;
+  --eye:#ffd23a; --splash:#ffffff; --rainc:#b9d0c4; --flash:#eef4ff;
+  --wx-cloud:#7d8a86; --wx-rain:#1e3030; --wx-mist:#eef6ee;
+  --nightBase:#0a1820; --duskBase:#ff9a6a;
+
+  /* —— 頁面介面 —— */
+  --page-bg:#f1f4ec; --page-fg:#1c2a22; --page-muted:#566a5e;
+  --ui-surface:#ffffff; --ui-line:#d4ddd4; --ui-accent:#2b7a44; --ui-accent-2:#b4521e;
+  --cine-shade:#000000; --cine-light:#fff3dc;
+  --font-ui:"Noto Sans TC","PingFang TC","Microsoft JhengHei",system-ui,sans-serif;
+}
+
+/* ---------- 頁面版面 ---------- */
+html,body{background:var(--page-bg);color:var(--page-fg);margin:0}
+body{font-family:var(--font-ui)}
+.wrap{max-width:1600px;margin:0 auto;padding-block:20px 32px;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));
+  display:flex;flex-direction:column;gap:14px}
+.stage{margin:0;border-radius:14px;overflow:hidden;background:var(--skyB,#dff4ec);line-height:0;box-shadow:0 2px 12px #0000001f}
+#scene{display:block;width:100%;height:auto;touch-action:manipulation;user-select:none;-webkit-user-select:none}
+.panel{display:flex;flex-wrap:wrap;align-items:center;gap:10px 12px;background:var(--ui-surface);
+  border:1px solid var(--ui-line);border-radius:12px;padding:10px 14px}
+.panel button{font:500 14px/1 var(--font-ui);color:var(--page-fg);background:transparent;border:1px solid var(--ui-line);
+  border-radius:999px;padding:9px 14px;cursor:pointer}
+.panel button:hover{border-color:var(--ui-accent)}
+.panel button[aria-pressed="true"]{background:var(--page-fg);border-color:var(--page-fg);color:#fff;font-weight:700}
+.panel button.big{border-color:var(--ui-accent);color:#fff;background:var(--ui-accent);font-weight:700}
+.panel button.big.alt{border-color:var(--ui-accent-2);background:var(--ui-accent-2)}
+.panel button.big.on{background:#f2b632;border-color:#f2b632;color:var(--page-fg)}
+.panel button:focus-visible,.panel input:focus-visible{outline:2px solid var(--ui-accent);outline-offset:3px}
+#scene [tabindex]:focus{outline:none}
+body.kbd #scene [tabindex]:focus{outline:2px solid var(--ui-accent);outline-offset:3px}
+.timebox{display:flex;align-items:center;gap:10px;margin-left:auto;font-size:14px;color:var(--page-muted)}
+.timebox input{width:min(240px,40vw);accent-color:var(--ui-accent)}
+.clock{font:700 15px/1 ui-monospace,Menlo,Consolas,monospace;color:var(--page-fg);min-width:3.2em}
+.hint{margin:0;padding-left:1.2em;color:var(--page-muted);font-size:14px;line-height:1.75}
+.hint b{color:var(--page-fg)}
+
+/* ---------- SVG 內的樣式 ---------- */
+#scene .clickable,#scene [role="button"]{cursor:pointer}
+/* 紙板投影：靜態圖層複製一份塗成影子色，跟著太陽方向位移（--shx、--shy 由程式更新） */
+#scene .shc,#scene .shc *{fill:var(--shadow)!important;stroke:var(--shadow)!important;pointer-events:none}
+#scene .shc{opacity:.3}
+#scene .shc [class^="s-"]{fill:none!important}
+#scene .sh1{transform:translate(calc(var(--shx,2) * 1px),calc(var(--shy,3) * 1px))}
+#scene .sh2{transform:translate(calc(var(--shx,2) * 1.7px),calc(var(--shy,3) * 1.7px))}
+#scene .sh3{transform:translate(calc(var(--shx,2) * 2.6px),calc(var(--shy,3) * 2.6px))}
+#scene .bubble rect{fill:#ffffff;stroke:#1e2a26;stroke-width:1.6}
+#scene .bubble text{fill:#1e2a26;font:700 15px var(--font-ui);text-anchor:middle;dominant-baseline:central}
+#scene .bubble .pop{animation:pop var(--dur,1.6s) ease-out forwards}
+@keyframes pop{0%{opacity:0;transform:translateY(6px)}12%{opacity:1;transform:none}80%{opacity:1}100%{opacity:0}}
+@media (prefers-reduced-motion:reduce){ #scene .bubble .pop{animation:none} }
+</style>
+<style id="pure-art">
+/* =========================================================
+   純插畫版：只顯示場景畫面，隱藏控制列與說明文字。
+   想恢復完整版，刪掉這整段 <style id="pure-art"> 即可。
+   ========================================================= */
+html,body{height:100%;margin:0!important;overflow:hidden}
+body{display:flex!important;align-items:center;justify-content:center;padding:0!important}
+body>.wrap{width:100%!important;max-width:min(100vw,calc(100vh * 8 / 3))!important;
+  margin:0!important;padding:0!important;gap:0!important;display:block!important}
+body>.wrap>:not(.stage){display:none!important}
+body>.wrap>.stage{width:100%!important;max-width:100%!important;margin:0!important;
+  border:0!important;border-radius:0!important;box-shadow:none!important}
+</style>
+</head>
+<body>
+<main class="wrap">
+  <figure class="stage">
+  <!-- =====================================================
+       【場景】SVG 主畫布 1600×600，寬度自動縮放
+       紙板由後往前疊：樹冠縫隙裡的天空（太陽、月亮、星星）→ 林中空氣
+       → 最遠的樹幹層 → 第二層樹幹與葉叢 → 從縫隙照下來的光束、霧
+       → 中景大樹（巨型木棉、絞殺榕、號角樹、高跷根棕櫚）與樹上的動物
+       → 林地、黑水小溪、倒木與林下動物（美洲豹、貘、凱門鱷、切葉蟻、蕈菇）
+       → 前景大葉子、赫蕉、箭毒蛙、垂藤 → 樹冠最上層 → 天氣 → 表演氛圍
+       ===================================================== -->
+  <svg id="scene" viewBox="0 0 1600 600" preserveAspectRatio="xMidYMid meet" role="img"
+       aria-label="紙雕風格的亞馬遜雨林深處：一層層越遠越淡的樹幹與霧氣，陽光從樹冠縫隙照下來，中間有板根巨樹、絞殺榕與黑水小溪，倒木上走著美洲豹，溪邊有貘在喝水，樹上有樹懶、猴子、巨嘴鳥、金剛鸚鵡與角鵰">
+    <defs>
+      <linearGradient id="skyG" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" style="stop-color:var(--skyT)"/><stop offset="1" style="stop-color:var(--skyB)"/>
+      </linearGradient>
+      <linearGradient id="airG" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" style="stop-color:var(--airT)"/><stop offset="1" style="stop-color:var(--airB)"/>
+      </linearGradient>
+      <linearGradient id="rayG" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" style="stop-color:var(--ray);stop-opacity:.85"/><stop offset=".7" style="stop-color:var(--ray);stop-opacity:.25"/><stop offset="1" style="stop-color:var(--ray);stop-opacity:0"/>
+      </linearGradient>
+      <filter id="pshS" x="-20%" y="-20%" width="150%" height="150%" color-interpolation-filters="sRGB">
+        <feDropShadow id="pshSd" dx="2" dy="2.5" stdDeviation="1" style="flood-color:var(--shadow)" flood-opacity=".34"/>
+      </filter>
+      <filter id="paperTex" x="0" y="0" width="100%" height="100%">
+        <feTurbulence type="fractalNoise" baseFrequency=".9 .6" numOctaves="2" seed="7" result="n"/>
+        <feColorMatrix type="matrix" values="0 0 0 0 .35  0 0 0 0 .3  0 0 0 0 .22  0 0 0 -1.1 .62"/>
+      </filter>
+      <radialGradient id="glowG"><stop offset="0" style="stop-color:var(--glow);stop-opacity:.9"/><stop offset="1" style="stop-color:var(--glow);stop-opacity:0"/></radialGradient>
+      <radialGradient id="sunG"><stop offset=".25" style="stop-color:var(--sun);stop-opacity:.75"/><stop offset="1" style="stop-color:var(--sun);stop-opacity:0"/></radialGradient>
+      <radialGradient id="moonG"><stop offset=".3" style="stop-color:var(--moon);stop-opacity:.35"/><stop offset="1" style="stop-color:var(--moon);stop-opacity:0"/></radialGradient>
+      <radialGradient id="flyG"><stop offset="0" style="stop-color:var(--firefly);stop-opacity:1"/><stop offset=".35" style="stop-color:var(--fireflyGlow);stop-opacity:.5"/><stop offset="1" style="stop-color:var(--fireflyGlow);stop-opacity:0"/></radialGradient>
+      <radialGradient id="funG"><stop offset="0" style="stop-color:var(--funGlow);stop-opacity:.8"/><stop offset="1" style="stop-color:var(--funGlow);stop-opacity:0"/></radialGradient>
+      <radialGradient id="eyeG"><stop offset="0" style="stop-color:var(--eye);stop-opacity:1"/><stop offset="1" style="stop-color:var(--eye);stop-opacity:0"/></radialGradient>
+      <radialGradient id="mistR"><stop offset="0" style="stop-color:var(--wx-mist);stop-opacity:.8"/><stop offset=".6" style="stop-color:var(--wx-mist);stop-opacity:.4"/><stop offset="1" style="stop-color:var(--wx-mist);stop-opacity:0"/></radialGradient>
+      <clipPath id="frameClip"><rect x="0" y="0" width="1600" height="600"/></clipPath>
+      <clipPath id="clipCreek"><path id="creekPath" d=""/></clipPath>
+      <path id="antPath" d="" fill="none"/>
+    </defs>
+
+    <g clip-path="url(#frameClip)">
+    <!-- ===== 場景：樹冠縫隙裡的天空 ===== -->
+    <rect x="0" y="0" width="1600" height="600" fill="url(#skyG)"/>
+    <rect id="skyTint" x="0" y="0" width="1600" height="200" opacity="0" pointer-events="none"/>
+    <g id="stars" pointer-events="none"></g>
+    <g id="sun" pointer-events="none"></g>
+    <g id="moon" pointer-events="none"></g>
+    <g id="skyBirds" pointer-events="none"></g>
+
+    <!-- ===== 場景：林中空氣與一層層的遠方樹木 ===== -->
+    <g id="parFar">
+      <path id="air" d="" fill="url(#airG)"/>
+      <g id="layer0"></g>
+      <g id="mistFar" pointer-events="none"></g>
+      <g id="layer1"></g>
+    </g>
+    <g id="parRay" pointer-events="none">
+      <g id="rays"></g>
+      <g id="mistNear"></g>
+      <g id="motes"></g>
+    </g>
+
+    <!-- ===== 場景：中景大樹與樹上的動物 ===== -->
+    <g id="parMid">
+      <g id="layer2"></g>
+      <g id="midTrees"></g>
+      <g id="treeAnimals"></g>
+      <g id="flyBirds" pointer-events="none"></g>
+    </g>
+
+    <!-- ===== 場景：林地、黑水小溪、倒木與林下動物 ===== -->
+    <g id="parNear">
+      <g id="floor"></g>
+      <g id="creek"></g>
+      <g id="creekStrips" pointer-events="none" clip-path="url(#clipCreek)"></g>
+      <g id="ripples" pointer-events="none"></g>
+      <g id="tapir"></g>
+      <g id="caiman"></g>
+      <g id="lilies"></g>
+      <g id="log"></g>
+      <g id="fungi"></g>
+      <g id="ants" pointer-events="none"></g>
+      <g id="jaguar"></g>
+      <g id="splashes" pointer-events="none"></g>
+      <g id="seeds" pointer-events="none"></g>
+    </g>
+
+    <!-- ===== 場景：前景（大葉子、赫蕉、箭毒蛙、垂藤、樹冠最上層、蝴蝶、螢火蟲） ===== -->
+    <g id="parFront">
+      <g id="frontL"></g>
+      <g id="frontR"></g>
+      <g id="frontB"></g>
+      <g id="canopy"></g>
+      <g id="vines"></g>
+      <g id="butterflies"></g>
+      <g id="hums" pointer-events="none"></g>
+      <g id="fireflies" pointer-events="none"></g>
+    </g>
+
+    <!-- ===== 天氣與氛圍 ===== -->
+    <g id="rain" pointer-events="none" opacity="0"></g>
+    <rect id="wxTint" x="0" y="0" width="1600" height="600" opacity="0" pointer-events="none"/>
+    <rect id="flashR" x="0" y="0" width="1600" height="600" opacity="0" pointer-events="none" style="fill:var(--flash)"/>
+    <rect x="0" y="0" width="1600" height="600" filter="url(#paperTex)" opacity=".5" pointer-events="none"/>
+    <g id="notes" pointer-events="none"></g>
+    <g id="bubbles" pointer-events="none"></g>
+    <!-- 表演氛圍（取代寬銀幕黑邊）：四周輕微暗角＋中央微亮，緩緩淡入淡出 -->
+    <g id="cineFx" opacity="0" pointer-events="none">
+      <defs>
+        <radialGradient id="cineShadeG" cx=".5" cy=".5" r=".72"><stop offset=".52" style="stop-color:var(--cine-shade);stop-opacity:0"/><stop offset="1" style="stop-color:var(--cine-shade);stop-opacity:.4"/></radialGradient>
+        <radialGradient id="cineLightG" cx=".5" cy=".45" r=".5"><stop offset="0" style="stop-color:var(--cine-light);stop-opacity:.08"/><stop offset="1" style="stop-color:var(--cine-light);stop-opacity:0"/></radialGradient>
+      </defs>
+      <rect x="0" y="0" width="1600" height="600" fill="url(#cineShadeG)"/>
+      <rect x="0" y="0" width="1600" height="600" fill="url(#cineLightG)"/>
+    </g>
+    </g>
+  </svg>
+  </figure>
+
+  <!-- ===== 互動：控制列 ===== -->
+  <div class="panel">
+    <button id="btnDawn" class="big" type="button">🦜 雨林晨曲</button>
+    <button id="btnNightT" class="big alt" type="button">🐆 美洲豹夜行</button>
+    <button id="btnWeather" type="button">天氣：晴</button>
+    <button id="btnSound" type="button" aria-pressed="true">🔊 聲音：開</button>
+    <button id="btnDay" type="button">☀ 白天</button>
+    <button id="btnNight" type="button">☾ 夜晚</button>
+    <button id="btnAuto" type="button" aria-pressed="true">自動播放</button>
+    <label class="timebox" for="timeRange">
+      <span>時間</span>
+      <input id="timeRange" type="range" min="0" max="1000" value="375">
+      <span class="clock" id="clock">09:00</span>
+    </label>
+  </div>
+  <ul class="hint">
+    <li><b>雨林晨曲</b>：霧散開、光束照進林子，吼猴開嗓，金剛鸚鵡穿過樹冠。</li>
+    <li><b>美洲豹夜行</b>：美洲豹走過倒木，眼睛反光；螢火蟲和蕈菇一起發光。</li>
+    <li><b>點一點</b>：美洲豹、貘、角鵰、樹懶、猴子、巨嘴鳥、鸚鵡、凱門鱷、切葉蟻、箭毒蛙。</li>
+    <li><b>滑鼠</b>：移動時紙板一層層有遠近視差，點樹冠縫隙有鸚鵡或流星。</li>
+    <li><b>天氣</b>：晴（光束）、多雲、午後雷雨、晨霧。</li>
+  </ul>
+</main>
+<script id="showstop">
+/* =========================================================
+   ShowStop｜表演「再按一下優雅停止」共用模組（2026-11-24）
+   用法：放在場景主程式 <script> 之前；主程式最後呼叫
+     ShowStop.init({
+       on:      () => show.on,                  // 表演中回傳真值（多種表演時回傳種類）
+       ff:      () => { show.t = show.dur - .02; },  // （選用）快轉到結尾，讓場景下一幀自己收尾
+       btn:     'btnShow' 或 { fire: 'btnFire', stars: 'btnStars' },
+       save:    () => ({ ... }),                // 表演開始前記下使用者設定（日夜、天氣…）
+       restore: s => { ... },                   // 停止時還原
+       stop:    () => { endShow(); ... },       // 立刻結束表演、清掉秀中物件（有 ff 時：快轉後仍未結束才呼叫）
+       after:   () => { ... },                  // （選用）最後再補的清理
+     });
+   停止時：畫面凍結成一張「殘影」疊在上面 1.8 秒淡出（底下已回到原狀），
+           還沒響的表演音符取消、正在響的長音淡出，表演排程的計時器取消，
+           #cineFx 燈光歸零。播放中按鈕顯示「■ 停止」。
+   ========================================================= */
+(function () {
+  'use strict';
+  const W = window;
+  const FADE = 1.8;                      // 殘影淡出秒數
+  let cfg = null, saved = null, epoch = 0, zone = 0, quiet = null;
+  const reducedQ = W.matchMedia ? W.matchMedia('(prefers-reduced-motion: reduce)') : { matches: false };
+  const isOn = () => { try { return cfg ? cfg.on() : false; } catch (e) { return false; } };
+
+  /* ---------- ① 計時器：記下「表演開始時排程」的 setTimeout / setInterval ---------- */
+  const _st = W.setTimeout, _ct = W.clearTimeout, _si = W.setInterval, _ci = W.clearInterval;
+  const zt = new Map();                  // id → { iv, keep }
+  // 音訊收尾、泡泡移除這類「善後」計時器保留，其餘（放煙火、下一段劇情）停止時取消
+  const KEEP = /\.remove\(\)|disconnect|duck|level\(|\.gain\b|removeChild|classList\.remove/;
+  function wrapFn(fn, ep) {
+    if (typeof fn !== 'function') return fn;
+    return function () {
+      if (ep !== epoch) return;          // 已被停止
+      zone++; try { return fn.apply(this, arguments); } finally { zone--; }
+    };
+  }
+  // 表演進行中排程的「台詞」（say／bubble／narr）也算表演的，停止時一起取消
+  const LINE = /\b(say|bubble|narr)\(/;
+  W.setTimeout = function (fn, ms, ...a) {
+    if (!zone && !(cfg && typeof fn === 'function' && ms > 0 && LINE.test(String(fn)) && isOn())) return _st(fn, ms, ...a);
+    let id; const keep = typeof fn === 'function' && KEEP.test(String(fn)) && String(fn).length < 400;
+    const g = keep ? fn : wrapFn(fn, epoch);
+    id = _st(function () { zt.delete(id); return g.apply(this, arguments); }, ms, ...a);
+    zt.set(id, { iv: false, keep }); return id;
+  };
+  W.clearTimeout = function (id) { zt.delete(id); return _ct(id); };
+  W.setInterval = function (fn, ms, ...a) {
+    if (!zone) return _si(fn, ms, ...a);
+    const id = _si(wrapFn(fn, epoch), ms, ...a); zt.set(id, { iv: true, keep: false }); return id;
+  };
+  W.clearInterval = function (id) { zt.delete(id); return _ci(id); };
+
+  /* ---------- ② 聲音：記下表演期間排程的音符；停止時取消未響的、淡掉長音 ---------- */
+  const srcs = new Set(); const outs = new WeakMap();
+  const SN = W.AudioScheduledSourceNode && W.AudioScheduledSourceNode.prototype;
+  if (SN) {
+    const _start = SN.start, _stop = SN.stop;
+    SN.start = function (when, ...a) {
+      const c = this.context, now = c.currentTime;
+      if (quiet) quiet.push(this);       // 停止過程中（快轉到結尾）冒出的聲音，稍後直接靜音
+      this.__ss = { at: Math.max(now, when || 0), end: Infinity, show: !!(zone || isOn()) };
+      if (this.__ss.show) { srcs.add(this); this.addEventListener('ended', () => srcs.delete(this)); }
+      return _start.call(this, when, ...a);
+    };
+    SN.stop = function (when, ...a) {
+      if (this.__ss) this.__ss.end = Math.max(this.context.currentTime, when || 0);
+      return _stop.call(this, when, ...a);
+    };
+  }
+  const AN = W.AudioNode && W.AudioNode.prototype;
+  if (AN) {   // 所有接到喇叭的線都先經過一顆總音量，停止時可以短暫壓低長音
+    const _conn = AN.connect;
+    AN.connect = function (dest, ...a) {
+      if (dest && dest === this.context.destination && !this.__ssOut) {
+        let g = outs.get(this.context);
+        if (!g) { g = this.context.createGain(); g.__ssOut = true; _conn.call(g, this.context.destination); outs.set(this.context, g); }
+        return _conn.call(this, g, ...a);
+      }
+      return _conn.call(this, dest, ...a);
+    };
+  }
+  function stopAudio() {
+    let longs = [], ctx = null;
+    for (const s of srcs) {
+      const c = s.context, now = c.currentTime, m = s.__ss; ctx = c;
+      if (!m || !m.show) continue;
+      if (m.at > now + .02) { try { s.stop(); } catch (e) {} srcs.delete(s); }      // 還沒響：直接取消
+      else if (isFinite(m.end) && m.end > now + 1.2) longs.push(s);                                     // 長音：淡掉再停
+    }
+    if (longs.length && ctx) {
+      const g = outs.get(ctx), now = ctx.currentTime;
+      if (g) {
+        g.gain.cancelScheduledValues(now); g.gain.setValueAtTime(g.gain.value, now);
+        g.gain.linearRampToValueAtTime(0, now + 1.1); g.gain.setValueAtTime(0, now + 1.2);
+        g.gain.linearRampToValueAtTime(1, now + 1.9);
+      }
+      longs.forEach(s => { try { s.stop(now + 1.15); } catch (e) {} srcs.delete(s); });
+    }
+    srcs.clear();
+  }
+
+  /* ---------- ③ 殘影：把目前畫面凍結複製一份疊上去再淡出 ---------- */
+  let ghostCss = false;
+  function ghost(svg) {
+    if (!svg || reducedQ.matches) return;
+    if (!ghostCss) {
+      ghostCss = true;
+      const st = document.createElement('style');
+      st.textContent = '.ss-ghost,.ss-ghost *{animation-play-state:paused!important;pointer-events:none!important}.ss-ghost{position:absolute!important;margin:0!important;will-change:opacity;transition:opacity ' + FADE + 's cubic-bezier(.4,0,.2,1)}';
+      document.head.appendChild(st);
+    }
+    const cl = svg.cloneNode(true);
+    cl.classList.add('ss-ghost'); cl.removeAttribute('tabindex'); cl.setAttribute('aria-hidden', 'true');
+    // 凍結色票：把目前的 CSS 變數抄到殘影上，底下換色不影響殘影
+    const cs = getComputedStyle(svg);
+    const names = new Set();
+    for (let i = 0; i < cs.length; i++) if (cs[i].startsWith('--')) names.add(cs[i]);
+    try { for (const sh of document.styleSheets) for (const r of sh.cssRules) if (r.style) for (const p of r.style) if (p.startsWith('--')) names.add(p); } catch (e) {}
+    for (const p of document.documentElement.style) if (p.startsWith('--')) names.add(p);
+    names.forEach(p => { const v = cs.getPropertyValue(p); if (v) cl.style.setProperty(p, v); });
+    // 漸層、濾鏡等定義改名，殘影只用自己那份（凍結）
+    const map = {};
+    cl.querySelectorAll('[id]').forEach(e => { const n = e.id + '__ss'; map[e.id] = n; e.id = n; });
+    cl.id = svg.id; delete map[svg.id];
+    const fix = v => v.replace(/url\(\s*['"]?#([^'")\s]+)['"]?\s*\)/g, (m, id) => map[id] ? 'url(#' + map[id] + ')' : m);
+    const all = cl.querySelectorAll('*'), orig = svg.querySelectorAll('*');
+    let needCs = false;
+    try { for (const sh of document.styleSheets) for (const r of sh.cssRules) if (r.cssText.includes('url(#') || r.cssText.includes('url("#')) { needCs = true; break; } } catch (e) {}
+    for (let i = 0; i < all.length; i++) {
+      const e = all[i];
+      for (const a of e.attributes) {
+        if (a.value.includes('url(')) e.setAttribute(a.name, fix(a.value));
+        else if ((a.name === 'href' || a.name === 'xlink:href') && a.value[0] === '#' && map[a.value.slice(1)]) e.setAttribute(a.name, '#' + map[a.value.slice(1)]);
+      }
+      if (needCs && orig[i]) {
+        const o = getComputedStyle(orig[i]);
+        for (const p of ['fill', 'stroke', 'filter', 'clip-path', 'mask']) { const v = o.getPropertyValue(p); if (v && v.includes('url(')) e.style.setProperty(p, fix(v.replace(/url\("?[^#")]*#/g, 'url(#').replace(/"\)/g, ')'))); }
+      }
+    }
+    const par = svg.parentElement;
+    if (getComputedStyle(par).position === 'static') par.style.position = 'relative';
+    const r = svg.getBoundingClientRect(), pr = par.getBoundingClientRect();
+    Object.assign(cl.style, { left: (r.left - pr.left + par.scrollLeft - par.clientLeft) + 'px', top: (r.top - pr.top + par.scrollTop - par.clientTop) + 'px', width: r.width + 'px', height: r.height + 'px', opacity: 1 });
+    svg.after(cl);
+    try { cl.pauseAnimations && cl.pauseAnimations(); } catch (e) {}
+    requestAnimationFrame(() => requestAnimationFrame(() => { cl.style.opacity = 0; }));
+    _st(() => cl.remove(), FADE * 1000 + 300);
+  }
+
+  /* ---------- ④ 秀中冒出的說話泡泡：停止時一起收掉 ---------- */
+  let added = [];
+  const mo = W.MutationObserver ? new MutationObserver(ms => { if (!isOn()) return; for (const m of ms) for (const n of m.addedNodes) if (n.nodeType === 1) added.push(n); }) : null;
+  const BUB = /bubble|say|speech|talk|tip/i;
+  function clearBubbles() {
+    if (mo) for (const m of mo.takeRecords()) for (const n of m.addedNodes) if (n.nodeType === 1) added.push(n);
+    added.forEach(n => {
+      if (!n.isConnected || n.closest('.ss-ghost')) return;
+      const p = n.parentElement;
+      if (BUB.test(n.getAttribute('class') || '') || (p && BUB.test((p.id || '') + ' ' + (p.getAttribute('class') || '')))) n.remove();
+    });
+    added = [];
+  }
+
+  /* ---------- ⑤ 停止 ---------- */
+  let stopping = false;
+  function cancel() {
+    if (stopping) return; stopping = true;
+    const svg = cfg.svg ? document.querySelector(cfg.svg) : (document.getElementById('scene') || document.querySelector('svg'));
+    try { ghost(svg); } catch (e) {}
+    epoch++;
+    for (const [id, z] of zt) if (!z.keep) { z.iv ? _ci(id) : _ct(id); zt.delete(id); }
+    try { stopAudio(); } catch (e) {}
+    quiet = [];
+    zone++;   // 收尾過程中（快轉那幾幀、stop、restore）排出的計時器，例如散場後的鳴笛、煙火，最後一起取消
+    // ff：把表演時間快轉到結尾，讓場景自己的收尾邏輯跑完一幀（殘影蓋著看不到），再補 stop
+    if (cfg.ff) {
+      try { cfg.ff(); } catch (e) { console.warn('ShowStop ff', e); }
+      let n = 0; const wait = () => { if (isOn() && n++ < 8) requestAnimationFrame(wait); else finish(); };
+      requestAnimationFrame(wait);
+    } else finish();
+  }
+  function finish() {
+    try { if (isOn() || !cfg.ff) cfg.stop && cfg.stop(); } catch (e) { console.warn('ShowStop stop', e); }
+    try { if (typeof W.setCine === 'function') W.setCine(0); } catch (e) {}
+    try { if (cfg.cine) cfg.cine(); } catch (e) {}
+    if (saved && cfg.restore) { try { cfg.restore(saved); } catch (e) { console.warn('ShowStop restore', e); } }
+    saved = null;
+    clearBubbles();
+    (quiet || []).forEach(s => { try { s.stop(); } catch (e) {} }); quiet = null;
+    zone = Math.max(0, zone - 1);
+    for (const [id, z] of zt) if (!z.keep) { z.iv ? _ci(id) : _ct(id); zt.delete(id); }
+    try { cfg.after && cfg.after(); } catch (e) {}
+    // 背景配樂（scene-bgm）表演時被壓小聲：停止後很快恢復
+    try { if (W.sceneMusic && W.sceneMusic.playing) W.sceneMusic.duck(.3); } catch (e) {}
+    stopping = false;
+    sync();
+  }
+
+  /* ---------- ⑥ 按鈕：開始時記下設定；表演中再按＝停止；文字顯示「■ 停止」 ---------- */
+  const btns = [];
+  function btnFor(kind) {
+    if (!kind) return null;
+    if (typeof cfg.btn === 'string') return document.getElementById(cfg.btn);
+    const id = cfg.btn[kind] || cfg.btn['*']; return id ? document.getElementById(id) : null;
+  }
+  function sync() {
+    const k = isOn(), act = btnFor(k);
+    btns.forEach(b => {
+      const st = b === act, txt = cfg.label || '■ 停止';
+      if (st && b.disabled) b.disabled = false;   // 有些作品表演中會把按鈕停用，這裡讓它能按「停止」
+      // 作品自己改了按鈕文字（例如收場時換成下一個特效名稱）就記下來，結束時還原成它
+      if (b.classList.contains('ss-stop') && b.textContent !== txt) { b.__ssLabel = b.innerHTML; if (st) b.textContent = txt; }
+      if (st && !b.classList.contains('ss-stop')) {
+        b.__ssLabel = b.innerHTML; b.classList.add('ss-stop');
+        b.textContent = cfg.label || '■ 停止'; b.title = '再按一下停止表演';
+      } else if (!st && b.classList.contains('ss-stop')) {
+        b.classList.remove('ss-stop'); b.innerHTML = b.__ssLabel; b.removeAttribute('title');
+      }
+    });
+  }
+  function loop() { sync(); requestAnimationFrame(loop); }
+
+  W.ShowStop = {
+    init(c) {
+      cfg = c;
+      const ids = typeof c.btn === 'string' ? [c.btn] : Object.values(c.btn);
+      [...new Set(ids)].forEach(id => {
+        const b = document.getElementById(id); if (!b) return;
+        b.__ssLabel = b.innerHTML; btns.push(b);
+        b.addEventListener('click', e => {
+          const k = isOn();
+          if (k && btnFor(k) === b) {
+            e.stopImmediatePropagation(); e.preventDefault();
+            if (e.isTrusted || c.allowSynthetic) cancel();
+            return;
+          }
+          if (!k) {
+            if (c.save) { try { saved = c.save(); } catch (er) { saved = null; } }
+            epoch++; zone++; added = [];
+            // 這次點擊同步排出的計時器都算表演的（點擊處理完就關掉）
+            let done = false; const off = () => { if (!done) { done = true; zone = Math.max(0, zone - 1); W.removeEventListener('click', off); } };
+            W.addEventListener('click', off); _st(off, 0);
+          }
+        }, true);
+      });
+      if (mo) { const s = c.svg ? document.querySelector(c.svg) : (document.getElementById('scene') || document.querySelector('svg')); if (s) mo.observe(s, { childList: true, subtree: true }); }
+      requestAnimationFrame(loop);
+    },
+    cancel: () => { if (isOn()) cancel(); },
+    get saved() { return saved; }
+  };
+})();
+</script>
+<script>
+/* ---- 表演氛圍（取代寬銀幕黑邊）：k = 0~1，四周輕微暗角＋中央微亮 ---- */
+let cineK = 0, cineW = 0;
+function setCine(k, fx, fy) {
+  cineK = k = Math.max(0, Math.min(1, k));
+  if (k === cineW || (Math.abs(k - cineW) < .004 && k > 0 && k < 1)) return;
+  cineW = k;
+  const g = document.getElementById('cineFx'); if (!g) return;
+  g.setAttribute('opacity', k.toFixed(3));
+  if (fx != null) { const G = document.getElementById('cineLightG'); G.setAttribute('cx', (fx / 1600).toFixed(3)); G.setAttribute('cy', (fy / 600).toFixed(3)); }
+}
+
+/* =========================================================
+   SC-98 亞馬遜雨林深處｜程式區
+   區塊：①工具與色票
+         ②場景（樹冠縫隙的天空、一層層的遠方樹木、光束與霧、中景大樹、林地與黑水小溪、倒木、前景植物、樹冠）
+         ③角色（美洲豹、南美貘、角鵰、凱門鱷、樹懶、松鼠猴、紅吼猴、巨嘴鳥、金剛鸚鵡、切葉蟻、箭毒蛙、蝴蝶、蜂鳥、螢火蟲）
+         ④動畫（日夜、紙板投影、光束、天氣、雨林晨曲、美洲豹夜行、環境）
+         ⑤互動（點擊、滑鼠、聲音、控制列）
+   ========================================================= */
+(() => {
+'use strict';
+
+/* ---------------- ① 工具與色票 ---------------- */
+const NS = 'http://www.w3.org/2000/svg';
+const $ = id => document.getElementById(id);
+const root = document.documentElement;
+const svg = $('scene');
+const GROUND = 480;            // 林地的大約高度
+const rand = (a, b) => a + Math.random() * (b - a);
+const pick = a => a[Math.floor(Math.random() * a.length)];
+const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+const lerp = (a, b, t) => a + (b - a) * t;
+const smooth = (a, b, x) => { const t = clamp((x - a) / (b - a), 0, 1); return t * t * (3 - 2 * t); };
+let seed = 20261198;   // 固定亂數：每次開啟構圖一樣
+const srand = (a = 0, b = 1) => { seed = (seed * 16807) % 2147483647; return a + (seed / 2147483647) * (b - a); };
+const f1 = n => (+n).toFixed(1);
+const F = k => `class="f-${k}"`;
+const S = (k, w) => `class="s-${k}" stroke-width="${w}"`;
+function el(tag, attrs = {}, parent) {
+  const n = document.createElementNS(NS, tag);
+  for (const k in attrs) n.setAttribute(k, attrs[k]);
+  if (parent) parent.appendChild(n);
+  return n;
+}
+function frag(parent, html) { parent.insertAdjacentHTML('beforeend', html); return parent.lastElementChild; }
+function hit(g, label) { g.setAttribute('class', ((g.getAttribute('class') || '') + ' clickable').trim()); g.setAttribute('tabindex', '0'); g.setAttribute('role', 'button'); g.setAttribute('aria-label', label); return g; }
+// 紙板：同一份圖形畫兩次，後面那份塗成影子色、跟著太陽位移（k = 1 近貼、2、3 離背景越遠影子越長）
+function paper(parent, html, k = 1, attrs = '') {
+  parent.insertAdjacentHTML('beforeend', `<g ${attrs}><g class="shc sh${k}" aria-hidden="true">${html}</g><g>${html}</g></g>`);
+  return parent.lastElementChild;
+}
+
+// 讀取色票、日夜混色（沒寫 --n／--k 的色票自動算出夜色、暮色）
+const css = n => getComputedStyle(root).getPropertyValue(n).trim();
+const hex = h => {
+  h = h.replace('#', '');
+  if (h.length === 3) h = [...h].map(c => c + c).join('');
+  const n = parseInt(h.slice(0, 6), 16);
+  return [n >> 16 & 255, n >> 8 & 255, n & 255, h.length === 8 ? parseInt(h.slice(6), 16) / 255 : 1];
+};
+const mix = (a, b, t) => a.map((v, i) => v + (b[i] - v) * t);
+const rgba = c => `rgba(${Math.round(c[0])},${Math.round(c[1])},${Math.round(c[2])},${(c[3] ?? 1).toFixed(3)})`;
+const PAIRS = {};
+(() => {
+  const names = [];
+  for (const sheet of document.styleSheets) {
+    try { for (const r of sheet.cssRules) if (r.selectorText === ':root') for (const p of r.style) if (p.startsWith('--d-')) names.push(p.slice(4)); } catch (e) {}
+  }
+  const NB = hex(css('--nightBase')), DB = hex(css('--duskBase'));
+  let cls = '';
+  names.forEach(k => {
+    const d = hex(css('--d-' + k));
+    const n2 = css('--n-' + k), k2 = css('--k-' + k);
+    const nAuto = mix(d, NB, .66); nAuto[3] = d[3];
+    const kAuto = mix(d, DB, .2); kAuto[3] = d[3];
+    PAIRS[k] = { d, n: n2 ? hex(n2) : nAuto, k: k2 ? hex(k2) : kAuto };
+    cls += `#scene .f-${k}{fill:var(--${k})}#scene .s-${k}{stroke:var(--${k});fill:none}`;
+  });
+  const st = document.createElement('style'); st.textContent = cls; document.head.appendChild(st);
+})();
+
+const mq = window.matchMedia('(prefers-reduced-motion: reduce)');
+let reduced = mq.matches;
+
+// 形狀工具：一排樹冠（遠山森林的鋸齒邊）
+function ridge(x0, x1, y, rMin, rMax, jit, base) {
+  let d = `M${x0} ${base} L${x0} ${f1(y)}`, x = x0;
+  while (x < x1) {
+    const w = srand(rMin, rMax) * 2, yy = y + srand(-jit, jit), h = w * srand(.3, .55);
+    d += ` Q${f1(x + w * .04)} ${f1(yy - h)} ${f1(x + w * .5)} ${f1(yy - h)} Q${f1(x + w * .96)} ${f1(yy - h)} ${f1(x + w)} ${f1(yy)}`;
+    x += w;
+  }
+  return d + ` L${x1} ${base} Z`;
+}
+// 一團剪成鋸齒邊的樹葉
+function blob(cx, cy, rx, ry, n = 14, jag = .14) {
+  const pts = [];
+  for (let i = 0; i < n; i++) {
+    const a = i / n * Math.PI * 2, r = 1 + (i % 2 ? -jag : jag * .6) + srand(-.06, .06);
+    pts.push([cx + Math.cos(a) * rx * r, cy + Math.sin(a) * ry * r]);
+  }
+  let d = '';
+  pts.forEach((p, i) => { const q = pts[(i + 1) % n], m = [(p[0] + q[0]) / 2, (p[1] + q[1]) / 2]; d += (i ? ' Q' : `M${f1((pts[n - 1][0] + p[0]) / 2)} ${f1((pts[n - 1][1] + p[1]) / 2)} Q`) + `${f1(p[0])} ${f1(p[1])} ${f1(m[0])} ${f1(m[1])}`; });
+  return d + 'Z';
+}
+// 一片尖葉（往上長，原點在葉柄）
+const leafD = (len, w) => `M0 0 Q${f1(w)} ${f1(-len * .38)} 0 ${f1(-len)} Q${f1(-w)} ${f1(-len * .38)} 0 0Z`;
+
+function branchD(x0, y0, x1, y1, w0, w1, bend = 0) {
+  const dx = x1 - x0, dy = y1 - y0, L = Math.hypot(dx, dy), nx = -dy / L, ny = dx / L;
+  const mx = (x0 + x1) / 2 + nx * bend, my = (y0 + y1) / 2 + ny * bend;
+  return `M${f1(x0 + nx * w0 / 2)} ${f1(y0 + ny * w0 / 2)} Q${f1(mx + nx * (w0 + w1) / 4)} ${f1(my + ny * (w0 + w1) / 4)} ${f1(x1 + nx * w1 / 2)} ${f1(y1 + ny * w1 / 2)} L${f1(x1 - nx * w1 / 2)} ${f1(y1 - ny * w1 / 2)} Q${f1(mx - nx * (w0 + w1) / 4)} ${f1(my - ny * (w0 + w1) / 4)} ${f1(x0 - nx * w0 / 2)} ${f1(y0 - ny * w0 / 2)}Z`;
+}
+function bromeliad(x, y, s = 1) {
+  let b = '';
+  for (let i = 0; i < 7; i++) b += `<path d="${leafD(16 * s, 3.4 * s)}" transform="translate(${x} ${y}) rotate(${-66 + i * 22})" ${F(i % 2 ? 'leaf4' : 'leaf3')}/>`;
+  return b + `<path d="${leafD(9 * s, 2.6 * s)}" transform="translate(${x} ${y})" ${F('brom')}/>`;
+}
+function vineD(x0, y0, x1, y1, sway) {
+  return `M${x0} ${y0} C${x0 + sway} ${f1(y0 + (y1 - y0) * .35)} ${x1 - sway} ${f1(y0 + (y1 - y0) * .7)} ${x1} ${y1}`;
+}
+function vineLeaves(x0, y0, x1, y1, sway, n, cls = 'leaf3') {
+  let s = '';
+  for (let i = 1; i <= n; i++) {
+    const t = i / (n + 1), u = 1 - t;
+    const x = u * u * u * x0 + 3 * u * u * t * (x0 + sway) + 3 * u * t * t * (x1 - sway) + t * t * t * x1, y = y0 + (y1 - y0) * t;
+    s += `<path d="${leafD(9, 3.6)}" transform="translate(${f1(x)} ${f1(y)}) rotate(${i % 2 ? 120 : -120})" ${F(cls)}/>`;
+  }
+  return s;
+}
+function monkeyHTML() {   // 松鼠猴：橄欖色背、黃色手腳、白臉黑嘴
+  return `<path d="M-8 -6 Q-22 -2 -24 10 Q-25 18 -20 20" ${S('monkey', 2)} stroke-linecap="round"/>
+    <ellipse cx="-1" cy="-8" rx="8.5" ry="5.6" ${F('monkey')}/><path d="M-6 -4 L-8 3 M4 -4 L6 3" ${S('monkeyY', 2.6)} stroke-linecap="round"/>
+    <circle cx="8" cy="-12" r="5" ${F('monkey')}/><ellipse cx="9.6" cy="-11.4" rx="3.4" ry="3.8" ${F('white')}/><circle cx="11.6" cy="-10" r="1.7" fill="#2a2420"/><circle cx="9.6" cy="-13" r=".9" fill="#2a2420"/><circle cx="6" cy="-15.6" r="1.4" ${F('monkey')}/>`;
+}
+function macawHTML(kind) {   // 金剛鸚鵡（面朝右）。kind 0 = 紅綠金剛鸚鵡、1 = 藍黃金剛鸚鵡
+  const body = kind ? 'macawB' : 'macawR', belly = kind ? 'macawY' : 'macawR';
+  return `<path d="M-10 4 L-40 16 L-38 12 L-12 0Z" ${F(body)}/><path d="M-12 4 L-38 15" ${S(kind ? 'macawB' : 'macawB', 1.6)}/>
+    <ellipse cx="0" cy="0" rx="13" ry="7" ${F(belly)} transform="rotate(-12)"/>
+    <g class="wg"><path d="M-6 -3 Q-2 -20 -18 -30 Q-12 -14 -14 -4Z" ${F(kind ? 'macawB' : 'macawR')}/><path d="M-9 -12 Q-13 -20 -18 -30 Q-14 -18 -13 -10Z" ${F(kind ? 'macawG' : 'macawY')}/><path d="M-14 -22 L-18 -30 L-13 -24Z" ${F('macawB')}/></g>
+    <circle cx="12" cy="-5" r="6" ${F(kind ? 'macawB' : 'macawR')}/><path d="M12 -3 Q15 -1 12 2" ${F('white')}/><circle cx="12" cy="-6" r="2.4" style="fill:#fbf6ee"/><circle cx="12.4" cy="-6" r="1" fill="#111"/>
+    <path d="M16 -8 Q24 -6 20 2 Q18 -2 16 -2Z" style="fill:#2a2424"/>`;
+}
+function padHTML(x, y, rx) {
+  const ry = rx * .24;
+  let s = `<ellipse cx="${x}" cy="${f1(y - 3)}" rx="${f1(rx + 2)}" ry="${f1(ry + 3)}" ${F('lilyRim')}/><ellipse cx="${x}" cy="${y}" rx="${rx}" ry="${f1(ry)}" ${F('lily')}/>`;
+  s += `<ellipse cx="${x}" cy="${f1(y + 1)}" rx="${f1(rx * .82)}" ry="${f1(ry * .74)}" ${F('lilyLt')}/>`;
+  for (let i = 0; i < 10; i++) { const a = i / 10 * Math.PI * 2; s += `<path d="M${x} ${f1(y + 1)} L${f1(x + Math.cos(a) * rx * .8)} ${f1(y + 1 + Math.sin(a) * ry * .72)}" ${S('lily', 1)}/>`; }
+  return s;
+}
+const heartLeaf = s => `M0 0 C${-30 * s} ${-8 * s} ${-38 * s} ${-60 * s} 0 ${-84 * s} C${38 * s} ${-60 * s} ${30 * s} ${-8 * s} 0 0Z`;
+
+/* ---------------- ② 場景：樹冠縫隙裡的天空（太陽、月亮、星星只在縫隙裡看得到） ---------------- */
+const GAPS = [[800, 34, 120, 46], [1120, 22, 74, 32], [330, 16, 66, 26]];   // 縫隙中心 x、y、寬、高
+const stars = [];
+function drawSky() {
+  for (let i = 0; i < 40; i++) {
+    const g = GAPS[i % 3];
+    const c = el('circle', { cx: f1(g[0] + srand(-1, 1) * g[2] * .9), cy: f1(g[1] + srand(-1, 1) * g[3] * .8), r: f1(srand(.6, 1.6)), style: 'fill:var(--star)' }, $('stars'));
+    stars.push({ el: c, ph: srand(0, 6.28), sp: srand(.6, 2) });
+  }
+  $('sun').innerHTML = `<circle r="150" fill="url(#sunG)"/><circle r="30" style="fill:var(--sun)"/><circle r="22" style="fill:var(--sunCore)"/>`;
+  $('moon').innerHTML = `<circle r="70" fill="url(#moonG)"/><path d="M8 -24 A25 25 0 1 0 11 23 A19 19 0 1 1 8 -24Z" style="fill:var(--moon)"/>`;
+  // 林中空氣：一整片，只在樹冠縫隙的地方挖空（看得到天空）
+  let d = 'M-60 -20 H1660 V620 H-60Z';
+  GAPS.forEach(([x, y, rx, ry]) => d += ` M${x - rx} ${y} A${rx} ${ry} 0 1 0 ${x + rx} ${y} A${rx} ${ry} 0 1 0 ${x - rx} ${y}Z`);
+  $('air').setAttribute('d', d); $('air').setAttribute('fill-rule', 'evenodd');
+}
+
+/* ---------------- ② 場景：一層層的遠方樹木（越遠越淡、越細） ---------------- */
+function trunkD(x, top, bot, w, lean = 0, flare = 0) {
+  return `M${f1(x - w / 2 - flare)} ${bot} Q${f1(x - w / 2)} ${f1(bot - 30)} ${f1(x - w / 2 + lean * .5)} ${f1((top + bot) / 2)} L${f1(x - w * .4 + lean)} ${top} L${f1(x + w * .4 + lean)} ${top} L${f1(x + w / 2 + lean * .5)} ${f1((top + bot) / 2)} Q${f1(x + w / 2)} ${f1(bot - 30)} ${f1(x + w / 2 + flare)} ${bot}Z`;
+}
+// 高跷根棕櫚（Socratea）：樹幹底下一圈斜斜撐著的根
+function stiltPalm(x, base, h, cls, leafCls) {
+  let s = '';
+  for (let i = 0; i < 7; i++) { const dx = (i - 3) * 9; s += `<path d="M${x + dx * 1.6} ${base} L${x + dx * .2} ${base - 50}" ${S(cls, 2.6)}/>`; }
+  s += `<path d="M${x - 3} ${base - 46} L${x - 2} ${base - h} L${x + 2} ${base - h} L${x + 3} ${base - 46}Z" ${F(cls)}/>`;
+  for (let i = 0; i < 8; i++) {
+    const a = (-165 + i * 21) * Math.PI / 180, L = srand(46, 62);
+    const ex = x + Math.cos(a) * L, ey = base - h + Math.sin(a) * L * .5 + L * .42;
+    s += `<path d="M${x} ${base - h} Q${f1((x + ex) / 2)} ${f1(base - h - L * .32)} ${f1(ex)} ${f1(ey)}" ${S(leafCls, 3.4)} stroke-linecap="round" stroke-dasharray="4 1.6"/>`;
+  }
+  return s;
+}
+function drawLayers() {
+  // 第 0 層：最遠、最淡，細細的樹幹與葉叢
+  let s = '';
+  for (let i = 0; i < 70; i++) s += `<path d="${blob(srand(-40, 1640), srand(40, 420), srand(50, 110), srand(30, 60), 14, .16)}" ${F('far1')}/>`;
+  for (let i = 0; i < 36; i++) { const x = -20 + i * 47 + srand(-14, 14); s += `<path d="${trunkD(x, 40, 500, srand(5, 11), srand(-6, 6), 3)}" ${F('trunk1')}/>`; }
+  s += `<path d="M-60 470 Q400 455 800 466 Q1200 476 1660 458 V620 H-60Z" ${F('far1')}/>`;
+  paper($('layer0'), s, 1);
+  // 遠方的霧
+  for (let i = 0; i < 6; i++) frag($('mistFar'), `<ellipse cx="${f1(-100 + i * 330 + srand(-60, 60))}" cy="${f1(380 + (i % 3) * 30)}" rx="${f1(srand(260, 420))}" ry="40" fill="url(#mistR)"/>`);
+  // 第 1 層：粗一點的樹幹、有板根，葉叢、藤蔓、高跷根棕櫚
+  s = '';
+  for (let i = 0; i < 60; i++) s += `<path d="${blob(srand(-40, 1640), srand(60, 440), srand(40, 90), srand(24, 46), 14, .2)}" ${F('far2')}/>`;
+  for (let i = 0; i < 17; i++) { const x = 30 + i * 96 + srand(-24, 24); s += `<path d="${trunkD(x, 30, 500, srand(14, 26), srand(-8, 8), srand(6, 18))}" ${F('trunk2')}/>`; }
+  for (let i = 0; i < 9; i++) { const x = srand(0, 1600); s += `<path d="${vineD(x, 40, x + srand(-30, 30), srand(220, 380), srand(-20, 20))}" ${S('far2', 2)}/>`; }
+  [180, 760, 1480].forEach(x => s += stiltPalm(x, 492, 230, 'trunk2', 'far2'));
+  s += `<path d="M-60 482 Q300 470 700 480 Q1100 490 1660 474 V620 H-60Z" ${F('far2')}/>`;
+  paper($('layer1'), s, 1);
+  // 第 2 層：更近一點、顏色更深
+  s = '';
+  for (let i = 0; i < 40; i++) s += `<path d="${blob(srand(-40, 1640), srand(110, 460), srand(30, 76), srand(20, 40), 14, .22)}" ${F('far3')}/>`;
+  for (let i = 0; i < 12; i++) { const x = srand(0, 1600); s += `<path d="${vineD(x, 20, x + srand(-30, 30), srand(260, 420), srand(-24, 24))}" ${S('far3', 2.4)}/>`; }
+  [90, 300, 620, 1010, 1270, 1530].forEach(x => s += `<path d="${trunkD(x + srand(-20, 20), 20, 500, srand(26, 36), srand(-6, 6), srand(14, 26))}" ${F('trunk3')}/>`);
+  // 林下的棕櫚與蕨類
+  for (let i = 0; i < 34; i++) {
+    const x = srand(0, 1600), y = srand(478, 496);
+    for (let k = 0; k < 6; k++) s += `<path d="${leafD(srand(40, 70), 7)}" transform="translate(${f1(x)} ${f1(y)}) rotate(${-70 + k * 28})" ${F('far3')}/>`;
+  }
+  paper($('layer2'), s, 2);
+}
+
+/* ---------------- ② 場景：從樹冠縫隙照下來的光束、浮在光裡的微塵、霧 ---------------- */
+const rays = [], motes = [], mists = [];
+function drawRays() {
+  GAPS.forEach(([x, y, rx], i) => {
+    for (let k = 0; k < 2; k++) {
+      const p = el('path', { fill: 'url(#rayG)' }, $('rays'));
+      rays.push({ el: p, x: x + (k ? rx * .35 : -rx * .25), y: y + 20, w0: rx * (k ? .35 : .6), w1: rx * (k ? 1.2 : 2), op: k ? .45 : .7, ph: srand(0, 6) });
+    }
+  });
+  for (let i = 0; i < 40; i++) {
+    const r = rays[i % rays.length];
+    const c = el('circle', { r: f1(srand(.8, 1.8)), style: 'fill:var(--ray)', opacity: 0 }, $('motes'));
+    motes.push({ el: c, ray: r, u: srand(0, 1), v: srand(-.5, .5), sp: srand(.01, .03), ph: srand(0, 6) });
+  }
+  for (let i = 0; i < 9; i++) {
+    const w = srand(260, 420);
+    const r = el('ellipse', { cx: 0, cy: f1(300 + (i % 4) * 50), rx: f1(w), ry: f1(30 + (i % 3) * 10), fill: 'url(#mistR)' }, $('mistNear'));
+    mists.push({ el: r, x: (i * 397) % 2000 - 200, w, sp: srand(5, 12) * (i % 2 ? 1 : -1) });
+  }
+}
+let rayDx = 0;
+function placeRays(k) {
+  rays.forEach(r => {
+    const bx = r.x + rayDx * 540, w0 = r.w0, w1 = r.w1;
+    r.el.setAttribute('d', `M${f1(r.x - w0)} ${r.y} L${f1(r.x + w0)} ${r.y} L${f1(bx + w1)} 600 L${f1(bx - w1)} 600Z`);
+  });
+}
+
+/* ---------------- ② 場景：中景大樹（巨型木棉、絞殺榕、號角樹、高跷根棕櫚、粗藤） ---------------- */
+const MBR = { x0: 470, y0: 214, x1: 690, y1: 172 };   // 松鼠猴跑的那根橫枝
+function drawMidTrees() {
+  const g = $('midTrees');
+  // 巨型木棉：板根像一面面牆
+  let s = `<path d="M372 420 C340 470 290 500 230 512 L372 512Z" ${F('barkLt')}/><path d="M470 410 C500 470 560 500 640 514 L470 514Z" ${F('barkLt')}/>`;
+  s += `<path d="M366 514 C372 400 378 200 386 -20 L456 -20 C464 200 470 400 478 514Z" ${F('bark')}/>`;
+  s += `<path d="M380 360 C360 440 330 490 290 516 L380 516Z" ${F('barkSh')}/><path d="M462 362 C480 440 520 490 560 516 L462 516Z" ${F('bark')}/>`;
+  s += `<path d="M380 360 C360 440 330 490 290 516 M462 362 C480 440 520 490 560 516" ${S('barkLt', 2)}/>`;
+  for (let i = 0; i < 6; i++) { const x = 392 + i * 12; s += `<path d="M${x} 510 C${x - 3} 380 ${x + 4} 200 ${x + 1} -10" ${S('barkSh', 1.3)} opacity=".5"/>`; }
+  s += `<path d="${branchD(MBR.x0 - 20, MBR.y0 + 4, MBR.x1, MBR.y1, 20, 8, 8)}" ${F('bark')}/><path d="${branchD(380, 196, 230, 146, 16, 6, -8)}" ${F('barkSh')}/>`;
+  // 樹幹上的苔蘚、附生植物、蘭花
+  s += `<path d="M380 300 q10 -14 22 -4 q10 -12 24 0 q8 -8 18 2" ${S('moss', 5)} stroke-linecap="round"/><path d="M372 450 q14 -10 30 -2" ${S('moss', 5)} stroke-linecap="round"/>`;
+  s += bromeliad(400, 296, 1.3) + bromeliad(560, 196, 1) + bromeliad(250, 150, .9);
+  s += `<circle cx="446" cy="240" r="4" ${F('orchid')}/><circle cx="453" cy="236" r="3.6" ${F('orchid')}/><circle cx="449" cy="230" r="3.2" ${F('orchid')}/>`;
+  paper(g, s, 1, 'id="kapokHit"');
+  hit($('kapokHit'), '巨型木棉');
+  // 號角樹（樹懶的家）
+  s = `<path d="M872 492 L876 150 L884 150 L889 492Z" ${F('trunk2b')}/>`;
+  for (let y = 170; y < 480; y += 24) s += `<path d="M874 ${y} H888" ${S('barkSh', 1.2)} opacity=".6"/>`;
+  s += `<path d="M880 196 Q920 186 972 164 L974 169 Q924 192 881 203Z" ${F('trunk2b')}/>`;
+  const umb = (cx, cy, r) => { let u = ''; for (let i = 0; i < 9; i++) u += `<path d="${leafD(r, r * .24)}" transform="translate(${cx} ${cy}) rotate(${f1(70 + i * 27.5)})" ${F(i % 2 ? 'cecro' : 'leaf3')}/>`; return u + `<ellipse cx="${cx}" cy="${cy - 2}" rx="${f1(r * .45)}" ry="${f1(r * .22)}" ${F('leaf2')}/>`; };
+  s += umb(880, 140, 40) + umb(976, 160, 34) + umb(830, 160, 30);
+  paper(g, s, 1, 'id="cecHit"');
+  hit($('cecHit'), '號角樹');
+  // 絞殺榕：一根根氣根把宿主樹纏起來，長成網狀的大樹幹
+  s = `<path d="M1150 520 C1156 380 1160 200 1164 -20 L1250 -20 C1252 200 1258 380 1268 520Z" ${F('fig')}/>`;
+  for (let i = 0; i < 9; i++) { const x = 1156 + i * 12; s += `<path d="M${x} 522 C${x + 14} 420 ${x - 12} 320 ${x + 8} 220 S${x - 6} 60 ${x + 4} -20" ${S(i % 2 ? 'figLt' : 'barkSh', 5)} fill="none"/>`; }
+  s += `<path d="M1150 520 Q1110 524 1090 532 M1268 520 Q1300 524 1330 534" ${S('fig', 8)} stroke-linecap="round"/>`;
+  s += `<path d="${branchD(1170, 226, 1010, 214, 18, 7, 6)}" ${F('fig')}/><path d="${branchD(1246, 200, 1410, 176, 18, 7, -6)}" ${F('fig')}/>`;
+  s += bromeliad(1200, 330, 1.2) + `<path d="M1162 400 q12 -10 26 -2 q12 -10 26 0" ${S('moss', 5)} stroke-linecap="round"/>`;
+  paper(g, s, 1, 'id="figHit"');
+  hit($('figHit'), '絞殺榕');
+  // 高跷根棕櫚
+  paper(g, stiltPalm(1400, 500, 330, 'palm', 'leaf2'), 1, 'id="palmHit"');
+  hit($('palmHit'), '高跷根棕櫚');
+  // 粗粗的木質藤（猴梯藤：扭成波浪的一條帶子）、細藤
+  s = '';
+  s += `<path d="M640 -10 C660 120 600 200 640 300 S700 420 660 520" ${S('vine', 7)} stroke-dasharray="16 4"/>`;
+  s += `<path d="M1060 -10 C1040 140 1100 260 1070 400" ${S('vine', 4)}/>` + vineLeaves(1060, -10, 1070, 400, 30, 10, 'leaf3');
+  [[540, 0, 560, 330, 20], [740, 0, 720, 280, -18], [990, 0, 1000, 250, 14], [1330, 0, 1320, 300, -16]].forEach(([a, b, c2, d, sw]) => s += `<path d="${vineD(a, b, c2, d, sw)}" ${S('vine', 2.4)}/>` + vineLeaves(a, b, c2, d, sw, 8, 'leaf2'));
+  paper(g, s, 2);
+}
+
+/* ---------------- ② 場景：林地、黑水小溪、倒木、蕈菇 ---------------- */
+const CREEK = [[1660, 506, 18], [1320, 518, 22], [1060, 540, 30], [800, 560, 34], [520, 552, 38], [240, 568, 42], [-60, 578, 46]];
+const LOG = { x0: 520, y0: 478, x1: 1110, y1: 452 };   // 倒木頂端那條線（美洲豹走在上面）
+const logY = x => lerp(LOG.y0, LOG.y1, (x - LOG.x0) / (LOG.x1 - LOG.x0));
+function smoothLine(pts) {   // 把點連成平滑曲線
+  let d = `M${f1(pts[0][0])} ${f1(pts[0][1])}`;
+  for (let i = 1; i < pts.length; i++) { const p = pts[i - 1], q = pts[i]; d += ` Q${f1(p[0])} ${f1(p[1])} ${f1((p[0] + q[0]) / 2)} ${f1((p[1] + q[1]) / 2)}`; }
+  const L = pts[pts.length - 1]; return d + ` L${f1(L[0])} ${f1(L[1])}`;
+}
+const strips = [], fungi = [];
+function drawFloor() {
+  let s = `<path d="M-60 484 Q300 470 700 490 Q1100 500 1660 478 V620 H-60Z" ${F('floor')}/>`;
+  s += `<path d="M-60 500 Q400 494 800 508 Q1200 514 1660 496" ${S('floorLt', 6)} opacity=".5"/>`;
+  for (let i = 0; i < 190; i++) { const x = srand(-20, 1620), y = srand(486, 600); s += `<path d="${leafD(8, 3.2)}" transform="translate(${f1(x)} ${f1(y)}) rotate(${f1(srand(0, 360))}) scale(1 .55)" ${F(pick(['litter', 'litter', 'floorLt', 'heliY', 'heli']))}/>`; }
+  paper($('floor'), s, 1);
+  // 林下的灌木、小棕櫚、蕨類：密密麻麻長在倒木後面
+  s = '';
+  const shrub = (x, y, h, n, cls) => { let r = ''; for (let k = 0; k < n; k++) r += `<path d="${leafD(h * srand(.7, 1.1), h * .13)}" transform="translate(${f1(x)} ${f1(y)}) rotate(${f1(-80 + k * 160 / (n - 1) + srand(-8, 8))})" ${F(pick(cls))}/>`; return r; };
+  for (let i = 0; i < 46; i++) { const x = srand(-20, 1620); s += shrub(x, srand(484, 494), srand(50, 96), 7, ['leaf1', 'leaf2', 'leafDk']); }
+  for (let i = 0; i < 26; i++) { const x = srand(-20, 1620); s += `<g transform="translate(${f1(x)} ${f1(srand(486, 496))})"><path d="${heartLeaf(srand(.5, .8))}" ${F(pick(['leaf2', 'leaf3', 'leaf1']))} transform="rotate(${f1(srand(-30, 30))})"/></g>`; }
+  for (let i = 0; i < 40; i++) { const x = srand(-20, 1620); s += shrub(x, srand(494, 502), srand(26, 46), 6, ['leaf3', 'leaf4', 'leaf2']); }
+  // 溪邊的蕨類和小草（溪的兩岸）
+  for (let i = 0; i < 40; i++) { const x = srand(-20, 1620), [cy, w] = [lerp(506, 578, clamp((1660 - x) / 1720, 0, 1)), lerp(18, 46, clamp((1660 - x) / 1720, 0, 1))]; s += shrub(x, cy - w / 2 + 2, srand(14, 26), 5, ['leaf3', 'leaf4', 'moss']); }
+  paper($('floor'), s, 1);
+  // 黑水小溪：從右後方彎彎曲曲流到左前方
+  const top = CREEK.map(([x, y, w]) => [x, y - w / 2]), bot = CREEK.map(([x, y, w]) => [x, y + w / 2]).reverse();
+  const d = smoothLine(top) + ' ' + smoothLine(bot).replace(/^M/, 'L') + 'Z';
+  $('creekPath').setAttribute('d', d);
+  frag($('creek'), `<path d="${d}" ${F('creek')}/><path d="${smoothLine(CREEK.map(([x, y, w]) => [x, y - w * .12]))}" ${S('creekLt', 7)} opacity=".6" stroke-linecap="round"/><path d="${smoothLine(CREEK.map(([x, y, w]) => [x, y + w * .12]))}" ${S('creekHi', 3)} opacity=".28" stroke-linecap="round"/><path d="${smoothLine(top)}" ${S('floorLt', 3)}/><path d="${smoothLine(bot.slice().reverse())}" ${S('litter', 2)} opacity=".6"/>`);
+  // 水面的光紋（往左流）
+  for (let i = 0; i < 70; i++) {
+    const t = srand(0, 1), x = 1600 - t * 1660, y = lerp(500, 574, t) + srand(-6, 6), w = 26 + t * 60;
+    const p = el('path', { d: `M0 0 Q${f1(w / 2)} -2 ${f1(w)} 0 Q${f1(w / 2)} 1 0 0Z`, class: 'f-' + pick(['creekLt', 'creekHi', 'creekHi']), opacity: .8 }, $('creekStrips'));
+    strips.push({ el: p, x, t, w, sp: 14 + t * 10 });
+  }
+  // 倒木：長滿苔蘚，一端是斷掉的樹根盤
+  s = `<path d="M${LOG.x0} ${LOG.y0} L${LOG.x1} ${LOG.y1} L${LOG.x1 + 6} ${LOG.y1 + 34} L${LOG.x0 + 4} ${LOG.y0 + 34}Z" ${F('log')}/>`;
+  s += `<path d="M${LOG.x0} ${LOG.y0 + 22} L${LOG.x1 + 4} ${LOG.y1 + 22} L${LOG.x1 + 6} ${LOG.y1 + 34} L${LOG.x0 + 4} ${LOG.y0 + 34}Z" ${F('logDk')}/>`;
+  s += `<path d="M${LOG.x0 + 6} ${LOG.y0 + 6} L${LOG.x1} ${LOG.y1 + 5}" ${S('logLt', 2)}/><path d="M${LOG.x0 + 40} ${LOG.y0 + 14} L${LOG.x1 - 60} ${LOG.y1 + 14}" ${S('logDk', 1.4)} stroke-dasharray="30 12"/>`;
+  s += `<ellipse cx="${LOG.x0 + 2}" cy="${LOG.y0 + 17}" rx="9" ry="18" ${F('logLt')}/><ellipse cx="${LOG.x0 + 2}" cy="${LOG.y0 + 17}" rx="5" ry="11" ${F('log')}/>`;
+  for (let i = 0; i < 8; i++) { const a = -80 + i * 22; s += `<path d="M${LOG.x1} ${LOG.y1 + 16} l${f1(Math.cos(a * Math.PI / 180) * 50)} ${f1(Math.sin(a * Math.PI / 180) * 40)}" ${S('logDk', 5 - i % 3)} stroke-linecap="round"/>`; }
+  for (let i = 0; i < 12; i++) { const x = lerp(LOG.x0 + 20, LOG.x1 - 20, i / 11); s += `<path d="M${f1(x)} ${f1(logY(x) + 1)} q8 -6 16 0" ${S('moss', 4)} stroke-linecap="round"/>`; }
+  for (let i = 0; i < 6; i++) { const x = srand(600, 1050); s += `<path d="M${f1(x)} ${f1(logY(x) - 1)} l-3 -9 M${f1(x + 3)} ${f1(logY(x) - 1)} l2 -11" ${S('leaf4', 1.6)} stroke-linecap="round"/>`; }
+  paper($('log'), s, 1, 'id="logHit"');
+  hit($('logHit'), '倒木');
+  // 蕈菇：倒木側面的層孔菌、地上一叢叢小蕈菇（夜裡會發出淡淡的綠光）
+  [[700, 1], [860, 1], [1000, 1], [470, 0], [1140, 0], [300, 0]].forEach(([x, shelf]) => {
+    const y = shelf ? logY(x) + 20 : (x < 500 ? 500 : 492);
+    const gg = el('g', { transform: `translate(${x} ${f1(y)})` }, $('fungi'));
+    const glow = el('circle', { r: 26, fill: 'url(#funG)', opacity: 0 }, gg);
+    let m = '';
+    if (shelf) for (let k = 0; k < 3; k++) m += `<path d="M${-12 + k * 8} ${-k * 6} q8 -6 16 0 q-8 3 -16 0Z" ${F('fungus')}/>`;
+    else for (let k = 0; k < 4; k++) { const dx = (k - 1.5) * 6, h = 6 + (k % 2) * 5; m += `<path d="M${dx} 0 V${-h}" ${S('fungus', 1.6)}/><path d="M${dx - 4} ${-h} Q${dx} ${-h - 5} ${dx + 4} ${-h}Z" ${F('fungus')}/>`; }
+    frag(gg, `<g>${m}</g>`);
+    fungi.push({ el: gg, glow, ph: srand(0, 6) });
+  });
+}
+const lilyFlowers = [];
+function drawLilies() {
+  let s = padHTML(150, 574, 34) + padHTML(246, 582, 40) + padHTML(330, 566, 24);
+  paper($('lilies'), s, 1, 'id="lilyHit"');
+  hit($('lilyHit'), '王蓮');
+  const g = el('g', { transform: 'translate(206 572)', filter: 'url(#pshS)' }, $('lilies'));
+  let pet = '';
+  for (let i = 0; i < 11; i++) pet += `<ellipse cx="0" cy="-9" rx="3.2" ry="9.5" transform="rotate(${-80 + i * 16})" ${F('lilyFlw')}/>`;
+  g.innerHTML = `<g class="op">${pet}<ellipse cx="0" cy="-5" rx="4" ry="3" ${F('heliY')}/></g><g class="bud"><path d="M-6 0 Q-7 -13 0 -20 Q7 -13 6 0Z" ${F('lilyFlw')}/><path d="M-6 0 Q-6 -8 -3 -12 L0 0Z M6 0 Q6 -8 3 -12 L0 0Z" ${F('lilyRim')}/></g>`;
+  lilyFlowers.push({ el: g, op: g.querySelector('.op'), bud: g.querySelector('.bud'), open: 0 });
+}
+
+/* ---------------- ② 場景：前景（大樹幹、大葉子、赫蕉、鳳梨科與箭毒蛙）、樹冠最上層 ---------------- */
+const heli = {}, pFrog = {}, vineEls = [];
+function drawFront() {
+  // 左：近處一棵粗樹幹（只看得到一部分），上面長滿附生植物
+  let s = `<path d="M-60 -20 H70 C78 200 84 400 96 620 H-60Z" ${F('leafDk')}/>`;
+  s += `<path d="M-60 -20 H58 C66 200 72 400 82 620 H-60Z" ${F('barkSh')}/>`;
+  s += `<path d="M30 0 C36 200 40 400 50 620" ${S('bark', 3)} opacity=".6"/><path d="M10 0 C16 220 20 420 28 620" ${S('bark', 2)} opacity=".5"/>`;
+  s += bromeliad(74, 220, 2) + bromeliad(80, 400, 1.6) + `<path d="M50 150 q20 -10 40 4" ${S('moss', 8)} stroke-linecap="round"/><path d="M56 330 q18 -12 36 0" ${S('moss', 7)} stroke-linecap="round"/>`;
+  s += `<circle cx="96" cy="300" r="5" ${F('orchid')}/><circle cx="104" cy="296" r="4.4" ${F('orchid')}/><circle cx="100" cy="288" r="4" ${F('orchid')}/>`;
+  paper($('frontL'), s, 3);
+  // 左下：蔓綠絨的大心形葉、蕨類
+  s = '';
+  for (let i = 0; i < 8; i++) s += `<path d="${leafD(120, 9)}" transform="translate(${-10 + i * 14} 640) rotate(${-60 + i * 14})" ${F(i % 2 ? 'leaf2' : 'leaf3')}/>`;
+  [[60, 650, -24, 1.7, 'leaf1'], [170, 660, 18, 1.5, 'leaf2'], [-10, 600, -60, 1.4, 'leaf2'], [250, 676, 40, 1.2, 'leaf3'], [120, 690, -4, 1.4, 'leafDk']].forEach(([x, y, r, k, c]) => {
+    s += `<g transform="translate(${x} ${y}) rotate(${r})"><path d="${heartLeaf(k)}" ${F(c)}/><path d="M0 -4 L0 ${f1(-80 * k)}" ${S('leafLt', 1.6)} opacity=".7"/>`;
+    for (let j = 1; j < 5; j++) s += `<path d="M0 ${f1(-16 * j * k)} q${f1(14 * k)} ${f1(-6 * k)} ${f1(24 * k)} ${f1(-2 * k)} M0 ${f1(-16 * j * k)} q${f1(-14 * k)} ${f1(-6 * k)} ${f1(-24 * k)} ${f1(-2 * k)}" ${S('leafLt', 1)} opacity=".45"/>`;
+    s += `</g>`;
+  });
+  paper($('frontL'), s, 3);
+  // 右：香蕉葉、近處樹幹
+  s = `<path d="M1560 620 C1566 400 1572 200 1574 -20 H1660 V620Z" ${F('barkSh')}/><path d="M1590 0 C1588 200 1586 400 1584 620" ${S('bark', 3)} opacity=".6"/>`;
+  s += bromeliad(1560, 260, 1.8) + `<path d="M1560 180 q-18 -10 -34 4" ${S('moss', 7)} stroke-linecap="round"/>`;
+  [[1610, 620, -40, 'leaf2'], [1650, 560, -72, 'leaf3'], [1530, 630, -12, 'leaf1']].forEach(([x, y, r, c]) => {
+    s += `<g transform="translate(${x} ${y}) rotate(${r})"><path d="M-3 0 L-3 -60 L3 -60 L3 0Z" ${F('leaf1')}/><path d="M0 -60 Q-30 -130 -6 -250 Q4 -180 0 -60Z" ${F(c)}/><path d="M0 -60 Q28 -130 6 -250 Q-2 -180 0 -60Z" ${F(c)}/><path d="M0 -60 Q2 -150 -2 -248" ${S('leafLt', 1.6)}/>`;
+    for (let j = 0; j < 5; j++) s += `<path d="M${j % 2 ? 1 : -1} ${-90 - j * 30} l${j % 2 ? 18 : -18} -10" ${S('leafLt', 2)} opacity=".9"/>`;
+    s += `</g>`;
+  });
+  paper($('frontR'), s, 3);
+  // 赫蕉
+  s = `<path d="M1494 620 Q1490 500 1484 404" ${S('leaf1', 4)}/>`;
+  for (let i = 0; i < 6; i++) { const y = 412 + i * 15, dd = i % 2 ? 1 : -1; s += `<path d="M1484 ${y} q${dd * 22} 2 ${dd * 26} -10 q${-dd * 8} 14 ${-dd * 26} 16Z" ${F('heli')}/><path d="M${1484 + dd * 24} ${y - 8} l${dd * 3} -3" ${S('heliY', 3)} stroke-linecap="round"/>`; }
+  s += `<path d="${leafD(130, 20)}" transform="translate(1470 620) rotate(-22)" ${F('leaf2')}/><path d="${leafD(110, 18)}" transform="translate(1520 620) rotate(14)" ${F('leaf3')}/>`;
+  paper($('frontR'), s, 2, 'id="heliHit"');
+  hit($('heliHit'), '赫蕉');
+  heli.el = $('heliHit');
+  paper($('frontR'), bromeliad(1420, 600, 2.2), 2, 'id="bromHit"');
+  hit($('bromHit'), '鳳梨科植物');
+  const fg = el('g', { transform: 'translate(1398 570)', filter: 'url(#pshS)' }, $('frontR'));
+  fg.innerHTML = `<g class="fb"><ellipse cx="0" cy="-5" rx="8" ry="5" ${F('frog')}/><circle cx="-4" cy="-6" r="1.6" fill="#111"/><circle cx="3" cy="-3" r="1.4" fill="#111"/><circle cx="-7" cy="-9" r="2.6" ${F('frog')}/><circle cx="-7.4" cy="-9.4" r="1.2" fill="#111"/><path d="M-6 -1 l-4 4 M5 -1 l4 4" ${S('frog', 2)} stroke-linecap="round"/></g>`;
+  hit(fg, '箭毒蛙');
+  Object.assign(pFrog, { el: fg, body: fg.querySelector('.fb'), hop: 0 });
+  // 下緣：一排蕨類與小葉子
+  s = '';
+  for (let i = 0; i < 22; i++) {
+    const x = 260 + i * 56 + srand(-16, 16);
+    if (x > 1400) break;
+    const y = 606 + srand(0, 10), big = x > 600 && x < 830 ? .55 : 1.5;
+    for (let k = 0; k < 8; k++) s += `<path d="${leafD(srand(30, 54) * big, 6 * big)}" transform="translate(${f1(x)} ${f1(y)}) rotate(${-66 + k * 22 + srand(-6, 6)})" ${F(pick(['leaf2', 'leaf3', 'leaf1']))}/>`;
+  }
+  paper($('frontB'), s, 2);
+  // 樹冠最上層：整排深淺不同的葉子，只留下幾個縫隙
+  s = '';
+  const gapNear = x => GAPS.some(([gx, , rx]) => Math.abs(x - gx) < rx * 1.05);
+  for (let x = -40; x < 1660; x += 46) {
+    if (gapNear(x)) continue;
+    s += `<path d="${blob(x, srand(-10, 30), srand(50, 80), srand(40, 70), 16, .2)}" ${F('leafDk')}/>`;
+  }
+  for (let x = -20; x < 1660; x += 58) {
+    if (gapNear(x)) continue;
+    s += `<path d="${blob(x, srand(40, 80), srand(30, 50), srand(18, 30), 14, .22)}" ${F(pick(['leaf1', 'leaf2']))}/>`;
+  }
+  GAPS.forEach(([gx, gy, rx, ry]) => {   // 縫隙邊緣的葉子
+    for (let k = 0; k < 9; k++) { const a = k / 9 * Math.PI * 2; s += `<path d="${leafD(srand(26, 40), 9)}" transform="translate(${f1(gx + Math.cos(a) * rx * 1.15)} ${f1(gy + Math.sin(a) * ry * 1.2)}) rotate(${f1(a * 180 / Math.PI - 90)})" ${F(k % 2 ? 'leaf2' : 'leaf3')}/>`; }
+  });
+  for (let i = 0; i < 26; i++) { const x = srand(0, 1600); if (gapNear(x)) continue; s += `<path d="${leafD(srand(30, 50), 10)}" transform="translate(${f1(x)} ${f1(srand(60, 100))}) rotate(${f1(180 + srand(-30, 30))})" ${F(pick(['leaf2', 'leaf3', 'leaf4']))}/>`; }
+  paper($('canopy'), s, 3);
+  // 垂下來的藤蔓（會隨風輕輕晃）
+  [[150, 60, 140, 250, 16], [620, 70, 610, 200, -12], [960, 60, 976, 180, 14], [1250, 70, 1240, 230, -14], [1460, 60, 1470, 200, 12]].forEach(([a, b, c2, d, sw]) => {
+    const g = el('g', {}, $('vines'));
+    paper(g, `<path d="${vineD(a, b, c2, d, sw)}" ${S('vine', 3)}/>` + vineLeaves(a, b, c2, d, sw, 8, 'leaf2'), 3);
+    vineEls.push({ el: g, x: a, y: b, ph: srand(0, 6) });
+  });
+}
+
+/* ---------------- ③ 角色：樹上的動物（松鼠猴、巨嘴鳥、樹懶、紅吼猴、金剛鸚鵡、角鵰） ---------------- */
+const monkeys = [], macawsP = [];
+const toucan = { hop: 0 }, sloth = { wave: 0 }, howler = { roar: 0 }, harpy = { spread: 0, crest: 0 };
+// 松鼠猴那根橫枝上表面的位置（u = 0 靠樹幹、1 是枝頭）
+const mbr = u => {
+  const x = lerp(MBR.x0 - 20, MBR.x1, u), c = lerp(MBR.y0 + 4, MBR.y1, u) + 3.9 * 4 * u * (1 - u);
+  return [x, c - lerp(10, 4, u) - 3];
+};
+function drawTreeAnimals() {
+  const P = $('treeAnimals');
+  [.2, .36, .52, .66].forEach((u, i) => {
+    const g = el('g', { filter: 'url(#pshS)' }, P);
+    g.innerHTML = `<g class="mb">${monkeyHTML()}</g>`;
+    monkeys.push({ el: g, u, tu: u, dir: 1, hop: 0, s: .9 - i * .04, wait: srand(1, 6) });
+    hit(g, '松鼠猴');
+  });
+  // 巨嘴鳥：站在橫枝的末端
+  const tg = el('g', { transform: `translate(684 163)`, filter: 'url(#pshS)' }, P);
+  tg.innerHTML = `<g class="tb"><path d="M6 -2 L14 12 L4 4Z" ${F('toucanB')}/><ellipse cx="0" cy="-10" rx="8" ry="11" ${F('toucanB')}/><path d="M-6 -16 Q-2 -6 -6 -2 Q-9 -10 -6 -16Z" ${F('toucanW')}/>
+    <path d="M2 2 L8 4" ${S('macawR', 2.4)}/><g class="th"><circle cx="-2" cy="-20" r="6" ${F('toucanB')}/><path d="M-6 -24 Q-30 -26 -34 -14 Q-20 -15 -6 -16Z" ${F('toucanBill')}/><path d="M-34 -14 Q-28 -18 -24 -18" ${S('macawR', 2.4)}/><circle cx="-4" cy="-21" r="2.6" ${F('macawB')}/><circle cx="-4" cy="-21" r="1.1" fill="#111"/></g>
+    <path d="M-3 1 V6 M2 1 V6" ${S('barkSh', 1.4)}/></g>`;
+  hit(tg, '巨嘴鳥');
+  Object.assign(toucan, { el: tg, head: tg.querySelector('.th'), body: tg.querySelector('.tb') });
+  // 三趾樹懶：倒掛在號角樹的枝條下面
+  const sg = el('g', { transform: 'translate(930 192)', filter: 'url(#pshS)' }, P);
+  sg.innerHTML = `<g class="sb"><path d="M-14 -8 Q-16 6 -10 16 M14 -10 Q16 4 10 14" ${S('sloth', 4.4)} stroke-linecap="round"/>
+    <path d="M-16 -9 l-2 -4 M-14 -9 l0 -5 M-12 -9 l2 -4 M12 -11 l-2 -4 M14 -11 l0 -5 M16 -11 l2 -4" ${S('slothDk', 1.4)} stroke-linecap="round"/>
+    <ellipse cx="0" cy="16" rx="17" ry="11" ${F('sloth')}/><path d="M-12 20 Q0 26 12 20" ${S('slothDk', 1.4)} opacity=".6"/><path d="M-10 12 q4 -3 8 0 M2 14 q4 -3 8 0" ${S('moss', 1.6)} opacity=".7"/>
+    <g class="sh"><circle cx="12" cy="18" r="8" ${F('sloth')}/><ellipse cx="13" cy="19" rx="6" ry="5" ${F('slothFace')}/><path d="M9 17 Q11 15.4 12.6 17.6 M14.6 17.6 Q16 15.4 17.6 17" ${S('slothDk', 2.2)} stroke-linecap="round"/><circle cx="14" cy="21" r="1.1" fill="#2a2420"/><path d="M11.6 23 Q13.4 24.4 15 23" ${S('slothDk', .9)}/></g></g>`;
+  hit(sg, '三趾樹懶');
+  Object.assign(sloth, { el: sg, head: sg.querySelector('.sh'), body: sg.querySelector('.sb') });
+  // 紅吼猴：坐在絞殺榕左邊的橫枝上，尾巴勾著樹枝
+  const hg = el('g', { transform: 'translate(1062 206)', filter: 'url(#pshS)' }, P);
+  hg.innerHTML = `<path d="M8 4 Q20 14 14 22 Q8 26 10 18" ${S('howlerDk', 3.4)} stroke-linecap="round"/>
+    <ellipse cx="0" cy="-8" rx="12" ry="14" ${F('howler')}/><path d="M-8 2 Q-10 8 -6 10 M6 2 Q8 8 4 10" ${S('howlerDk', 4)} stroke-linecap="round"/>
+    <g class="hh"><circle cx="-4" cy="-24" r="8" ${F('howler')}/><path d="M-12 -20 Q-14 -12 -6 -12 Q-2 -14 -2 -18Z" ${F('howlerDk')}/><ellipse cx="-9" cy="-23" rx="3.6" ry="3" style="fill:#2a1a14"/><circle cx="-6" cy="-27" r="1" fill="#f4e4c8"/>
+    <ellipse class="mouth" cx="-11" cy="-19" rx="2" ry="0" style="fill:#2a0c0c"/></g>`;
+  hit(hg, '紅吼猴');
+  Object.assign(howler, { el: hg, head: hg.querySelector('.hh'), mouth: hg.querySelector('.mouth') });
+  // 一對停在木棉左邊橫枝上的金剛鸚鵡（面朝森林中間）
+  [[286, 152, 0], [316, 160, 1]].forEach(([x, y, kind]) => {
+    const g = el('g', { filter: 'url(#pshS)' }, P);
+    g.innerHTML = `<g transform="rotate(-50)">${macawHTML(kind)}</g>`;
+    g.setAttribute('transform', `translate(${x} ${y}) scale(.8 .8)`);
+    macawsP.push({ el: g, x, y, x0: x, y0: y, kind, dir: 1, fly: 0 });
+    hit(g, kind ? '藍黃金剛鸚鵡' : '紅綠金剛鸚鵡');
+  });
+  // 角鵰：停在絞殺榕右邊的粗枝上（正面，頭上兩撮冠羽）
+  const ag = el('g', { transform: 'translate(1318 186)', filter: 'url(#pshS)' }, P);
+  let wing = '';
+  for (const sx of [-1, 1]) {
+    wing += `<path d="M${sx * 8} -40 Q${sx * 40} -66 ${sx * 70} -52 Q${sx * 62} -40 ${sx * 66} -30 Q${sx * 40} -24 ${sx * 10} -22Z" ${F('harpyDk')}/>`;
+    for (let k = 0; k < 3; k++) wing += `<path d="M${sx * (24 + k * 14)} ${-54 + k * 2} L${sx * (20 + k * 14)} -27" ${S('harpy', 2.2)}/>`;
+  }
+  ag.innerHTML = `<g class="hw" transform="scale(0 1)">${wing}</g>
+    <path d="M-7 -8 L-10 18 L10 18 L7 -8Z" ${F('harpy')}/><path d="M-9 6 H9 M-9.6 13 H9.6" ${S('harpyDk', 2)}/>
+    <ellipse cx="0" cy="-26" rx="15" ry="22" ${F('harpy')}/><path d="M-15 -30 Q-18 -12 -8 -6 M15 -30 Q18 -12 8 -6" ${S('harpyDk', 3)}/>
+    <path d="M-10 -36 Q-12 -10 0 -4 Q12 -10 10 -36Z" ${F('harpyW')}/>
+    <path d="M-12 -40 Q0 -32 12 -40 L12 -34 Q0 -26 -12 -34Z" ${F('harpyDk')}/>
+    <path d="M-5 -6 V0 M5 -6 V0" ${S('heliY', 3.4)} stroke-linecap="round"/><path d="M-9 1 h8 M1 1 h8" ${S('harpyDk', 1.6)} stroke-linecap="round"/>
+    <g class="hh"><g class="hc"><path d="M-3 -56 L-10 -72 L0 -58Z M3 -56 L10 -72 L0 -58Z" ${F('harpyDk')}/></g>
+      <circle cx="0" cy="-48" r="10" ${F('harpy')}/><ellipse cx="0" cy="-46" rx="7" ry="6" ${F('harpyW')} opacity=".55"/>
+      <circle cx="-3.6" cy="-49.5" r="1.9" fill="#111"/><circle cx="3.6" cy="-49.5" r="1.9" fill="#111"/>
+      <path d="M-2.6 -46 Q0 -38 2.6 -46 Q0 -44 -2.6 -46Z" style="fill:#2a2a2a"/></g>`;
+  hit(ag, '角鵰');
+  Object.assign(harpy, { el: ag, wing: ag.querySelector('.hw'), head: ag.querySelector('.hh'), crestG: ag.querySelector('.hc') });
+}
+
+/* ---------------- ③ 角色：林下的動物（美洲豹、南美貘、凱門鱷、切葉蟻、樹蛙） ---------------- */
+const jaguar = { x: 760, dir: 1, sp: 30, pause: 2, ph: 0, look: 0, eye: 0, walking: false };
+function drawJaguar() {
+  const g = el('g', { filter: 'url(#pshS)' }, $('jaguar'));
+  const leg = (x, far) => `<g transform="translate(${x} -20)"><g class="lg"><path d="M-4.4 0 L-3.6 19 L3.6 19 L4.4 0Z" ${F('jag')}/><ellipse cx="1.2" cy="19.4" rx="5" ry="2.4" ${F(far ? 'jag' : 'jagLt')}/>${far ? `<path d="M-4.4 0 L-3.6 19 L3.6 19 L4.4 0Z" ${F('jagSpot')} opacity=".32"/>` : `<circle cx="0" cy="6" r="1.4" ${F('jagSpot')}/><circle cx="1" cy="12" r="1.2" ${F('jagSpot')}/>`}</g></g>`;
+  let ros = '';
+  [[-30, -30], [-20, -36], [-8, -34], [4, -38], [16, -34], [26, -30], [-24, -22], [-10, -24], [6, -26], [20, -24], [-36, -26], [-14, -40], [10, -42]].forEach(([x, y], i) => {
+    ros += `<circle cx="${x}" cy="${y}" r="${i % 3 ? 3 : 3.6}" ${S('jagSpot', 1.6)}/>` + (i % 2 ? `<circle cx="${x}" cy="${y}" r=".9" ${F('jagSpot')}/>` : '');
+  });
+  g.innerHTML = `${leg(22, 1)}${leg(-30, 1)}
+    <g class="tl"><path d="M-40 -32 Q-62 -30 -66 -14 Q-68 -4 -62 2" ${S('jag', 5)} stroke-linecap="round"/><path d="M-63 -6 Q-66 -2 -62 2" ${S('jagSpot', 5)} stroke-linecap="round"/><path d="M-50 -30 l0 0 M-60 -24 l0 0" ${S('jagSpot', 3)} stroke-linecap="round"/></g>
+    <path d="M-44 -28 Q-42 -46 -12 -44 Q18 -48 36 -38 Q46 -28 38 -17 Q10 -13 -30 -15 Q-46 -17 -44 -28Z" ${F('jag')}/>
+    <path d="M-30 -15 Q4 -11 36 -18 Q10 -21 -28 -20Z" ${F('jagLt')}/>${ros}
+    ${leg(28, 0)}${leg(-24, 0)}
+    <g class="jh"><circle cx="46" cy="-38" r="11.5" ${F('jag')}/><ellipse cx="55" cy="-32" rx="7.4" ry="5.6" ${F('jagLt')}/>
+      <path d="M57.6 -36 l4 1 l-2.6 2.6Z" ${F('jagSpot')}/><path d="M60 -30 q-3 2 -6 1" ${S('jagSpot', 1)}/>
+      <circle cx="39" cy="-48" r="4.2" ${F('jag')}/><circle cx="39" cy="-48" r="2.1" ${F('jagSpot')}/>
+      <circle cx="42" cy="-33" r="1.2" ${F('jagSpot')}/><circle cx="38" cy="-38" r="1.4" ${F('jagSpot')}/><circle cx="44" cy="-46" r="1" ${F('jagSpot')}/>
+      <circle cx="51" cy="-40.6" r="1.9" style="fill:#2a1c14"/><circle class="eg" cx="51.4" cy="-40.6" r="8" fill="url(#eyeG)" opacity="0"/></g>`;
+  hit(g, '美洲豹');
+  Object.assign(jaguar, { el: g, legs: [...g.querySelectorAll('.lg')], head: g.querySelector('.jh'), tail: g.querySelector('.tl'), eyeG: g.querySelector('.eg') });
+}
+const tapir = { dip: 0, lift: 0, ph: 0, x: 1336, y: 510, s: .9 };
+function drawTapir() {
+  const g = el('g', { transform: `translate(${tapir.x} ${tapir.y}) scale(${tapir.s})`, filter: 'url(#pshS)' }, $('tapir'));
+  g.innerHTML = `<path d="M-22 -16 V0 M30 -16 V0" ${S('tapirDk', 8)} stroke-linecap="round"/>
+    <path d="M42 -34 q6 2 5 8" ${S('tapirDk', 3)} stroke-linecap="round"/>
+    <path d="M-34 -22 Q-40 -50 -6 -52 Q30 -55 42 -36 Q48 -18 36 -14 Q0 -9 -28 -13 Q-36 -16 -34 -22Z" ${F('tapir')}/>
+    <path d="M-20 -50 Q0 -54 24 -50" ${S('tapirDk', 3)} opacity=".6"/>
+    <path d="M-14 -16 V0 M22 -16 V0" ${S('tapir', 9)} stroke-linecap="round"/><path d="M-18 0 h8 M18 0 h8" ${S('tapirDk', 2)}/>
+    <g class="th"><path d="M-26 -46 Q-44 -50 -52 -38 Q-58 -28 -66 -24 Q-66 -18 -59 -19 Q-48 -21 -40 -24 Q-28 -26 -24 -34Z" ${F('tapir')}/>
+      <path d="M-30 -48 Q-26 -58 -18 -52" ${S('tapirDk', 4)} stroke-linecap="round"/>
+      <ellipse cx="-31" cy="-50" rx="3.6" ry="6" ${F('tapirDk')}/><ellipse cx="-31" cy="-50" rx="3.6" ry="6" ${S('white', 1.2)}/>
+      <circle cx="-44" cy="-38" r="1.5" style="fill:#120c0a"/><path d="M-64 -24 q-2 3 0 5" ${S('tapirDk', 1.4)}/></g>`;
+  hit(g, '南美貘');
+  Object.assign(tapir, { el: g, head: g.querySelector('.th') });
+}
+const caiman = { sink: 0 };
+function drawCaiman() {
+  const g = el('g', { transform: 'translate(712 560) scale(1.4)' }, $('caiman'));
+  g.innerHTML = `<g class="cb"><path d="M-44 0 Q-30 -6 -10 -5 Q20 -7 44 0 Q20 3 -44 0Z" ${F('caiman')}/>
+    <path d="M-2 -5 l3 -3 l3 3 M8 -5 l3 -3 l3 3 M18 -4 l3 -3 l3 3 M28 -3 l3 -2.6 l3 2.6" ${S('caimanDk', 1.6)}/>
+    <ellipse cx="-24" cy="-6" rx="5" ry="3.4" ${F('caiman')}/><ellipse cx="-24" cy="-7" rx="2.4" ry="1.6" ${F('heliY')}/><path d="M-24 -8.4 V-5.6" ${S('caimanDk', .9)}/>
+    <ellipse cx="-44" cy="-2" rx="3" ry="2" ${F('caimanDk')}/>
+    <circle class="eyeGlow" cx="-24" cy="-7" r="9" fill="url(#eyeG)" opacity="0"/></g>`;
+  hit(g, '凱門鱷');
+  Object.assign(caiman, { el: g, body: g.querySelector('.cb'), glow: g.querySelector('.eyeGlow') });
+}
+// 切葉蟻：沿著倒木排成一條路，往左搬葉片回蟻窩，空手的往右走
+const ants = [], antPts = [];
+let antLen = 0;
+function drawAnts() {
+  const d = `M1300 530 Q1236 520 1180 500 Q1132 482 1112 ${f1(logY(1112) - 1)} L540 ${f1(logY(540) - 1)} Q514 484 500 500 Q470 512 404 518`;
+  $('antPath').setAttribute('d', d);
+  const P = $('antPath');
+  antLen = P.getTotalLength();
+  for (let s = 0; s <= antLen; s += 2) { const p = P.getPointAtLength(s); antPts.push([p.x, p.y]); }
+  // 蟻窩：一小堆翻出來的土
+  frag($('ants'), `<g><path d="M370 526 Q392 504 420 524Z" ${F('litter')}/><ellipse cx="398" cy="520" rx="4" ry="2" ${F('floor')}/></g>`);
+  for (let i = 0; i < 36; i++) {
+    const carry = i % 3 !== 2;
+    const g = el('g', {}, $('ants'));
+    g.innerHTML = `<path d="M-2.6 0 l-1.6 2.4 M0 0 l0 2.6 M1.6 0 l1.6 2.4" ${S('ant', .8)}/><ellipse cx="-2.8" cy="0" rx="1.9" ry="1.4" ${F('ant')}/><ellipse cx="0" cy="-.2" rx="1.1" ry=".9" ${F('ant')}/><circle cx="2.2" cy="-.4" r="1.3" ${F('ant')}/>` +
+      (carry ? `<path d="M2 -1 L-3 -11 L6 -9Z" ${F(pick(['leaf4', 'leaf3', 'leafLt']))}/>` : '');
+    ants.push({ el: g, s: (i / 36) * antLen + srand(-6, 6), dir: carry ? 1 : -1, sp: srand(14, 20) });
+  }
+  // 點擊範圍：沿著蟻路的一條透明粗線
+  const h = el('path', { d, fill: 'none', stroke: '#000', 'stroke-opacity': 0, 'stroke-width': 14, id: 'antHit' }, $('parNear'));
+  $('parNear').insertBefore(h, $('jaguar'));
+  hit(h, '切葉蟻');
+}
+// 小樹蛙：在溪邊的葉子上，夜裡鼓起鳴囊叫
+const frogs = [];
+function drawFrogs() {
+  [[548, 590], [812, 596], [1060, 592]].forEach(([x, y]) => {
+    const g = el('g', { transform: `translate(${x} ${y})` }, $('frontB'));
+    g.innerHTML = `<ellipse cx="0" cy="-4" rx="6" ry="4" ${F('leaf4')}/><circle cx="-3" cy="-8" r="2.2" ${F('leaf4')}/><circle cx="3" cy="-8" r="2.2" ${F('leaf4')}/><circle cx="-3" cy="-8.4" r="1" style="fill:#e8402e"/><circle cx="3" cy="-8.4" r="1" style="fill:#e8402e"/><g class="sac" transform="scale(0)"><ellipse cx="0" cy="-2" rx="3" ry="2.4" ${F('lilyFlw')} opacity=".9"/></g>`;
+    frogs.push({ el: g, sac: g.querySelector('.sac'), puff: 0 });
+  });
+}
+
+/* ---------------- ③ 角色：藍閃蝶、螢火蟲、飛過的鳥與蝙蝠 ---------------- */
+const butterflies = [], fireflies = [], skyBirds = [];
+function drawButterflies() {
+  for (let i = 0; i < 6; i++) {
+    const g = el('g', {}, $('butterflies'));
+    g.innerHTML = `<g class="w"><path d="M0 0 Q-14 -16 -18 -6 Q-16 4 0 1Z" ${F('morpho')}/><path d="M0 1 Q-12 6 -10 13 Q-4 12 0 3Z" ${F('morpho')}/><path d="M-18 -6 Q-16 4 0 1 Q-10 0 -16 -4Z" style="fill:var(--d-morphoDk)" opacity=".7"/></g>
+      <g class="w2"><path d="M0 0 Q14 -16 18 -6 Q16 4 0 1Z" ${F('morpho')}/><path d="M0 1 Q12 6 10 13 Q4 12 0 3Z" ${F('morpho')}/><path d="M18 -6 Q16 4 0 1 Q10 0 16 -4Z" style="fill:var(--d-morphoDk)" opacity=".7"/></g><ellipse cx="0" cy="3" rx="1.4" ry="6" style="fill:#1a1a20"/>`;
+    butterflies.push({ el: g, w: g.querySelector('.w'), w2: g.querySelector('.w2'), x: srand(200, 1400), y: srand(300, 540), hx: srand(200, 1400), hy: srand(320, 540), ph: srand(0, 6), s: srand(.55, .8), burst: 0 });
+  }
+  for (let i = 0; i < 50; i++) {
+    const g = el('g', { opacity: 0 }, $('fireflies'));
+    el('circle', { r: 7, fill: 'url(#flyG)' }, g); el('circle', { r: 1.4, style: 'fill:var(--firefly)' }, g);
+    const x = srand(120, 1500), y = srand(260, 590);
+    fireflies.push({ el: g, x, y, x0: x, y0: y, ph: srand(0, 6.28), sp: srand(1.2, 2.6), dr: srand(.3, .8) });
+  }
+}
+// 白天偶爾有一對小鸚鵡從林間飛過，夜裡是蝙蝠
+function spawnSkyBird() {
+  const nightB = night > .6, dir = pick([-1, 1]), y = rand(150, 330);
+  if (!nightB) { spawnMacaw(dir > 0 ? -60 : 1660, y, dir, 2, 0, 150, 10, .5); spawnMacaw(dir > 0 ? -90 : 1690, y + 12, dir, 2, .12, 150, 10, .5); return; }
+  const g = el('g', {}, $('flyBirds'));
+  g.innerHTML = `<path class="w" d="M0 0 Q-6 -5 -12 -2 Q-8 -1 -6 2 Q-3 0 0 2 Q3 0 6 2 Q8 -1 12 -2 Q6 -5 0 0Z" style="fill:#121018"/>`;
+  skyBirds.push({ el: g, x: dir > 0 ? -40 : 1640, y, dir, sp: 80, ph: 0, bat: true, w: g.querySelector('.w') });
+}
+// 飛行中的鸚鵡（kind 0 紅綠、1 藍黃金剛鸚鵡；2 綠色的小鸚鵡）
+const flyMacaws = [];
+function spawnMacaw(x, y, dir, kind, delay = 0, sp = 120, amp = 18, s) {
+  const g = el('g', { style: 'display:none' }, $('flyBirds'));
+  g.innerHTML = kind === 2 ? macawHTML(0).replace(/f-macawR|f-macawY/g, 'f-macawG') : macawHTML(kind);
+  flyMacaws.push({ el: g, wg: g.querySelector('.wg'), x, y, y0: y, dir, t: -delay, sp, amp, s: s || rand(.7, .95) });
+}
+
+/* ---------------- ⑤ 互動：聲音引擎（音樂軌、音效軌分開；同軌的新聲音讓舊的淡出） ---------------- */
+let actx = null, master = null, sfxBus = null, musBus = null, noiseBuf = null, soundOn = true, userGesture = false;
+let rainGain = null, bugGain = null, musNode = null;
+function ensureAudio() {
+  if (!actx) {
+    const AC = window.__SceneAudioContext || window.AudioContext || window.webkitAudioContext;
+    if (!AC) return null;
+    actx = new AC();
+    master = actx.createGain(); master.gain.value = soundOn ? .5 : 0;
+    const comp = actx.createDynamicsCompressor(); comp.threshold.value = -16; comp.ratio.value = 3;
+    master.connect(comp); comp.connect(actx.destination);
+    sfxBus = actx.createGain(); sfxBus.connect(master);
+    musBus = actx.createGain(); musBus.gain.value = .64; /* 音樂軌音量 ×0.64（2026-11-24 兩次各調降 20%） */ musBus.connect(master);
+  }
+  if (actx.state === 'suspended' && userGesture) actx.resume();
+  return actx;
+}
+const audioOK = () => actx && actx.state === 'running' && soundOn;
+function newTrack() {
+  const g = actx.createGain(); g.connect(musBus);
+  const old = musNode;
+  if (old) { old.gain.setTargetAtTime(0, actx.currentTime, .15); setTimeout(() => { try { old.disconnect(); } catch (e) {} }, 900); }
+  musNode = g;
+  return g;
+}
+let OUT = null;
+function nbuf() {
+  if (!noiseBuf) { noiseBuf = actx.createBuffer(1, actx.sampleRate * 2, actx.sampleRate); const d = noiseBuf.getChannelData(0); for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1; }
+  return noiseBuf;
+}
+function gainEnv(t, a, d, v) {
+  const g = actx.createGain();
+  g.gain.setValueAtTime(.0001, t); g.gain.linearRampToValueAtTime(v, t + a); g.gain.exponentialRampToValueAtTime(.0001, t + a + d);
+  g.connect(OUT || sfxBus); return g;
+}
+function osc(type, f, t, dur, dest) { const o = actx.createOscillator(); o.type = type; o.frequency.value = f; o.connect(dest); o.start(t); o.stop(t + dur + .05); return o; }
+function noise(t, dur, freq, vol, type = 'bandpass', q = 1, a = .004) {
+  const s = actx.createBufferSource(); s.buffer = nbuf(); s.loop = true;
+  const f = actx.createBiquadFilter(); f.type = type; f.frequency.value = freq; f.Q.value = q;
+  s.connect(f); f.connect(gainEnv(t, a, dur, vol)); s.start(t); s.stop(t + dur + .1); return f;
+}
+const sfx = fn => { if (!audioOK()) return; OUT = sfxBus; fn(actx.currentTime + .02); OUT = null; };
+// 環境聲：蟲鳴（濾過的噪音加上顫動）、雨聲；夜裡蟲鳴比較大聲
+function ambient(rain, bugs) {
+  if (!actx || actx.state !== 'running') return;
+  if (!rainGain) {
+    const mk = (hpF, lpF, q) => {
+      const s = actx.createBufferSource(); s.buffer = nbuf(); s.loop = true;
+      const hp = actx.createBiquadFilter(); hp.type = q ? 'bandpass' : 'highpass'; hp.frequency.value = hpF; if (q) hp.Q.value = q;
+      const lp = actx.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = lpF;
+      const g = actx.createGain(); g.gain.value = 0;
+      s.connect(hp); hp.connect(lp); lp.connect(g); g.connect(sfxBus); s.start();
+      return g;
+    };
+    rainGain = mk(500, 5200);
+    const bg = mk(5600, 9000, 9);
+    const trem = actx.createGain(); trem.gain.value = .5; bg.disconnect(); bg.connect(trem); trem.connect(sfxBus);
+    const lfo = actx.createOscillator(), lg = actx.createGain(); lfo.frequency.value = 17; lg.gain.value = .45; lfo.connect(lg); lg.connect(trem.gain); lfo.start();
+    bugGain = bg;
+  }
+  rainGain.gain.setTargetAtTime(rain * .09, actx.currentTime, .3);
+  bugGain.gain.setTargetAtTime(bugs * .05, actx.currentTime, .6);
+}
+function duckSfx(sec) { if (!actx) return; const t = actx.currentTime; sfxBus.gain.setTargetAtTime(.35, t, .2); sfxBus.gain.setTargetAtTime(1, t + sec, .6); }
+
+/* ---------------- ⑤ 互動：音效（聽得出是什麼：水花、鸚鵡、吼猴、美洲豹、貘、角鵰、蛙鳴、雷聲） ---------------- */
+const hz = n => 440 * Math.pow(2, (n - 69) / 12);
+function click(t, v = .07) { noise(t, .03, 2000, v, 'bandpass', 2); }
+function whoosh(t, v = .03) { const f = noise(t, .7, 900, v, 'bandpass', 2, .3); f.frequency.setValueAtTime(600, t); f.frequency.exponentialRampToValueAtTime(3200, t + .7); }
+// 鐘琴：只用整數倍的泛音
+function glock(t, f, v = .05) { osc('sine', f, t, 1.2, gainEnv(t, .002, 1.1, v)); osc('sine', f * 2, t, .5, gainEnv(t, .002, .45, v * .3)); osc('sine', f * 3, t, .3, gainEnv(t, .002, .25, v * .12)); }
+function splash(t, v = .1) { noise(t, .5, 900, v, 'lowpass', .8, .002); noise(t, .25, 3200, v * .5, 'bandpass', 1, .002); for (let i = 0; i < 6; i++) noise(t + .08 + i * .05 + Math.random() * .04, .05, 2000 + Math.random() * 1500, v * .2, 'bandpass', 3); }
+function plop(t, v = .08) { const o = osc('sine', 700, t, .12, gainEnv(t, .002, .12, v)); o.frequency.exponentialRampToValueAtTime(180, t + .1); }
+function blow(t, v = .06) { noise(t, .35, 1400, v, 'bandpass', 1.2, .03); noise(t + .02, .2, 3600, v * .3, 'bandpass', 1, .02); }
+function squawk(t, v = .035) {
+  for (let i = 0; i < 2; i++) {
+    const tt = t + i * .3, bp = actx.createBiquadFilter(); bp.type = 'bandpass'; bp.frequency.value = 1400; bp.Q.value = 3; bp.connect(gainEnv(tt, .01, .22, v));
+    const o = osc('sawtooth', 820, tt, .24, bp); o.frequency.setValueAtTime(820, tt); o.frequency.linearRampToValueAtTime(1250, tt + .08); o.frequency.linearRampToValueAtTime(760, tt + .22);
+  }
+}
+function croakT(t, v = .05) { for (let i = 0; i < 3; i++) { const tt = t + i * .14, lp = actx.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 900; lp.connect(gainEnv(tt, .005, .09, v)); osc('square', 260, tt, .1, lp); } }
+function roar(t, dur = 2.2, v = .09) {   // 吼猴：低沉、一波一波的吼聲（噪音＋低音，不是人聲）
+  const lp = actx.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 520;
+  const g = actx.createGain(); g.gain.setValueAtTime(.0001, t); g.gain.linearRampToValueAtTime(v, t + .3); g.gain.setValueAtTime(v, t + dur - .5); g.gain.exponentialRampToValueAtTime(.0001, t + dur); g.connect(OUT || sfxBus);
+  const am = actx.createGain(); am.gain.value = .6; lp.connect(am); am.connect(g);
+  const lfo = actx.createOscillator(), lg = actx.createGain(); lfo.frequency.value = 3.2; lg.gain.value = .4; lfo.connect(lg); lg.connect(am.gain); lfo.start(t); lfo.stop(t + dur + .1);
+  const s = actx.createBufferSource(); s.buffer = nbuf(); s.loop = true; s.connect(lp); s.start(t); s.stop(t + dur + .1);
+  const o = osc('sawtooth', 70, t, dur, lp); o.frequency.setValueAtTime(62, t); o.frequency.linearRampToValueAtTime(84, t + dur * .5); o.frequency.linearRampToValueAtTime(60, t + dur);
+}
+function chirp(t, v = .03) { for (let i = 0; i < 3; i++) { const tt = t + i * .1, o = osc('sine', 2600, tt, .06, gainEnv(tt, .003, .06, v)); o.frequency.exponentialRampToValueAtTime(3600, tt + .05); } }
+function tweet(t, v = .025) { for (let i = 0; i < 4; i++) { const tt = t + i * .13, o = osc('sine', hz(pick([86, 88, 91])), tt, .08, gainEnv(tt, .004, .08, v)); o.frequency.exponentialRampToValueAtTime(hz(93), tt + .07); } }
+function frogCroak(t, v = .05, f = 170) { for (let i = 0; i < 4; i++) { const tt = t + i * .035, bp = actx.createBiquadFilter(); bp.type = 'bandpass'; bp.frequency.value = 700; bp.Q.value = 2; bp.connect(gainEnv(tt, .003, .028, v)); osc('square', f, tt, .03, bp); } }
+function thunder(t, v = .16) { noise(t, 2.8, 160, v, 'lowpass', .7, .05); noise(t, .25, 1800, v * .4, 'bandpass', .7, .002); noise(t + .3, 1.6, 300, v * .6, 'lowpass', .7, .2); }
+function knock(t, v = .1) { const o = osc('sine', 230, t, .1, gainEnv(t, .001, .1, v)); o.frequency.exponentialRampToValueAtTime(140, t + .08); noise(t, .03, 1500, v * .3, 'bandpass', 2, .001); }
+// 美洲豹：低沉的「鋸木聲」，一下一下的喉音（不是人聲）
+function growl(t, v = .09) {
+  for (let i = 0; i < 5; i++) {
+    const tt = t + i * .42, lp = actx.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 380; lp.connect(gainEnv(tt, .04, .26, v * (1 - i * .12)));
+    const o = osc('sawtooth', 58, tt, .32, lp); o.frequency.setValueAtTime(70, tt); o.frequency.linearRampToValueAtTime(48, tt + .3);
+    noise(tt, .26, 260, v * .5, 'lowpass', 1, .03);
+  }
+}
+// 南美貘：高高細細的口哨聲
+function whistle(t, v = .03) { for (let i = 0; i < 2; i++) { const tt = t + i * .5, o = osc('sine', 2400, tt, .4, gainEnv(tt, .03, .36, v)); o.frequency.setValueAtTime(2200, tt); o.frequency.linearRampToValueAtTime(3000, tt + .12); o.frequency.linearRampToValueAtTime(2300, tt + .38); } }
+// 角鵰：細長、往下滑的尖叫
+function screech(t, v = .03) { const bp = actx.createBiquadFilter(); bp.type = 'bandpass'; bp.frequency.value = 2200; bp.Q.value = 2; bp.connect(gainEnv(t, .05, 1, v)); const o = osc('sawtooth', 1900, t, 1.05, bp); o.frequency.setValueAtTime(2100, t); o.frequency.linearRampToValueAtTime(1500, t + 1); osc('sine', 2100, t, 1, gainEnv(t, .05, .95, v * .5)).frequency.linearRampToValueAtTime(1500, t + 1); }
+// 背景鳥叫（音量小）：尖叫傘鳥的「嗚——咿嗚」、林鴩下滑的口哨、小鳥啾啾、鸚鵡遠遠的叫聲
+function piha(t, v = .014) {
+  const o = osc('sine', 900, t, .5, gainEnv(t, .08, .4, v)); o.frequency.setValueAtTime(900, t); o.frequency.exponentialRampToValueAtTime(2300, t + .45);
+  const t2 = t + .62, o2 = osc('sine', 2500, t2, .55, gainEnv(t2, .02, .5, v * 1.2)); o2.frequency.setValueAtTime(2500, t2); o2.frequency.linearRampToValueAtTime(2700, t2 + .08); o2.frequency.exponentialRampToValueAtTime(1500, t2 + .5);
+}
+function tinamou(t, v = .016) { [0, .55, 1.05].forEach((d, i) => { const tt = t + d, f = hz(79 - i * 2), o = osc('sine', f, tt, .4, gainEnv(tt, .05, .36, v)); o.frequency.linearRampToValueAtTime(f * .94, tt + .38); }); }
+function trill(t, v = .01) { for (let i = 0; i < 9; i++) { const tt = t + i * .06, o = osc('sine', 3400, tt, .04, gainEnv(tt, .003, .04, v)); o.frequency.exponentialRampToValueAtTime(4200, tt + .035); } }
+function birdAmbient() {
+  const k = Math.random();
+  sfx(t => { if (k < .3) piha(t); else if (k < .5) tinamou(t); else if (k < .7) trill(t); else if (k < .88) tweet(t, .012); else squawk(t, .008); });
+}
+function rustle(t) { for (let i = 0; i < 6; i++) noise(t + i * .05, .04, 3500, .03, 'bandpass', 2); }
+function flap(t) { for (let i = 0; i < 8; i++) noise(t + i * .08 + Math.random() * .02, .05, 900 + Math.random() * 400, .05, 'bandpass', .8); }
+
+/* ---------------- ⑤ 互動：兩首原創配樂（各約 21 秒，旋律每一個音都落在當小節的和弦音上） ----------------
+   ① 雨林晨曲：D 大調 4/4 巴西 baião 節奏，每小節 1.75 秒，共 12 小節。木笛唱旋律，木琴點和弦，
+      低音貝斯、鼓（zabumba）、沙鈴；後半段木琴跟著旋律低八度。
+   ② 美洲豹夜行：A 小調 6/8 拍，每小節 1.6 秒，共 13 小節。吉他分解和弦，木笛唱旋律，鐘琴點綴，
+      每小節第四拍有樹蛙「呱」一聲。 */
+function flute(t, f, d, v = .03) {
+  const g = actx.createGain(); g.gain.setValueAtTime(.0001, t); g.gain.linearRampToValueAtTime(v, t + .05); g.gain.setValueAtTime(v * .85, t + d * .8); g.gain.exponentialRampToValueAtTime(.0001, t + d + .12); g.connect(OUT);
+  const o = osc('sine', f, t, d + .15, g), o2 = osc('triangle', f, t, d + .15, gainEnv(t, .05, d, v * .25));
+  if (d > .3) { const lfo = actx.createOscillator(), lg = actx.createGain(); lfo.frequency.value = 5.2; lg.gain.setValueAtTime(0, t); lg.gain.linearRampToValueAtTime(f * .005, t + .25); lfo.connect(lg); lg.connect(o.frequency); lg.connect(o2.frequency); lfo.start(t); lfo.stop(t + d + .2); }
+  noise(t, .08, f * 2, v * .25, 'bandpass', 3, .01);
+}
+function marimba(t, f, v = .04) { osc('sine', f, t, .7, gainEnv(t, .002, .6, v)); osc('sine', f * 4, t, .1, gainEnv(t, .001, .08, v * .25)); }
+function bassN(t, n, d, v = .1) { const lp = actx.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 420; lp.connect(gainEnv(t, .01, d, v)); osc('triangle', hz(n), t, d, lp); osc('sine', hz(n), t, d, gainEnv(t, .01, d, v * .5)); }
+function pluck(t, f, v = .03, d = .9) { const lp = actx.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.setValueAtTime(3200, t); lp.frequency.exponentialRampToValueAtTime(500, t + d * .6); lp.connect(gainEnv(t, .002, d, v)); osc('sawtooth', f, t, d, lp); osc('triangle', f, t, d, gainEnv(t, .002, d * .8, v * .5)); }
+function drum(t, v = .14) { const o = osc('sine', 120, t, .3, gainEnv(t, .002, .3, v)); o.frequency.exponentialRampToValueAtTime(50, t + .25); }
+function shaker(t, v = .012) { noise(t, .06, 7500, v, 'highpass', .8, .01); }
+function tri(t, v = .012) { noise(t, .25, 6200, v, 'bandpass', 14, .001); }
+function dawnSong(t) {
+  OUT = newTrack();
+  const BAR = 1.75, e = BAR / 8;
+  const C = { D: [50, 57, 62, 66, 69], G: [43, 55, 59, 62, 67], Bm: [47, 54, 59, 62, 66], A: [45, 52, 57, 61, 64], Em: [40, 52, 55, 59, 64] };
+  const prog = ['D', 'G', 'Bm', 'A', 'D', 'G', 'Em', 'A', 'G', 'A', 'D', 'D'];
+  const mel = [
+    [[74, 2], [78, 2], [81, 3], [78, 1]], [[79, 2], [83, 2], [79, 2], [74, 2]], [[78, 3], [74, 1], [71, 2], [74, 2]], [[76, 2], [73, 2], [69, 4]],
+    [[81, 2], [78, 1], [81, 1], [86, 4]], [[83, 2], [79, 2], [74, 2], [79, 2]], [[76, 2], [79, 2], [83, 3], [79, 1]], [[81, 4], [76, 2], [73, 2]],
+    [[74, 1], [79, 1], [83, 2], [86, 4]], [[85, 2], [81, 2], [76, 2], [73, 2]], [[78, 2], [81, 2], [86, 4]], [[86, 8]]
+  ];
+  prog.forEach((k, m) => {
+    const bt = t + m * BAR, c = C[k], last = m === prog.length - 1;
+    if (last) { bassN(bt, c[0], 1.8, .12); c.slice(1).forEach(n => marimba(bt, hz(n + 12), .035)); drum(bt, .16); tri(bt, .02); return; }
+    // baião：低音在第 1 拍與第 2 拍後半，鼓同步；沙鈴每個八分音符
+    bassN(bt, c[0], e * 2.6); bassN(bt + 3 * e, c[0] + 7 > c[1] ? c[1] : c[0] + 7, e * 1.6, .08); bassN(bt + 6 * e, c[0], e * 1.4, .07);
+    drum(bt, .12); drum(bt + 3 * e, .09); drum(bt + 6 * e, .06);
+    for (let i = 0; i < 8; i++) shaker(bt + i * e, i % 2 ? .008 : .013);
+    tri(bt + e, .01); tri(bt + 5 * e, .01);
+    [2, 5, 7].forEach(i => c.slice(2).forEach(n => marimba(bt + i * e, hz(n + 12), .016)));
+  });
+  mel.forEach((bar, m) => {
+    let p = 0;
+    bar.forEach(([n, len]) => {
+      const st = t + m * BAR + p * e, d = len * e * .92;
+      flute(st, hz(n), d, .03);
+      if (m >= 6) marimba(st, hz(n - 12), .03);
+      p += len;
+    });
+  });
+  OUT = null;
+  return prog.length * BAR + .6;
+}
+function nightSong(t) {
+  OUT = newTrack();
+  const BAR = 1.6, e = BAR / 6;
+  const C = { Am: [45, 52, 57, 60, 64], F: [41, 48, 53, 57, 60], G: [43, 50, 55, 59, 62], Dm: [38, 50, 53, 57, 62], E: [40, 47, 52, 56, 59] };
+  const prog = ['Am', 'Am', 'F', 'G', 'Am', 'Dm', 'E', 'E', 'Am', 'F', 'G', 'E', 'Am'];
+  const mel = [
+    [[76, 3], [72, 2], [69, 1]], [[72, 2], [76, 1], [81, 3]], [[77, 3], [72, 2], [69, 1]], [[71, 2], [74, 1], [79, 3]],
+    [[76, 2], [72, 1], [69, 3]], [[74, 2], [77, 1], [74, 2], [69, 1]], [[71, 3], [68, 3]], [[76, 2], [71, 1], [64, 3]],
+    [[69, 2], [72, 1], [76, 3]], [[77, 2], [81, 1], [77, 3]], [[79, 2], [74, 1], [71, 3]], [[68, 3], [71, 2], [76, 1]], [[81, 6]]
+  ];
+  const arp = [0, 2, 3, 4, 3, 2];
+  prog.forEach((k, m) => {
+    const bt = t + m * BAR, c = C[k], last = m === prog.length - 1;
+    if (last) { c.forEach((n, i) => pluck(bt + i * .05, hz(n), .028, 2.4)); drum(bt, .1); glock(bt + .2, hz(c[4] + 12), .03); return; }
+    arp.forEach((ix, i) => pluck(bt + i * e, hz(c[ix]), i ? .02 : .028, .8));
+    bassN(bt, c[0] - 12 < 28 ? c[0] : c[0] - 12, e * 3, .07);
+    drum(bt, .08); shaker(bt + 3 * e, .01);
+    if (m > 0) frogCroak(bt + 3 * e, .035, 160 + (m % 3) * 20);
+    if (m % 2 === 1) glock(bt + 2 * e, hz(c[3] + 24), .018);
+  });
+  mel.forEach((bar, m) => {
+    let p = 0;
+    bar.forEach(([n, len]) => { const st = t + m * BAR + p * e, d = len * e * .95; flute(st, hz(n), d, m >= 8 ? .03 : .025); p += len; });
+  });
+  OUT = null;
+  return prog.length * BAR + .6;
+}
+
+/* ---------------- ④ 動畫：日夜循環＋紙板投影 ----------------
+   T.t：一天中的時間（0–1，0 = 午夜）。自動播放時一天約 150 秒 */
+const DAY_SEC = 150;
+const T = { t: 9 / 24, auto: true, target: null };
+let nightLift = 0, liftApplied = 0;
+let night = 0, dusk = 0, nOn = 0, lastApplied = -1, lightQ = -1, shQ = '';
+let sunX = 0, sunY = 0, moonX = 0, moonY = 0;
+function clockText() {
+  const h = T.t * 24, hh = Math.floor(h) % 24, mm = Math.floor((h - Math.floor(h)) * 60 + 1e-6);
+  return `${String(hh).padStart(2, '0')}:${String(mm).padStart(2, '0')}`;
+}
+function applyTime(force) {
+  if (!force && Math.abs(T.t - lastApplied) < .0006 && Math.abs(nightLift - liftApplied) < .01) return;
+  lastApplied = T.t; liftApplied = nightLift;
+  const h = T.t * 24;
+  // 赤道附近：早上六點左右日出、傍晚六點左右日落，黃昏很短
+  night = clamp(1 - smooth(5.5, 6.8, h) + smooth(18, 19.3, h), 0, 1);
+  dusk = Math.max(Math.exp(-Math.pow((h - 6.1) / .8, 2)), Math.exp(-Math.pow((h - 18.3) / .85, 2)));
+  for (const k in PAIRS) {
+    const Pp = PAIRS[k];
+    let c = mix(Pp.d, Pp.n, night * (1 - nightLift * .3));   // 美洲豹夜行時整體稍微亮一點（像月光照進林子）
+    c = mix(c, Pp.k, dusk * .8);
+    root.style.setProperty('--' + k, rgba(c));
+  }
+  // 太陽：早上從右邊（東）升起，傍晚落到左邊；只有在樹冠的縫隙裡看得到
+  const sp = (h - 6) / 12.4, mp = ((h - 18.6 + 24) % 24) / 11.4;
+  sunX = 1500 - sp * 1400; sunY = 250 - Math.sin(Math.PI * clamp(sp, 0, 1)) * 205;
+  $('sun').setAttribute('transform', `translate(${f1(sunX)} ${f1(sunY)})`);
+  $('sun').style.display = sp > -.04 && sp < 1.04 ? '' : 'none';
+  moonX = 1500 - mp * 1400; moonY = 250 - Math.sin(Math.PI * clamp(mp, 0, 1)) * 190;
+  $('moon').setAttribute('transform', `translate(${f1(moonX)} ${f1(moonY)})`);
+  $('moon').style.display = mp > -.05 && mp < 1.05 ? '' : 'none';
+  nOn = smooth(.3, .85, night);
+  // 光束跟著太陽斜：太陽在右邊（早上）光往左下照，傍晚往右下照
+  const rd = Math.round(clamp((800 - sunX) / 700, -1, 1) * .6 * 20) / 20;
+  if (rd !== rayDx) { rayDx = rd; placeRays(); }
+  // 紙板投影：太陽在右邊時影子往左，太陽越低影子越長；夜裡用月光、影子淡一點
+  const lx = night < .5 ? sunX : moonX, ly = night < .5 ? sunY : moonY;
+  const elev = clamp((260 - ly) / 210, 0, 1);
+  let shx = clamp((800 - lx) / 700, -1.2, 1.2) * 3, shy = 1.6 + (1 - elev) * 1.6;
+  if (night > .5) { shx *= .5; shy *= .6; }
+  const key = (Math.round(shx * 4) / 4) + ',' + (Math.round(shy * 4) / 4);
+  if (key !== shQ) {
+    shQ = key;
+    const [a, b] = key.split(',');
+    root.style.setProperty('--shx', a); root.style.setProperty('--shy', b);
+    $('pshSd').setAttribute('dx', (a * .8).toFixed(2)); $('pshSd').setAttribute('dy', (b * .8).toFixed(2));
+  }
+  $('clock').textContent = clockText();
+  if (!T.dragging) $('timeRange').value = Math.round(T.t * 1000);
+}
+
+/* ---------------- ④ 動畫：天氣（晴、多雲、午後雷雨、晨霧） ----------------
+   亞馬遜的午後常常突然下一場大雷雨；清晨河面會起霧 */
+const WX_LIST = [['sun', '晴'], ['cloud', '多雲'], ['storm', '午後雷雨'], ['mist', '晨霧']];
+let wxI = 0;
+const wx = { cloud: 0, storm: 0, mist: 0 };
+const rainDrops = [];
+let boltT = 4, flashK = 0, mistBoost = 0, mistLevel = 0, rayBoost = 0;
+function drawWeather() {
+  for (let i = 0; i < 170; i++) {
+    const l = el('line', { style: 'stroke:var(--rainc)', 'stroke-width': 1.5, opacity: .7, 'stroke-linecap': 'round' }, $('rain'));
+    rainDrops.push({ el: l, x: srand(-100, 1700), y: srand(-40, 600), sp: srand(780, 980) });
+  }
+  // 閃電：只在樹冠的縫隙裡看得到
+  frag($('skyBirds'), `<path id="bolt" d="M0 -20 L-10 20 L2 22 L-14 70 L14 12 L2 10 L12 -20Z" style="fill:var(--flash)" opacity="0"/>`);
+}
+function applyWeather(dt) {
+  const key = WX_LIST[wxI][0];
+  for (const k in wx) { const tg = key === k ? 1 : 0; const nv = wx[k] + (tg - wx[k]) * Math.min(1, dt * 1.1); wx[k] = Math.abs(tg - nv) < .002 ? tg : nv; }
+  const gray = Math.max(wx.cloud * .75, wx.storm);
+  $('sun').setAttribute('opacity', f1(1 - gray * .8));
+  const st = $('skyTint');
+  st.style.fill = wx.mist > .05 ? 'var(--wx-mist)' : 'var(--wx-cloud)';
+  st.setAttribute('opacity', f1(Math.max(wx.storm * .8, wx.cloud * .6, wx.mist * .5) * (1 - night * .6)));
+  $('wxTint').style.fill = 'var(--wx-rain)';
+  $('wxTint').setAttribute('opacity', f1(wx.storm * .22 + wx.cloud * .06));
+  $('rain').setAttribute('opacity', f1(wx.storm));
+  $('stars').setAttribute('opacity', f1(smooth(.6, 1, night) * (1 - gray) * (1 - wx.mist * .7)));
+  // 霧：晨霧天氣、清晨自然起霧、晨曲表演開始時的霧
+  const h = T.t * 24, morning = Math.exp(-Math.pow((h - 6.4) / 1.1, 2)) * .55;
+  mistLevel = clamp(Math.max(wx.mist, morning, mistBoost), 0, 1);
+  $('mistNear').setAttribute('opacity', f1(mistLevel * .9));
+  $('mistFar').setAttribute('opacity', f1(.35 + mistLevel * .65));
+  $('layer0').setAttribute('opacity', f1(1 - mistLevel * .5));
+  $('layer1').setAttribute('opacity', f1(1 - mistLevel * .25));
+  // 光束：白天、太陽夠高才有；多雲雷雨變淡；霧裡光束最明顯；晨曲表演時特別亮
+  const sunK = (1 - night) * smooth(-.02, .12, (h - 6) / 12.4) * (1 - smooth(.9, 1.02, (h - 6) / 12.4));
+  const rayK = clamp(sunK * (1 - gray * .9) * (.5 + mistLevel * .5 + rayBoost * .5), 0, 1);
+  $('rays').setAttribute('opacity', f1(rayK));
+  $('motes').setAttribute('opacity', f1(rayK));
+  ambient(soundOn ? wx.storm : 0, soundOn && userGesture ? (.35 + night * .65) * (1 - wx.storm * .6) : 0);
+}
+
+/* ---------------- ④ 動畫：兩種表演（不能同時進行） ----------------
+   dawn：雨林晨曲——天剛亮，林子裡的霧慢慢散開，光束一道道照進來；吼猴先吼一聲，
+         十二隻金剛鸚鵡成對穿過林間，松鼠猴、巨嘴鳥跟著拍子跳，藍閃蝶飛起來（約 22 秒）
+   night：美洲豹夜行——美洲豹沿著倒木慢慢走過去，走到盡頭回頭一看，眼睛反光；
+         螢火蟲跟著拍子一閃一閃，蕈菇一起發光，樹蛙鼓起鳴囊（約 22 秒） */
+const show = { on: '', t: 0, dur: 0, said: 0, beat: -1 };
+function startDawn() {
+  if (show.on) { busy(); return; }
+  ensureAudio();
+  Object.assign(show, { on: 'dawn', t: 0, dur: 22.4, said: 0, beat: -1 });
+  $('btnDawn').classList.add('on');
+  const h = T.t * 24;
+  if (h < 5.6 || h > 7.2) T.target = 6.2 / 24;
+  mistBoost = 1;
+  // 十二隻金剛鸚鵡，兩兩成對從右邊穿過林間飛到左邊（面朝左）
+  for (let i = 0; i < 12; i++) spawnMacaw(1700 + (i % 2) * 34, 120 + (i % 6) * 30 + rand(-6, 6), -1, i % 3 === 2 ? 1 : 0, 2.6 + Math.floor(i / 2) * .9 + (i % 2) * .12, 150, 14);
+  if (reduced) { T.t = 6.9 / 24; T.target = null; applyTime(true); mistBoost = .3; rayBoost = 1; flyMacaws.forEach((m, i) => { m.t = 0; m.x = 300 + i * 90; }); setTimeout(() => { if (show.on === 'dawn') { endShow(); renderStill(); } }, 22000); }
+  if (audioOK()) {
+    const t = actx.currentTime + .05;
+    OUT = sfxBus; roar(t + .1, 2.4, .08); OUT = null;
+    dawnSong(t + 1);
+    OUT = musNode; squawk(t + 3.2, .025); squawk(t + 6, .022); squawk(t + 9.4, .02); tweet(t + 12, .02); OUT = null;
+    duckSfx(23);
+  }
+  howler.roar = 2.4;
+}
+function startNight() {
+  if (show.on) { busy(); return; }
+  ensureAudio();
+  Object.assign(show, { on: 'night', t: 0, dur: 22.6, said: 0, beat: -1 });
+  $('btnNightT').classList.add('on');
+  const h = T.t * 24;
+  if (h > 4.5 && h < 19.5) T.target = 20.6 / 24;
+  jaguar.x = 560; jaguar.dir = 1; jaguar.pause = 0;
+  if (reduced) { T.t = 20.6 / 24; T.target = null; applyTime(true); jaguar.x = 1000; jaguar.look = 1; setTimeout(() => { if (show.on === 'night') { endShow(); renderStill(); } }, 22000); }
+  if (audioOK()) { const t = actx.currentTime + .6; nightSong(t); OUT = musNode; growl(t + 15.4, .05); OUT = null; duckSfx(23); }
+}
+function endShow() {
+  if (show.on === 'dawn') $('btnDawn').classList.remove('on');
+  else { $('btnNightT').classList.remove('on'); jaguar.pause = 3; }
+  show.on = '';
+}
+function busy() { say(800, 300, '表演進行中，等一下喔！', 1.4); }
+function updateShow(dt) {
+  if (!show.on) {
+    if (cineK > 0) setCine(cineK - dt * .6);
+    mistBoost = Math.max(0, mistBoost - dt * .15);
+    rayBoost = Math.max(0, rayBoost - dt * .2);
+    nightLift = 0;
+    return;
+  }
+  show.t += dt;
+  const t = show.t, d = show.dur;
+  if (show.on === 'dawn') {
+    setCine(smooth(0, 2.6, t) * (1 - smooth(d - 2.8, d, t)) * .7, 800, 260);
+    // 霧在前十秒慢慢散開，光束越來越亮
+    mistBoost = 1 - smooth(2, 12, t) * .7;
+    rayBoost = smooth(3, 11, t);
+    if (T.target === null && T.t * 24 < 7.6) T.t += dt * 1.2 / 24 / 22;
+    const BAR = 1.75;
+    if (t > 1 && t < 21) {
+      const beat = Math.floor((t - 1) / (BAR / 4));
+      if (beat !== show.beat) { show.beat = beat; if (beat % 4 === 0) toucan.hop = .25; if (beat % 8 === 4) monkeys[beat / 4 % 4 | 0].hop = .4; }
+    }
+    if (t > 8 && show.said === 0) { show.said = 1; butterflies.forEach(b => b.burst = 10); }
+    if (t > 14 && show.said === 1) { show.said = 2; harpy.spread = 2.6; tapir.lift = 3; }
+  } else {
+    // 美洲豹：沿著倒木走過去，走到盡頭停下來回頭看
+    const k = smooth(1, 15, t);
+    jaguar.x = lerp(560, 1010, k); jaguar.dir = 1;
+    jaguar.walking = t > 1 && t < 15;
+    jaguar.look = smooth(15, 16, t) * (1 - smooth(20, 21.5, t));
+    setCine(smooth(0, 2.6, t) * (1 - smooth(d - 2.8, d, t)) * .6, jaguar.x, 430);
+    nightLift = smooth(0, 3, t) * (1 - smooth(d - 3, d, t));
+    // 樹蛙在每小節第四拍鼓起鳴囊
+    const BAR = 1.6, ph = ((t - .6) / BAR) % 1;
+    frogs.forEach((f, i) => { if (t > 2 && Math.abs(ph - .5 - i * .02) < .03) f.puff = .35; });
+  }
+  if (t >= d) endShow();
+}
+
+/* ---------------- 動畫：漂浮的小東西（木棉棉絮、水花、音符、流星、漣漪） ---------------- */
+const seeds = [], splashes = [], meteors = [], notes = [], hums = [], ripples = [];
+function spawnSplash(x, y, s = 1) {
+  const g = el('g', { transform: `translate(${f1(x)} ${f1(y)})` }, $('splashes'));
+  const drops = [];
+  for (let i = 0; i < 7; i++) drops.push({ el: el('circle', { r: f1(rand(1.6, 3) * s), style: 'fill:var(--splash)' }, g), vx: rand(-40, 40) * s, vy: rand(-110, -60) * s, x: 0, y: 0 });
+  const ring = el('ellipse', { cx: 0, cy: 0, rx: 6, ry: 1.6, style: 'fill:none;stroke:var(--splash)', 'stroke-width': 1.6 }, g);
+  splashes.push({ el: g, drops, ring, t: 0, s });
+}
+// 溪水的位置：給一個 x，算出溪中心的 y 與溪寬
+function creekAt(x) {
+  for (let i = 0; i < CREEK.length - 1; i++) {
+    const a = CREEK[i], b = CREEK[i + 1];
+    if (x <= a[0] && x >= b[0]) { const u = (a[0] - x) / (a[0] - b[0]); return [lerp(a[1], b[1], u), lerp(a[2], b[2], u)]; }
+  }
+  return x > CREEK[0][0] ? [CREEK[0][1], CREEK[0][2]] : [CREEK[CREEK.length - 1][1], CREEK[CREEK.length - 1][2]];
+}
+function addRipple(x, y, k = 1) {
+  const r = el('ellipse', { cx: f1(x), cy: f1(y), rx: 2, ry: .6, style: 'fill:none;stroke:var(--creekHi)', 'stroke-width': 1 }, $('ripples'));
+  ripples.push({ el: r, t: 0, k });
+}
+
+/* ---------------- ④ 動畫：主步進 ---------------- */
+let clock = 0, px = 0, pxCur = 0, birdT = 5, ambT = 1.5;
+function step(dt) {
+  clock += dt;
+  // —— 時間 ——
+  if (T.target !== null) {
+    let d = T.target - T.t; if (d > .5) d -= 1; if (d < -.5) d += 1;
+    T.t = (T.t + d * Math.min(1, dt * 1.2) + 1) % 1;
+    if (Math.abs(d) < .0015) { T.t = T.target; T.target = null; }
+  } else if (T.auto && !reduced && !show.on) T.t = (T.t + dt / DAY_SEC) % 1;
+  applyTime();
+  applyWeather(dt);
+  updateShow(dt);
+  // —— 視差：紙板越近移得越多 ——
+  pxCur += (px - pxCur) * Math.min(1, dt * 3);
+  [['parFar', 3], ['parRay', 5], ['parMid', 9], ['parNear', 15], ['parFront', 24]].forEach(([id, k]) => $(id).setAttribute('transform', `translate(${f1(pxCur * k)} 0)`));
+  // —— 縫隙裡的天空 ——
+  stars.forEach(s => s.el.setAttribute('opacity', f1(.55 + .45 * Math.sin(clock * s.sp + s.ph))));
+  for (let i = meteors.length - 1; i >= 0; i--) {
+    const m = meteors[i]; m.t += dt;
+    const x = m.x + m.t * 260, y = m.y + m.t * 90;
+    m.el.setAttribute('x1', f1(x)); m.el.setAttribute('y1', f1(y)); m.el.setAttribute('x2', f1(x - 40)); m.el.setAttribute('y2', f1(y - 14));
+    m.el.setAttribute('opacity', f1(clamp(1 - m.t / .8, 0, 1)));
+    if (m.t > .8) { m.el.remove(); meteors.splice(i, 1); }
+  }
+  // —— 光束裡的微塵慢慢往下飄；霧左右飄 ——
+  if (+$('rays').getAttribute('opacity') > .02) motes.forEach(m => {
+    m.u = (m.u + m.sp * dt) % 1;
+    const r = m.ray, y = lerp(r.y, 600, m.u), bx = r.x + rayDx * 540, cx = lerp(r.x, bx, m.u) + m.v * lerp(r.w0, r.w1, m.u) + Math.sin(clock * .8 + m.ph) * 4;
+    m.el.setAttribute('cx', f1(cx)); m.el.setAttribute('cy', f1(y));
+    m.el.setAttribute('opacity', f1((.4 + .6 * Math.abs(Math.sin(clock * 1.3 + m.ph))) * Math.sin(m.u * Math.PI)));
+  });
+  rays.forEach(r => r.el.setAttribute('opacity', f1(r.op * (.8 + .2 * Math.sin(clock * .5 + r.ph)))));
+  mists.forEach(m => { m.x += m.sp * dt; if (m.x > 1600 + m.w) m.x = -m.w; if (m.x < -m.w) m.x = 1600 + m.w; m.el.setAttribute('cx', f1(m.x)); });
+  // —— 背景鳥叫：白天（點過畫面、聲音開著才會響）每隔幾秒有一種鳥叫；夜裡換成偶爾的蛙鳴 ——
+  ambT -= dt;
+  if (ambT < 0) {
+    ambT = rand(2.2, 5.5);
+    if (userGesture && audioOK() && !show.on && wx.storm < .6) {
+      if (night < .5) birdAmbient();
+      else if (Math.random() < .5) sfx(t => frogCroak(t, .02, pick([150, 180, 210])));
+    }
+  }
+  // —— 蝙蝠、小鸚鵡偶爾從林間飛過 ——
+  birdT -= dt;
+  if (birdT < 0 && !reduced) { birdT = rand(8, 15); if (wx.storm < .5 && !show.on) spawnSkyBird(); }
+  for (let i = skyBirds.length - 1; i >= 0; i--) {
+    const b = skyBirds[i]; b.x += b.dir * b.sp * dt; b.ph += dt * 14;
+    b.el.setAttribute('transform', `translate(${f1(b.x)} ${f1(b.y + Math.sin(b.ph * .3) * 8)}) scale(${b.dir * .9} .9)`);
+    b.w.setAttribute('transform', `scale(1 ${f1(.4 + Math.abs(Math.sin(b.ph)) * .8)})`);
+    if (b.x < -60 || b.x > 1660) { b.el.remove(); skyBirds.splice(i, 1); }
+  }
+  // 飛行中的鸚鵡：朝飛行方向，翅膀拍動
+  for (let i = flyMacaws.length - 1; i >= 0; i--) {
+    const m = flyMacaws[i]; m.t += dt;
+    if (m.t < 0) continue;
+    m.el.style.display = '';
+    m.x += m.dir * m.sp * dt;
+    const y = m.y0 + Math.sin(m.t * 1.6 + i) * m.amp;
+    m.el.setAttribute('transform', `translate(${f1(m.x)} ${f1(y)}) scale(${f1(m.dir * m.s)} ${f1(m.s)})`);
+    m.wg.setAttribute('transform', `rotate(${f1(Math.sin(m.t * 11) * 38)} -8 -2)`);
+    if ((m.dir < 0 && m.x < -80) || (m.dir > 0 && m.x > 1680)) { m.el.remove(); flyMacaws.splice(i, 1); }
+  }
+  // —— 黑水小溪：光紋慢慢往左流 ——
+  strips.forEach(s => {
+    s.x -= s.sp * dt * (1 + wx.storm * .6);
+    if (s.x < -80) s.x = 1660;
+    const [cy, w] = creekAt(s.x), k = w / 30;
+    s.el.setAttribute('transform', `translate(${f1(s.x)} ${f1(cy + (s.t - .5) * w * .6)}) scale(${f1(k)} 1)`);
+  });
+  // 雨滴打在溪面的漣漪
+  if (wx.storm > .5 && Math.random() < dt * 30) { const x = rand(0, 1600), [cy, w] = creekAt(x); addRipple(x, cy + rand(-.4, .4) * w, w / 30); }
+  for (let i = ripples.length - 1; i >= 0; i--) {
+    const r = ripples[i]; r.t += dt;
+    r.el.setAttribute('rx', f1(2 + r.t * 26 * r.k)); r.el.setAttribute('ry', f1(.6 + r.t * 6 * r.k));
+    r.el.setAttribute('opacity', f1(clamp(1 - r.t / .7, 0, 1)));
+    if (r.t > .7) { r.el.remove(); ripples.splice(i, 1); }
+  }
+  // 閃電：閃進其中一個縫隙
+  if (wx.storm > .8 && !reduced) {
+    boltT -= dt;
+    if (boltT < 0) {
+      boltT = rand(4, 9); flashK = 1;
+      const g = pick(GAPS); $('bolt').setAttribute('transform', `translate(${f1(g[0] + rand(-.4, .4) * g[2])} ${g[1] - 30})`);
+      if (userGesture) sfx(t => thunder(t + .4));
+    }
+  }
+  flashK = Math.max(0, flashK - dt * 2.6);
+  $('flashR').setAttribute('opacity', f1(flashK > .6 ? .32 : flashK * .22));
+  $('bolt').setAttribute('opacity', f1(flashK > .5 ? 1 : 0));
+  // —— 樹上：松鼠猴、巨嘴鳥、樹懶、吼猴、鸚鵡、角鵰 ——
+  monkeys.forEach(m => {
+    m.wait -= dt;
+    if (m.wait < 0 && !reduced) { m.wait = rand(2, 7); m.tu = clamp(m.u + rand(-.25, .25), .14, .86); }
+    // 不能穿過彼此：前面有同伴就停下
+    if (monkeys.some(o => o !== m && Math.abs(o.u - m.u) < .07 && Math.sign(o.u - m.u) === Math.sign(m.tu - m.u))) m.tu = m.u;
+    const d = m.tu - m.u, moving = Math.abs(d) > .005;
+    if (moving) { m.dir = Math.sign(d); m.u += m.dir * Math.min(Math.abs(d), dt * .1); m.hopPh = (m.hopPh || 0) + dt * 9; }
+    m.hop = Math.max(0, m.hop - dt);
+    const [x, y] = mbr(m.u);
+    const jump = moving ? Math.abs(Math.sin(m.hopPh)) * -6 : 0;
+    m.el.setAttribute('transform', `translate(${f1(x)} ${f1(y + jump - Math.sin(m.hop / .4 * Math.PI) * 14)}) scale(${f1(m.dir * m.s)} ${m.s})`);
+  });
+  toucan.hop = Math.max(0, toucan.hop - dt);
+  toucan.body.setAttribute('transform', `translate(0 ${f1(-Math.sin(clamp(toucan.hop / .25, 0, 1) * Math.PI) * 6)})`);
+  toucan.head.setAttribute('transform', `rotate(${f1(Math.sin(clock * .7) * 8)} -2 -20)`);
+  sloth.wave = Math.max(0, sloth.wave - dt);
+  sloth.head.setAttribute('transform', `rotate(${f1(Math.sin(clock * .25) * 10 + (sloth.wave > 0 ? Math.sin(sloth.wave * 1.4) * 18 : 0))} 12 18)`);
+  sloth.body.setAttribute('transform', `rotate(${f1(Math.sin(clock * .35) * 3)} 0 -10)`);
+  howler.roar = Math.max(0, howler.roar - dt);
+  const ro = howler.roar > 0 ? Math.abs(Math.sin(howler.roar * 6)) : 0;
+  howler.mouth.setAttribute('ry', f1(ro * 3.2));
+  howler.head.setAttribute('transform', `rotate(${f1(howler.roar > 0 ? -14 : Math.sin(clock * .5) * 4)} -4 -18)`);
+  macawsP.forEach((m, i) => {
+    if (m.fly <= 0) return;
+    m.fly -= dt;
+    const u = 1 - m.fly / 5, a = u * Math.PI * 2;
+    m.x = m.x0 + Math.sin(a) * 170 + 40 * Math.sin(a * 2); m.y = m.y0 - Math.sin(u * Math.PI) * 40 + Math.sin(a) * 30 + i * 6;
+    const dir = Math.cos(a) + .5 * Math.cos(a * 2) > 0 ? 1 : -1;
+    if (!m.el.dataset.fly) { m.el.dataset.fly = 1; m.el.innerHTML = macawHTML(m.kind); }
+    m.el.setAttribute('transform', `translate(${f1(m.x)} ${f1(m.y)}) scale(${dir * .8} .8)`);
+    const wg = m.el.querySelector('.wg'); if (wg) wg.setAttribute('transform', `rotate(${f1(Math.sin(clock * 12) * 38)} -8 -2)`);
+    if (m.fly <= 0) { m.el.dataset.fly = ''; m.el.innerHTML = `<g transform="rotate(-50)">${macawHTML(m.kind)}</g>`; m.el.setAttribute('transform', `translate(${m.x0} ${m.y0}) scale(.8 .8)`); }
+  });
+  harpy.spread = Math.max(0, harpy.spread - dt);
+  const hs = harpy.spread > 0 ? Math.sin(clamp(harpy.spread / 2.6, 0, 1) * Math.PI) : 0;
+  harpy.wing.setAttribute('transform', `translate(0 -36) scale(${f1(Math.min(1, hs * 1.6))} 1) translate(0 36)`);
+  harpy.crestG.setAttribute('transform', `translate(0 -56) scale(1 ${f1(1 + Math.min(1, hs * 1.6) * .5)}) translate(0 56)`);
+  harpy.head.setAttribute('transform', `rotate(${f1(Math.sin(clock * .45) * 14)} 0 -44)`);
+  // —— 美洲豹：沿著倒木走、停下來東張西望；朝走路的方向 ——
+  if (show.on !== 'night') {
+    jaguar.look = Math.max(0, jaguar.look - dt);
+    if (jaguar.pause > 0) { jaguar.pause -= dt; jaguar.walking = false; }
+    else if (!reduced) {
+      jaguar.walking = true;
+      jaguar.x += jaguar.dir * jaguar.sp * dt;
+      if (jaguar.x > 1010 || jaguar.x < 600) { jaguar.x = clamp(jaguar.x, 600, 1010); jaguar.dir *= -1; jaguar.pause = rand(2, 4); }
+      else if (Math.random() < dt * .06) jaguar.pause = rand(1.5, 3.5);
+    }
+  }
+  if (jaguar.walking) jaguar.ph += dt * 5.2;
+  const jy = logY(jaguar.x) + 1;
+  jaguar.el.setAttribute('transform', `translate(${f1(jaguar.x)} ${f1(jy + (jaguar.walking ? -Math.abs(Math.sin(jaguar.ph)) * 1.2 : 0))}) scale(${jaguar.dir * .95} .95)`);
+  jaguar.legs.forEach((l, i) => l.setAttribute('transform', `rotate(${f1(jaguar.walking ? Math.sin(jaguar.ph + [0, Math.PI, Math.PI, 0][i]) * 22 : 0)})`));
+  jaguar.tail.setAttribute('transform', `rotate(${f1(Math.sin(clock * 1.4) * 6)} -40 -32)`);
+  jaguar.head.setAttribute('transform', `rotate(${f1(jaguar.look > 0 ? -10 * Math.min(1, jaguar.look) : Math.sin(clock * .6) * 3)} 36 -34)`);
+  const eyeK = Math.max(nOn * .55, show.on === 'night' ? jaguar.look : 0);
+  jaguar.eyeG.setAttribute('opacity', f1(eyeK));
+  // —— 南美貘：在溪邊低頭喝水；被點時抬頭 ——
+  tapir.lift = Math.max(0, tapir.lift - dt);
+  tapir.ph += dt;
+  const drink = tapir.lift > 0 ? -8 : Math.max(0, Math.sin(tapir.ph * .5)) * 1;
+  tapir.head.setAttribute('transform', `rotate(${f1(drink > 0 ? -drink * 30 : -drink)} -26 -38)`);
+  if (drink > .95 && Math.random() < dt * 1.5) addRipple(tapir.x - 64 * tapir.s, tapir.y - 6, .6);
+  // —— 凱門鱷：夜裡眼睛反光；點了會潛下去 ——
+  caiman.sink = Math.max(0, caiman.sink - dt);
+  caiman.body.setAttribute('transform', `translate(${f1(Math.sin(clock * .3) * 6)} ${f1(Math.sin(clamp(caiman.sink / 4, 0, 1) * Math.PI) * 12)})`);
+  caiman.glow.setAttribute('opacity', f1(Math.max(nOn * .4, show.on === 'night' ? smooth(6, 9, show.t) * .9 : 0) * (caiman.sink > 0 ? 0 : 1)));
+  // —— 切葉蟻：沿著蟻路走，前面太近就慢下來 ——
+  if (!reduced || dt > .01) ants.forEach(a => {
+    a.s += a.dir * a.sp * dt;
+    if (a.s > antLen) a.s -= antLen; if (a.s < 0) a.s += antLen;
+    const i = clamp(Math.round(a.s / 2), 1, antPts.length - 1), p = antPts[i], q = antPts[i - 1];
+    let ang = Math.atan2(p[1] - q[1], p[0] - q[0]) * 180 / Math.PI;   // 路徑方向（大致朝左）
+    if (a.dir < 0) ang += 180;                                         // 往回走的螞蟻轉過來
+    const left = Math.cos(ang * Math.PI / 180) < 0;
+    a.el.setAttribute('transform', `translate(${f1(p[0])} ${f1(p[1])}) rotate(${f1(left ? ang - 180 : ang)}) scale(${left ? -1 : 1} 1)`);
+  });
+  // —— 蕈菇：夜裡發出淡淡的綠光；夜行表演時跟著拍子 ——
+  const fBeat = show.on === 'night' ? smooth(3, 6, show.t) * (1 - smooth(20, 22, show.t)) : 0;
+  fungi.forEach((f, i) => {
+    f.boost = Math.max(0, (f.boost || 0) - dt);
+    const b = Math.max(nOn * (.6 + .3 * Math.sin(clock * .9 + f.ph)), fBeat * (.5 + .5 * Math.pow(1 - (((show.t - .6) / 1.6 + i * .17) % 1), 2)), f.boost > 0 ? Math.min(1, f.boost) : 0);
+    f.glow.setAttribute('opacity', f1(b));
+  });
+  // —— 樹蛙鼓鳴囊 ——
+  frogs.forEach(f => { f.puff = Math.max(0, f.puff - dt); f.sac.setAttribute('transform', `scale(${f1(Math.sin(clamp(f.puff / .35, 0, 1) * Math.PI) * 1.6)})`); });
+  if (show.on !== 'night' && night > .7 && !reduced && Math.random() < dt * .8) pick(frogs).puff = .35;
+  // —— 前景：藤蔓隨風晃、箭毒蛙、蜂鳥 ——
+  const wind = 1 + wx.storm * 2.5;
+  vineEls.forEach(v => v.el.setAttribute('transform', `rotate(${f1(Math.sin(clock * .8 + v.ph) * 1.6 * wind)} ${v.x} ${v.y})`));
+  pFrog.hop = Math.max(0, pFrog.hop - dt);
+  pFrog.body.setAttribute('transform', `translate(${f1(-Math.sin(clamp(pFrog.hop / .5, 0, 1) * Math.PI) * 10)} ${f1(-Math.sin(clamp(pFrog.hop / .5, 0, 1) * Math.PI) * 16)})`);
+  for (let i = hums.length - 1; i >= 0; i--) {
+    const h = hums[i]; h.t += dt;
+    const u = h.t / 4;
+    const x = u < .25 ? lerp(1640, 1512, u / .25) : u < .75 ? 1512 + Math.sin(h.t * 3) * 6 : lerp(1512, 1300, (u - .75) / .25);
+    const y = u < .25 ? lerp(300, 410, u / .25) : u < .75 ? 410 + Math.sin(h.t * 5) * 8 : lerp(410, 260, (u - .75) / .25);
+    h.el.setAttribute('transform', `translate(${f1(x)} ${f1(y)}) scale(-1 1)`);
+    h.w.setAttribute('transform', `scale(1 ${f1(Math.sin(h.t * 90) * .8 + .2)})`);
+    if (h.t > 4) { h.el.remove(); hums.splice(i, 1); }
+  }
+  // —— 藍閃蝶：白天在林下飛；下雨、晚上休息 ——
+  const bfOn = (1 - night) * (1 - wx.storm);
+  butterflies.forEach((b, i) => {
+    b.burst = Math.max(0, b.burst - dt);
+    if (Math.hypot(b.hx - b.x, b.hy - b.y) < 20 || Math.random() < dt * .1) { b.hx = rand(200, 1420); b.hy = b.burst > 0 ? rand(220, 420) : rand(320, 560); }
+    const sp = b.burst > 0 ? 90 : 40;
+    const dx = b.hx - b.x, dy = b.hy - b.y, L = Math.hypot(dx, dy) || 1;
+    b.x += dx / L * sp * dt; b.y += dy / L * sp * dt + Math.sin(clock * 6 + i) * 18 * dt;
+    b.ph += dt * 14;
+    const o = Math.abs(Math.sin(b.ph));
+    b.w.setAttribute('transform', `scale(${f1(.2 + o * .8)} 1)`); b.w2.setAttribute('transform', `scale(${f1(.2 + o * .8)} 1)`);
+    b.el.setAttribute('transform', `translate(${f1(b.x)} ${f1(b.y)}) scale(${b.s})`);
+    b.el.setAttribute('opacity', f1(bfOn));
+  });
+  // —— 螢火蟲：夜裡在林下一閃一閃；夜行表演時跟著拍子同步閃 ——
+  const ffShow = show.on === 'night' ? smooth(2, 5, show.t) * (1 - smooth(20, 22.5, show.t)) : 0;
+  const ffOn = Math.max(nOn * (1 - wx.storm * .8), ffShow);
+  if (ffOn > .01) {
+    const beatPh = show.on === 'night' ? (((show.t - .6) / (1.6 / 2)) % 1) : 0;
+    fireflies.forEach((f, i) => {
+      f.x = f.x0 + Math.sin(clock * f.dr + f.ph) * 26; f.y = f.y0 + Math.cos(clock * f.dr * 1.3 + f.ph) * 14;
+      let b = Math.pow(Math.max(0, Math.sin(clock * f.sp + f.ph)), 4);
+      if (ffShow > 0) b = Math.max(b * (1 - ffShow), ffShow * (.3 + .7 * Math.pow(1 - beatPh, 2)) * (i % 2 ? 1 : .75));
+      f.el.setAttribute('transform', `translate(${f1(f.x)} ${f1(f.y)})`);
+      f.el.setAttribute('opacity', f1(b * ffOn));
+    });
+  } else if (fireflies[0].el.getAttribute('opacity') !== '0') fireflies.forEach(f => f.el.setAttribute('opacity', 0));
+  // —— 木棉棉絮（像棉花一樣飄） ——
+  for (let i = seeds.length - 1; i >= 0; i--) {
+    const s = seeds[i]; s.t += dt;
+    s.x += (s.vx + Math.sin(s.t * 2 + s.ph) * 14) * dt; s.y += s.vy * dt;
+    s.el.setAttribute('transform', `translate(${f1(s.x)} ${f1(s.y)})`);
+    s.el.setAttribute('opacity', f1(clamp(1 - (s.t - 5) / 2, 0, 1)));
+    if (s.t > 7) { s.el.remove(); seeds.splice(i, 1); }
+  }
+  // 水花
+  for (let i = splashes.length - 1; i >= 0; i--) {
+    const sp = splashes[i]; sp.t += dt;
+    sp.drops.forEach(d => { d.vy += 300 * dt; d.x += d.vx * dt; d.y += d.vy * dt; d.el.setAttribute('cx', f1(d.x)); d.el.setAttribute('cy', f1(Math.min(d.y, 2))); d.el.setAttribute('opacity', f1(d.y > 1 ? 0 : 1)); });
+    sp.ring.setAttribute('rx', f1(6 + sp.t * 50 * sp.s)); sp.ring.setAttribute('ry', f1(1.6 + sp.t * 10 * sp.s)); sp.ring.setAttribute('opacity', f1(clamp(1 - sp.t, 0, 1)));
+    if (sp.t > 1.1) { sp.el.remove(); splashes.splice(i, 1); }
+  }
+  // 雨
+  if (wx.storm > .01) rainDrops.forEach(r => {
+    r.y += r.sp * dt; r.x -= r.sp * .1 * dt;
+    if (r.y > 610) { r.y = rand(-60, -10); r.x = rand(-60, 1700); }
+    r.el.setAttribute('x1', f1(r.x)); r.el.setAttribute('y1', f1(r.y)); r.el.setAttribute('x2', f1(r.x - 2.4)); r.el.setAttribute('y2', f1(r.y + 18));
+  });
+}
+
+/* ---------------- ⑤ 互動：說明泡泡（像紀錄片的旁白字幕） ---------------- */
+function say(x, y, text, dur = 1.6) {
+  const g = el('g', { class: 'bubble' }, $('bubbles'));
+  const inner = el('g', { class: 'pop', style: `--dur:${dur}s` }, g);
+  const t = el('text', { x: 0, y: 0 }, inner);
+  t.textContent = text;
+  const w = Math.max(44, (t.getComputedTextLength() || text.length * 15) + 24);
+  const r = el('rect', { x: f1(-w / 2), y: -15, width: f1(w), height: 30, rx: 15 });
+  inner.insertBefore(r, t);
+  x = clamp(x, w / 2 + 16, 1600 - w / 2 - 16); y = clamp(y, 30, 570);
+  g.setAttribute('transform', `translate(${f1(x)} ${f1(y)})`);
+  setTimeout(() => g.remove(), dur * 1000);
+}
+const sayI = {};
+const nextLine = (k, arr) => { sayI[k] = ((sayI[k] ?? -1) + 1) % arr.length; return arr[sayI[k]]; };
+
+/* ---------------- 動畫主迴圈 ---------------- */
+let last = 0, rafId = 0;
+function loop(now) {
+  const dt = clamp((now - last) / 1000, 0, .05); last = now;
+  step(dt);
+  rafId = requestAnimationFrame(loop);
+}
+function settle(sec) { for (let s = 0; s < sec; s += .05) step(.05); }
+function renderStill() { step(.0001); }
+function start() {
+  cancelAnimationFrame(rafId);
+  if (reduced) { T.auto = false; syncAuto(); applyTime(true); settle(1.5); }
+  else { last = performance.now(); rafId = requestAnimationFrame(loop); }
+}
+
+/* ---------------- 開始：依序畫出場景、角色 ---------------- */
+drawSky();
+drawLayers();
+drawRays();
+placeRays();
+drawMidTrees();
+drawTreeAnimals();
+drawFloor();
+drawTapir();
+drawCaiman();
+drawAnts();
+drawJaguar();
+drawFront();
+drawFrogs();
+drawButterflies();
+drawWeather();
+// 樹冠縫隙的點擊範圍
+const gapHit = el('g', {}, $('parFront'));
+GAPS.forEach(([x, y, rx, ry]) => el('ellipse', { cx: x, cy: y, rx: rx * 1.1, ry: ry * 1.4, fill: '#000', opacity: 0, class: 'gapHit' }, gapHit));
+hit(gapHit, '樹冠的縫隙');
+
+/* ---------------- ⑤ 互動：點擊 ---------------- */
+function onAct(node, fn) {
+  node.addEventListener('click', e => { e.stopPropagation(); userGesture = true; ensureAudio(); fn(e); if (reduced) settle(.6); });
+  node.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); userGesture = true; ensureAudio(); fn(e); if (reduced) settle(.6); } });
+}
+function svgPoint(e) {
+  if (!e.clientX && !e.clientY) return { x: 800, y: 300 };
+  const p = svg.createSVGPoint(); p.x = e.clientX; p.y = e.clientY;
+  return p.matrixTransform(svg.getScreenCTM().inverse());
+}
+svg.addEventListener('pointerdown', () => { userGesture = true; ensureAudio(); document.body.classList.remove('kbd'); });
+window.addEventListener('keydown', e => { if (e.key === 'Tab') document.body.classList.add('kbd'); });
+svg.addEventListener('pointermove', e => { const p = svgPoint(e); px = clamp((800 - p.x) / 800, -1, 1); });
+svg.addEventListener('pointerleave', () => { px = 0; });
+
+// 樹冠縫隙：白天一對金剛鸚鵡飛過林間；夜晚縫隙裡劃過流星
+onAct(gapHit, e => {
+  const p = svgPoint(e);
+  if (night > .55) {
+    const g = GAPS.reduce((a, b) => Math.abs(b[0] - p.x) < Math.abs(a[0] - p.x) ? b : a);
+    const m = el('line', { style: 'stroke:var(--star)', 'stroke-width': 2, 'stroke-linecap': 'round' }, $('stars'));
+    meteors.push({ el: m, x: g[0] - g[2] * .8, y: g[1] - g[3] * .6, t: 0 });
+    sfx(t => glock(t, hz(88), .03)); say(p.x, 140, '樹冠的縫隙裡劃過一顆流星', 1.8); return;
+  }
+  const dir = p.x < 800 ? 1 : -1, y = rand(150, 240);
+  spawnMacaw(dir > 0 ? -60 : 1660, y, dir, 0, 0, 170, 12);
+  spawnMacaw(dir > 0 ? -100 : 1700, y + 16, dir, 1, .15, 170, 12);
+  sfx(t => squawk(t));
+  say(p.x, 140, nextLine('gap', ['雨林的樹冠層密得幾乎看不到天空', '只有不到 5% 的陽光照得到地面', '大樹倒下的地方，才會開出一個林窗']), 2.2);
+});
+onAct($('kapokHit'), () => {
+  for (let i = 0; i < 10; i++) { const g = el('g', {}, $('seeds')); g.innerHTML = `<circle r="4" style="fill:#ffffff" opacity=".9"/><circle cx="3" cy="-2" r="3" style="fill:#ffffff" opacity=".8"/><circle r="1" style="fill:#6a5030"/>`; seeds.push({ el: g, x: rand(300, 560), y: rand(90, 200), vx: rand(10, 30), vy: rand(12, 26), t: 0, ph: rand(0, 6) }); }
+  sfx(t => { rustle(t); [74, 78, 81].forEach((n, i) => glock(t + i * .12, hz(n), .025)); });
+  say(420, 330, nextLine('kapok', ['巨型木棉（Samaúma），可以長到 50 多公尺高', '像牆一樣的板根，撐住淺根的大樹', '樹幹上長滿鳳梨科植物、苔蘚和蘭花', '果實裡的棉絮會隨風飄走']), 2.4);
+});
+onAct($('cecHit'), () => { sloth.wave = 2; sfx(rustle); say(880, 260, nextLine('cec', ['號角樹：樹幹一節一節、中間是空的', '葉子背面是銀白色的', '樹懶很愛吃號角樹的葉子']), 2); });
+onAct($('figHit'), () => { sfx(rustle); say(1210, 300, nextLine('fig', ['絞殺榕：種子落在別的樹上發芽', '氣根往下長，慢慢把宿主樹包起來', '最後宿主樹爛掉，留下網狀的空心樹幹']), 2.4); });
+onAct($('palmHit'), () => { sfx(rustle); say(1400, 330, nextLine('palm', ['高跷根棕櫚：根像高跷一樣撐著樹幹', '傳說它會慢慢「走路」，其實是誤會', '積水的林地也站得穩']), 2.2); });
+onAct($('logHit'), () => { fungi.forEach(f => f.boost = 2.5); sfx(t => { knock(t, .06); knock(t + .2, .05); }); say(820, 420, nextLine('log', ['倒木：大樹倒下，留下一個透光的林窗', '真菌和昆蟲會慢慢把它分解', '動物常把倒木當成過溪的橋']), 2.2); });
+onAct($('creek'), e => { const p = svgPoint(e), x = p.x - pxCur * 15, [cy] = creekAt(x); spawnSplash(x, cy, .7); sfx(t => plop(t, .05)); say(x, cy - 50, nextLine('creek', ['黑水溪：落葉的單寧把溪水染成茶色', '水是酸的，蚊子比較少', '雨季時溪水漫進森林，變成淹水林']), 2.2); });
+onAct($('antHit'), () => { sfx(t => rustle(t)); say(760, 410, nextLine('ant', ['切葉蟻：把葉子剪成小片搬回家', '牠們不吃葉子，是拿來種真菌吃', '一個蟻窩可以住幾百萬隻螞蟻']), 2.2); });
+onAct(jaguar.el, () => {
+  if (show.on !== 'night') { jaguar.pause = 3; jaguar.look = 2.5; }
+  sfx(t => growl(t, .07));
+  say(jaguar.x, logY(jaguar.x) - 80, nextLine('jag', ['美洲豹：美洲最大的貓科動物', '咬合力超強，連烏龜殼都咬得破', '很會游泳，會在溪邊抓凱門鱷', '身上的花紋叫玫瑰斑，中間還有小黑點']), 2.4);
+});
+onAct(tapir.el, () => { tapir.lift = 3; sfx(t => whistle(t)); say(tapir.x, 420, nextLine('tapir', ['南美貘：南美洲最大的陸地哺乳動物', '短短的鼻子可以捲住樹葉', '很愛泡在水裡', '寶寶身上有白色條紋和斑點，像西瓜']), 2.4); });
+onAct(harpy.el, () => { harpy.spread = 2.6; sfx(t => { screech(t); flap(t + .2); }); say(1318, 240, nextLine('harpy', ['角鵰：世界上最強壯的猛禽之一', '爪子比灰熊的還長', '會從樹冠抓走樹懶和猴子', '頭上的冠羽會豎起來']), 2.4); });
+onAct(sloth.el, () => { sloth.wave = 4; sfx(t => glock(t, hz(69), .03)); say(930, 260, nextLine('sloth', ['三趾樹懶：慢——慢——來', '大約一週才下樹一次', '毛上長了藻類，看起來綠綠的', '牠其實很會游泳']), 2.4); });
+monkeys.forEach(m => onAct(m.el, () => { monkeys.forEach((o, i) => setTimeout(() => { o.hop = .4; }, i * 120)); sfx(chirp); say(mbr(m.u)[0], 120, nextLine('monkey', ['松鼠猴成群行動', '吱吱！跳過來囉', '牠們的尾巴不能抓東西，只用來平衡']), 1.8); }));
+onAct(toucan.el, () => { toucan.hop = .25; sfx(croakT); say(684, 110, nextLine('toucan', ['巨嘴鳥：大嘴巴其實很輕', '嘴巴可以幫忙散熱', '最愛吃水果']), 2); });
+onAct(howler.el, () => { howler.roar = 2.2; sfx(t => roar(t, 2.2)); say(1062, 150, nextLine('howler', ['紅吼猴：叫聲幾公里外都聽得到', '一大早就開始吼', '用尾巴勾著樹枝']), 2.2); });
+macawsP.forEach(m => onAct(m.el, () => { if (m.fly > 0) return; macawsP.forEach(o => { o.fly = 5; }); sfx(t => { squawk(t); flap(t); }); say(330, 110, nextLine('macaw', ['金剛鸚鵡一輩子成雙成對', '紅綠、藍黃，顏色超鮮豔', '牠們會去河岸舔黏土']), 2); }));
+onAct(caiman.el, () => { caiman.sink = 4; sfx(t => plop(t, .06)); say(706, 500, nextLine('caiman', ['凱門鱷：只露出眼睛和鼻孔', '晚上眼睛會反光', '噗通——潛下去了']), 2); });
+fungi.forEach(f => { hit(f.el, '蕈菇'); onAct(f.el, () => { f.boost = 3; sfx(t => glock(t, hz(pick([81, 86, 88])), .025)); say(+f.el.getAttribute('transform').match(/[\d.]+/)[0], 440, nextLine('fungi', ['有些蕈菇在夜裡會發出淡淡的綠光', '真菌是森林的分解者', '倒木上的層孔菌一層一層像架子']), 2.2); }); });
+onAct(heli.el, () => {
+  const g = el('g', {}, $('hums'));
+  g.innerHTML = `<path d="M-6 0 Q0 -4 6 -1 L18 -2 L6 1 Q0 4 -6 2 L-10 4 L-9 0 L-10 -3Z" ${F('hum')}/><g class="w"><path d="M0 -1 Q-4 -12 4 -14 Q4 -6 2 -1Z" ${F('hum')} opacity=".7"/></g><circle cx="3" cy="-1" r=".8" fill="#111"/>`;
+  hums.push({ el: g, w: g.querySelector('.w'), t: 0 });
+  sfx(t => { noise(t, 2.5, 180, .02, 'bandpass', 2, .2); tweet(t + 1.2, .02); });
+  say(1490, 340, nextLine('heli', ['赫蕉：紅色苞片像龍蝦的鉗子', '蜂鳥最愛來吸花蜜']), 2);
+});
+onAct($('bromHit'), () => { pFrog.hop = .5; sfx(t => plop(t, .04)); say(1440, 500, '鳳梨科植物的葉心可以存雨水', 1.8); });
+onAct(pFrog.el, () => { pFrog.hop = .5; sfx(t => frogCroak(t, .04, 220)); say(1416, 500, nextLine('frog', ['箭毒蛙：顏色越鮮豔，越是在警告「我有毒」', '只有指甲那麼大', '不要用手摸喔！']), 2.2); });
+
+/* ---------------- ⑤ 互動：控制列 ---------------- */
+function syncAuto() { $('btnAuto').setAttribute('aria-pressed', String(T.auto)); $('btnAuto').textContent = T.auto ? '自動播放中' : '自動播放'; }
+function goTo(t) { if (reduced) { T.t = t; applyTime(true); renderStill(); } else T.target = t; }
+const tap = fn => () => { userGesture = true; ensureAudio(); setTimeout(() => { fn(); if (reduced) settle(2); }, actx && actx.state !== 'running' ? 120 : 0); };
+$('btnDawn').addEventListener('click', tap(startDawn));
+$('btnNightT').addEventListener('click', tap(startNight));
+$('btnWeather').addEventListener('click', () => {
+  userGesture = true; ensureAudio();
+  wxI = (wxI + 1) % WX_LIST.length;
+  $('btnWeather').textContent = '天氣：' + WX_LIST[wxI][1];
+  if (WX_LIST[wxI][0] === 'storm') boltT = 1.2;
+  if (reduced) { for (const k in wx) wx[k] = WX_LIST[wxI][0] === k ? 1 : 0; applyWeather(0); renderStill(); }
+});
+$('btnSound').addEventListener('click', () => {
+  soundOn = !soundOn; userGesture = true;
+  $('btnSound').setAttribute('aria-pressed', String(soundOn)); $('btnSound').textContent = soundOn ? '🔊 聲音：開' : '🔇 聲音：關';
+  if (ensureAudio()) {
+    master.gain.cancelScheduledValues(actx.currentTime);
+    master.gain.setValueAtTime(soundOn ? .5 : 0, actx.currentTime);
+    if (!soundOn && musNode) { try { musNode.disconnect(); } catch (e) {} musNode = null; }
+  }
+});
+$('btnDay').addEventListener('click', () => goTo(9 / 24));
+$('btnNight').addEventListener('click', () => goTo(20.5 / 24));
+$('btnAuto').addEventListener('click', () => { T.auto = !T.auto; T.target = null; syncAuto(); });
+$('timeRange').addEventListener('input', e => {
+  T.t = e.target.value / 1000; T.target = null; T.dragging = true; applyTime(true); T.dragging = false;
+  if (reduced) renderStill();
+});
+mq.addEventListener?.('change', e => { reduced = e.matches; if (!reduced) { T.auto = true; syncAuto(); } start(); });
+
+applyTime(true);
+applyWeather(0);
+syncAuto();
+settle(.2);
+start();
+
+// 作者精選輪播：在網站精選區（pure 版、內嵌框）裡自動演出「雨林晨曲」（表演時不出現文字框）；音樂由網站的「聲音」按鈕透過 window.sceneMusic 開關
+const inPicks = (() => { let top = true; try { top = window.top === window; } catch (e) { top = false; } return !!document.getElementById('pure-art') && !top; })();
+if (inPicks) {
+  const useCtx = c => {
+    actx = c; rainGain = bugGain = null;
+    master = actx.createGain(); master.gain.value = soundOn ? .5 : 0;
+    const comp = actx.createDynamicsCompressor(); comp.threshold.value = -16; comp.ratio.value = 3;
+    master.connect(comp); comp.connect(actx.destination);
+    sfxBus = actx.createGain(); sfxBus.connect(master);
+    musBus = actx.createGain(); musBus.gain.value = .64; /* 音樂軌音量 ×0.64（2026-11-24 兩次各調降 20%） */ musBus.connect(master);
+  };
+  setTimeout(() => startDawn(), 800);
+  setInterval(() => { if (!show.on) startDawn(); }, 4000);
+  window.sceneMusic = {
+    playing: false,
+    start(c) {
+      if (this.playing) return; this.playing = true; userGesture = true; soundOn = true;
+      if (c && c !== actx) useCtx(c); else ensureAudio();
+      if (!actx) return;
+      const go = () => { if (show.on === 'dawn' && show.t < 3 && audioOK()) { dawnSong(actx.currentTime + .05); duckSfx(23); } };
+      if (actx.state === 'running') go(); else actx.resume().then(go).catch(() => {});
+    },
+    stop() { this.playing = false; userGesture = false; if (musNode) { try { musNode.disconnect(); } catch (e) {} musNode = null; } if (master) master.gain.setValueAtTime(0, actx.currentTime); soundOn = false; },
+    duck() {}
+  };
+}
+/* ShowStop：再按一下優雅停止表演（共用模組在上方 <script id="showstop">） */
+ShowStop.init({
+  on: () => show.on || null,
+  btn: { dawn: 'btnDawn', night: 'btnNightT' },
+  save: () => ({ t: T.t, auto: T.auto }),
+  stop: () => {
+    flyMacaws.forEach(m => m.el.remove()); flyMacaws.length = 0;   // 鸚鵡群收走
+    endShow(); mistBoost = 0; rayBoost = 0; setCine(0);
+  },
+  restore: s => { T.t = s.t; T.auto = s.auto; T.target = null; syncAuto(); applyTime(true); }
+});
+/* /ShowStop */
+})();
+</script>
+</body>
+</html>

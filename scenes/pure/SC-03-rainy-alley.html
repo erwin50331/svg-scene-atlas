@@ -1,0 +1,1077 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>/* 基本重設 */ body{margin:0} img{max-width:100%} [hidden]{display:none!important}</style>
+<title>SC-03 雨夜巷弄</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@500;700;900&family=Noto+Sans+TC:wght@400;500&display=swap">
+<style>
+/* =========================================================
+   SC-03 雨夜巷弄｜剪紙層疊風格
+   【色票 token】所有顏色集中在這裡。
+   - 場景色成對出現：--名稱-day / --名稱-night，
+     JS 會依「日夜比例」自動混色，輸出成 --名稱 給 SVG 使用。
+   - 「常亮光源」不參與混色（燈、霓虹、燈籠）。
+   換色時只需改這個區塊。
+   版面概念：深色紙框中央放一張寬幅剪紙舞台，下方是一排紙籤式控制鈕。
+   ========================================================= */
+:root{
+  color-scheme:dark;
+
+  /* ---- 頁面外框（單一深色主題） ---- */
+  --page-bg:#17161f;
+  --page-panel:#211f2c;
+  --page-fg:#efe8da;
+  --page-dim:#a9a397;
+  --page-line:#34314a;
+  --page-accent:#ff7a5c;
+  --font-display:"Noto Serif TC","Songti TC","PMingLiU",serif;
+  --font-body:"Noto Sans TC","PingFang TC","Microsoft JhengHei",sans-serif;
+
+  /* ---- 天空與遠景 ---- */
+  --sky-top-day:#9eb0bb;   --sky-top-night:#0f1330;
+  --sky-bot-day:#d3d9da;   --sky-bot-night:#2b2c58;
+  --far-day:#aebbc2;       --far-night:#1d2245;
+  --far2-day:#bcc6cb;      --far2-night:#262b55;
+  --cloud-day:#c6ced2;     --cloud-night:#2c315c;
+  --cloud-dk-day:#aab5bc;  --cloud-dk-night:#21254a;
+
+  /* ---- 建築（四種牆色 + 巷內陰影 + 線腳） ---- */
+  --bld-a-day:#d8c4ad;     --bld-a-night:#3c3459;
+  --bld-b-day:#a9bbb0;     --bld-b-night:#2a3955;
+  --bld-c-day:#d5a593;     --bld-c-night:#4a3252;
+  --bld-d-day:#c0c4ce;     --bld-d-night:#343761;
+  --bld-shade-day:#8b929b; --bld-shade-night:#171932;
+  --trim-day:#6f6a75;      --trim-night:#1b1a33;
+  --win-off-day:#7b8e9b;   --win-off-night:#1a2143;
+  --metal-day:#8f969d;     --metal-night:#2b2f4a;
+  --sign-txt-day:#f6ecd9;  --sign-txt-night:#ffd47e;
+
+  /* ---- 街道 ---- */
+  --road-day:#646d77;      --road-night:#13162a;
+  --walk-day:#979ca2;      --walk-night:#252842;
+  --curb-day:#b4b8bc;      --curb-night:#363a5c;
+  --puddle-day:#adc0cc;    --puddle-night:#2c3768;
+  --rain-day:#f4f7f9;      --rain-night:#bcc8ff;
+  --ink-day:#3c3a42;       --ink-night:#04050e;
+
+  /* ---- 人物與物件 ---- */
+  --skin-day:#eac7a4;      --skin-night:#9a7f79;
+  --hair-day:#3b2f2c;      --hair-night:#15111b;
+  --coat1-day:#4b5560;     --coat1-night:#1f232f;
+  --coat2-day:#8a6b52;     --coat2-night:#3d3040;
+  --coat3-day:#556b4f;     --coat3-night:#22302c;
+  --umb1-day:#d9503a;      --umb1-night:#a03b3b;
+  --umb2-day:#eab33a;      --umb2-night:#a8843b;
+  --umb3-day:#3aa898;      --umb3-night:#2a7b75;
+  --umb4-day:#6c5bc9;      --umb4-night:#4b3f91;
+  --umb5-day:#e77ea3;      --umb5-night:#a65b7c;
+  --umb6-day:#2f608d;      --umb6-night:#22456b;
+  --awning1-day:#c65040;   --awning1-night:#6c2c37;
+  --awning2-day:#3d7a8c;   --awning2-night:#203f56;
+  --noren-day:#2f4f7a;     --noren-night:#1d2b50;
+  --plant-day:#5f8a5a;     --plant-night:#1e3933;
+  --wood-day:#8a6a4c;      --wood-night:#35283a;
+
+  /* ---- 常亮光源（不隨日夜混色） ---- */
+  --win-on:#ffd47e;   /* 窗內暖光 */
+  --lamp:#ffe8b0;     /* 路燈 */
+  --lantern:#ff5a3c;  /* 紅燈籠 */
+  --neon:#4ff0d8;     /* 霓虹青 */
+  --neon2:#ff6fb1;    /* 霓虹粉 */
+  --vend:#d6f2ff;     /* 販賣機面板 */
+  --tail:#ff3b3b;     /* 車尾燈 */
+}
+
+/* ===== 頁面版面 ===== */
+html,body{background:var(--page-bg);color:var(--page-fg)}
+body{font-family:var(--font-body);line-height:1.6}
+.wrap{max-width:1680px;margin:0 auto;padding-block:20px 32px;
+  padding-left:max(16px,env(safe-area-inset-left,0px));
+  padding-right:max(16px,env(safe-area-inset-right,0px));
+  display:grid;gap:16px}
+header{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 18px}
+h1{font-family:var(--font-display);font-weight:900;font-size:clamp(1.4rem,2.6vw,2rem);margin:0;letter-spacing:.04em;text-wrap:balance}
+h1 small{font-size:.55em;font-weight:700;color:var(--page-accent);letter-spacing:.12em;margin-right:.6em}
+.meta{color:var(--page-dim);font-size:.9rem;margin:0}
+.stage{position:relative;border-radius:6px;overflow:hidden;background:#000;
+  box-shadow:0 0 0 1px var(--page-line),0 18px 40px -18px #000}
+.stage svg{display:block;width:100%;height:auto;max-width:100%;touch-action:manipulation}
+.controls{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.controls button{font:500 .95rem/1 var(--font-body);color:var(--page-fg);background:var(--page-panel);
+  border:1px solid var(--page-line);border-radius:3px;padding:10px 16px;cursor:pointer;
+  box-shadow:0 3px 0 -1px #0007;transition:transform .12s,background .2s}
+.controls button:hover{background:#2c2a3b}
+.controls button:active{transform:translateY(2px)}
+.controls button:focus-visible{outline:2px solid var(--page-accent);outline-offset:2px}
+.controls button[aria-pressed="true"]{border-color:var(--page-accent);color:#fff}
+.clock{margin-left:auto;font-family:var(--font-display);font-size:1rem;color:var(--page-dim);font-variant-numeric:tabular-nums}
+.hint{margin:0;padding:0;list-style:none;display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:6px 20px;color:var(--page-dim);font-size:.88rem}
+.hint b{color:var(--page-fg);font-weight:500;margin-right:.4em}
+
+/* ===== SVG 內樣式 ===== */
+#cut feDropShadow{flood-color:var(--ink);flood-opacity:.55}
+#cutSoft feDropShadow{flood-color:var(--ink);flood-opacity:.4}
+.lit{fill:var(--win-on);opacity:0;transition:opacity .35s}
+.lit.on{opacity:var(--lit,.2)}
+/* 光錐、光暈只是光，不擋住後面窗戶的點擊 */
+.nightOnly,.lampLight,.lampLight2,#reflect,#ripples,#splashes,#rain{pointer-events:none}
+.win,.lantern,.walker,.vehicle,#cat,#foreLamp,#hangSign{cursor:pointer}
+.signtxt{fill:var(--sign-txt);font-family:var(--font-display);font-weight:900}
+.neontxt{font-family:var(--font-display);font-weight:900}
+.bubble text{font-family:var(--font-display);font-weight:900;font-size:22px;fill:var(--ink)}
+/* 麵店蒸氣 */
+.steam{fill:none;stroke:var(--rain);stroke-width:4;stroke-linecap:round;opacity:0;animation:steam 4s ease-in infinite}
+.steam:nth-child(2){animation-delay:1.3s}.steam:nth-child(3){animation-delay:2.6s}
+@keyframes steam{0%{opacity:0;transform:translateY(0)}30%{opacity:.55}100%{opacity:0;transform:translateY(-46px)}}
+
+/* ===== 減少動態：關閉 CSS 動畫（JS 端另行停住雨、行人、車） ===== */
+@media (prefers-reduced-motion: reduce){
+  .steam{animation:none;opacity:.35}
+  .lit{transition:none}
+  .controls button{transition:none}
+}
+</style>
+
+<main class="wrap">
+
+  <div class="stage">
+  <!-- =====================================================
+       【場景】SVG 主舞台 viewBox 1600×600
+       圖層由後到前：天空 → 遠景 → 雲 → 巷內 → 建築 → 窗光 → 動態招牌
+       → 電線 → 街道 → 倒影 → 漣漪 → 行人 → 車輛 → 貓 → 雨 → 前景 → 紙紋
+       ===================================================== -->
+  <svg id="scene" viewBox="0 0 1600 600" preserveAspectRatio="xMidYMid meet" role="img" aria-label="下雨的巷弄，行人撐傘走過麵館、舊書店與自助洗衣店，可切換白天與夜晚">
+    <defs>
+      <linearGradient id="skyGrad" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" style="stop-color:var(--sky-top)"/>
+        <stop offset="1" style="stop-color:var(--sky-bot)"/>
+      </linearGradient>
+      <linearGradient id="reflGrad" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" style="stop-color:var(--win-on);stop-opacity:.75"/>
+        <stop offset="1" style="stop-color:var(--win-on);stop-opacity:0"/>
+      </linearGradient>
+      <linearGradient id="beamGrad" x1="0" y1="0" x2="1" y2="0">
+        <stop offset="0" style="stop-color:var(--lamp);stop-opacity:.8"/>
+        <stop offset="1" style="stop-color:var(--lamp);stop-opacity:0"/>
+      </linearGradient>
+      <linearGradient id="coneGrad" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" style="stop-color:var(--lamp);stop-opacity:.55"/>
+        <stop offset="1" style="stop-color:var(--lamp);stop-opacity:0"/>
+      </linearGradient>
+      <radialGradient id="glowGrad">
+        <stop offset="0" style="stop-color:var(--lamp);stop-opacity:.85"/>
+        <stop offset="1" style="stop-color:var(--lamp);stop-opacity:0"/>
+      </radialGradient>
+      <radialGradient id="redGlow">
+        <stop offset="0" style="stop-color:var(--lantern);stop-opacity:.7"/>
+        <stop offset="1" style="stop-color:var(--lantern);stop-opacity:0"/>
+      </radialGradient>
+      <radialGradient id="vignette" cx=".5" cy=".5" r=".75">
+        <stop offset=".6" stop-color="#000" stop-opacity="0"/>
+        <stop offset="1" stop-color="#000" stop-opacity=".45"/>
+      </radialGradient>
+      <!-- 剪紙投影：每層紙板底下的影子 -->
+      <filter id="cut" x="-5%" y="-10%" width="110%" height="125%">
+        <feDropShadow dx="0" dy="5" stdDeviation="4"/>
+      </filter>
+      <filter id="cutSoft" x="-20%" y="-20%" width="140%" height="150%">
+        <feDropShadow dx="0" dy="3" stdDeviation="2"/>
+      </filter>
+      <!-- 霓虹光暈 -->
+      <filter id="neonGlow" x="-50%" y="-50%" width="200%" height="200%">
+        <feGaussianBlur stdDeviation="1.6" result="b"/>
+        <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+      </filter>
+      <!-- 路面倒影的水波扭曲 -->
+      <filter id="wobble" x="-10%" y="0" width="120%" height="100%">
+        <feTurbulence type="fractalNoise" baseFrequency=".02 .25" numOctaves="2" seed="4"/>
+        <feDisplacementMap in="SourceGraphic" scale="14"/>
+      </filter>
+      <!-- 紙張纖維紋理 -->
+      <filter id="paper" x="0" y="0" width="100%" height="100%">
+        <feTurbulence type="fractalNoise" baseFrequency=".9" numOctaves="3" seed="8"/>
+        <feColorMatrix values="0 0 0 0 .5  0 0 0 0 .45  0 0 0 0 .4  0 0 0 .9 0"/>
+      </filter>
+    </defs>
+
+    <!-- 天空 -->
+    <rect id="sky" width="1600" height="600" fill="url(#skyGrad)"/>
+    <!-- 遠景樓群（JS 生成） -->
+    <g id="far" filter="url(#cut)"></g>
+    <g id="farLights"></g>
+    <!-- 雨雲（JS 生成） -->
+    <g id="clouds" filter="url(#cut)"></g>
+
+    <!-- 巷內縱深（固定繪製） -->
+    <g id="alley">
+      <polygon class="f-bld-shade" points="720,470 720,160 780,245 780,440"/>
+      <polygon class="f-bld-shade" points="880,470 880,180 820,250 820,440" opacity=".85"/>
+      <rect class="f-trim" x="780" y="245" width="40" height="195"/>
+      <rect class="lit on" x="791" y="398" width="18" height="42"/>
+      <polygon class="f-walk" points="720,470 880,470 820,440 780,440"/>
+      <!-- 巷內雜物：水管、冷氣、木箱、腳踏車 -->
+      <line class="s-metal" x1="735" y1="180" x2="735" y2="462" stroke-width="4"/>
+      <line class="s-metal" x1="866" y1="195" x2="866" y2="462" stroke-width="3"/>
+      <rect class="f-metal" x="742" y="300" width="22" height="14"/>
+      <rect class="f-metal" x="838" y="330" width="20" height="13"/>
+      <rect class="f-wood" x="740" y="440" width="22" height="20"/>
+      <rect class="f-wood" x="746" y="424" width="16" height="16"/>
+      <g class="s-ink" fill="none" stroke-width="2">
+        <circle cx="836" cy="452" r="9"/><circle cx="862" cy="452" r="9"/>
+        <path d="M836,452 L846,438 L862,452 M846,438 L856,438 L862,452 M844,434 L850,434"/>
+      </g>
+      <circle cx="800" cy="384" r="16" fill="url(#glowGrad)" class="nightOnly"/>
+      <circle cx="800" cy="384" r="3" fill="var(--lamp)"/>
+    </g>
+
+    <!-- 主建築（JS 生成） -->
+    <g id="mid" filter="url(#cut)"></g>
+    <!-- 夜間光暈（JS 生成） -->
+    <g id="glow" class="nightOnly"></g>
+    <!-- 窗光與可點擊窗戶（JS 生成） -->
+    <g id="litLayer"></g>
+    <!-- 會動的招牌細節：晾衣、門簾、燈籠、霓虹（JS 生成） -->
+    <g id="midAnim" filter="url(#cutSoft)"></g>
+
+    <!-- 電線 -->
+    <g id="wires" fill="none" class="s-ink" stroke-width="1.6" opacity=".75">
+      <path d="M0,118 Q180,160 330,150 T720,170"/>
+      <path d="M0,132 Q200,178 330,166 T720,186"/>
+      <path d="M720,170 Q800,205 880,186"/>
+      <path d="M720,186 Q800,222 880,200"/>
+      <path d="M880,186 Q1060,230 1220,190 T1600,160"/>
+      <path d="M880,200 Q1060,246 1220,206 T1600,176"/>
+      <path d="M560,90 Q800,150 1100,96"/>
+    </g>
+
+    <!-- 街道 -->
+    <g id="street">
+      <rect class="f-walk" x="0" y="470" width="1600" height="24"/>
+      <rect class="f-curb" x="0" y="492" width="1600" height="5"/>
+      <rect class="f-road" x="0" y="497" width="1600" height="103"/>
+      <!-- 路面標線與水溝蓋 -->
+      <g class="f-curb" opacity=".55">
+        <rect x="40" y="586" width="70" height="4"/><rect x="200" y="586" width="70" height="4"/>
+        <rect x="360" y="586" width="70" height="4"/><rect x="520" y="586" width="70" height="4"/>
+        <rect x="680" y="586" width="70" height="4"/><rect x="840" y="586" width="70" height="4"/>
+        <rect x="1000" y="586" width="70" height="4"/><rect x="1160" y="586" width="70" height="4"/>
+        <rect x="1320" y="586" width="70" height="4"/><rect x="1480" y="586" width="70" height="4"/>
+      </g>
+      <ellipse class="f-metal s-ink" cx="1290" cy="520" rx="26" ry="5" stroke-width="1" opacity=".8"/>
+      <!-- 水窪 -->
+      <g id="puddles" class="f-puddle">
+        <ellipse cx="300" cy="540" rx="80" ry="8"/>
+        <ellipse cx="780" cy="572" rx="100" ry="9"/>
+        <ellipse cx="1150" cy="536" rx="62" ry="7"/>
+        <ellipse cx="1460" cy="578" rx="84" ry="8"/>
+      </g>
+      <!-- 中段路燈 -->
+      <g id="midLamp">
+        <rect class="f-ink" x="998" y="330" width="5" height="142"/>
+        <path class="f-ink" d="M1000,334 Q1000,316 1020,316 L1036,316 L1036,321 L1020,321 Q1006,321 1005,334Z"/>
+        <path class="f-trim" d="M1026,320 L1046,320 L1042,330 L1030,330Z"/>
+        <polygon class="nightOnly lampLight" points="1028,330 1044,330 1100,494 972,494" fill="url(#coneGrad)"/>
+        <circle class="lampLight" cx="1036" cy="331" r="4" fill="var(--lamp)"/>
+      </g>
+    </g>
+    <!-- 濕路面倒影（JS 生成） -->
+    <g id="reflect" class="nightOnly" filter="url(#wobble)"></g>
+    <g id="ripples" fill="none" class="s-rain"></g>
+
+    <!-- 【角色】行人、車輛、貓（JS 生成） -->
+    <g id="walkers"></g>
+    <g id="vehicles"></g>
+    <g id="cat" transform="translate(690,478)">
+      <path id="catTail" class="f-hair" d="M10,-4 Q26,-6 24,-22 Q23,-30 28,-32 Q32,-30 29,-24 Q30,-2 12,0Z"/>
+      <ellipse class="f-hair" cx="0" cy="-10" rx="13" ry="11"/>
+      <circle class="f-hair" cx="-8" cy="-24" r="8"/>
+      <path class="f-hair" d="M-15,-27 L-14,-37 L-8,-30Z M-6,-30 L-1,-37 L0,-27Z"/>
+      <g class="catEyes nightOnly"><circle cx="-11" cy="-25" r="1.6" fill="var(--lamp)"/><circle cx="-5" cy="-25" r="1.6" fill="var(--lamp)"/></g>
+    </g>
+
+    <!-- 【動畫】雨絲、水花（JS 生成） -->
+    <g id="rain" class="s-rain" stroke-width="1.4" stroke-linecap="round" opacity=".55"></g>
+    <g id="splashes" fill="none" class="s-rain" stroke-width="1.3"></g>
+
+    <!-- 前景剪紙層 -->
+    <g id="fore" filter="url(#cut)">
+      <!-- 左前景路燈（可點擊） -->
+      <g id="foreLamp">
+        <polygon class="nightOnly lampLight2" points="118,150 150,150 260,600 0,600" fill="url(#coneGrad)"/>
+        <rect class="f-ink" x="38" y="140" width="9" height="460"/>
+        <rect class="f-ink" x="30" y="560" width="25" height="40"/>
+        <path class="f-ink" d="M42,150 Q42,112 86,112 L134,112 L134,120 L86,120 Q50,120 50,150Z"/>
+        <path class="f-trim" d="M112,118 L156,118 L148,142 L120,142Z"/>
+        <circle class="nightOnly lampLight2" cx="134" cy="146" r="38" fill="url(#glowGrad)"/>
+        <ellipse class="lampLight2" cx="134" cy="143" rx="12" ry="4" fill="var(--lamp)"/>
+        <!-- 燈柱上的小告示 -->
+        <rect class="f-sign-txt" x="34" y="300" width="17" height="44" opacity=".9"/>
+        <path class="s-ink" d="M38,308 H47 M38,316 H47 M38,324 H47 M38,332 H44" stroke-width="1.5"/>
+      </g>
+      <!-- 右上前景吊牌（可點擊） -->
+      <g id="hangSign">
+        <line class="s-ink" x1="1440" y1="0" x2="1446" y2="52" stroke-width="2.5"/>
+        <line class="s-ink" x1="1560" y1="0" x2="1554" y2="52" stroke-width="2.5"/>
+        <rect class="f-wood" x="1420" y="50" width="160" height="58" rx="4"/>
+        <rect class="s-trim" x="1426" y="56" width="148" height="46" rx="3" fill="none" stroke-width="2"/>
+        <text class="signtxt" x="1500" y="90" font-size="30" text-anchor="middle" letter-spacing="4">夜雨食堂</text>
+      </g>
+      <!-- 前景植物剪影 -->
+      <g class="f-plant">
+        <path d="M60,600 Q70,540 110,520 Q96,560 92,600Z"/>
+        <path d="M90,600 Q120,530 170,515 Q140,560 128,600Z"/>
+        <path d="M0,600 Q20,548 62,540 Q42,570 40,600Z"/>
+        <path d="M130,600 Q170,560 210,556 Q180,580 170,600Z"/>
+      </g>
+      <rect class="f-wood" x="1470" y="548" width="90" height="52"/>
+      <rect class="f-trim" x="1464" y="540" width="102" height="10"/>
+      <g class="f-plant">
+        <path d="M1480,542 Q1470,490 1500,470 Q1498,510 1500,542Z"/>
+        <path d="M1500,542 Q1510,480 1550,462 Q1530,505 1522,542Z"/>
+        <path d="M1520,542 Q1560,500 1590,500 Q1560,520 1545,542Z"/>
+      </g>
+    </g>
+
+    <!-- 閃電、紙紋、暗角 -->
+    <rect id="flash" width="1600" height="600" fill="#eef2ff" opacity="0" pointer-events="none"/>
+    <rect width="1600" height="600" filter="url(#paper)" opacity=".10" pointer-events="none" style="mix-blend-mode:multiply"/>
+    <rect width="1600" height="600" fill="url(#vignette)" pointer-events="none"/>
+  </svg>
+  </div>
+
+  <!-- 【互動】控制列 -->
+  <div class="controls">
+    <button id="btnDayNight" type="button">切換日夜</button>
+    <button id="btnAuto" type="button" aria-pressed="true">自動循環：開</button>
+    <button id="btnRain" type="button">雨量：中雨</button>
+    <span class="clock" id="clock">雨天・午後</span>
+  </div>
+  <ul class="hint">
+    <li><b>滑鼠左右移動</b>改變風向，雨絲、雲、晾衣跟著飄</li>
+    <li><b>點窗戶</b>開燈或關燈</li>
+    <li><b>點行人</b>換一把傘的顏色</li>
+    <li><b>點燈籠、吊牌</b>讓它晃起來</li>
+    <li><b>點路面或水窪</b>踩出漣漪</li>
+    <li><b>點貓、機車、路燈</b>各有小反應</li>
+  </ul>
+</main>
+
+<script>
+(() => {
+"use strict";
+/* =========================================================
+   基本工具
+   ========================================================= */
+const NS = "http://www.w3.org/2000/svg";
+const $ = id => document.getElementById(id);
+const svg = $("scene");
+const root = document.documentElement;
+function el(tag, attrs, parent) {
+  const e = document.createElementNS(NS, tag);
+  for (const k in attrs) e.setAttribute(k, attrs[k]);
+  if (parent) parent.appendChild(e);
+  return e;
+}
+// 固定亂數種子，讓每次載入的建築長一樣
+function rng(seed) {
+  return () => {
+    seed |= 0; seed = seed + 0x6D2B79F5 | 0;
+    let t = Math.imul(seed ^ seed >>> 15, 1 | seed);
+    t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t;
+    return ((t ^ t >>> 14) >>> 0) / 4294967296;
+  };
+}
+const R = rng(20261121);
+const rand = (a, b) => a + Math.random() * (b - a);
+const pick = arr => arr[Math.floor(Math.random() * arr.length)];
+
+/* =========================================================
+   【色票】日夜混色引擎
+   讀取 --名稱-day / --名稱-night，依 night(0~1) 混色寫回 --名稱。
+   同時自動產生 .f-名稱（填色）與 .s-名稱（描邊）兩種 class。
+   ========================================================= */
+const MIX = ["sky-top","sky-bot","far","far2","cloud","cloud-dk","bld-a","bld-b","bld-c","bld-d",
+  "bld-shade","trim","win-off","metal","sign-txt","road","walk","curb","puddle","rain","ink",
+  "skin","hair","coat1","coat2","coat3","umb1","umb2","umb3","umb4","umb5","umb6",
+  "awning1","awning2","noren","plant","wood"];
+const UMB = ["umb1","umb2","umb3","umb4","umb5","umb6"];
+(function injectClasses() {
+  const css = MIX.map(n => `.f-${n}{fill:var(--${n})}.s-${n}{stroke:var(--${n})}`).join("");
+  const st = document.createElement("style"); st.textContent = css; document.head.appendChild(st);
+})();
+const cs = getComputedStyle(root);
+const hex = s => { s = s.trim().replace("#",""); if (s.length === 3) s = s.split("").map(c => c + c).join(""); const n = parseInt(s,16); return [n>>16&255, n>>8&255, n&255]; };
+const PAIRS = MIX.map(n => [n, hex(cs.getPropertyValue(`--${n}-day`)), hex(cs.getPropertyValue(`--${n}-night`))]);
+let lastApplied = -1;
+function applyNight(nt, force) {
+  if (!force && Math.abs(nt - lastApplied) < 0.004) return;
+  lastApplied = nt;
+  for (const [n, a, b] of PAIRS) {
+    const c = a.map((v, i) => Math.round(v + (b[i] - v) * nt));
+    root.style.setProperty(`--${n}`, `rgb(${c[0]},${c[1]},${c[2]})`);
+  }
+  root.style.setProperty("--lit", (0.16 + 0.84 * nt).toFixed(3));
+  document.querySelectorAll(".nightOnly").forEach(e => e.style.opacity = nt.toFixed(3));
+  $("farLights").style.opacity = Math.max(0, nt * 1.4 - 0.4).toFixed(3);
+}
+
+/* =========================================================
+   【場景】遠景樓群與雲
+   ========================================================= */
+(function buildFar() {
+  const far = $("far"), lights = $("farLights");
+  let x = -20;
+  while (x < 1620) { // 最遠一排
+    const w = 40 + R() * 60, top = 215 + R() * 90;
+    el("rect", { x, y: top, width: w, height: 470 - top, class: "f-far" }, far);
+    if (R() < .3) el("rect", { x: x + w * .4, y: top - 18, width: 3, height: 18, class: "f-far" }, far);
+    x += w - 2;
+  }
+  x = -10;
+  while (x < 1620) { // 次遠一排，帶小窗燈
+    const w = 50 + R() * 70, top = 250 + R() * 80;
+    el("rect", { x, y: top, width: w, height: 470 - top, class: "f-far2" }, far);
+    for (let yy = top + 12; yy < 440; yy += 16)
+      for (let xx = x + 8; xx < x + w - 8; xx += 14)
+        if (R() < .22) el("rect", { x: xx, y: yy, width: 5, height: 6, fill: "var(--win-on)", opacity: .7 }, lights);
+    x += w + 4;
+  }
+})();
+const clouds = [];
+(function buildClouds() {
+  const g = $("clouds");
+  const defs = [[80,70,1],[460,40,.8],[820,85,1.2],[1200,50,.9],[1500,95,1.05]];
+  for (const [x, y, s] of defs) {
+    const c = el("g", {}, g);
+    const cls = R() < .5 ? "f-cloud" : "f-cloud-dk";
+    [[0,0,90,26],[-60,10,60,20],[60,8,70,22],[10,-18,55,24]].forEach(([dx,dy,rx,ry]) =>
+      el("ellipse", { cx: dx * s, cy: dy * s, rx: rx * s, ry: ry * s, class: cls }, c));
+    clouds.push({ g: c, x, y, sp: 6 + R() * 8 });
+  }
+})();
+
+/* =========================================================
+   【場景】主建築：牆面、窗戶、屋頂、招牌、一樓店面
+   改這個陣列就能換排列；shop 對應下方 SHOPS 函式。
+   ========================================================= */
+const BUILDINGS = [
+  { x: 0,    w: 175, top: 175, c: "bld-c", roof: "tank",    shop: "shutter" },
+  { x: 175,  w: 150, top: 105, c: "bld-a", roof: "antenna", shop: "tea",   vsign: { t: "旅社", c: "--neon" } },
+  { x: 325,  w: 190, top: 200, c: "bld-b", roof: "shed",    shop: "store", laundry: true },
+  { x: 515,  w: 205, top: 150, c: "bld-d", roof: "tank",    shop: "noodle", vsign: { t: "麵館", c: "--neon2" } },
+  { x: 880,  w: 180, top: 180, c: "bld-a", roof: "antenna", shop: "vend" },
+  { x: 1060, w: 160, top: 115, c: "bld-c", roof: "tank",    shop: "stair", vsign: { t: "鐘錶", c: "--neon" } },
+  { x: 1220, w: 200, top: 195, c: "bld-b", roof: "shed",    shop: "books" },
+  { x: 1420, w: 180, top: 140, c: "bld-d", roof: "antenna", shop: "laundromat", laundry: true }
+];
+const mid = $("mid"), lit = $("litLayer"), anim = $("midAnim"), glow = $("glow"), reflect = $("reflect");
+const swingers = [];   // 晾衣、門簾等會隨風擺動的物件
+const lanterns = [];   // 燈籠
+const neons = [];      // 霓虹招牌
+
+// 一扇可開關的窗：底窗在 mid，光與窗格在 litLayer
+function windowAt(x, y, w, h, on, grille = true) {
+  el("rect", { x: x - 3, y: y - 3, width: w + 6, height: h + 6, class: "f-trim" }, mid);
+  el("rect", { x, y, width: w, height: h, class: "f-win-off" }, mid);
+  const g = el("g", { class: "win" }, lit);
+  el("rect", { x, y, width: w, height: h, class: "lit" + (on ? " on" : "") }, g);
+  if (grille) {
+    el("path", { d: `M${x + w / 2},${y} V${y + h} M${x},${y + h * .45} H${x + w}`, class: "s-trim", "stroke-width": 2, fill: "none" }, g);
+    if (R() < .5) el("rect", { x, y, width: w * .3, height: h, class: "f-ink", opacity: .25 }, g); // 窗簾
+  }
+  return g;
+}
+function signBoard(x, y, w, text, size = 15) {
+  el("rect", { x, y, width: w, height: 22, class: "f-trim" }, mid);
+  el("text", { x: x + w / 2, y: y + 17, "font-size": size, "text-anchor": "middle", class: "signtxt", "letter-spacing": 3 }, mid).textContent = text;
+}
+function scallop(x1, x2, y, h, depth, n) {
+  let d = `M${x1},${y - h} L${x2},${y - h} L${x2},${y}`;
+  const step = (x2 - x1) / n;
+  for (let i = n; i > 0; i--) { const xa = x1 + step * i, xb = x1 + step * (i - 1); d += ` Q${(xa + xb) / 2},${y + depth} ${xb},${y}`; }
+  return d + "Z";
+}
+function makeLantern(x, y, parent, size = 1) {
+  const g = el("g", { class: "lantern", transform: `translate(${x},${y})` }, parent);
+  el("line", { x1: 0, y1: -14 * size, x2: 0, y2: 0, class: "s-ink", "stroke-width": 1.5 }, g);
+  const inner = el("g", {}, g);
+  el("circle", { cx: 0, cy: 12 * size, r: 26 * size, fill: "url(#redGlow)", class: "nightOnly" }, inner);
+  el("ellipse", { cx: 0, cy: 12 * size, rx: 9 * size, ry: 12 * size, fill: "var(--lantern)" }, inner);
+  el("rect", { x: -5 * size, y: -1 * size, width: 10 * size, height: 3 * size, class: "f-ink" }, inner);
+  el("rect", { x: -5 * size, y: 23 * size, width: 10 * size, height: 3 * size, class: "f-ink" }, inner);
+  el("line", { x1: 0, y1: 26 * size, x2: 0, y2: 34 * size, stroke: "var(--lantern)", "stroke-width": 1.5 }, inner);
+  const L = { g: inner, a: 0, v: 0, ph: Math.random() * 6 };
+  g.addEventListener("click", e => { e.stopPropagation(); L.v += (Math.random() < .5 ? -1 : 1) * 140; });
+  lanterns.push(L);
+}
+function reflection(cx, w) {
+  el("rect", { x: cx - w / 2, y: 497, width: w, height: 103, fill: "url(#reflGrad)" }, reflect);
+}
+
+// ---- 一樓店面：每種店一個函式 ----
+const SHOPS = {
+  // 拉下鐵捲門的店，門口停一台腳踏車
+  shutter(b) {
+    el("rect", { x: b.x + 12, y: 404, width: b.w - 24, height: 66, class: "f-metal" }, mid);
+    for (let y = 410; y < 470; y += 6) el("line", { x1: b.x + 12, y1: y, x2: b.x + b.w - 12, y2: y, class: "s-trim", "stroke-width": 1, opacity: .45 }, mid);
+    el("rect", { x: b.x + 30, y: 420, width: 26, height: 30, class: "f-umb2", transform: `rotate(-4 ${b.x + 43} 435)` }, mid);
+    el("rect", { x: b.x + 64, y: 424, width: 20, height: 24, class: "f-umb5", transform: `rotate(5 ${b.x + 74} 436)` }, mid);
+    const bx = b.x + 120;
+    const g = el("g", { class: "s-ink", fill: "none", "stroke-width": 2.5 }, mid);
+    el("circle", { cx: bx, cy: 474, r: 12 }, g); el("circle", { cx: bx + 38, cy: 474, r: 12 }, g);
+    el("path", { d: `M${bx},474 L${bx + 14},454 L${bx + 38},474 M${bx + 14},454 L${bx + 30},454 L${bx + 38},474 M${bx + 11},449 L${bx + 19},449 M${bx + 30},454 L${bx + 32},446 L${bx + 38},446` }, g);
+  },
+  // 茶行：木門、門簾、盆栽
+  tea(b) {
+    signBoard(b.x + 14, 382, b.w - 28, "老茶行");
+    const dx = b.x + b.w / 2 - 22;
+    el("rect", { x: dx - 4, y: 406, width: 52, height: 64, class: "f-wood" }, mid);
+    windowAt(dx, 410, 44, 60, true, false);
+    el("rect", { x: dx, y: 410, width: 44, height: 22, class: "f-noren" }, anim);
+    el("text", { x: dx + 22, y: 427, "font-size": 15, "text-anchor": "middle", class: "signtxt" }, anim).textContent = "茶";
+    [b.x + 22, b.x + b.w - 40].forEach(px => {
+      el("rect", { x: px, y: 452, width: 18, height: 18, class: "f-bld-c" }, mid);
+      el("circle", { cx: px + 9, cy: 444, r: 12, class: "f-plant" }, mid);
+      el("circle", { cx: px + 3, cy: 436, r: 7, class: "f-plant" }, mid);
+    });
+    reflection(b.x + b.w / 2, 46);
+  },
+  // 雜貨店：條紋遮雨棚、亮著的玻璃門面、水果箱
+  store(b) {
+    signBoard(b.x + 14, 376, b.w - 28, "巷口雜貨");
+    windowAt(b.x + 16, 414, b.w - 32, 56, true, false);
+    for (let i = 0; i < 6; i++) el("rect", { x: b.x + 24 + i * 26, y: 432, width: 18, height: 26, class: "f-ink", opacity: .25 }, lit);
+    const n = 7, step = (b.w - 8) / n;
+    for (let i = 0; i < n; i++) el("path", { d: `M${b.x + 4 + i * step},398 h${step} v14 q${-step / 2},10 ${-step},0Z`, class: i % 2 ? "f-curb" : "f-awning2" }, mid);
+    [[b.x + 30, "f-umb2"], [b.x + 64, "f-umb1"], [b.x + b.w - 60, "f-coat3"]].forEach(([cx, cl]) => {
+      el("rect", { x: cx, y: 458, width: 30, height: 14, class: "f-wood" }, mid);
+      for (let k = 0; k < 4; k++) el("circle", { cx: cx + 5 + k * 7, cy: 456, r: 4, class: cl }, mid);
+    });
+    reflection(b.x + b.w / 2, 110);
+  },
+  // 麵館：紅色遮雨棚、藍門簾、蒸氣、燈籠、門口的貓（貓在 SVG 靜態區）
+  noodle(b) {
+    el("path", { d: scallop(b.x + 4, b.x + b.w - 4, 412, 22, 9, 8), class: "f-awning1" }, mid);
+    windowAt(b.x + 22, 420, b.w - 44, 50, true, false);
+    for (let i = 0; i < 4; i++) el("path", { d: `M${b.x + 40 + i * 34},470 v-14 h14 v14 M${b.x + 38 + i * 34},456 h18`, class: "s-ink", "stroke-width": 3, fill: "none" }, mid);
+    // 門簾三片（會隨風擺）
+    const nw = (b.w - 60) / 3;
+    for (let i = 0; i < 3; i++) {
+      const g = el("g", {}, anim);
+      el("rect", { x: 0, y: 0, width: nw - 4, height: 26, class: "f-noren" }, g);
+      el("text", { x: (nw - 4) / 2, y: 19, "font-size": 15, "text-anchor": "middle", class: "signtxt" }, g).textContent = "湯麵"[i % 2] || "";
+      swingers.push({ g, x: b.x + 30 + i * nw, y: 418, amp: 7, ph: i * .7 });
+    }
+    // 蒸氣
+    const st = el("g", { transform: `translate(${b.x + b.w / 2},398)` }, anim);
+    for (let i = 0; i < 3; i++) el("path", { class: "steam", d: `M${-20 + i * 20},0 q-8,-12 0,-24 q8,-12 0,-24` }, st);
+    makeLantern(b.x + 14, 400, anim, .9);
+    makeLantern(b.x + b.w - 14, 400, anim, .9);
+    reflection(b.x + b.w / 2, 120);
+  },
+  // 販賣機與小門
+  vend(b) {
+    const dx = b.x + 24;
+    el("rect", { x: dx - 4, y: 400, width: 52, height: 70, class: "f-trim" }, mid);
+    windowAt(dx, 404, 44, 66, false, false);
+    const vx = b.x + b.w - 74;
+    el("rect", { x: vx, y: 398, width: 46, height: 72, class: "f-metal" }, mid);
+    const panel = el("g", {}, anim);
+    el("rect", { x: vx + 5, y: 403, width: 36, height: 40, fill: "var(--vend)" }, panel);
+    const cols = ["f-umb1", "f-umb3", "f-umb2", "f-umb6"];
+    for (let r = 0; r < 3; r++) for (let c = 0; c < 4; c++) el("rect", { x: vx + 8 + c * 8.5, y: 406 + r * 12.5, width: 5, height: 9, class: cols[(r + c) % 4] }, panel);
+    el("rect", { x: vx + 8, y: 452, width: 30, height: 8, class: "f-ink" }, mid);
+    el("circle", { cx: vx + 60, cy: 440, r: 64, fill: "url(#glowGrad)", opacity: .6 }, glow);
+    el("rect", { x: vx + 52, y: 446, width: 16, height: 24, class: "f-umb6" }, mid);
+    el("rect", { x: vx + 50, y: 444, width: 20, height: 4, class: "f-trim" }, mid);
+    reflection(vx + 23, 40);
+  },
+  // 樓梯口：壁燈、信箱、停著的機車
+  stair(b) {
+    const dx = b.x + 20;
+    el("rect", { x: dx, y: 402, width: 46, height: 68, class: "f-ink" }, mid);
+    for (let i = 0; i < 6; i++) el("rect", { x: dx + 4 + i * 2, y: 462 - i * 10, width: 38 - i * 4, height: 3, class: "f-trim" }, mid);
+    el("circle", { cx: dx + 23, cy: 396, r: 30, fill: "url(#glowGrad)" }, glow);
+    el("rect", { x: dx + 18, y: 392, width: 10, height: 7, fill: "var(--lamp)" }, mid);
+    for (let r = 0; r < 3; r++) for (let c = 0; c < 2; c++) el("rect", { x: dx + 58 + c * 14, y: 410 + r * 12, width: 12, height: 10, class: "f-metal s-trim", "stroke-width": 1 }, mid);
+    const sx = b.x + b.w - 44;
+    const g = el("g", {}, mid);
+    el("circle", { cx: sx - 16, cy: 462, r: 9, class: "f-ink" }, g); el("circle", { cx: sx + 20, cy: 462, r: 9, class: "f-ink" }, g);
+    el("path", { d: `M${sx - 24},458 Q${sx - 20},440 ${sx - 4},442 L${sx + 12},442 L${sx + 24},456 L${sx + 26},462 L${sx - 22},462Z`, class: "f-umb3" }, g);
+    el("path", { d: `M${sx + 12},442 L${sx + 18},424 L${sx + 26},424`, class: "s-ink", "stroke-width": 2.5, fill: "none" }, g);
+  },
+  // 舊書店：書架窗、門口書車
+  books(b) {
+    signBoard(b.x + 16, 380, b.w - 32, "雨聲舊書");
+    windowAt(b.x + 18, 408, b.w - 80, 62, true, false);
+    const cl = ["f-umb1", "f-umb3", "f-umb2", "f-wood", "f-umb6", "f-umb4", "f-coat3"];
+    for (let row = 0; row < 2; row++) {
+      let x = b.x + 22;
+      while (x < b.x + b.w - 70) { const w = 4 + R() * 5; el("rect", { x, y: 414 + row * 28, width: w, height: 22 - R() * 6, class: cl[Math.floor(R() * cl.length)], opacity: .85 }, lit); x += w + 1; }
+    }
+    el("rect", { x: b.x + b.w - 54, y: 406, width: 38, height: 64, class: "f-wood" }, mid);
+    el("rect", { x: b.x + 24, y: 452, width: 70, height: 14, class: "f-wood" }, mid);
+    for (let i = 0; i < 9; i++) el("rect", { x: b.x + 28 + i * 7, y: 440, width: 6, height: 12, class: cl[i % cl.length] }, mid);
+    reflection(b.x + 70, 90);
+  },
+  // 自助洗衣：一排圓形洗衣機
+  laundromat(b) {
+    signBoard(b.x + 14, 380, b.w - 28, "自助洗衣");
+    windowAt(b.x + 14, 408, b.w - 28, 62, true, false);
+    for (let i = 0; i < 4; i++) {
+      const cx = b.x + 36 + i * 36;
+      el("rect", { x: cx - 15, y: 430, width: 30, height: 40, class: "f-curb" }, lit);
+      el("circle", { cx, cy: 452, r: 10, class: "f-puddle s-metal", "stroke-width": 3 }, lit);
+    }
+    reflection(b.x + b.w / 2, 120);
+  }
+};
+
+function buildBuilding(b) {
+  const x = b.x, w = b.w, top = b.top;
+  el("rect", { x, y: top, width: w, height: 470 - top, class: "f-" + b.c }, mid);
+  el("rect", { x: x + w - 8, y: top, width: 8, height: 470 - top, class: "f-ink", opacity: .12 }, mid); // 紙板折痕陰影
+  el("rect", { x: x - 4, y: top - 8, width: w + 8, height: 10, class: "f-trim" }, mid);
+  el("rect", { x: x - 2, y: 392, width: w + 4, height: 6, class: "f-trim" }, mid);
+
+  // 屋頂物件
+  if (b.roof === "tank") {
+    const tx = x + w * .62;
+    el("rect", { x: tx, y: top - 50, width: 34, height: 30, rx: 4, class: "f-metal" }, mid);
+    el("path", { d: `M${tx + 4},${top - 20} L${tx},${top - 8} M${tx + 30},${top - 20} L${tx + 34},${top - 8}`, class: "s-trim", "stroke-width": 3 }, mid);
+  } else if (b.roof === "antenna") {
+    const ax = x + w * .3;
+    el("path", { d: `M${ax},${top - 8} V${top - 62} M${ax - 16},${top - 50} H${ax + 16} M${ax - 10},${top - 40} H${ax + 10}`, class: "s-trim", "stroke-width": 2.5, fill: "none" }, mid);
+    el("circle", { cx: ax, cy: top - 64, r: 2.5, fill: "var(--tail)" }, anim);
+  } else if (b.roof === "shed") {
+    el("path", { d: `M${x + 20},${top - 8} L${x + 26},${top - 34} L${x + 80},${top - 40} L${x + 86},${top - 8}Z`, class: "f-metal" }, mid);
+    el("rect", { x: x + 40, y: top - 26, width: 14, height: 18, class: "f-trim" }, mid);
+  }
+
+  // 樓上窗戶
+  const cols = Math.max(2, Math.floor((w - 20) / 52));
+  const sp = (w - 10) / cols;
+  let floor = 0;
+  for (let y = top + 26; y + 44 < 380; y += 64, floor++) {
+    for (let i = 0; i < cols; i++) {
+      const wx = x + 5 + sp * i + sp / 2 - 14;
+      if (b.vsign && i === cols - 1) continue; // 直式招牌位置空出來
+      windowAt(wx, y, 28, 38, R() < .5);
+      if (R() < .3) { // 冷氣機
+        el("rect", { x: wx + 2, y: y + 44, width: 24, height: 13, class: "f-metal" }, mid);
+        el("circle", { cx: wx + 9, cy: y + 50.5, r: 4, class: "s-trim", fill: "none", "stroke-width": 1.5 }, mid);
+      } else if (R() < .3) { // 花台
+        el("rect", { x: wx - 2, y: y + 40, width: 32, height: 8, class: "f-wood" }, mid);
+        for (let k = 0; k < 4; k++) el("circle", { cx: wx + 3 + k * 8, cy: y + 38, r: 5, class: "f-plant" }, mid);
+      }
+    }
+    // 晾衣繩
+    if (b.laundry && floor === 1) {
+      const ly = y + 46, x1 = x + 8, x2 = x + w - 12;
+      el("path", { d: `M${x1},${ly} Q${(x1 + x2) / 2},${ly + 8} ${x2},${ly}`, class: "s-ink", "stroke-width": 1.2, fill: "none" }, mid);
+      const cls = ["f-umb5", "f-curb", "f-umb3", "f-umb2", "f-curb"];
+      for (let k = 0; k < 5; k++) {
+        const g = el("g", {}, anim);
+        if (k % 2) el("path", { d: "M-9,0 h18 l3,8 h-5 v14 h-14 v-14 h-5Z", class: cls[k] }, g);
+        else el("rect", { x: -6, y: 0, width: 12, height: 18, class: cls[k] }, g);
+        swingers.push({ g, x: x1 + 16 + k * (x2 - x1 - 32) / 4, y: ly + 3 + Math.sin(k / 4 * Math.PI) * 6, amp: 14, ph: k });
+      }
+    }
+  }
+
+  // 直式霓虹招牌
+  if (b.vsign) {
+    const sx = x + w - 34, sy = top + 34;
+    el("rect", { x: sx, y: sy, width: 28, height: 92, class: "f-trim" }, mid);
+    el("rect", { x: sx - 6, y: sy + 10, width: 6, height: 4, class: "f-trim" }, mid);
+    el("rect", { x: sx - 6, y: sy + 74, width: 6, height: 4, class: "f-trim" }, mid);
+    const g = el("g", { filter: "url(#neonGlow)" }, anim);
+    [...b.vsign.t].forEach((ch, i) => el("text", { x: sx + 14, y: sy + 38 + i * 36, "font-size": 21, "text-anchor": "middle", class: "neontxt", fill: `var(${b.vsign.c})` }, g).textContent = ch);
+    el("rect", { x: sx + 3, y: sy + 3, width: 22, height: 86, fill: "none", stroke: `var(${b.vsign.c})`, "stroke-width": 1.5 }, g);
+    neons.push({ g, flick: 0 });
+  }
+
+  SHOPS[b.shop] && SHOPS[b.shop](b);
+}
+BUILDINGS.forEach(buildBuilding);
+
+// 巷內三串燈籠（越遠越小）
+[[230, 1, 4], [282, .75, 3], [318, .55, 3]].forEach(([y, s, n]) => {
+  const x1 = 800 - 80 * (1 - (y - 230) / 220), x2 = 1600 - x1;
+  el("path", { d: `M${x1},${y} Q800,${y + 14 * s} ${x2},${y}`, class: "s-ink", "stroke-width": 1.2, fill: "none" }, anim);
+  for (let i = 1; i <= n; i++) makeLantern(x1 + (x2 - x1) * i / (n + 1), y + 8 * s + 12 * s, anim, s * .8);
+});
+// 路燈倒影
+el("rect", { x: 1010, y: 497, width: 50, height: 103, fill: "url(#reflGrad)" }, reflect);
+el("rect", { x: 112, y: 497, width: 44, height: 103, fill: "url(#reflGrad)" }, reflect);
+
+/* =========================================================
+   【角色】行人（撐傘大人、遛狗的人、穿雨衣的小孩）
+   ========================================================= */
+const WALKERS = [
+  { x: 120,  dir: 1,  s: 1,    sp: 38, umb: 0, coat: "coat1", y: 482 },
+  { x: 430,  dir: -1, s: .95,  sp: 32, umb: 2, coat: "coat2", y: 476 },
+  { x: 980,  dir: 1,  s: 1.05, sp: 40, umb: 5, coat: "coat3", y: 486, type: "dog" },
+  { x: 1300, dir: -1, s: .72,  sp: 30, type: "kid", coat: "umb2", y: 488 },
+  { x: 760,  dir: 1,  s: .92,  sp: 28, umb: 4, coat: "coat2", y: 478, bag: true },
+  { x: 1500, dir: -1, s: 1,    sp: 45, umb: 3, coat: "coat1", y: 484 }
+].sort((a, b) => a.y - b.y);
+const walkers = WALKERS.map(w => {
+  const g = el("g", { class: "walker" }, $("walkers"));
+  const legs = [0, 1].map(() => el("line", { x1: 0, y1: -28, x2: 0, y2: 0, class: "s-ink", "stroke-width": 4.5, "stroke-linecap": "round" }, g));
+  el("path", { d: "M-10,-28 L-7,-52 Q0,-58 7,-52 L10,-28Z", class: "f-" + w.coat }, g);
+  el("circle", { cx: 1, cy: -61, r: 6.5, class: "f-skin" }, g);
+  let umbG = null, canopy = null;
+  if (w.type === "kid") {
+    el("path", { d: "M-7,-60 Q1,-74 9,-60 L8,-54 L-6,-54Z", class: "f-umb2" }, g); // 雨衣帽
+    el("rect", { x: -6, y: -6, width: 12, height: 6, class: "f-umb1" }, g); // 雨鞋
+  } else {
+    el("path", { d: "M-6,-63 Q1,-71 8,-63 Q2,-66 -6,-59Z", class: "f-hair" }, g);
+    el("line", { x1: 4, y1: -48, x2: 8, y2: -40, class: "s-" + w.coat, "stroke-width": 4, "stroke-linecap": "round" }, g);
+    umbG = el("g", {}, g);
+    el("line", { x1: 8, y1: -38, x2: 8, y2: -92, class: "s-ink", "stroke-width": 2 }, umbG);
+    canopy = el("path", { d: "M-26,-86 Q8,-122 42,-86 Q33,-92 25,-86 Q16,-92 8,-86 Q0,-92 -9,-86 Q-18,-92 -26,-86Z", class: "f-" + UMB[w.umb] }, umbG);
+    el("line", { x1: 8, y1: -104, x2: 8, y2: -110, class: "s-ink", "stroke-width": 2 }, umbG);
+  }
+  if (w.bag) el("rect", { x: -16, y: -36, width: 10, height: 14, class: "f-wood" }, g);
+  let dog = null;
+  if (w.type === "dog") {
+    dog = el("g", { transform: "translate(38,0)" }, g);
+    el("ellipse", { cx: 0, cy: -12, rx: 13, ry: 6, class: "f-umb2" }, dog);
+    el("circle", { cx: 13, cy: -18, r: 5, class: "f-umb2" }, dog);
+    el("path", { d: "M11,-22 L13,-27 L16,-21Z", class: "f-wood" }, dog);
+    el("path", { d: "M-12,-14 Q-18,-20 -17,-24", class: "s-umb2", "stroke-width": 3, fill: "none" }, dog);
+    el("rect", { x: -10, y: -10, width: 20, height: 5, class: "f-umb1" }, dog); // 狗雨衣
+    const dl = [-8, -3, 5, 10].map(dx => el("line", { x1: dx, y1: -8, x2: dx, y2: 0, class: "s-umb2", "stroke-width": 2.5 }, dog));
+    el("line", { x1: 8, y1: -40, x2: 46, y2: -16, class: "s-ink", "stroke-width": 1 }, g); // 牽繩
+    dog.legs = dl;
+  }
+  const W = Object.assign({}, w, { g, legs, umbG, canopy, dog, ph: Math.random() * 6, hop: 0 });
+  g.addEventListener("click", e => {
+    e.stopPropagation();
+    W.hop = 1;
+    if (canopy) { W.umb = (W.umb + 1) % UMB.length; canopy.setAttribute("class", "f-" + UMB[W.umb]); }
+    else bubble(W.x, W.y - 70 * W.s, "踩水！");
+  });
+  return W;
+});
+function drawWalker(W, wind) {
+  const lift = W.hop > 0 ? Math.sin(W.hop * Math.PI) * 10 : 0;
+  W.g.setAttribute("transform", `translate(${W.x.toFixed(1)},${(W.y - lift).toFixed(1)}) scale(${W.dir * W.s},${W.s})`);
+  const a = Math.sin(W.ph) * 22;
+  W.legs[0].setAttribute("transform", `rotate(${a.toFixed(1)} 0 -28)`);
+  W.legs[1].setAttribute("transform", `rotate(${(-a).toFixed(1)} 0 -28)`);
+  if (W.umbG) W.umbG.setAttribute("transform", `rotate(${(-wind * 14 * W.dir + Math.sin(W.ph * 2) * 1.5).toFixed(1)} 8 -40)`);
+  if (W.dog) W.dog.legs.forEach((l, i) => l.setAttribute("transform", `rotate(${(Math.sin(W.ph * 1.6 + i * 1.6) * 25).toFixed(1)} ${l.getAttribute("x1")} -8)`));
+}
+
+/* =========================================================
+   【角色】車輛：機車與小車輪流駛過，濺起水花
+   ========================================================= */
+const vehLayer = $("vehicles");
+function makeScooter() {
+  const g = el("g", { class: "vehicle" });
+  el("polygon", { points: "40,-34 260,-70 260,10", fill: "url(#beamGrad)", class: "nightOnly" }, g);
+  const wheels = [-24, 26].map(cx => { const w = el("g", { transform: `translate(${cx},-11)` }, g); el("circle", { r: 11, class: "f-ink" }, w); el("path", { d: "M-8,0 H8 M0,-8 V8", class: "s-metal", "stroke-width": 2 }, w); return w; });
+  el("path", { d: "M-34,-16 Q-34,-36 -14,-36 L4,-36 L14,-20 L30,-20 L34,-44 L40,-44 L40,-14 L-34,-12Z", class: "f-umb6" }, g);
+  el("path", { d: "M-6,-38 L-12,-62 Q-2,-76 12,-62 L28,-46 L22,-40 L6,-52 L8,-36Z", class: "f-umb3" }, g); // 雨衣
+  el("circle", { cx: 0, cy: -72, r: 9, class: "f-umb1" }, g); // 安全帽
+  el("rect", { x: 36, y: -38, width: 6, height: 5, fill: "var(--lamp)" }, g);
+  el("rect", { x: -38, y: -24, width: 5, height: 5, fill: "var(--tail)" }, g);
+  return { g, wheels, len: 80, rear: -24 };
+}
+function makeCar() {
+  const g = el("g", { class: "vehicle" });
+  el("polygon", { points: "82,-26 320,-60 320,6", fill: "url(#beamGrad)", class: "nightOnly" }, g);
+  el("path", { d: "M-84,-14 Q-86,-38 -60,-40 L-40,-40 L-20,-66 L40,-66 L62,-40 L76,-38 Q86,-36 86,-14Z", class: "f-umb2" }, g);
+  el("path", { d: "M-34,-42 L-17,-61 L6,-61 L6,-42Z M12,-42 L12,-61 L36,-61 L54,-42Z", class: "f-win-off" }, g);
+  el("path", { d: "M-34,-42 L-17,-61 L6,-61 L6,-42Z M12,-42 L12,-61 L36,-61 L54,-42Z", class: "lit on", opacity: ".5" }, g);
+  el("rect", { x: -4, y: -74, width: 24, height: 8, class: "f-trim" }, g);
+  el("text", { x: 8, y: -67, "font-size": 7, "text-anchor": "middle", class: "signtxt" }, g).textContent = "計程";
+  const wheels = [-52, 52].map(cx => { const w = el("g", { transform: `translate(${cx},-14)` }, g); el("circle", { r: 14, class: "f-ink" }, w); el("circle", { r: 6, class: "f-metal" }, w); el("path", { d: "M-6,0 H6", class: "s-ink", "stroke-width": 2 }, w); return w; });
+  el("rect", { x: 78, y: -32, width: 8, height: 6, fill: "var(--lamp)" }, g);
+  el("rect", { x: -86, y: -32, width: 5, height: 8, fill: "var(--tail)" }, g);
+  return { g, wheels, len: 180, rear: -52 };
+}
+let veh = null, vehWait = 1.5;
+function spawnVehicle() {
+  const v = Math.random() < .55 ? makeScooter() : makeCar();
+  v.dir = Math.random() < .5 ? 1 : -1;
+  v.y = v.dir > 0 ? 584 : 556;
+  v.x = v.dir > 0 ? -v.len : 1600 + v.len;
+  v.sp = rand(170, 240); v.spin = 0; v.honk = 0;
+  vehLayer.appendChild(v.g);
+  v.g.addEventListener("click", e => { e.stopPropagation(); bubble(v.x, v.y - 100, "叭叭！"); v.honk = .6; });
+  veh = v;
+}
+function drawVehicle(v) {
+  v.g.setAttribute("transform", `translate(${v.x.toFixed(1)},${v.y}) scale(${v.dir},1)`);
+  v.wheels.forEach(w => { const t = w.getAttribute("transform").split(" rotate")[0]; w.setAttribute("transform", `${t} rotate(${(v.spin % 360).toFixed(0)})`); });
+}
+
+/* =========================================================
+   【動畫】雨、水花、漣漪
+   ========================================================= */
+const RAIN_LEVELS = [{ n: 70, name: "小雨" }, { n: 150, name: "中雨" }, { n: 280, name: "大雨" }];
+let rainLevel = 1;
+const drops = [];
+for (let i = 0; i < 280; i++) {
+  const d = { line: el("line", {}, $("rain")), x: rand(-150, 1750), y: rand(-600, 600), len: rand(14, 26), sp: rand(650, 950), ground: rand(472, 600) };
+  drops.push(d);
+}
+const splashPool = Array.from({ length: 40 }, () => ({ e: el("path", { d: "M-5,0 Q-3,-6 -1,-1 M5,0 Q3,-6 1,-1", opacity: 0 }, $("splashes")), life: 0 }));
+const ripplePool = Array.from({ length: 26 }, () => ({ e: el("ellipse", { rx: 0, ry: 0, "stroke-width": 1.2, opacity: 0 }, $("ripples")), life: 0 }));
+function splash(x, y, big = 1) {
+  const s = splashPool.find(p => p.life <= 0); if (!s) return;
+  s.life = 1; s.x = x; s.y = y; s.big = big;
+}
+function ripple(x, y, big = 1) {
+  const r = ripplePool.find(p => p.life <= 0); if (!r) return;
+  r.life = 1; r.x = x; r.y = y; r.big = big;
+}
+const PUDDLES = [...$("puddles").children].map(e => ({ cx: +e.getAttribute("cx"), cy: +e.getAttribute("cy"), rx: +e.getAttribute("rx"), ry: +e.getAttribute("ry") }));
+function randomPuddleRipple() {
+  const p = pick(PUDDLES), a = Math.random() * Math.PI * 2, r = Math.sqrt(Math.random()) * .8;
+  ripple(p.cx + Math.cos(a) * p.rx * r, p.cy + Math.sin(a) * p.ry * r, .6);
+}
+function setRain(level) {
+  rainLevel = level;
+  drops.forEach((d, i) => d.line.style.display = i < RAIN_LEVELS[level].n ? "" : "none");
+  $("btnRain").textContent = "雨量：" + RAIN_LEVELS[level].name;
+}
+function drawDrop(d, wind) {
+  const vx = wind * 280, k = d.len / d.sp;
+  d.line.setAttribute("x1", d.x.toFixed(1)); d.line.setAttribute("y1", d.y.toFixed(1));
+  d.line.setAttribute("x2", (d.x - vx * k).toFixed(1)); d.line.setAttribute("y2", (d.y - d.len).toFixed(1));
+}
+
+/* 文字泡泡（貓叫、喇叭聲） */
+function bubble(x, y, text) {
+  const g = el("g", { class: "bubble", transform: `translate(${x},${y})`, "pointer-events": "none" }, svg);
+  const w = text.length * 22 + 20;
+  el("rect", { x: -w / 2, y: -34, width: w, height: 34, rx: 6, class: "f-sign-txt" }, g);
+  el("path", { d: "M-6,0 L0,10 L6,0Z", class: "f-sign-txt" }, g);
+  el("text", { x: 0, y: -10, "text-anchor": "middle" }, g).textContent = text;
+  g.setAttribute("filter", "url(#cutSoft)");
+  setTimeout(() => g.remove(), 1300);
+}
+
+/* =========================================================
+   【動畫】日夜循環
+   phase：0 = 白天、0.5 = 深夜；night = 0~1
+   ========================================================= */
+const RM_QUERY = matchMedia("(prefers-reduced-motion: reduce)");
+let reduced = RM_QUERY.matches;
+let phase = 0.32;           // 初始：黃昏偏夜，讓第一眼就看得到燈光
+let auto = !reduced;
+let tween = null;            // 手動切換時的補間 {from,to,t}
+const CYCLE = 60;            // 自動循環一圈秒數
+const nightOf = p => .5 - .5 * Math.cos(p * Math.PI * 2);
+function clockLabel(p) {
+  const n = nightOf(p), rising = (p % 1) < .5;
+  if (n < .25) return "雨天・午後";
+  if (n > .75) return "雨夜・深夜";
+  return rising ? "黃昏・華燈初上" : "清晨・天色漸亮";
+}
+
+/* =========================================================
+   主迴圈
+   ========================================================= */
+let wind = .25, windTarget = .25, pointerIn = false;
+let last = performance.now(), t = 0, mixTimer = 0, flash = 0;
+const catTail = $("catTail"); let catWag = 0;
+
+function frame(now) {
+  const dt = Math.min(.05, (now - last) / 1000); last = now; t += dt;
+
+  // --- 日夜 ---
+  if (tween) {
+    tween.t += dt / (reduced ? .001 : 1.6);
+    const k = Math.min(1, tween.t), e = k < .5 ? 2 * k * k : 1 - Math.pow(-2 * k + 2, 2) / 2;
+    phase = tween.from + (tween.to - tween.from) * e;
+    if (k >= 1) tween = null;
+  } else if (auto && !reduced) phase = (phase + dt / CYCLE) % 1;
+  const night = nightOf(phase);
+  mixTimer -= dt;
+  if (mixTimer <= 0 || tween) { applyNight(night); mixTimer = .12; $("clock").textContent = clockLabel(phase); }
+
+  // --- 風：滑鼠控制，沒滑鼠時自己飄 ---
+  if (!pointerIn) windTarget = .25 + Math.sin(t * .3) * .35;
+  wind += (windTarget - wind) * Math.min(1, dt * 2.5);
+
+  if (!reduced) {
+    // 雲
+    for (const c of clouds) {
+      c.x += (c.sp + wind * 30) * dt;
+      if (c.x > 1760) c.x = -160; if (c.x < -160) c.x = 1760;
+      c.g.setAttribute("transform", `translate(${c.x.toFixed(1)},${c.y})`);
+    }
+    // 雨
+    const n = RAIN_LEVELS[rainLevel].n;
+    for (let i = 0; i < n; i++) {
+      const d = drops[i];
+      d.y += d.sp * dt; d.x += wind * 280 * dt;
+      if (d.y >= d.ground) {
+        if (Math.random() < .25) splash(d.x, d.ground, .7);
+        d.y = rand(-80, -10); d.x = rand(-150, 1750); d.ground = rand(472, 600);
+      }
+      drawDrop(d, wind);
+    }
+    if (Math.random() < dt * (3 + rainLevel * 5)) randomPuddleRipple();
+
+    // 晾衣、門簾
+    for (const s of swingers) {
+      const a = wind * s.amp + Math.sin(t * 2.4 + s.ph) * s.amp * .25;
+      s.g.setAttribute("transform", `translate(${s.x.toFixed(1)},${s.y.toFixed(1)}) rotate(${a.toFixed(1)})`);
+    }
+    // 燈籠：彈簧擺
+    for (const L of lanterns) {
+      const target = wind * 8 + Math.sin(t * 1.7 + L.ph) * 3;
+      L.v += ((target - L.a) * 30 - L.v * 2.2) * dt;
+      L.a += L.v * dt;
+      L.g.setAttribute("transform", `rotate(${L.a.toFixed(1)})`);
+    }
+    // 前景吊牌
+    $("hangSign").setAttribute("transform", `rotate(${(wind * 2.5 + Math.sin(t * 1.3) * .8 + signKick * Math.sin(t * 9)).toFixed(2)} 1500 0)`);
+    signKick *= Math.pow(.25, dt);
+
+    // 行人
+    for (const W of walkers) {
+      W.x += W.dir * W.sp * dt;
+      W.ph += dt * W.sp / 6.5;
+      if (W.hop > 0) W.hop = Math.max(0, W.hop - dt * 2.5);
+      if (W.dir > 0 && W.x > 1680) W.x = -80;
+      if (W.dir < 0 && W.x < -80) W.x = 1680;
+      drawWalker(W, wind);
+    }
+    // 車
+    if (!veh) { vehWait -= dt; if (vehWait <= 0) spawnVehicle(); }
+    else {
+      veh.x += veh.dir * veh.sp * dt; veh.spin += veh.dir * veh.sp * dt * 4;
+      const rx = veh.x + veh.rear * veh.dir;
+      if (PUDDLES.some(p => Math.abs(rx - p.cx) < p.rx && Math.abs(veh.y - p.cy) < 24) && Math.random() < .7) { splash(rx - veh.dir * 6, veh.y, 2); ripple(rx, veh.y - 4, 1.4); }
+      drawVehicle(veh);
+      if (veh.x < -veh.len - 40 || veh.x > 1640 + veh.len) { veh.g.remove(); veh = null; vehWait = rand(1.5, 5); }
+    }
+    // 貓尾巴
+    catWag = Math.max(0, catWag - dt);
+    catTail.setAttribute("transform", `rotate(${(Math.sin(t * (catWag > 0 ? 14 : 1.5)) * (catWag > 0 ? 18 : 6)).toFixed(1)} 10 -4)`);
+
+    // 閃電（大雨的夜晚偶爾出現）
+    if (rainLevel === 2 && night > .6 && Math.random() < dt / 9) flash = 1;
+  }
+
+  // 霓虹與路燈閃爍（夜晚才明顯）
+  for (const nn of neons) {
+    if (!reduced && Math.random() < dt * .4) nn.flick = rand(.08, .3);
+    nn.flick = Math.max(0, nn.flick - dt);
+    nn.g.style.opacity = ((.45 + .55 * night) * (nn.flick > 0 && Math.sin(t * 60) > 0 ? .25 : 1)).toFixed(2);
+  }
+  if (!reduced && Math.random() < dt * .25) lampFlick = rand(.2, .5);
+  lampFlick = Math.max(0, lampFlick - dt);
+  const lampOp = lampFlick > 0 && Math.sin(t * 45) > 0 ? .2 : 1;
+  document.querySelectorAll("#foreLamp .lampLight2").forEach(e => e.style.opacity = ((e.classList.contains("nightOnly") ? night : .35 + .65 * night) * lampOp).toFixed(2));
+  if (veh && veh.honk > 0) { veh.honk -= dt; }
+
+  // 水花與漣漪
+  for (const s of splashPool) {
+    if (s.life <= 0) continue;
+    s.life -= dt * 4;
+    const k = 1 - s.life, sc = (.6 + k) * s.big;
+    s.e.setAttribute("transform", `translate(${s.x.toFixed(1)},${s.y.toFixed(1)}) scale(${sc.toFixed(2)})`);
+    s.e.setAttribute("opacity", Math.max(0, s.life * .8).toFixed(2));
+  }
+  for (const r of ripplePool) {
+    if (r.life <= 0) continue;
+    r.life -= dt * (reduced ? 3 : 1.1);
+    const k = 1 - r.life;
+    r.e.setAttribute("cx", r.x.toFixed(1)); r.e.setAttribute("cy", r.y.toFixed(1));
+    r.e.setAttribute("rx", (4 + k * 30 * r.big).toFixed(1)); r.e.setAttribute("ry", (1 + k * 5 * r.big).toFixed(1));
+    r.e.setAttribute("opacity", Math.max(0, r.life * .8).toFixed(2));
+  }
+  if (flash > 0) { flash = Math.max(0, flash - dt * 3); $("flash").setAttribute("opacity", (flash * (Math.sin(t * 50) > -.3 ? .45 : .1)).toFixed(2)); }
+
+  requestAnimationFrame(frame);
+}
+let signKick = 0, lampFlick = 0;
+
+/* =========================================================
+   【互動】
+   ========================================================= */
+function svgPoint(evt) {
+  const p = svg.createSVGPoint(); p.x = evt.clientX; p.y = evt.clientY;
+  return p.matrixTransform(svg.getScreenCTM().inverse());
+}
+// 風向：滑鼠在畫面左右位置
+svg.addEventListener("pointermove", e => { pointerIn = true; windTarget = (svgPoint(e).x / 1600 - .5) * 2.2; });
+svg.addEventListener("pointerleave", () => { pointerIn = false; });
+// 點窗戶開關燈
+$("litLayer").addEventListener("click", e => {
+  const w = e.target.closest(".win"); if (!w) return;
+  e.stopPropagation();
+  w.querySelector(".lit").classList.toggle("on");
+});
+// 點貓
+$("cat").addEventListener("click", e => { e.stopPropagation(); catWag = 1.2; bubble(684, 430, "喵～"); });
+// 點路燈：一陣閃爍
+$("foreLamp").addEventListener("click", e => { e.stopPropagation(); lampFlick = 1; });
+// 點吊牌：晃一下
+$("hangSign").addEventListener("click", e => { e.stopPropagation(); signKick = 6; });
+// 點路面或水窪：漣漪 + 水花
+svg.addEventListener("click", e => {
+  const p = svgPoint(e);
+  if (p.y > 468) { ripple(p.x, p.y, 1.6); ripple(p.x, p.y, 1); splash(p.x, p.y, 2.2); }
+});
+
+// 控制鈕
+$("btnDayNight").addEventListener("click", () => {
+  const n = nightOf(phase);
+  const to = n > .5 ? Math.ceil(phase) : Math.floor(phase) + .5; // 往下一個「正午」或「深夜」
+  tween = { from: phase, to: to <= phase ? to + 1 : to, t: 0 };
+});
+$("btnAuto").addEventListener("click", () => {
+  auto = !auto;
+  $("btnAuto").setAttribute("aria-pressed", auto);
+  $("btnAuto").textContent = "自動循環：" + (auto ? "開" : "關");
+});
+$("btnRain").addEventListener("click", () => setRain((rainLevel + 1) % RAIN_LEVELS.length));
+
+// 減少動態：停住雨與行人，只保留切換
+function applyReduced() {
+  reduced = RM_QUERY.matches;
+  if (reduced) { auto = false; $("btnAuto").setAttribute("aria-pressed", "false"); $("btnAuto").textContent = "自動循環：關"; }
+}
+RM_QUERY.addEventListener && RM_QUERY.addEventListener("change", applyReduced);
+applyReduced();
+
+/* =========================================================
+   初始化
+   ========================================================= */
+setRain(1);
+applyNight(nightOf(phase), true);
+clouds.forEach(c => c.g.setAttribute("transform", `translate(${c.x},${c.y})`));
+drops.forEach(d => { d.y = rand(-20, d.ground); drawDrop(d, wind); });
+walkers.forEach(W => drawWalker(W, wind));
+swingers.forEach(s => s.g.setAttribute("transform", `translate(${s.x},${s.y})`));
+spawnVehicle(); veh.x = veh.dir > 0 ? 420 : 1180; drawVehicle(veh);
+requestAnimationFrame(frame);
+})();
+</script>
+
+<style id="pure-art">
+/* =========================================================
+   純插畫版：只顯示場景畫面，隱藏控制列與說明文字。
+   想恢復完整版，刪掉這整段 <style id="pure-art"> 即可。
+   ========================================================= */
+html,body{height:100%;margin:0!important;overflow:hidden}
+body{display:flex!important;align-items:center;justify-content:center;padding:0!important}
+body>.wrap{width:100%!important;max-width:min(100vw,calc(100vh * 8 / 3))!important;
+  margin:0!important;padding:0!important;gap:0!important;display:block!important}
+body>.wrap>:not(.stage){display:none!important}
+body>.wrap>.stage{width:100%!important;max-width:100%!important;margin:0!important;
+  border:0!important;border-radius:0!important;box-shadow:none!important}
+</style>
+</html>

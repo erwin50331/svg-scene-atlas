@@ -1,0 +1,1566 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>曉環軌道站</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&display=swap">
+<style>
+/* =========================================================
+   SC-16 曉環軌道站｜極簡幾何風格
+   【色票 token】所有顏色集中在這裡。
+   - 場景色成對出現：--名稱-day / --名稱-night，
+     JS 會依「軌道白晝／夜側」比例自動混色，輸出成 --名稱 給 SVG 使用，
+     並自動產生 .f-名稱（填色）、.s-名稱（描邊）兩種 class。
+   - 「常亮色」不參與混色（太陽、城市燈、極光、航行燈、螢幕光等）。
+   換色時只需改這個區塊。
+   風格重點：只用圓、膠囊、矩形與三角形；不描邊、平塗色塊、
+   有限色票（奶油白艙殼、珊瑚紅、芥末黃、青綠、靛藍），以重複節奏取代細節線條。
+   日夜邏輯：太空站約 92 分鐘繞地球一圈，畫面中一圈約 80 秒。
+   白晝面艙殼被陽光照亮；進入地球夜側後外殼轉暗、艙內暖燈亮起、地面浮現城市燈與極光。
+   ========================================================= */
+:root{
+  color-scheme:dark;
+
+  /* ---- 頁面外框（單一深色主題） ---- */
+  --page-bg:#0b0f22;
+  --page-panel:#171c3a;
+  --page-fg:#f3eee3;
+  --page-dim:#a0a6c4;
+  --page-line:#2a3160;
+  --page-accent:#ff7a5c;
+  --font-display:"Noto Sans TC","PingFang TC","Microsoft JhengHei",sans-serif;
+  --font-body:"Noto Sans TC","PingFang TC","Microsoft JhengHei",sans-serif;
+
+  /* ---- 太空與地球 ---- */
+  --space-top-day:#0f1c4a;  --space-top-night:#03050e;
+  --space-bot-day:#3567b4;  --space-bot-night:#0a1230;  /* 靠近地平線的大氣藍 */
+  --atmo-day:#8fd6ff;       --atmo-night:#2b4a9c;
+  --ocean-day:#3a8fd2;      --ocean-night:#0c1a3f;
+  --land-day:#6cc08c;       --land-night:#122637;
+  --land2-day:#e6c27a;      --land2-night:#1b2840;     /* 沙漠 */
+  --ice-day:#f3f7fb;        --ice-night:#36426a;
+  --cloud-day:#ffffff;      --cloud-night:#323d68;
+
+  /* ---- 太空站外殼 ---- */
+  --hull-day:#f3ede2;       --hull-night:#3a3f68;
+  --hull-sh-day:#cfc6b6;    --hull-sh-night:#272b4f;   /* 艙殼底部陰影 */
+  --hull-ln-day:#a9b2c2;    --hull-ln-night:#22264a;   /* 窗框、鉚釘 */
+  --hull-txt-day:#5b6380;   --hull-txt-night:#9aa1c8;
+  --truss-day:#9aa5b8;      --truss-night:#262b50;
+  --truss-ln-day:#7a8499;   --truss-ln-night:#1b1f3e;
+  --panel-day:#2c4fa3;      --panel-night:#141c45;     /* 太陽能板 */
+  --panel-ln-day:#6f93e0;   --panel-ln-night:#23306a;
+  --radiator-day:#ffffff;   --radiator-night:#4a5080;
+  --ship-day:#f8f5ee;       --ship-night:#4b5184;      /* 接駁梭 */
+  --glass-day:#24365f;      --glass-night:#ffd47a;     /* 舷窗：夜裡亮暖燈 */
+  --puff-day:#ffffff;       --puff-night:#9aa3d6;      /* 推進器噴氣 */
+
+  /* ---- 艙內 ---- */
+  --cabin-day:#e8eef1;      --cabin-night:#e9d7b4;     /* 夜裡暖燈 */
+  --rib-day:#d2dce2;        --rib-night:#d6be93;
+  --floor-day:#8c97ab;      --floor-night:#7d6a59;
+  --floor-ln-day:#76819a;   --floor-ln-night:#665546;
+  --rail-day:#5b647d;       --rail-night:#4d4040;
+  --lamp-strip-day:#ffffff; --lamp-strip-night:#fff1c9;
+  --shelf-day:#b8c3cf;      --shelf-night:#b39d7b;
+  --pot-day:#ff8a65;        --pot-night:#c46a50;
+  --leaf-day:#3fae6b;       --leaf-night:#3c8a5a;
+  --leaf2-day:#7fd08a;      --leaf2-night:#6aa56e;
+  --metal-day:#6d7790;      --metal-night:#5c5560;
+  --table-day:#c9d3dc;      --table-night:#c2aa84;
+  --locker-day:#d9e2e8;     --locker-night:#d3bd95;
+  --screen-frame-day:#2b3150; --screen-frame-night:#2b2735;
+  --pod-day:#cfd9e0;        --pod-night:#cdb48a;
+  --pod-in-day:#f6f8fa;     --pod-in-night:#f0dfbd;
+  --curtain-day:#3d6fb6;    --curtain-night:#34558a;
+  --bag-day:#2fa39a;        --bag-night:#2a8077;
+  --belt-day:#2c3145;       --belt-night:#2a2630;
+  --belt-ln-day:#4b5270;    --belt-ln-night:#454050;
+
+  /* ---- 人物、小物 ---- */
+  --skin1-day:#f2cba8;      --skin1-night:#e2b893;
+  --skin2-day:#c9926b;      --skin2-night:#b88360;
+  --skin3-day:#8a5a3c;      --skin3-night:#7c5036;
+  --hair1-day:#2a2230;      --hair1-night:#201a24;
+  --hair2-day:#9a5a3a;      --hair2-night:#82492f;
+  --hair3-day:#e8d9b8;      --hair3-night:#d6c49c;
+  --ink-day:#232838;        --ink-night:#1d1b24;
+  --c1-day:#ef6f5a;         --c1-night:#d65f4e;        /* 珊瑚紅 */
+  --c2-day:#2fa39a;         --c2-night:#2a8f86;        /* 青綠 */
+  --c3-day:#f1b740;         --c3-night:#d9a23a;        /* 芥末黃 */
+  --c4-day:#3d6fb6;         --c4-night:#365f9c;        /* 靛藍 */
+  --c5-day:#8a6fd1;         --c5-night:#7860b5;        /* 紫 */
+  --c6-day:#2e3550;         --c6-night:#2a2a3e;        /* 深色腰帶 */
+  --pants-day:#46506e;      --pants-night:#3d3d52;
+  --shoe-day:#232838;       --shoe-night:#1d1b24;
+  --suit-w-day:#ffffff;     --suit-w-night:#5b6194;    /* 艙外太空衣 */
+  --pouch-day:#f6f2e8;      --pouch-night:#efe0c2;
+  --cookie-day:#d9a25f;     --cookie-night:#c48f51;
+  --guitar-day:#e0884a;     --guitar-night:#c4733c;
+  --water-day:#7fd3f5;      --water-night:#6cc0e0;
+  --tram-day:#f1b740;       --tram-night:#7c632f;
+
+  /* ---- 常亮色（不隨日夜混色） ---- */
+  --sun:#fff3c2;
+  --sun-glow:#ffd77a;
+  --dawn:#ff8a5c;        /* 軌道日出日落的地平線光帶 */
+  --star:#f4f1ff;
+  --moon:#f2efe2;
+  --moon-sh:#c9c4b4;
+  --city:#ffd27a;        /* 夜側城市燈 */
+  --aurora:#5cf2b0;      /* 極光（綠） */
+  --aurora2:#9a7bff;     /* 極光頂端（紫） */
+  --nav-red:#ff4458;     /* 左舷航行燈 */
+  --nav-green:#4dff8a;   /* 右舷航行燈 */
+  --strobe:#ffffff;
+  --amber:#ffb23d;
+  --grow:#ff6fd8;        /* 植物生長燈 */
+  --screen:#62e3ff;      /* 螢幕光 */
+  --screen-bg:#14304a;
+  --lamp:#ffcf7a;        /* 閱讀燈 */
+  --flash:#ffffff;
+  --flame:#7fd8ff;       /* 推進器火焰 */
+  --tomato:#ff4f3a;
+  --visor:#f6b73c;       /* 頭盔面罩 */
+  --coffee:#8b5a3c;
+  --note:#ffffff;
+  --rb1:#e8423f; --rb2:#f39a2b; --rb3:#f5d63b; --rb4:#3fae5a; --rb5:#3b74d6; --rb6:#7b4fc4;  /* 彩虹貼紙 */
+}
+
+/* ===== 頁面版面 ===== */
+html,body{margin:0;background:var(--page-bg);color:var(--page-fg)}
+body{font-family:var(--font-body);line-height:1.6}
+.wrap{max-width:1680px;margin:0 auto;padding-block:20px 32px;
+  padding-left:max(16px,env(safe-area-inset-left,0px));
+  padding-right:max(16px,env(safe-area-inset-right,0px));
+  display:grid;gap:16px}
+header{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 18px}
+h1{font-family:var(--font-display);font-weight:900;font-size:clamp(1.4rem,2.6vw,2rem);margin:0;letter-spacing:.06em;text-wrap:balance}
+h1 small{font-size:.55em;font-weight:700;color:var(--page-accent);letter-spacing:.12em;margin-right:.6em}
+.meta{color:var(--page-dim);font-size:.9rem;margin:0}
+.stage{position:relative;border-radius:10px;overflow:hidden;background:#000;
+  box-shadow:0 0 0 1px var(--page-line),0 18px 40px -18px #000}
+.stage svg{display:block;width:100%;height:auto;max-width:100%;touch-action:manipulation;user-select:none;-webkit-user-select:none}
+.controls{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.controls button{font:500 .95rem/1 var(--font-body);color:var(--page-fg);background:var(--page-panel);
+  border:1px solid var(--page-line);border-radius:999px;padding:10px 18px;cursor:pointer;
+  transition:transform .12s,background .2s}
+.controls button:hover{background:#232a55}
+.controls button:active{transform:translateY(2px)}
+.controls button:focus-visible{outline:2px solid var(--page-accent);outline-offset:2px}
+.controls button[aria-pressed="true"]{border-color:var(--page-accent);color:#fff}
+.clock{margin-left:auto;font-family:var(--font-display);font-weight:500;font-size:1rem;color:var(--page-dim);font-variant-numeric:tabular-nums}
+.hint{margin:0;padding:0;list-style:none;display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:6px 20px;color:var(--page-dim);font-size:.88rem}
+.hint b{color:var(--page-fg);font-weight:500;margin-right:.4em}
+
+/* ===== SVG 內樣式 ===== */
+[data-hit]{cursor:pointer}
+.lbl{font-family:var(--font-display);font-weight:700;font-size:10px;letter-spacing:2px;fill:var(--hull-txt)}
+.mono{font-family:ui-monospace,Menlo,Consolas,monospace;font-weight:700}
+.bubble text{font-family:var(--font-display);font-weight:900;font-size:15px;fill:#232838}
+.bubble{animation:pop 2s ease-out forwards;pointer-events:none}
+@keyframes pop{0%{opacity:0;transform:translateY(6px)}10%{opacity:1;transform:translateY(0)}78%{opacity:1}100%{opacity:0;transform:translateY(-10px)}}
+.twinkle{animation:tw 3s ease-in-out infinite}
+@keyframes tw{0%,100%{opacity:.25}50%{opacity:1}}
+.blink{animation:blink 1.4s steps(1) infinite}
+.blink2{animation:blink 1.4s steps(1) .7s infinite}
+@keyframes blink{0%{opacity:1}50%{opacity:.12}}
+.strobe{animation:strobe 2.2s linear infinite}
+@keyframes strobe{0%,6%{opacity:1}7%,100%{opacity:0}}
+.spin{animation:spin 1.2s linear infinite;transform-box:fill-box;transform-origin:center}
+@keyframes spin{to{transform:rotate(360deg)}}
+.growPulse{animation:gp 3.2s ease-in-out infinite}
+@keyframes gp{0%,100%{opacity:.14}50%{opacity:.24}}
+
+/* ===== 減少動態：關閉 CSS 動畫（JS 端另行停住人物、雲、載具） ===== */
+@media (prefers-reduced-motion: reduce){
+  .twinkle,.blink,.blink2,.strobe,.spin,.growPulse{animation:none}
+  .bubble{animation:none}
+  .controls button{transition:none}
+}
+</style>
+</head>
+<body>
+<main class="wrap">
+  <div class="stage">
+  <!-- =====================================================
+       【場景】SVG 主舞台 viewBox 1600×600
+       圖層由後到前：太空 → 星星 → 月亮 → 太陽 → 遠方衛星、太空計程車 → 流星
+       → 地球（海洋、陸地、城市燈、雲、風暴）→ 大氣光、日出光帶、極光
+       → 桁架、太陽能板、散熱板、天線、機械臂 → 艙殼 → 艙內（裁切）
+       → 接駁梭 → 艙外太空人 → 推進器噴氣 → 特效 → 對話泡泡
+       ===================================================== -->
+  <svg id="scene" viewBox="0 0 1600 600" role="img" aria-label="極簡幾何風格的太空站剖面：五節艙室裡有太空人種菜、喝咖啡、彈吉他、拍照、跑步與睡覺，窗外是會日夜交替的地球">
+    <defs>
+      <linearGradient id="gSpace" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" style="stop-color:var(--space-top)"/>
+        <stop offset=".55" style="stop-color:var(--space-top)"/>
+        <stop offset="1" style="stop-color:var(--space-bot)"/>
+      </linearGradient>
+      <!-- 地球大圓：圓心在畫面下方很遠處，只露出弧形地平線 -->
+      <clipPath id="clipEarth"><circle cx="800" cy="2650" r="2200"/></clipPath>
+      <!-- 觀景圓窗 -->
+      <clipPath id="clipCupola"><circle cx="800" cy="292" r="58"/></clipPath>
+      <!-- 艙內範圍（JS 填入每一節艙室的內壁形狀） -->
+      <clipPath id="clipCabin"></clipPath>
+      <!-- 跑步機皮帶 -->
+      <clipPath id="clipBelt"><rect x="972" y="355" width="86" height="6"/></clipPath>
+    </defs>
+
+    <!-- ===== 【場景】太空背景 ===== -->
+    <rect id="spaceBg" x="0" y="0" width="1600" height="600" fill="url(#gSpace)" data-hit="sky"/>
+    <g id="starsPar" pointer-events="none"><g id="stars"></g></g>
+
+    <!-- 月亮（夜側時從右上方升起） -->
+    <g id="moonG" pointer-events="none">
+      <circle cx="0" cy="0" r="24" style="fill:var(--moon)"/>
+      <circle cx="-7" cy="-6" r="5" style="fill:var(--moon-sh)"/>
+      <circle cx="8" cy="5" r="3.5" style="fill:var(--moon-sh)"/>
+      <circle cx="-2" cy="11" r="2.5" style="fill:var(--moon-sh)"/>
+    </g>
+
+    <!-- 太陽：同心圓光暈，JS 沿弧線移動 -->
+    <g id="sunG" pointer-events="none">
+      <circle r="78" style="fill:var(--sun-glow)" opacity=".08"/>
+      <circle r="50" style="fill:var(--sun-glow)" opacity=".16"/>
+      <circle r="34" style="fill:var(--sun-glow)" opacity=".35"/>
+      <circle r="24" style="fill:var(--sun)"/>
+    </g>
+
+    <!-- ===== 【角色】遠方的衛星與太空計程車 ===== -->
+    <g id="satellite" pointer-events="none">
+      <rect x="-5" y="-5" width="10" height="10" style="fill:var(--star)" opacity=".8"/>
+      <rect x="-24" y="-3" width="16" height="6" style="fill:var(--screen)" opacity=".55"/>
+      <rect x="8" y="-3" width="16" height="6" style="fill:var(--screen)" opacity=".55"/>
+      <circle cx="0" cy="-8" r="1.6" style="fill:var(--nav-red)" class="blink"/>
+    </g>
+    <g id="taxi" data-hit="taxi">
+      <g id="taxiTrail"></g>
+      <rect x="-26" y="-11" width="52" height="22" rx="11" class="f-c3"/>
+      <rect x="-12" y="-11" width="16" height="22" class="f-c1"/>
+      <rect x="6" y="-6" width="14" height="8" rx="4" class="f-glass"/>
+      <polygon points="-26,-4 -38,-10 -38,10 -26,4" class="f-c4"/>
+      <circle cx="0" cy="-14" r="2.4" style="fill:var(--amber)" class="blink"/>
+      <circle cx="-40" cy="0" r="5" style="fill:var(--flame)" opacity=".8"/>
+    </g>
+    <g id="meteors" pointer-events="none"></g>
+
+    <!-- ===== 【場景】地球 ===== -->
+    <g id="earthPar">
+      <!-- 大氣層：兩圈半透明描邊，被地球本體蓋住內半邊 -->
+      <circle cx="800" cy="2650" r="2226" fill="none" class="s-atmo" stroke-width="14" opacity=".22"/>
+      <circle cx="800" cy="2650" r="2210" fill="none" class="s-atmo" stroke-width="18" opacity=".55"/>
+      <g clip-path="url(#clipEarth)" data-hit="earth">
+        <circle cx="800" cy="2650" r="2200" class="f-ocean"/>
+        <g id="landTiles"></g>
+        <g id="cityTiles"></g>
+        <g id="cloudTiles"></g>
+        <g id="storms"></g>
+      </g>
+      <!-- 軌道日出／日落的光帶 -->
+      <circle id="limbDawn" cx="800" cy="2650" r="2202" fill="none" stroke-width="6" style="stroke:var(--dawn)" opacity="0" pointer-events="none"/>
+      <ellipse id="dawnGlow" rx="260" ry="26" style="fill:var(--dawn)" opacity="0" pointer-events="none"/>
+      <ellipse id="dawnCore" rx="110" ry="12" style="fill:var(--sun-glow)" opacity="0" pointer-events="none"/>
+      <!-- 極光：沿地平線排列的細長條 -->
+      <g id="aurora" pointer-events="none" opacity="0"></g>
+    </g>
+
+    <!-- ===== 【場景】桁架、太陽能板、散熱板、天線、機械臂 ===== -->
+    <g id="exterior">
+      <g id="panels"></g>
+      <g id="radiators"></g>
+      <g id="dish" data-hit="dish"></g>
+      <g id="struts"></g>
+      <g id="truss"></g>
+      <g id="arm" data-hit="arm"></g>
+      <path id="tether" fill="none" stroke-width="2" class="s-c3" stroke-dasharray="5 4" pointer-events="none"/>
+    </g>
+
+    <!-- ===== 【場景】艙殼（外殼、底部陰影、艙名標籤） ===== -->
+    <g id="hull"></g>
+
+    <!-- ===== 【場景】艙內：所有內容裁切在艙壁範圍內 ===== -->
+    <g id="inside" clip-path="url(#clipCabin)">
+      <g id="cabins"></g>
+      <g id="props"></g>
+      <g id="dust" pointer-events="none"></g>
+      <!-- 【角色】組員 -->
+      <g id="crewG"></g>
+      <!-- 漂浮小物 -->
+      <g id="floaters"></g>
+      <!-- 【角色】艙內小電車 -->
+      <g id="tram" data-hit="tram"></g>
+      <!-- 【角色】小助手機器人 -->
+      <g id="drone" data-hit="drone"></g>
+      <g id="fxIn" pointer-events="none"></g>
+    </g>
+
+    <!-- ===== 【角色】接駁梭、艙外太空人 ===== -->
+    <g id="shuttle" data-hit="shuttle"></g>
+    <g id="astro" data-hit="astro"></g>
+    <g id="puffs" pointer-events="none"></g>
+
+    <!-- 互動特效與對話泡泡 -->
+    <g id="fx" pointer-events="none"></g>
+    <g id="bubbles" pointer-events="none"></g>
+  </svg>
+  </div>
+
+  <!-- 【互動】控制列 -->
+  <div class="controls">
+    <button id="btnDayNight" type="button">切換日夜</button>
+    <button id="btnAuto" type="button" aria-pressed="true">自動循環：開</button>
+    <button id="btnGravity" type="button" aria-pressed="false">人工重力：關</button>
+    <span class="clock" id="clock">白晝面</span>
+  </div>
+  <ul class="hint">
+    <li><b>滑鼠移動</b>星空與地球微微視差；游標進到艙內，小助手機器人會飄過來跟著你</li>
+    <li><b>點觀景圓窗</b>快門一閃，拍下的地球照片飄出來</li>
+    <li><b>點地球</b>白天捲起颱風雲旋，夜裡雲層打閃電</li>
+    <li><b>點太空</b>劃過一顆流星</li>
+    <li><b>點組員</b>在無重力中翻個跟斗並說句話；吉他手會冒出音符</li>
+    <li><b>點溫室架</b>植物長大、番茄轉紅、花朵綻開</li>
+    <li><b>點咖啡包</b>咖啡變成一顆顆水珠飄出來</li>
+    <li><b>點艙內電車、接駁梭、機械臂、天線、計程車</b>各有反應：鳴鈴、脫離／對接、揮舞、轉向</li>
+    <li><b>點睡眠艙簾、筆電、視訊螢幕、機器人</b>拉簾、換畫面、家人比愛心、嗶啵</li>
+    <li><b>人工重力鈕</b>開啟後人和小物會「落地」，關掉又飄起來</li>
+  </ul>
+</main>
+
+<script>
+(() => {
+"use strict";
+/* =========================================================
+   基本工具
+   ========================================================= */
+const NS = "http://www.w3.org/2000/svg";
+const $ = id => document.getElementById(id);
+const svg = $("scene");
+const root = document.documentElement;
+function el(tag, attrs, parent) {
+  const e = document.createElementNS(NS, tag);
+  for (const k in attrs) e.setAttribute(k, attrs[k]);
+  if (parent) parent.appendChild(e);
+  return e;
+}
+// 固定亂數種子，讓每次載入的背景長一樣
+function rng(seed) {
+  return () => {
+    seed |= 0; seed = seed + 0x6D2B79F5 | 0;
+    let t = Math.imul(seed ^ seed >>> 15, 1 | seed);
+    t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t;
+    return ((t ^ t >>> 14) >>> 0) / 4294967296;
+  };
+}
+const R = rng(20261122);
+const rand = (a, b) => a + Math.random() * (b - a);
+const pick = arr => arr[Math.floor(Math.random() * arr.length)];
+const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+const lerp = (a, b, k) => a + (b - a) * k;
+const smooth = x => { x = clamp(x, 0, 1); return x * x * (3 - 2 * x); };
+const easeIO = x => x < .5 ? 2 * x * x : 1 - Math.pow(-2 * x + 2, 2) / 2;
+const f1 = v => v.toFixed(1);
+const RM_QUERY = window.matchMedia("(prefers-reduced-motion: reduce)");
+let reduced = RM_QUERY.matches;
+
+/* 地球：圓心 (800, 2650)、半徑 2200 → 地平線最高點在 y=450 */
+const EC = { cx: 800, cy: 2650, r: 2200 };
+const limbY = x => EC.cy - Math.sqrt(EC.r * EC.r - (x - EC.cx) * (x - EC.cx));
+
+/* =========================================================
+   【色票】日夜混色引擎
+   讀取 --名稱-day / --名稱-night，依 night(0~1) 混色寫回 --名稱。
+   ========================================================= */
+const MIX = ["space-top","space-bot","atmo","ocean","land","land2","ice","cloud",
+  "hull","hull-sh","hull-ln","hull-txt","truss","truss-ln","panel","panel-ln","radiator","ship","glass","puff",
+  "cabin","rib","floor","floor-ln","rail","lamp-strip","shelf","pot","leaf","leaf2","metal","table","locker","screen-frame",
+  "pod","pod-in","curtain","bag","belt","belt-ln",
+  "skin1","skin2","skin3","hair1","hair2","hair3","ink","c1","c2","c3","c4","c5","c6","pants","shoe","suit-w",
+  "pouch","cookie","guitar","water","tram"];
+(function injectClasses() {
+  const css = MIX.map(n => `.f-${n}{fill:var(--${n})}.s-${n}{stroke:var(--${n})}`).join("");
+  const st = document.createElement("style"); st.textContent = css; document.head.appendChild(st);
+})();
+const cs = getComputedStyle(root);
+const hex = s => { s = s.trim().replace("#",""); if (s.length === 3) s = s.split("").map(c => c + c).join(""); const n = parseInt(s,16); return [n>>16&255, n>>8&255, n&255]; };
+const PAIRS = MIX.map(n => [n, hex(cs.getPropertyValue(`--${n}-day`)), hex(cs.getPropertyValue(`--${n}-night`))]);
+let lastApplied = -1;
+function applyNight(nt, force) {
+  if (!force && Math.abs(nt - lastApplied) < 0.004) return;
+  lastApplied = nt;
+  for (const [n, a, b] of PAIRS) {
+    const c = a.map((v, i) => Math.round(v + (b[i] - v) * nt));
+    root.style.setProperty(`--${n}`, `rgb(${c[0]},${c[1]},${c[2]})`);
+  }
+  $("stars").style.opacity = (.35 + .65 * nt).toFixed(3);
+  $("cityTiles").style.opacity = smooth(nt * 1.3 - .3).toFixed(3);
+  $("aurora").style.opacity = (smooth(nt * 1.5 - .5) * .85).toFixed(3);
+  document.querySelectorAll(".nightOnly").forEach(e => e.style.opacity = nt.toFixed(3));
+  document.querySelectorAll(".dayOnly").forEach(e => e.style.opacity = (1 - nt).toFixed(3));
+}
+
+/* =========================================================
+   【場景】星星
+   ========================================================= */
+(function buildStars() {
+  const g = $("stars");
+  for (let i = 0; i < 130; i++) {
+    const x = R() * 1620 - 10, y = R() * 470;
+    if (y > limbY(clamp(x, 0, 1600)) - 4) continue;
+    const big = R() < .12;
+    if (big) {
+      // 大星：旋轉 45° 的小方塊
+      el("rect", { x: -2, y: -2, width: 4, height: 4, transform: `translate(${x.toFixed(0)},${y.toFixed(0)}) rotate(45)`,
+        class: "twinkle", style: `fill:var(--star);animation-delay:${(R() * 3).toFixed(2)}s` }, g);
+    } else {
+      el("circle", { cx: x.toFixed(0), cy: y.toFixed(0), r: (.7 + R() * .9).toFixed(1),
+        class: R() < .3 ? "twinkle" : "", style: `fill:var(--star);animation-delay:${(R() * 3).toFixed(2)}s` }, g);
+    }
+  }
+})();
+
+/* =========================================================
+   【場景】地球表面：陸地、冰帽、城市燈、雲
+   全部畫在 1600 寬的「圖塊」裡，複製兩份左右拼接，平移就像地球在轉。
+   想改大陸形狀，改 LAND 陣列即可（r=圓、其餘為圓角矩形）。
+   ========================================================= */
+const LAND = [
+  // 大陸 A
+  { x: 60, y: 468, w: 230, h: 56, c: "land" }, { cx: 245, cy: 520, r: 50, c: "land" }, { x: 110, y: 512, w: 150, h: 90, c: "land" },
+  { x: 150, y: 486, w: 86, h: 24, c: "land2" },
+  // 大陸 B
+  { x: 520, y: 478, w: 170, h: 40, c: "land" }, { cx: 600, cy: 545, r: 58, c: "land" }, { x: 640, y: 508, w: 190, h: 76, c: "land" },
+  { cx: 705, cy: 540, r: 22, c: "land2" },
+  // 大陸 C
+  { x: 1000, y: 460, w: 270, h: 36, c: "land" }, { x: 1080, y: 488, w: 130, h: 100, c: "land" }, { cx: 1245, cy: 522, r: 42, c: "land" },
+  { x: 1110, y: 520, w: 64, h: 30, c: "land2" },
+  // 群島與冰帽
+  { cx: 420, cy: 560, r: 14, c: "land" }, { cx: 452, cy: 578, r: 9, c: "land" }, { cx: 905, cy: 470, r: 10, c: "land" },
+  { cx: 1425, cy: 502, r: 32, c: "land" }, { cx: 1468, cy: 560, r: 22, c: "land" },
+  { x: 300, y: 450, w: 170, h: 12, c: "ice" }, { x: 1320, y: 452, w: 130, h: 10, c: "ice" }, { x: 820, y: 448, w: 90, h: 8, c: "ice" }
+];
+const CITY = [[110,490],[200,528],[232,566],[300,480],[560,494],[622,548],[720,530],[790,562],[1050,476],[1135,522],[1180,560],[1240,516],[1430,505],[1462,562]];
+const CLOUDS = [[100,498,140,14],[380,470,90,10],[500,540,200,16],[820,490,120,12],[980,560,160,14],[1200,474,100,10],
+  [1350,530,180,16],[1520,580,120,12],[260,586,150,14],[700,592,90,10],[40,560,80,10],[1100,600,140,12]];
+(function buildEarth() {
+  const L = $("landTiles"), C = $("cityTiles"), K = $("cloudTiles");
+  for (const off of [0, 1600]) {
+    const lg = el("g", { transform: `translate(${off},0)` }, L);
+    LAND.forEach(s => {
+      if (s.r) el("circle", { cx: s.cx, cy: s.cy, r: s.r, class: "f-" + s.c }, lg);
+      else el("rect", { x: s.x, y: s.y, width: s.w, height: s.h, rx: Math.min(s.h / 2, 40), class: "f-" + s.c }, lg);
+    });
+    const cg = el("g", { transform: `translate(${off},0)` }, C);
+    const r2 = rng(77);  // 兩份圖塊用同一組亂數，才能無縫拼接
+    CITY.forEach(([x, y]) => {
+      for (let i = 0; i < 9; i++) {
+        const a = r2() * 6.28, d = r2() * 22;
+        el("circle", { cx: f1(x + Math.cos(a) * d), cy: f1(y + Math.sin(a) * d * .6), r: f1(1 + r2() * 1.6), style: "fill:var(--city)" }, cg);
+      }
+      el("circle", { cx: x, cy: y, r: 8, style: "fill:var(--city)", opacity: .18 }, cg);
+    });
+    const kg = el("g", { transform: `translate(${off},0)` }, K);
+    CLOUDS.forEach(([x, y, w, h]) => {
+      el("rect", { x, y, width: w, height: h, rx: h / 2, class: "f-cloud", opacity: .9 }, kg);
+      el("rect", { x: x + w * .25, y: y - h * .6, width: w * .4, height: h, rx: h / 2, class: "f-cloud", opacity: .9 }, kg);
+    });
+  }
+})();
+
+/* 極光：只在夜側出現，JS 讓每條高度起伏 */
+const auroraBars = [];
+(function buildAurora() {
+  const g = $("aurora");
+  for (const [a, b] of [[120, 640], [960, 1480]]) {
+    for (let x = a; x < b; x += 8) {
+      const base = limbY(x) + 4;
+      const lo = el("rect", { x, y: base - 30, width: 8, height: 30, rx: 4, style: "fill:var(--aurora)", opacity: .38 }, g);
+      const hi = el("rect", { x, y: base - 42, width: 8, height: 12, rx: 4, style: "fill:var(--aurora2)", opacity: .28 }, g);
+      auroraBars.push({ lo, hi, x, base, h0: 16 + Math.sin(x * .013) * 8 + R() * 6, ph: x * .03 });
+    }
+  }
+})();
+
+/* =========================================================
+   【場景】太空站結構：艙室資料
+   想調整艙室寬度或順序，改 MODS 陣列；艙內內容由各自的 build 函式畫。
+   ========================================================= */
+const MODS = [
+  { id: "green",  x: 110,  w: 280, name: "溫　室" },
+  { id: "lounge", x: 410,  w: 240, name: "交誼廳" },
+  { id: "hub",    x: 670,  w: 260, name: "觀景節點" },
+  { id: "lab",    x: 950,  w: 250, name: "實驗艙" },
+  { id: "sleep",  x: 1220, w: 212, name: "寢　艙" }
+];
+const TOP = 192, BOT = 400, CAB_T = 214, CAB_B = 386, FLOOR = 372;
+
+(function buildHull() {
+  const H = $("hull"), CL = $("clipCabin"), CB = $("cabins");
+  // 氣閘艙（左端）與對接口（右端）：只有外殼
+  el("rect", { x: 50, y: 262, width: 80, height: 124, rx: 22, class: "f-hull-sh" }, H);
+  el("rect", { x: 50, y: 262, width: 80, height: 118, rx: 22, class: "f-hull" }, H);
+  el("circle", { cx: 84, cy: 320, r: 22, class: "f-hull-ln" }, H);
+  el("circle", { cx: 84, cy: 320, r: 15, class: "f-hull" }, H);
+  el("rect", { x: 70, y: 318, width: 28, height: 4, rx: 2, class: "f-hull-ln" }, H);
+  el("text", { x: 84, y: 284, "text-anchor": "middle", class: "lbl" }, H).textContent = "氣閘";
+  el("rect", { x: 1426, y: 268, width: 56, height: 64, rx: 10, class: "f-hull-sh" }, H);
+  el("rect", { x: 1426, y: 268, width: 56, height: 60, rx: 10, class: "f-hull" }, H);
+  el("rect", { x: 1474, y: 258, width: 10, height: 84, rx: 4, class: "f-c4" }, H);  // 對接環
+  // 艙間通道
+  for (let i = 0; i < MODS.length - 1; i++) {
+    const a = MODS[i], b = MODS[i + 1];
+    const x0 = a.x + a.w - 24, x1 = b.x + 24;
+    el("rect", { x: x0, y: 290, width: x1 - x0, height: 110, class: "f-hull-sh" }, H);
+    el("rect", { x: x0, y: 290, width: x1 - x0, height: 102, class: "f-hull" }, H);
+    // 通道外的環箍
+    el("rect", { x: (x0 + x1) / 2 - 3, y: 290, width: 6, height: 102, class: "f-hull-ln" }, H);
+    el("rect", { x: x0, y: 304, width: x1 - x0, height: 82, class: "" }, CL);
+    el("rect", { x: x0, y: 304, width: x1 - x0, height: 82, class: "f-cabin" }, CB);
+  }
+  // 每節艙室
+  MODS.forEach(m => {
+    el("rect", { x: m.x, y: TOP, width: m.w, height: BOT - TOP, rx: 44, class: "f-hull-sh" }, H);
+    el("rect", { x: m.x, y: TOP, width: m.w, height: BOT - TOP - 8, rx: 44, class: "f-hull" }, H);
+    // 頂部艙名膠囊標籤
+    const lw = m.name.length * 14 + 18;
+    el("rect", { x: m.x + m.w / 2 - lw / 2, y: 195, width: lw, height: 15, rx: 7.5, class: "f-hull-sh" }, H);
+    el("text", { x: m.x + m.w / 2, y: 206.5, "text-anchor": "middle", class: "lbl" }, H).textContent = m.name;
+    // 鉚釘點列
+    for (let xx = m.x + 30; xx < m.x + m.w - 26; xx += 18)
+      if (Math.abs(xx - (m.x + m.w / 2)) > lw / 2 + 8) el("circle", { cx: xx, cy: 203, r: 1.8, class: "f-hull-ln" }, H);
+    el("rect", { x: m.x + 12, y: CAB_T, width: m.w - 24, height: CAB_B - CAB_T, rx: 26 }, CL);
+    el("rect", { x: m.x + 12, y: CAB_T, width: m.w - 24, height: CAB_B - CAB_T, rx: 26, class: "f-cabin" }, CB);
+  });
+  // 艙壁肋條、天花燈條、地板、軌道（都被裁切在艙內）
+  for (let x = 120; x < 1440; x += 46) el("rect", { x, y: CAB_T, width: 3, height: FLOOR - CAB_T, class: "f-rib" }, CB);
+  MODS.forEach(m => {
+    if (m.id !== "green") el("rect", { x: m.x + 40, y: 219, width: m.w - 80, height: 4, rx: 2, class: "f-lamp-strip" }, CB);
+    // 扶手（橫向膠囊）
+    el("rect", { x: m.x + 30, y: 236, width: 30, height: 4, rx: 2, class: "f-metal", opacity: .5 }, CB);
+    el("rect", { x: m.x + m.w - 60, y: 236, width: 30, height: 4, rx: 2, class: "f-metal", opacity: .5 }, CB);
+  });
+  el("rect", { x: 0, y: FLOOR, width: 1600, height: 20, class: "f-floor" }, CB);
+  for (let x = 110; x < 1440; x += 26) el("rect", { x, y: FLOOR + 4, width: 2, height: 16, class: "f-floor-ln" }, CB);
+  el("rect", { x: 120, y: 367, width: 1310, height: 4, class: "f-rail" }, CB);
+})();
+
+/* 桁架：長條＋三角形節奏；兩端紅綠航行燈 */
+(function buildTruss() {
+  const g = $("truss");
+  el("rect", { x: 30, y: 124, width: 1540, height: 20, class: "f-truss" }, g);
+  for (let x = 30, i = 0; x < 1560; x += 20, i++)
+    el("polygon", { points: i % 2 ? `${x},144 ${x + 10},126 ${x + 20},144` : `${x},126 ${x + 10},142 ${x + 20},126`, class: "f-truss-ln" }, g);
+  el("circle", { cx: 30, cy: 134, r: 5, style: "fill:var(--nav-red)", class: "blink" }, g);
+  el("circle", { cx: 1570, cy: 134, r: 5, style: "fill:var(--nav-green)", class: "blink2" }, g);
+  el("circle", { cx: 800, cy: 121, r: 3, style: "fill:var(--strobe)", class: "strobe" }, g);
+  // 支柱：桁架到各艙頂
+  const S = $("struts");
+  MODS.forEach(m => {
+    const cx = m.x + m.w / 2;
+    el("rect", { x: cx - 7, y: 144, width: 14, height: 50, class: "f-truss" }, S);
+    el("polygon", { points: `${cx - 40},144 ${cx - 7},144 ${cx - 7},170`, class: "f-truss-ln" }, S);
+    el("polygon", { points: `${cx + 40},144 ${cx + 7},144 ${cx + 7},170`, class: "f-truss-ln" }, S);
+  });
+  el("rect", { x: 84, y: 144, width: 10, height: 120, class: "f-truss" }, S);    // 氣閘支柱
+  el("rect", { x: 1450, y: 144, width: 10, height: 126, class: "f-truss" }, S);  // 對接口支柱
+})();
+
+/* 太陽能板：每組兩片，JS 依太陽角度壓縮寬度，看起來像在轉向追日 */
+const panels = [];
+(function buildPanels() {
+  const g = $("panels");
+  [120, 330, 1270, 1480].forEach(cx => {
+    el("rect", { x: cx - 3, y: 26, width: 6, height: 100, class: "f-truss" }, g);
+    const P = el("g", {}, g);
+    for (const side of [-1, 1]) {
+      const x0 = side < 0 ? cx - 76 : cx + 8;
+      el("rect", { x: x0, y: 32, width: 68, height: 88, class: "f-panel" }, P);
+      for (let yy = 32 + 11; yy < 120; yy += 11) el("rect", { x: x0, y: yy, width: 68, height: 1.5, class: "f-panel-ln" }, P);
+      for (let xx = x0 + 17; xx < x0 + 68; xx += 17) el("rect", { x: xx, y: 32, width: 1.5, height: 88, class: "f-panel-ln" }, P);
+    }
+    // 日照反光條
+    const glint = el("rect", { x: cx - 76, y: 32, width: 18, height: 88, style: "fill:var(--sun)", opacity: 0 }, P);
+    panels.push({ P, cx, glint });
+  });
+  // 散熱板
+  const RG = $("radiators");
+  [470, 1150].forEach(cx => {
+    el("rect", { x: cx - 2, y: 70, width: 4, height: 56, class: "f-truss" }, RG);
+    for (let i = 0; i < 3; i++) el("rect", { x: cx - 30, y: 48 + i * 10, width: 60, height: 7, rx: 1, class: "f-radiator" }, RG);
+  });
+})();
+
+/* 通訊天線：半圓碟 */
+const dish = { a: -20, boost: 0 };
+(function buildDish() {
+  const g = $("dish");
+  el("rect", { x: 576, y: 96, width: 6, height: 30, class: "f-truss" }, g);
+  dish.head = el("g", {}, g);
+  el("path", { d: "M-20,0 A20,20 0 0 0 20,0 Z", class: "f-radiator" }, dish.head);
+  el("rect", { x: -1.5, y: -22, width: 3, height: 22, class: "f-truss-ln" }, dish.head);
+  el("circle", { cx: 0, cy: -23, r: 3, class: "f-c1" }, dish.head);
+})();
+
+/* 機械臂：兩節膠囊，末端夾著一個貨箱 */
+const arm = { boost: 0 };
+(function buildArm() {
+  const g = $("arm");
+  el("rect", { x: 676, y: 112, width: 28, height: 14, rx: 4, class: "f-truss-ln" }, g);
+  arm.s1 = el("g", {}, g);
+  el("rect", { x: -7, y: -7, width: 90, height: 14, rx: 7, class: "f-radiator" }, arm.s1);
+  el("rect", { x: 30, y: -7, width: 10, height: 14, class: "f-c1" }, arm.s1);
+  el("circle", { cx: 0, cy: 0, r: 9, class: "f-truss-ln" }, arm.s1);
+  arm.s2 = el("g", {}, arm.s1);
+  el("rect", { x: -6, y: -6, width: 74, height: 12, rx: 6, class: "f-radiator" }, arm.s2);
+  el("circle", { cx: 0, cy: 0, r: 8, class: "f-truss-ln" }, arm.s2);
+  arm.hand = el("g", { transform: "translate(74,0)" }, arm.s2);
+  el("rect", { x: -2, y: -9, width: 6, height: 18, class: "f-truss-ln" }, arm.hand);
+  arm.box = el("g", {}, arm.hand);
+  el("rect", { x: 4, y: -13, width: 26, height: 26, rx: 3, class: "f-c3" }, arm.box);
+  el("rect", { x: 4, y: -3, width: 26, height: 6, class: "f-c1" }, arm.box);
+})();
+
+/* =========================================================
+   【角色】幾何小人：頭＝圓、身體＝圓角矩形、四肢＝膠囊
+   o.suit 衣服色、o.skin 膚色、o.hair 髮型（short/bun/long/curly/float/buzz）、o.hc 髮色
+   回傳的物件可用 poseFig() 擺姿勢。
+   ========================================================= */
+function figure(parent, o) {
+  const g = el("g", { "data-hit": "crew", "data-id": o.id }, parent);
+  const body = el("g", {}, g);
+  const leg = () => {
+    const L = el("g", {}, body);
+    el("rect", { x: -4.5, y: 0, width: 9, height: 30, rx: 4.5, class: "f-" + (o.pants || "pants") }, L);
+    el("rect", { x: -5.5, y: 25, width: 12, height: 8, rx: 4, class: "f-shoe" }, L);
+    return L;
+  };
+  const ll = leg(), rl = leg();
+  if (o.hair === "long") el("rect", { x: -12, y: -57, width: 24, height: 26, rx: 10, class: "f-" + o.hc }, body);
+  if (o.hair === "float") el("rect", { x: -13, y: -76, width: 26, height: 30, rx: 13, class: "f-" + o.hc }, body);  // 無重力中往上飄的長髮
+  el("rect", { x: -12, y: -38, width: 24, height: 42, rx: 10, class: "f-" + o.suit }, body);
+  el("rect", { x: -12, y: -8, width: 24, height: 5, class: "f-c6", opacity: .55 }, body);
+  el("circle", { cx: 5, cy: -26, r: 3.2, class: "f-" + (o.patch || "c3") }, body);
+  el("rect", { x: -9, y: -29, width: 7, height: 3, rx: 1.5, class: "f-c6", opacity: .5 }, body);  // 名牌
+  el("circle", { cx: 0, cy: -48, r: 10, class: "f-" + o.skin }, body);
+  const cap = d => el("path", { d, class: "f-" + o.hc }, body);
+  if (o.hair !== "bald") cap("M-10.6,-48 A10.6,10.6 0 0 1 10.6,-48 Q0,-52 -10.6,-48 Z");
+  if (o.hair === "bun") el("circle", { cx: 0, cy: -61, r: 5.5, class: "f-" + o.hc }, body);
+  if (o.hair === "curly") [[-8,-53],[-3,-58],[3,-58],[8,-53]].forEach(([x, y]) => el("circle", { cx: x, cy: y, r: 5.5, class: "f-" + o.hc }, body));
+  if (o.glasses) { el("rect", { x: -7, y: -50, width: 6, height: 4, rx: 1.5, class: "f-ink", opacity: .8 }, body); el("rect", { x: 1, y: -50, width: 6, height: 4, rx: 1.5, class: "f-ink", opacity: .8 }, body); }
+  else { el("circle", { cx: -3.5, cy: -47.5, r: 1.3, class: "f-ink" }, body); el("circle", { cx: 3.5, cy: -47.5, r: 1.3, class: "f-ink" }, body); }
+  el("rect", { x: -2.5, y: -43, width: 5, height: 1.6, rx: .8, class: "f-ink", opacity: .6 }, body);
+  const arm = () => {
+    const A = el("g", {}, body);
+    el("rect", { x: -3.5, y: 0, width: 7, height: 25, rx: 3.5, class: "f-" + o.suit }, A);
+    el("circle", { cx: 0, cy: 27, r: 4, class: "f-" + o.skin }, A);
+    return A;
+  };
+  const la = arm(), ra = arm();
+  return { g, body, la, ra, ll, rl };
+}
+function poseFig(F, x, y, rot, p) {
+  F.body.setAttribute("transform", `translate(${f1(x)},${f1(y)}) rotate(${f1(rot)})`);
+  F.la.setAttribute("transform", `translate(-10,-33) rotate(${f1(p.la)})`);
+  F.ra.setAttribute("transform", `translate(10,-33) rotate(${f1(p.ra)})`);
+  F.ll.setAttribute("transform", `translate(-5,2) rotate(${f1(p.ll)})`);
+  F.rl.setAttribute("transform", `translate(5,2) rotate(${f1(p.rl)})`);
+}
+
+/* =========================================================
+   【場景】艙內道具（每節艙室一個 build 函式）
+   ========================================================= */
+const P = $("props");
+const plants = [];
+const ui = {};
+
+/* ---- 溫室：三層植物架＋粉紫生長燈 ---- */
+(function buildGreenhouse() {
+  const mx = 110;
+  const shelves = el("g", { "data-hit": "plants" }, P);
+  [258, 310, 362].forEach((sy, row) => {
+    el("rect", { x: mx + 30, y: sy - 46, width: 168, height: 4, rx: 2, style: "fill:var(--grow)" }, shelves);
+    el("rect", { x: mx + 30, y: sy - 42, width: 168, height: 42, style: "fill:var(--grow)", class: "growPulse", opacity: .16 }, shelves);
+    el("rect", { x: mx + 24, y: sy, width: 180, height: 5, class: "f-shelf" }, shelves);
+    for (let i = 0; i < 5; i++) {
+      const px = mx + 44 + i * 35;
+      el("rect", { x: px - 10, y: sy - 12, width: 20, height: 12, rx: 2, class: "f-pot" }, shelves);
+      const pg = el("g", {}, shelves);
+      const bloom = el("g", { opacity: 0 }, pg);
+      const type = (i + row * 2) % 4;
+      if (type === 0) {        // 生菜：三顆圓
+        el("circle", { cx: px - 6, cy: sy - 17, r: 7, class: "f-leaf2" }, pg);
+        el("circle", { cx: px + 6, cy: sy - 17, r: 7, class: "f-leaf2" }, pg);
+        el("circle", { cx: px, cy: sy - 23, r: 7, class: "f-leaf" }, pg);
+        el("circle", { cx: px, cy: sy - 31, r: 4, class: "f-leaf2" }, bloom);
+      } else if (type === 1) { // 番茄：細莖＋紅果
+        el("rect", { x: px - 1, y: sy - 36, width: 2, height: 24, class: "f-leaf" }, pg);
+        el("circle", { cx: px - 6, cy: sy - 28, r: 4.5, class: "f-leaf" }, pg);
+        el("circle", { cx: px + 6, cy: sy - 22, r: 4.5, class: "f-leaf" }, pg);
+        const t1 = el("circle", { cx: px + 5, cy: sy - 31, r: 3.4, class: "f-leaf2" }, pg);
+        const t2 = el("circle", { cx: px - 5, cy: sy - 19, r: 3.4, class: "f-leaf2" }, pg);
+        el("circle", { cx: px + 5, cy: sy - 31, r: 3.6, style: "fill:var(--tomato)" }, bloom);
+        el("circle", { cx: px - 5, cy: sy - 19, r: 3.6, style: "fill:var(--tomato)" }, bloom);
+        el("circle", { cx: px, cy: sy - 38, r: 3.6, style: "fill:var(--tomato)" }, bloom);
+      } else if (type === 2) { // 香草：疊三角
+        el("polygon", { points: `${px - 9},${sy - 12} ${px},${sy - 30} ${px + 9},${sy - 12}`, class: "f-leaf" }, pg);
+        el("polygon", { points: `${px - 6},${sy - 22} ${px},${sy - 36} ${px + 6},${sy - 22}`, class: "f-leaf2" }, pg);
+        el("circle", { cx: px, cy: sy - 38, r: 3, style: "fill:#fff" }, bloom);
+      } else {                 // 小花：莖＋黃花心
+        el("rect", { x: px - 1, y: sy - 32, width: 2, height: 20, class: "f-leaf" }, pg);
+        el("circle", { cx: px - 5, cy: sy - 20, r: 3.5, class: "f-leaf2" }, pg);
+        el("circle", { cx: px, cy: sy - 34, r: 4, class: "f-c3" }, pg);
+        [0, 72, 144, 216, 288].forEach(a => el("circle", { cx: f1(px + Math.cos(a * Math.PI / 180) * 7), cy: f1(sy - 34 + Math.sin(a * Math.PI / 180) * 7), r: 3.6, class: "f-c1" }, bloom));
+      }
+      plants.push({ g: pg, bloom, px, py: sy - 12, s: 0, target: 0 });
+    }
+  });
+  // 水箱與管線
+  el("rect", { x: mx + 214, y: 330, width: 34, height: 40, rx: 6, class: "f-locker" }, P);
+  el("rect", { x: mx + 218, y: 340, width: 26, height: 22, rx: 4, class: "f-water", opacity: .8 }, P);
+  el("rect", { x: mx + 204, y: 344, width: 10, height: 3, class: "f-metal" }, P);
+})();
+
+/* ---- 交誼廳：餐桌、置物櫃、時鐘、家人視訊螢幕 ---- */
+(function buildLounge() {
+  const mx = 410;
+  for (let r = 0; r < 2; r++) for (let c = 0; c < 3; c++) {
+    el("rect", { x: mx + 26 + c * 23, y: 244 + r * 21, width: 20, height: 18, rx: 2, class: "f-locker" }, P);
+    el("rect", { x: mx + 33 + c * 23, y: 251 + r * 21, width: 6, height: 2, rx: 1, class: "f-metal" }, P);
+  }
+  // 時鐘
+  el("circle", { cx: mx + 120, cy: 248, r: 11, class: "f-locker" }, P);
+  ui.clockH = el("rect", { x: -1, y: -6, width: 2, height: 6, class: "f-ink", transform: `translate(${mx + 120},248)` }, P);
+  ui.clockM = el("rect", { x: -.8, y: -9, width: 1.6, height: 9, class: "f-c1", transform: `translate(${mx + 120},248)` }, P);
+  // 視訊螢幕：地球上的家人
+  const scr = el("g", { "data-hit": "screen" }, P);
+  el("rect", { x: mx + 146, y: 234, width: 72, height: 48, rx: 4, class: "f-screen-frame" }, scr);
+  el("rect", { x: mx + 150, y: 238, width: 64, height: 40, style: "fill:var(--screen-bg)" }, scr);
+  el("rect", { x: mx + 150, y: 266, width: 64, height: 12, class: "f-land" }, scr);
+  el("circle", { cx: mx + 172, cy: 254, r: 6, class: "f-skin2" }, scr);
+  el("rect", { x: mx + 165, y: 261, width: 14, height: 14, rx: 5, class: "f-c1" }, scr);
+  el("circle", { cx: mx + 194, cy: 257, r: 5, class: "f-skin1" }, scr);
+  el("rect", { x: mx + 188, y: 263, width: 12, height: 12, rx: 5, class: "f-c3" }, scr);
+  ui.waveArm = el("rect", { x: -1.5, y: -12, width: 3, height: 12, rx: 1.5, class: "f-skin2", transform: `translate(${mx + 179},263)` }, scr);
+  el("circle", { cx: mx + 208, cy: 242, r: 2, style: "fill:var(--nav-red)", class: "blink" }, scr);
+  // 餐桌
+  el("rect", { x: mx + 66, y: 330, width: 108, height: 8, rx: 4, class: "f-table" }, P);
+  el("rect", { x: mx + 114, y: 338, width: 12, height: 34, class: "f-metal" }, P);
+  el("rect", { x: mx + 98, y: 368, width: 44, height: 4, rx: 2, class: "f-metal" }, P);
+  // 桌上用魔鬼氈固定的調味包
+  [[mx + 80, "c1"], [mx + 92, "c3"], [mx + 150, "c2"]].forEach(([x, c]) => el("rect", { x, y: 322, width: 8, height: 8, rx: 2, class: "f-" + c }, P));
+})();
+
+/* ---- 觀景節點：大圓窗（裡面是縮小的地球）、任務時鐘 ---- */
+(function buildHub() {
+  const W = el("g", { "data-hit": "window" }, P);
+  el("circle", { cx: 800, cy: 292, r: 72, class: "f-hull-ln" }, W);
+  el("circle", { cx: 800, cy: 292, r: 64, class: "f-hull" }, W);
+  const view = el("g", { "clip-path": "url(#clipCupola)" }, W);
+  el("rect", { x: 740, y: 232, width: 120, height: 120, class: "f-space-top" }, view);
+  [[770,252],[820,246],[842,270],[760,280],[800,262]].forEach(([x, y]) => el("circle", { cx: x, cy: y, r: 1.2, style: "fill:var(--star)" }, view));
+  el("circle", { cx: 800, cy: 470, r: 170, class: "f-atmo", opacity: .6 }, view);
+  el("circle", { cx: 800, cy: 476, r: 170, class: "f-ocean" }, view);
+  ui.cupLand = el("g", {}, view);
+  el("rect", { x: 750, y: 316, width: 50, height: 14, rx: 7, class: "f-land" }, ui.cupLand);
+  el("circle", { cx: 820, cy: 336, r: 16, class: "f-land" }, ui.cupLand);
+  el("rect", { x: 830, y: 312, width: 34, height: 8, rx: 4, class: "f-cloud" }, ui.cupLand);
+  [[760,322],[770,320],[818,334],[826,340],[812,338]].forEach(([x, y]) => el("circle", { cx: x, cy: y, r: 1.4, style: "fill:var(--city)", class: "nightOnly" }, ui.cupLand));
+  ui.flash = el("circle", { cx: 800, cy: 292, r: 64, style: "fill:var(--flash)", opacity: 0 }, W);
+  // 窗框螺栓
+  for (let i = 0; i < 8; i++) {
+    const a = i / 8 * Math.PI * 2;
+    el("circle", { cx: f1(800 + Math.cos(a) * 68), cy: f1(292 + Math.sin(a) * 68), r: 2.4, class: "f-hull-sh" }, W);
+  }
+  // 任務時鐘
+  el("rect", { x: 686, y: 232, width: 50, height: 22, rx: 3, class: "f-screen-frame" }, P);
+  ui.hubClock = el("text", { x: 711, y: 247, "text-anchor": "middle", class: "mono", style: "fill:var(--screen);font-size:11px" }, P);
+  ui.hubClock.textContent = "00:00";
+  // 左右壁的直向扶手
+  el("rect", { x: 690, y: 270, width: 4, height: 70, rx: 2, class: "f-metal", opacity: .5 }, P);
+  el("rect", { x: 906, y: 270, width: 4, height: 70, rx: 2, class: "f-metal", opacity: .5 }, P);
+})();
+
+/* ---- 實驗艙：跑步機、心率螢幕、工作檯、筆電、試管架 ---- */
+const heart = [];
+(function buildLab() {
+  const mx = 950;
+  // 跑步機
+  el("rect", { x: mx + 18, y: 360, width: 94, height: 12, rx: 3, class: "f-metal" }, P);
+  el("rect", { x: mx + 22, y: 355, width: 86, height: 6, class: "f-belt" }, P);
+  ui.belt = el("g", { "clip-path": "url(#clipBelt)" }, P);
+  ui.beltIn = el("g", {}, ui.belt);
+  for (let x = mx + 10; x < mx + 120; x += 12) el("rect", { x, y: 355, width: 4, height: 6, class: "f-belt-ln" }, ui.beltIn);
+  el("rect", { x: mx + 104, y: 314, width: 5, height: 44, class: "f-metal" }, P);
+  el("rect", { x: mx + 90, y: 312, width: 24, height: 5, rx: 2.5, class: "f-metal" }, P);
+  ui.harnessL = el("line", { x1: mx + 26, y1: 358, x2: mx + 60, y2: 318, class: "s-c3", "stroke-width": 2 }, P);
+  ui.harnessR = el("line", { x1: mx + 100, y1: 358, x2: mx + 70, y2: 318, class: "s-c3", "stroke-width": 2 }, P);
+  // 心率螢幕
+  el("rect", { x: mx + 26, y: 236, width: 78, height: 40, rx: 4, class: "f-screen-frame" }, P);
+  el("rect", { x: mx + 30, y: 240, width: 70, height: 32, style: "fill:var(--screen-bg)" }, P);
+  ui.ecg = el("polyline", { points: "", fill: "none", style: "stroke:var(--nav-green)", "stroke-width": 1.6, "stroke-linejoin": "round" }, P);
+  ui.bpm = el("text", { x: mx + 96, y: 248, "text-anchor": "end", class: "mono", style: "fill:var(--nav-green);font-size:7px" }, P);
+  ui.bpm.textContent = "BPM 128";
+  for (let i = 0; i < 34; i++) heart.push(0);
+  // 工作檯
+  el("rect", { x: mx + 136, y: 322, width: 100, height: 6, rx: 3, class: "f-table" }, P);
+  el("rect", { x: mx + 150, y: 328, width: 6, height: 44, class: "f-metal" }, P);
+  el("rect", { x: mx + 216, y: 328, width: 6, height: 44, class: "f-metal" }, P);
+  el("rect", { x: mx + 160, y: 340, width: 50, height: 26, rx: 3, class: "f-locker" }, P);
+  el("rect", { x: mx + 180, y: 351, width: 10, height: 3, rx: 1.5, class: "f-metal" }, P);
+  // 筆電：螢幕會切換三種畫面
+  const lap = el("g", { "data-hit": "laptop" }, P);
+  el("rect", { x: mx + 158, y: 316, width: 50, height: 6, rx: 2, class: "f-metal" }, lap);
+  el("rect", { x: mx + 162, y: 288, width: 42, height: 28, rx: 2, class: "f-screen-frame" }, lap);
+  el("rect", { x: mx + 165, y: 291, width: 36, height: 22, style: "fill:var(--screen-bg)" }, lap);
+  ui.lapModes = [el("g", {}, lap), el("g", { opacity: 0 }, lap), el("g", { opacity: 0 }, lap)];
+  [[4, 20], [8, 16], [8, 22], [4, 12], [12, 14]].forEach(([dx, w], i) => el("rect", { x: mx + 165 + dx, y: 294 + i * 4, width: w, height: 2, style: "fill:var(--screen)" }, ui.lapModes[0]));
+  el("circle", { cx: mx + 183, cy: 302, r: 8, class: "f-ocean" }, ui.lapModes[1]);
+  el("rect", { x: mx + 178, y: 298, width: 8, height: 4, rx: 2, class: "f-land" }, ui.lapModes[1]);
+  [6, 12, 9, 16, 13].forEach((h, i) => el("rect", { x: mx + 169 + i * 6, y: 311 - h, width: 4, height: h, style: `fill:${i % 2 ? "var(--grow)" : "var(--screen)"}` }, ui.lapModes[2]));
+  // 試管架
+  el("rect", { x: mx + 150, y: 266, width: 76, height: 4, rx: 2, class: "f-metal" }, P);
+  ["c1", "c2", "c3", "c4", "c5", "water"].forEach((c, i) => {
+    el("rect", { x: mx + 156 + i * 12, y: 242, width: 7, height: 26, rx: 3.5, class: "f-locker" }, P);
+    el("rect", { x: mx + 156 + i * 12, y: 252 + (i % 3) * 3, width: 7, height: 16 - (i % 3) * 3, rx: 3.5, class: "f-" + c }, P);
+  });
+})();
+
+/* ---- 寢艙：三格睡眠艙（睡著的組員、可拉的簾子、個人小物） ---- */
+const curtain = { open: true, s: .12 };
+(function buildSleep() {
+  const mx = 1220;
+  const pods = [14, 80, 146];
+  pods.forEach(px => {
+    el("rect", { x: mx + px, y: 228, width: 56, height: 138, rx: 12, class: "f-pod" }, P);
+    el("rect", { x: mx + px + 5, y: 234, width: 46, height: 126, rx: 9, class: "f-pod-in" }, P);
+    el("circle", { cx: mx + px + 28, cy: 242, r: 3, style: "fill:var(--lamp)" }, P);  // 閱讀燈
+    el("circle", { cx: mx + px + 28, cy: 250, r: 12, style: "fill:var(--lamp)", class: "nightOnly", opacity: .25 }, P);
+  });
+  // 第一格：睡袋＋睡著的組員（眼罩）
+  const s = el("g", { "data-hit": "sleeper" }, P);
+  const bx = mx + 42;
+  el("rect", { x: bx - 18, y: 264, width: 36, height: 92, rx: 16, class: "f-bag" }, s);
+  el("rect", { x: bx - 18, y: 300, width: 36, height: 6, class: "f-c6", opacity: .25 }, s);
+  el("rect", { x: bx - 1, y: 270, width: 2, height: 80, class: "f-c6", opacity: .3 }, s);  // 拉鍊
+  el("circle", { cx: bx, cy: 256, r: 10, class: "f-skin3" }, s);
+  el("path", { d: `M${bx - 10.6},256 A10.6,10.6 0 0 1 ${bx + 10.6},256 Q${bx},252 ${bx - 10.6},256 Z`, class: "f-hair1" }, s);
+  el("rect", { x: bx - 9, y: 255, width: 18, height: 5, rx: 2.5, class: "f-c5" }, s);   // 眼罩
+  ui.zOrigin = { x: bx + 10, y: 248 };
+  // 第二格：簾子後面的個人小物（照片、彩虹貼紙、星星抱枕、耳機）
+  const p2 = mx + 80;
+  el("rect", { x: p2 + 10, y: 256, width: 16, height: 20, rx: 1, style: "fill:#fff" }, P);
+  el("rect", { x: p2 + 12, y: 258, width: 12, height: 12, class: "f-c4" }, P);
+  el("circle", { cx: p2 + 18, cy: 264, r: 3, class: "f-skin1" }, P);
+  el("rect", { x: p2 + 30, y: 252, width: 16, height: 20, rx: 1, style: "fill:#fff", transform: `rotate(8 ${p2 + 38} 262)` }, P);
+  el("rect", { x: p2 + 32, y: 254, width: 12, height: 12, class: "f-c2", transform: `rotate(8 ${p2 + 38} 262)` }, P);
+  ["rb1", "rb2", "rb3", "rb4", "rb5", "rb6"].forEach((c, i) => el("rect", { x: p2 + 14, y: 290 + i * 3, width: 22, height: 3, style: `fill:var(--${c})` }, P));
+  el("polygon", { points: starPts(p2 + 28, 334, 13, 6), class: "f-c3" }, P);
+  el("path", { d: `M${p2 + 14},${318} A9,9 0 0 1 ${p2 + 32},318`, fill: "none", class: "s-c6", "stroke-width": 3 }, P);
+  el("rect", { x: p2 + 11, y: 316, width: 6, height: 9, rx: 3, class: "f-c1" }, P);
+  el("rect", { x: p2 + 29, y: 316, width: 6, height: 9, rx: 3, class: "f-c1" }, P);
+  // 簾子（點擊開合）
+  ui.curtain = el("g", { "data-hit": "curtain", transform: `translate(0,234)` }, P);
+  ui.curtainIn = el("g", {}, ui.curtain);
+  el("rect", { x: p2 + 5, y: 0, width: 46, height: 126, rx: 4, class: "f-curtain" }, ui.curtainIn);
+  for (let x = p2 + 11; x < p2 + 50; x += 9) el("rect", { x, y: 0, width: 3, height: 126, class: "f-c6", opacity: .18 }, ui.curtainIn);
+  el("rect", { x: p2 + 2, y: -3, width: 52, height: 5, rx: 2.5, class: "f-metal" }, ui.curtain);
+  // 第三格：衣物袋、小盆栽、照片條
+  const p3 = mx + 146;
+  el("rect", { x: p3 + 12, y: 252, width: 32, height: 36, rx: 6, class: "f-c1" }, P);
+  el("rect", { x: p3 + 12, y: 262, width: 32, height: 4, class: "f-c6", opacity: .25 }, P);
+  el("rect", { x: p3 + 20, y: 334, width: 16, height: 12, rx: 2, class: "f-pot" }, P);
+  el("circle", { cx: p3 + 24, cy: 328, r: 6, class: "f-leaf" }, P);
+  el("circle", { cx: p3 + 32, cy: 326, r: 5, class: "f-leaf2" }, P);
+  for (let i = 0; i < 3; i++) el("rect", { x: p3 + 13 + i * 11, y: 300, width: 9, height: 12, rx: 1, style: "fill:#fff" }, P);
+})();
+function starPts(cx, cy, R1, R2) {
+  const pts = [];
+  for (let i = 0; i < 10; i++) {
+    const a = -Math.PI / 2 + i * Math.PI / 5, r = i % 2 ? R2 : R1;
+    pts.push(f1(cx + Math.cos(a) * r) + "," + f1(cy + Math.sin(a) * r));
+  }
+  return pts.join(" ");
+}
+
+/* ---- 艙內通風扇（「風」）＋漂浮塵粒 ---- */
+(function buildVents() {
+  // 通風扇位置（避開各艙的螢幕與架子）
+  [[480, 234], [895, 248], [1080, 236]].forEach(([x, y]) => {
+    el("circle", { cx: x, cy: y, r: 11, class: "f-locker" }, P);
+    const f = el("g", { class: "spin", style: `animation-duration:${(1 + R() * .6).toFixed(2)}s` }, P);
+    for (let i = 0; i < 3; i++) el("rect", { x: x - 1.8, y: y - 9, width: 3.6, height: 9, rx: 1.8, class: "f-metal", transform: `rotate(${i * 120} ${x} ${y})` }, f);
+    el("circle", { cx: x, cy: y, r: 2.4, class: "f-ink" }, P);
+  });
+})();
+const dust = [];
+(function buildDust() {
+  const g = $("dust");
+  for (let i = 0; i < 34; i++) {
+    const d = { x: 130 + R() * 1290, y: 232 + R() * 130, vx: 4 + R() * 8, ph: R() * 6,
+      e: el("circle", { r: f1(.8 + R() * 1.2), class: "f-hull-txt", opacity: .35 }, g) };
+    dust.push(d);
+  }
+})();
+
+/* =========================================================
+   【角色】組員資料
+   fx/fy/frot 漂浮時的位置、旋轉；sx 開人工重力時站立的位置。
+   lines 是點擊時會說的話。
+   ========================================================= */
+const CG = $("crewG");
+const CREW = [
+  { id: "gardener", fx: 345, fy: 300, frot: -10, sx: 345, o: { suit: "c2", skin: "skin1", hair: "float", hc: "hair2", patch: "c3" },
+    pose: { la: -40, ra: 30, ll: 18, rl: -12 }, lines: ["番茄再三天就熟了！", "水要慢慢擠，不然變水球。", "今晚加菜：太空生菜！"] },
+  { id: "sipper", fx: 452, fy: 316, frot: 6, sx: 466, o: { suit: "c4", skin: "skin3", hair: "curly", hc: "hair1", patch: "c1" },
+    pose: { la: -60, ra: 20, ll: -72, rl: -60 }, lines: ["太空咖啡要用吸管喝。", "看，又繞地球一圈了。", "餅乾屑別亂飄啊！"] },
+  { id: "guitar", fx: 592, fy: 264, frot: 160, sx: 600, o: { suit: "c1", skin: "skin2", hair: "short", hc: "hair1", patch: "c2" },
+    pose: { la: -95, ra: 40, ll: 10, rl: -16 }, lines: ["倒著彈也是一種風格。", "來首〈繞地球九十分鐘〉！", "這和弦飄走了……"] },
+  { id: "photo", fx: 722, fy: 322, frot: 16, sx: 724, o: { suit: "c3", skin: "skin1", hair: "bun", hc: "hair1", patch: "c4", glasses: true },
+    pose: { la: -35, ra: 35, ll: 14, rl: -20 }, lines: ["今天第 16 次日出。", "那片雲像一隻鯨魚！", "別動，我在等極光。"] },
+  { id: "runner", fx: 1015, fy: 322, frot: 0, sx: 1015, o: { suit: "c5", skin: "skin2", hair: "buzz", hc: "hair1", patch: "c3" },
+    pose: { la: 0, ra: 0, ll: 0, rl: 0 }, run: true, lines: ["每天跑步，骨頭才不會變鬆。", "第 5 公里！", "綁帶好緊……"] },
+  { id: "sci", fx: 1150, fy: 280, frot: -22, sx: 1140, o: { suit: "c4", skin: "skin1", hair: "long", hc: "hair3", patch: "c1" },
+    pose: { la: -20, ra: 8, ll: 30, rl: 50 }, lines: ["藻類長得比預期快。", "數據已傳回地面。", "別碰那支紫色試管！"] }
+];
+const STAND_Y = FLOOR - 34;
+CREW.forEach(C => {
+  C.F = figure(CG, Object.assign({ id: C.id }, C.o));
+  C.ph = R() * 6; C.flip = -1; C.boost = 0;
+});
+// 手上拿的東西
+const byId = id => CREW.find(c => c.id === id);
+(function crewItems() {
+  // 喝咖啡的人：左手一包咖啡
+  const sp = el("g", { transform: "translate(0,30)", "data-hit": "coffee" }, byId("sipper").F.la);
+  pouch(sp);
+  // 吉他手：吉他背在身上
+  const gt = el("g", { transform: "translate(-2,-12) rotate(-32)" }, byId("guitar").F.body);
+  byId("guitar").F.body.insertBefore(gt, byId("guitar").F.la);
+  el("rect", { x: 8, y: -3, width: 34, height: 6, rx: 2, class: "f-ink" }, gt);
+  el("rect", { x: 40, y: -5, width: 8, height: 10, rx: 2, class: "f-ink" }, gt);
+  el("circle", { cx: -6, cy: 0, r: 12, class: "f-guitar" }, gt);
+  el("circle", { cx: 6, cy: 0, r: 9, class: "f-guitar" }, gt);
+  el("circle", { cx: 2, cy: 0, r: 3.5, class: "f-ink" }, gt);
+  // 攝影師：相機
+  const cam = el("g", { transform: "translate(0,-10)" }, byId("photo").F.body);
+  el("rect", { x: -11, y: -7, width: 22, height: 14, rx: 3, class: "f-ink" }, cam);
+  el("circle", { cx: 2, cy: 0, r: 5, class: "f-metal" }, cam);
+  el("circle", { cx: 2, cy: 0, r: 2.5, style: "fill:var(--screen)" }, cam);
+  // 園丁：擠水瓶
+  const wb = el("g", { transform: "translate(0,30)" }, byId("gardener").F.ra);
+  el("rect", { x: -5, y: -4, width: 10, height: 14, rx: 4, class: "f-water" }, wb);
+  el("rect", { x: -1.5, y: 8, width: 3, height: 6, class: "f-metal" }, wb);
+})();
+function pouch(g) {
+  el("rect", { x: -7, y: -10, width: 14, height: 20, rx: 4, class: "f-pouch" }, g);
+  el("rect", { x: -7, y: -2, width: 14, height: 6, style: "fill:var(--coffee)" }, g);
+  el("rect", { x: 1, y: -18, width: 2.5, height: 9, class: "f-c1" }, g);
+}
+
+/* =========================================================
+   【角色】漂浮小物：咖啡包、餅乾、水球、書、襪子、螺絲起子、筆
+   開人工重力時會落到 ly 高度（桌面或地板），lrot 是落地後的角度。
+   ========================================================= */
+const FG = $("floaters");
+const FLOAT = [];
+function floater(x, y, ly, lrot, build, hit) {
+  const g = el("g", hit ? { "data-hit": hit } : {}, FG);
+  build(g);
+  const F = { g, x, y, ly, lrot, rot: R() * 360, spin: (R() - .5) * 30, ph: R() * 6 };
+  FLOAT.push(F);
+  return F;
+}
+floater(540, 296, 320, 0, g => pouch(g), "coffee");
+floater(568, 250, 326, 0, g => {
+  el("circle", { r: 7, class: "f-cookie" }, g);
+  [[-2, -2], [3, 1], [-1, 3]].forEach(([x, y]) => el("circle", { cx: x, cy: y, r: 1.3, style: "fill:var(--coffee)" }, g));
+});
+const waterBall = floater(300, 286, 366, 0, g => {
+  el("circle", { r: 9, class: "f-water", opacity: .85 }, g);
+  el("circle", { cx: -3, cy: -3, r: 2.5, style: "fill:#fff", opacity: .8 }, g);
+});
+floater(1396, 274, 366, 0, g => {
+  el("rect", { x: -11, y: -8, width: 22, height: 16, rx: 2, class: "f-c2" }, g);
+  el("rect", { x: -1, y: -8, width: 2, height: 16, class: "f-pod-in" }, g);
+});
+floater(1306, 230, 368, 90, g => {
+  el("rect", { x: -3, y: -8, width: 7, height: 14, rx: 3, class: "f-c3" }, g);
+  el("rect", { x: -3, y: 3, width: 12, height: 6, rx: 3, class: "f-c3" }, g);
+});
+floater(1072, 252, 368, 90, g => {
+  el("rect", { x: -2, y: -12, width: 4, height: 12, class: "f-metal" }, g);
+  el("rect", { x: -4, y: 0, width: 8, height: 12, rx: 3, class: "f-c1" }, g);
+});
+floater(1110, 300, 318, 90, g => el("rect", { x: -1.5, y: -9, width: 3, height: 18, rx: 1.5, class: "f-c4" }, g));
+floater(840, 350, 368, 0, g => {  // 觀景節點的小筆記本
+  el("rect", { x: -9, y: -7, width: 18, height: 14, rx: 2, class: "f-c3" }, g);
+  el("rect", { x: -9, y: -7, width: 4, height: 14, class: "f-c1" }, g);
+});
+
+/* =========================================================
+   【角色】艙內小電車：沿地板軌道在各艙之間來回，到站停一下
+   ========================================================= */
+const tram = { x: 250, dir: 1, i: 1, wait: 1.5, boost: 0, stops: [250, 530, 800, 1075, 1330] };
+(function buildTram() {
+  const g = $("tram");
+  tram.body = el("g", {}, g);
+  el("rect", { x: -34, y: -26, width: 68, height: 24, rx: 9, class: "f-tram" }, tram.body);
+  el("rect", { x: -34, y: -10, width: 68, height: 4, class: "f-c1" }, tram.body);
+  el("rect", { x: -22, y: -22, width: 18, height: 10, rx: 3, class: "f-glass" }, tram.body);
+  el("circle", { cx: -13, cy: -16, r: 4, class: "f-skin2" }, tram.body);        // 乘客
+  el("path", { d: "M-17.3,-16.5 A4.3,4.3 0 0 1 -8.7,-16.5 Z", class: "f-hair2" }, tram.body);
+  el("rect", { x: 2, y: -22, width: 14, height: 12, rx: 2, class: "f-c2" }, tram.body);  // 貨箱
+  el("rect", { x: 8, y: -22, width: 2, height: 12, class: "f-pod-in" }, tram.body);
+  el("circle", { cx: -22, cy: -1, r: 4, class: "f-ink" }, tram.body);
+  el("circle", { cx: 22, cy: -1, r: 4, class: "f-ink" }, tram.body);
+  tram.lamp = el("circle", { cx: 34, cy: -16, r: 3, style: "fill:var(--lamp)" }, tram.body);
+  tram.beam = el("polygon", { points: "34,-16 70,-24 70,-6", style: "fill:var(--lamp)", opacity: .18 }, tram.body);
+})();
+
+/* =========================================================
+   【角色】小助手機器人：游標在艙內時會跟著游標
+   ========================================================= */
+const drone = { x: 660, y: 330, vx: 0, spin: 0 };
+(function buildDrone() {
+  const g = $("drone");
+  drone.body = el("g", {}, g);
+  el("circle", { r: 13, class: "f-pod-in" }, drone.body);
+  el("rect", { x: -9, y: -6, width: 18, height: 10, rx: 5, class: "f-screen-frame" }, drone.body);
+  drone.eye = el("circle", { cx: 0, cy: -1, r: 2.6, style: "fill:var(--screen)" }, drone.body);
+  el("rect", { x: -16, y: -2, width: 4, height: 7, rx: 2, class: "f-c1" }, drone.body);
+  el("rect", { x: 12, y: -2, width: 4, height: 7, rx: 2, class: "f-c1" }, drone.body);
+  el("rect", { x: -1, y: -20, width: 2, height: 7, class: "f-metal" }, drone.body);
+  el("circle", { cx: 0, cy: -21, r: 2.4, style: "fill:var(--nav-green)", class: "blink" }, drone.body);
+})();
+
+/* =========================================================
+   【角色】接駁梭：週期性脫離、遠去、返航、對接
+   ========================================================= */
+const shuttle = { s: .1, thrust: 0 };
+(function buildShuttle() {
+  const g = $("shuttle");
+  shuttle.body = el("g", {}, g);
+  const b = shuttle.body;
+  el("polygon", { points: "34,-22 82,-22 100,-44 64,-44", class: "f-c4" }, b);   // 上尾翼
+  el("polygon", { points: "30,22 88,22 106,44 58,44", class: "f-c4" }, b);       // 下翼
+  el("rect", { x: 0, y: -12, width: 10, height: 24, rx: 2, class: "f-c4" }, b);  // 對接轉接環
+  el("rect", { x: 6, y: -24, width: 98, height: 48, rx: 20, class: "f-ship" }, b);
+  el("rect", { x: 6, y: 8, width: 98, height: 6, class: "f-c1" }, b);
+  [30, 48, 66].forEach(x => el("circle", { cx: x, cy: -6, r: 5, class: "f-glass" }, b));
+  el("circle", { cx: 30, cy: -7, r: 2.6, class: "f-skin1", opacity: .9 }, b);  // 駕駛
+  el("rect", { x: 100, y: -16, width: 12, height: 32, rx: 3, class: "f-truss-ln" }, b);
+  shuttle.flame = el("g", { opacity: 0 }, b);
+  el("circle", { cx: 120, cy: 0, r: 9, style: "fill:var(--flame)" }, shuttle.flame);
+  el("circle", { cx: 130, cy: 0, r: 5, style: "fill:#fff" }, shuttle.flame);
+  shuttle.light = el("circle", { cx: 56, cy: -28, r: 3, style: "fill:var(--amber)", class: "blink" }, b);
+  // 對接口的狀態燈（綠＝已對接，橘＝等待）
+  shuttle.dockLamp = el("circle", { cx: 1454, cy: 262, r: 4, style: "fill:var(--nav-green)" }, $("hull"));
+})();
+
+/* =========================================================
+   【角色】艙外太空人：繫著安全繩在桁架上方作業
+   ========================================================= */
+const astro = { flip: -1, wave: 0 };
+(function buildAstro() {
+  const g = $("astro");
+  astro.body = el("g", {}, g);
+  const b = astro.body;
+  el("rect", { x: -16, y: -34, width: 32, height: 34, rx: 8, class: "f-hull-ln" }, b);  // 背包
+  astro.ll = el("g", {}, b); astro.rl = el("g", {}, b);
+  [astro.ll, astro.rl].forEach(L => { el("rect", { x: -6, y: 0, width: 12, height: 26, rx: 6, class: "f-suit-w" }, L); el("rect", { x: -7, y: 20, width: 14, height: 9, rx: 4, class: "f-hull-ln" }, L); });
+  el("rect", { x: -15, y: -36, width: 30, height: 40, rx: 12, class: "f-suit-w" }, b);
+  el("rect", { x: -9, y: -26, width: 18, height: 10, rx: 3, class: "f-hull-ln" }, b);  // 胸前控制盒
+  el("circle", { cx: -4, cy: -21, r: 2, class: "f-c1" }, b);
+  el("circle", { cx: 3, cy: -21, r: 2, class: "f-c3" }, b);
+  el("circle", { cx: 0, cy: -50, r: 15, class: "f-suit-w" }, b);
+  el("rect", { x: -11, y: -58, width: 22, height: 15, rx: 7, style: "fill:var(--visor)" }, b);
+  el("rect", { x: -7, y: -55, width: 6, height: 4, rx: 2, style: "fill:#fff", opacity: .7 }, b);
+  astro.la = el("g", {}, b); astro.ra = el("g", {}, b);
+  [astro.la, astro.ra].forEach(A => { el("rect", { x: -5, y: 0, width: 10, height: 24, rx: 5, class: "f-suit-w" }, A); el("circle", { cx: 0, cy: 25, r: 5.5, class: "f-hull-ln" }, A); });
+  el("circle", { cx: 0, cy: -66, r: 2.4, style: "fill:var(--nav-red)", class: "blink2" }, b);
+})();
+
+/* =========================================================
+   【互動】特效工具：對話泡泡、音符、水珠、噴氣、流星、風暴
+   ========================================================= */
+function say(x, y, text) {
+  const w = [...text].reduce((s, c) => s + (c.charCodeAt(0) > 255 ? 15 : 8.5), 0) + 26;
+  x = clamp(x, w / 2 + 8, 1600 - w / 2 - 8); y = clamp(y, 40, 560);
+  const g = el("g", { class: "bubble" }, $("bubbles"));
+  el("rect", { x: x - w / 2, y: y - 34, width: w, height: 30, rx: 12, style: "fill:#fff" }, g);
+  el("polygon", { points: `${x - 6},${y - 5} ${x + 6},${y - 5} ${x},${y + 4}`, style: "fill:#fff" }, g);
+  el("text", { x, y: y - 14, "text-anchor": "middle" }, g).textContent = text;
+  setTimeout(() => g.remove(), 2100);
+}
+const parts = [];   // 通用粒子：{e, x, y, vx, vy, life, max, kind}
+function spawn(parent, e, o) { parts.push(Object.assign({ e, life: 0, vx: 0, vy: 0, max: 2, grav: 0, grow: 0 }, o)); parent.appendChild(e); }
+function note(x, y) {
+  const t = el("text", { style: "fill:var(--note);font:900 18px var(--font-display)" });
+  t.textContent = pick(["♪", "♫", "♩"]);
+  spawn($("fx"), t, { x, y, vx: rand(-14, 14), vy: rand(-36, -22), max: 2.2, kind: "fade" });
+}
+function droplet(x, y) {
+  const c = el("circle", { r: f1(rand(2.5, 5)), style: "fill:var(--coffee)" });
+  spawn($("fxIn"), c, { x, y, vx: rand(-20, 20), vy: rand(-22, 8), max: 4.5, kind: "drop" });
+}
+function puff(x, y, dir) {
+  const c = el("circle", { r: 4, class: "f-puff", opacity: .6 });
+  spawn($("puffs"), c, { x, y, vx: dir * rand(30, 60), vy: rand(-12, 12), max: 1.1, kind: "puff" });
+}
+function zzz() {
+  const t = el("text", { style: "fill:var(--c4);font:900 13px var(--font-display)" });
+  t.textContent = "Z";
+  spawn($("fx"), t, { x: ui.zOrigin.x, y: ui.zOrigin.y, vx: 10, vy: -16, max: 2.6, kind: "z" });
+}
+function meteor(x, y) {
+  const g = el("g", {});
+  el("line", { x1: 0, y1: 0, x2: 46, y2: -26, style: "stroke:var(--star)", "stroke-width": 2.5, "stroke-linecap": "round", opacity: .9 }, g);
+  el("circle", { r: 2.6, style: "fill:#fff" }, g);
+  spawn($("meteors"), g, { x, y, vx: -420, vy: 240, max: .9, kind: "fade" });
+}
+function storm(x, y) {
+  const g = el("g", {});
+  for (let i = 0; i < 3; i++) el("path", { d: `M${-26 + i * 8},0 A${26 - i * 8},${(26 - i * 8) * .55} 0 1 1 ${0},${-(26 - i * 8) * .55}`, fill: "none", class: "s-cloud", "stroke-width": 5, "stroke-linecap": "round" }, g);
+  el("circle", { r: 4, class: "f-ocean" }, g);
+  spawn($("storms"), g, { x: x + cloudOff, y, max: 7, kind: "storm" });
+}
+function lightning(x, y) {
+  for (let i = 0; i < 3; i++) {
+    const c = el("circle", { r: f1(rand(10, 20)), style: "fill:var(--flash)", opacity: 0 });
+    spawn($("storms"), c, { x: x + rand(-50, 50) + cloudOff, y: y + rand(-12, 12), max: .9 + i * .25, delay: i * .18, kind: "bolt" });
+  }
+}
+function photoOut() {
+  const g = el("g", {});
+  el("rect", { x: -30, y: -26, width: 60, height: 52, rx: 2, style: "fill:#fff" }, g);
+  el("rect", { x: -25, y: -21, width: 50, height: 36, class: "f-space-top" }, g);
+  el("path", { d: "M-25,8 Q0,-6 25,8 L25,15 L-25,15 Z", class: "f-ocean" }, g);
+  el("rect", { x: -12, y: 4, width: 16, height: 5, rx: 2.5, class: "f-land" }, g);
+  el("circle", { cx: 14, cy: -12, r: 4, style: "fill:var(--sun)" }, g);
+  spawn($("fx"), g, { x: 800, y: 292, vx: 46, vy: -40, max: 3.2, kind: "photo", rot: 0 });
+}
+function heartPop(x, y) {
+  const t = el("text", { style: "fill:var(--tomato);font:900 18px var(--font-display)" });
+  t.textContent = "♥";
+  spawn($("fx"), t, { x, y, vx: rand(-8, 8), vy: -30, max: 1.6, kind: "fade" });
+}
+
+/* =========================================================
+   【動畫】主迴圈
+   phase：軌道相位 0~1（0＝日出，約 0.55＝日落，其餘為夜側）
+   ========================================================= */
+const CYCLE = 80;           // 一圈的秒數
+let phase = .14, orbit = 3405, auto = !reduced, tween = null;
+let gravity = 0, gravityOn = false;
+let t = 0, last = performance.now();
+let landOff = 0, cloudOff = 0;
+let mouse = { x: 660, y: 300, in: false, nx: 0, ny: 0 };
+let laptopMode = 0, zT = 0, noteT = 0, heartT = 0, ecgT = 0, beat = 0, taxi = { x: -300, wait: 6, on: false }, satX = 1400;
+
+function dayness(p) {
+  if (p >= .25 && p < .75) return 1 - smooth((p - .525) / .05);
+  const q = p >= .75 ? p - 1 : p;
+  return smooth((q + .025) / .05);
+}
+function phaseName(p) {
+  if (p < .035 || p >= .975) return "軌道日出";
+  if (p < .515) return "白晝面";
+  if (p < .585) return "軌道日落";
+  return "夜側面";
+}
+function setClock() {
+  const mins = Math.floor((orbit + phase) * 92) % 1440;
+  const hh = String(Math.floor(mins / 60)).padStart(2, "0"), mm = String(mins % 60).padStart(2, "0");
+  $("clock").textContent = `${phaseName(phase)}　任務時間 ${hh}:${mm}`;
+  ui.hubClock.textContent = `${hh}:${mm}`;
+  ui.clockH.setAttribute("transform", `translate(530,248) rotate(${(mins % 720) / 2})`);
+  ui.clockM.setAttribute("transform", `translate(530,248) rotate(${(mins % 60) * 6})`);
+}
+
+function frame(now) {
+  const dt = Math.min(.05, (now - last) / 1000); last = now;
+  const mdt = reduced ? 0 : dt;    // 會動的東西用這個時間差（減少動態時為 0）
+  t += mdt;
+
+  /* ---- 日夜：自動推進或補間 ---- */
+  if (tween) {
+    tween.k = Math.min(1, tween.k + dt / tween.dur);
+    let p = lerp(tween.from, tween.to, easeIO(tween.k));
+    if (p >= 1) { p -= 1; if (!tween.wrapped) { tween.wrapped = true; orbit++; } }
+    phase = p;
+    if (tween.k >= 1) tween = null;
+  } else if (auto && !reduced) {
+    phase += dt / CYCLE;
+    if (phase >= 1) { phase -= 1; orbit++; }
+  }
+  const day = dayness(phase), night = 1 - day;
+  applyNight(night);
+  setClock();
+
+  /* ---- 太陽與日出光帶 ---- */
+  const st = (phase >= .75 ? phase - 1 : phase) + .02;
+  const tt = st / .57;
+  const sunG = $("sunG");
+  if (tt > -.05 && tt < 1.05) {
+    const k = clamp(tt, 0, 1);
+    const sx = 120 + k * 1360, sy = limbY(sx) + 40 - Math.sin(Math.PI * k) * 430;
+    sunG.setAttribute("transform", `translate(${f1(sx)},${f1(sy)})`);
+    sunG.style.opacity = 1;
+    const dawn = 4 * day * (1 - day);
+    const gx = clamp(sx, 150, 1450), gy = limbY(gx);
+    for (const id of ["dawnGlow", "dawnCore"]) { $(id).setAttribute("cx", f1(gx)); $(id).setAttribute("cy", f1(gy)); }
+    $("dawnGlow").setAttribute("opacity", (dawn * .75).toFixed(3));
+    $("dawnCore").setAttribute("opacity", (dawn * .9).toFixed(3));
+    $("limbDawn").setAttribute("opacity", (dawn * .55).toFixed(3));
+    // 太陽能板追日：板面寬度隨角度變化，日照時閃一道反光
+    const ang = (k - .5) * Math.PI;
+    panels.forEach((Pn, i) => {
+      const s = .45 + .55 * Math.abs(Math.cos(ang * .9));
+      Pn.P.setAttribute("transform", `translate(${Pn.cx},0) scale(${s.toFixed(3)},1) translate(${-Pn.cx},0)`);
+      const gl = (k * 1.4 - .2 + i * .06) % 1;
+      Pn.glint.setAttribute("x", f1(Pn.cx - 76 + gl * 136));
+      Pn.glint.setAttribute("opacity", (reduced ? 0 : day * .25 * Math.sin(gl * Math.PI)).toFixed(3));
+    });
+  } else {
+    sunG.style.opacity = 0;
+    ["dawnGlow", "dawnCore", "limbDawn"].forEach(id => $(id).setAttribute("opacity", 0));
+    panels.forEach(Pn => Pn.glint.setAttribute("opacity", 0));
+  }
+
+  /* ---- 月亮：夜側時從右上升起 ---- */
+  const mp = phase >= .55 ? (phase - .55) / .45 : 1;
+  $("moonG").setAttribute("transform", `translate(${f1(1380 - mp * 260 + mouse.nx * -3)},${f1(150 - Math.sin(mp * Math.PI) * 90)})`);
+  $("moonG").style.opacity = smooth(night * 1.4 - .3);
+
+  /* ---- 視差 ---- */
+  $("starsPar").setAttribute("transform", `translate(${f1(mouse.nx * -8)},${f1(mouse.ny * -4)})`);
+  $("earthPar").setAttribute("transform", `translate(${f1(mouse.nx * 5)},${f1(mouse.ny * 2)})`);
+
+  /* ---- 地球自轉與雲（「雲、風」） ---- */
+  landOff = (landOff + mdt * 16) % 1600;
+  cloudOff = (cloudOff + mdt * 26) % 3200;
+  const tr = `translate(${f1(-landOff)},0)`;
+  $("landTiles").setAttribute("transform", tr);
+  $("cityTiles").setAttribute("transform", tr);
+  $("cloudTiles").setAttribute("transform", `translate(${f1(-(cloudOff % 1600))},0)`);
+  $("storms").setAttribute("transform", `translate(${f1(-cloudOff)},0)`);
+  ui.cupLand.setAttribute("transform", `translate(${f1(-((t * 6) % 40) + 20)},0)`);
+
+  /* ---- 極光起伏 ---- */
+  if (night > .05) auroraBars.forEach(A => {
+    const h = A.h0 * (.6 + .4 * Math.sin(t * 1.3 + A.ph + A.x * .02));
+    A.lo.setAttribute("y", f1(A.base - h)); A.lo.setAttribute("height", f1(h));
+    A.hi.setAttribute("y", f1(A.base - h - 10));
+  });
+
+  /* ---- 人工重力補間 ---- */
+  gravity = reduced ? (gravityOn ? 1 : 0) : lerp(gravity, gravityOn ? 1 : 0, 1 - Math.exp(-dt * 2.2));
+  const G = smooth(gravity), fl = 1 - G;
+
+  /* ---- 組員 ---- */
+  CREW.forEach(C => {
+    let x = lerp(C.fx, C.sx, G), y = lerp(C.fy, STAND_Y, G), rot = lerp(C.frot, 0, G);
+    const bob = Math.sin(t * 1.1 + C.ph);
+    if (!C.run) { y += bob * 6 * fl; rot += Math.sin(t * .7 + C.ph) * 4 * fl; x += Math.sin(t * .5 + C.ph) * 3 * fl; }
+    const p = Object.assign({}, C.pose);
+    if (!C.run) { // 漂浮時四肢鬆開，站立時收回
+      p.ll = lerp(p.ll, 2, G); p.rl = lerp(p.rl, -2, G);
+      if (C.id !== "photo" && C.id !== "sipper" && C.id !== "guitar") { p.la = lerp(p.la, 8, G); p.ra = lerp(p.ra, -8, G); }
+      p.ll += Math.sin(t * 1.3 + C.ph) * 6 * fl; p.rl += Math.sin(t * 1.1 + C.ph + 1) * 6 * fl;
+    }
+    if (C.id === "sipper") p.la = -60 - (Math.max(0, Math.sin(t * .8 + 1)) ** 3) * 75;        // 喝一口
+    if (C.id === "guitar") { p.ra = 36 + Math.sin(t * (C.boost > 0 ? 22 : 9)) * 12; }          // 刷弦
+    if (C.id === "sci") { p.la += Math.sin(t * 17) * 5; p.ra += Math.sin(t * 15 + 1) * 5; }      // 打字
+    if (C.id === "gardener") p.ra = 30 + Math.sin(t * .9) * 10;
+    if (C.run) {               // 跑步機：綁著帶子跑
+      const w = t * (C.boost > 0 ? 15 : 9);
+      p.ll = Math.sin(w) * 32; p.rl = -Math.sin(w) * 32; p.la = -Math.sin(w) * 30; p.ra = Math.sin(w) * 30;
+      y = C.fy - Math.abs(Math.sin(w)) * 2;
+    }
+    if (C.flip >= 0) {         // 翻跟斗
+      C.flip += dt / 1.3;
+      if (C.flip >= 1) C.flip = -1; else { rot += 360 * easeIO(C.flip); y -= Math.sin(C.flip * Math.PI) * 26 * G; }
+    }
+    if (C.boost > 0) C.boost -= dt;
+    poseFig(C.F, x, y, rot, p);
+    C.cur = { x, y };
+  });
+  // 跑步機皮帶、綁帶
+  const R1 = byId("runner");
+  ui.beltIn.setAttribute("transform", `translate(${f1(-((t * (R1.boost > 0 ? 70 : 42)) % 12))},0)`);
+  ui.harnessL.setAttribute("y2", f1(R1.cur.y - 6)); ui.harnessR.setAttribute("y2", f1(R1.cur.y - 6));
+
+  /* ---- 吉他音符、睡覺 Z、心率 ---- */
+  noteT -= mdt;
+  if (noteT <= 0 && !reduced) { const g = byId("guitar"); note(g.cur.x + rand(-10, 20), g.cur.y + 10); noteT = byId("guitar").boost > 0 ? .25 : rand(1.6, 2.6); }
+  zT -= mdt;
+  if (zT <= 0 && !reduced) { zzz(); zT = night > .5 ? 1.1 : 2; }
+  ecgT += mdt;
+  if (ecgT > .05) {
+    ecgT = 0; beat = (beat + 1) % 9;
+    heart.shift(); heart.push(beat === 0 ? -12 : beat === 1 ? 8 : beat === 2 ? -3 : 0);
+    ui.ecg.setAttribute("points", heart.map((v, i) => `${982 + i * 2},${258 + v}`).join(" "));
+  }
+  if (reduced && !ui.ecg.getAttribute("points")) ui.ecg.setAttribute("points", heart.map((v, i) => `${982 + i * 2},${258 + (i % 9 === 0 ? -12 : i % 9 === 1 ? 8 : 0)}`).join(" "));
+  if (heartT > 0) { heartT -= dt; ui.waveArm.setAttribute("transform", `translate(589,263) rotate(${f1(Math.sin(t * 14) * 30)})`); }
+
+  /* ---- 植物生長 ---- */
+  plants.forEach(Pl => {
+    Pl.s = reduced ? Pl.target : lerp(Pl.s, Pl.target, 1 - Math.exp(-dt * 1.8));
+    const sc = .9 + .3 * Pl.s + (reduced ? 0 : Math.sin(t * 1.5 + Pl.px * .1) * .02);
+    Pl.g.setAttribute("transform", `translate(${Pl.px},${Pl.py}) scale(${sc.toFixed(3)}) translate(${-Pl.px},${-Pl.py})`);
+    Pl.bloom.setAttribute("opacity", Pl.s.toFixed(2));
+  });
+
+  /* ---- 漂浮小物 ---- */
+  FLOAT.forEach(F => {
+    F.rot += F.spin * mdt * fl;
+    const x = F.x + Math.sin(t * .6 + F.ph) * 6 * fl;
+    const y = lerp(F.y + Math.sin(t * .9 + F.ph) * 8, F.ly, G);
+    const r = lerp(F.rot, F.lrot, G);
+    let extra = "";
+    if (F === waterBall) {   // 水球：無重力時 Q 彈變形，落地變扁
+      const w = reduced ? 0 : Math.sin(t * 5) * .08 * fl;
+      extra = ` scale(${(1 + w + .4 * G).toFixed(3)},${(1 - w - .5 * G).toFixed(3)})`;
+    }
+    F.g.setAttribute("transform", `translate(${f1(x)},${f1(y)}) rotate(${f1(r)})${extra}`);
+  });
+
+  /* ---- 塵粒隨通風飄動 ---- */
+  dust.forEach(d => {
+    d.x += d.vx * mdt * (1 + fl); if (d.x > 1425) d.x = 130;
+    d.e.setAttribute("cx", f1(d.x)); d.e.setAttribute("cy", f1(lerp(d.y + Math.sin(t + d.ph) * 6, FLOOR - 2, G * .8)));
+  });
+
+  /* ---- 艙內小電車 ---- */
+  if (tram.wait > 0) tram.wait -= mdt;
+  else {
+    const target = tram.stops[tram.i], dx = target - tram.x;
+    const v = (tram.boost > 0 ? 220 : 110) * Math.min(1, Math.abs(dx) / 60 + .25);
+    const step = Math.sign(dx) * Math.min(Math.abs(dx), v * mdt);
+    tram.x += step;
+    if (Math.abs(dx) < .5) {
+      tram.wait = tram.boost > 0 ? .4 : 2.2;
+      if (tram.i + tram.dir < 0 || tram.i + tram.dir >= tram.stops.length) tram.dir *= -1;
+      tram.i += tram.dir;
+    }
+  }
+  if (tram.boost > 0) tram.boost -= dt;
+  const tdir = Math.sign(tram.stops[tram.i] - tram.x) || tram.dir;
+  $("tram").setAttribute("transform", `translate(${f1(tram.x)},367) scale(${tdir},1)`);
+  tram.beam.setAttribute("opacity", tram.wait > 0 ? 0 : .18);
+
+  /* ---- 小助手機器人 ---- */
+  const inCab = mouse.in && mouse.x > 130 && mouse.x < 1420 && mouse.y > 226 && mouse.y < 362;
+  const tx = inCab ? mouse.x + 18 : 660 + Math.sin(t * .4) * 12;
+  const ty = inCab ? mouse.y - 18 : 330 + Math.sin(t * .7) * 6;
+  const k = reduced ? 1 : 1 - Math.exp(-dt * 2.5);
+  const nx = lerp(drone.x, tx, k), ny = lerp(drone.y, lerp(ty, FLOOR - 14, G * (inCab ? 0 : 1)), k);
+  drone.vx = (nx - drone.x) / Math.max(dt, .001); drone.x = nx; drone.y = ny;
+  if (drone.spin > 0) drone.spin -= dt;
+  const dRot = clamp(drone.vx * .06, -20, 20) + (drone.spin > 0 ? (1 - drone.spin / 1) * 360 : 0);
+  $("drone").setAttribute("transform", `translate(${f1(drone.x)},${f1(drone.y)})`);
+  drone.body.setAttribute("transform", `rotate(${f1(dRot)})`);
+  drone.eye.setAttribute("cx", f1(clamp(drone.vx * .02, -4, 4)));
+
+  /* ---- 接駁梭：0~.4 對接、.4~.52 脫離遠去、.52~.8 不在、.8~.95 返航、.95~1 對接 ---- */
+  if (!reduced) shuttle.s = (shuttle.s + dt / 56) % 1;
+  const s = shuttle.s;
+  let sx = 1484, thrust = 0, sdir = 0;
+  if (s >= .4 && s < .52) { const q = (s - .4) / .12; sx = 1484 + q * q * 320; thrust = q > .05 ? 1 : 0; sdir = 1; }
+  else if (s >= .52 && s < .8) sx = 1820;
+  else if (s >= .8 && s < .95) { const q = (s - .8) / .15; sx = 1484 + (1 - q) * (1 - q) * 320; thrust = q < .92 ? 1 : 0; sdir = -1; }
+  $("shuttle").setAttribute("transform", `translate(${f1(sx)},300)`);
+  shuttle.flame.setAttribute("opacity", sdir > 0 && thrust ? (.7 + .3 * Math.sin(t * 40)).toFixed(2) : 0);
+  if (thrust && !reduced && Math.random() < .5) {
+    if (sdir < 0) puff(sx + 2, 300 + rand(-10, 10), -1);   // 返航：用機鼻反推減速
+    else puff(sx + 116, 300 + rand(-8, 8), 1);
+  }
+  const docked = sx < 1486;
+  shuttle.dockLamp.style.fill = docked ? "var(--nav-green)" : "var(--amber)";
+  shuttle.dockLamp.setAttribute("class", docked ? "" : "blink");
+
+  /* ---- 機械臂、天線 ---- */
+  if (arm.boost > 0) arm.boost -= dt;
+  const ab = arm.boost > 0 ? Math.sin((3 - arm.boost) * 3) * 40 : 0;
+  const a1 = -58 + Math.sin(t * .3) * 18 + ab, a2 = 64 + Math.sin(t * .37 + 1) * 26 - ab * .6;
+  arm.s1.setAttribute("transform", `translate(690,114) rotate(${f1(a1)})`);
+  arm.s2.setAttribute("transform", `translate(83,0) rotate(${f1(a2)})`);
+  arm.box.setAttribute("transform", `rotate(${f1(-(a1 + a2))} 0 0)`);
+  if (dish.boost > 0) dish.boost -= dt;
+  dish.a = lerp(dish.a, dish.boost > 0 ? 40 : -24 + Math.sin(t * .2) * 10, 1 - Math.exp(-dt * 2));
+  dish.head.setAttribute("transform", `translate(579,98) rotate(${f1(dish.a)})`);
+
+  /* ---- 艙外太空人與安全繩 ---- */
+  const ax = 975 + Math.sin(t * .4) * 10, ay = 74 + Math.sin(t * .6) * 6;
+  let arot = Math.sin(t * .3) * 10 - 8;
+  if (astro.flip >= 0) { astro.flip += dt / 1.6; if (astro.flip >= 1) astro.flip = -1; else arot += 360 * easeIO(astro.flip); }
+  if (astro.wave > 0) astro.wave -= dt;
+  astro.body.setAttribute("transform", `translate(${f1(ax)},${f1(ay)}) rotate(${f1(arot)})`);
+  astro.la.setAttribute("transform", `translate(-15,-30) rotate(${f1(30 + Math.sin(t * .8) * 10)})`);
+  astro.ra.setAttribute("transform", `translate(15,-30) rotate(${f1(astro.wave > 0 ? -150 + Math.sin(t * 10) * 25 : -40 + Math.sin(t * .9) * 12)})`);
+  astro.ll.setAttribute("transform", `translate(-7,2) rotate(${f1(12 + Math.sin(t * .7) * 8)})`);
+  astro.rl.setAttribute("transform", `translate(7,2) rotate(${f1(-14 + Math.sin(t * .6) * 8)})`);
+  $("tether").setAttribute("d", `M930,124 Q${f1(930 + Math.sin(t * .5) * 30)},${f1(70 + Math.sin(t * .4) * 10)} ${f1(ax)},${f1(ay - 10)}`);
+
+  /* ---- 遠方衛星、太空計程車 ---- */
+  satX -= mdt * 10; if (satX < -40) satX = 1640;
+  $("satellite").setAttribute("transform", `translate(${f1(satX)},${f1(22 + Math.sin(satX * .004) * 4)})`);
+  if (taxi.on) {
+    taxi.x += mdt * (taxi.fast ? 300 : 140);
+    if (taxi.x > 1700) { taxi.on = false; taxi.wait = rand(10, 18); taxi.fast = false; }
+  } else if (!reduced) { taxi.wait -= dt; if (taxi.wait <= 0) { taxi.on = true; taxi.x = -60; } }
+  $("taxi").setAttribute("transform", `translate(${f1(taxi.x)},${f1(70 + Math.sin(taxi.x * .01) * 5)})`);
+  $("taxi").style.display = taxi.on || reduced ? "" : "none";
+  if (reduced && !taxi.on) $("taxi").setAttribute("transform", "translate(560,70)");
+
+  /* ---- 粒子更新 ---- */
+  for (let i = parts.length - 1; i >= 0; i--) {
+    const q = parts[i];
+    if (q.delay > 0) { q.delay -= dt; continue; }
+    q.life += dt;
+    const k2 = q.life / q.max;
+    if (k2 >= 1) { q.e.remove(); parts.splice(i, 1); continue; }
+    if (q.kind === "drop") {   // 咖啡水珠：無重力時慢慢飄，有重力就往下掉
+      q.vy += 120 * G * dt; q.vx *= 1 - dt * .3; q.vy *= 1 - dt * .3 * fl;
+      if (q.y > 330 && G > .5) q.life = q.max;
+    }
+    q.x += q.vx * dt; q.y += q.vy * dt;
+    let op = 1 - k2, tf = `translate(${f1(q.x)},${f1(q.y)})`;
+    if (q.kind === "puff") { q.e.setAttribute("r", f1(4 + k2 * 14)); op = .6 * (1 - k2); }
+    if (q.kind === "storm") { tf += ` rotate(${f1(-q.life * 60)}) scale(${(Math.min(1, q.life * 1.5) * 1.2).toFixed(2)},${(Math.min(1, q.life * 1.5) * .7).toFixed(2)})`; op = Math.min(1, (1 - k2) * 3); }
+    if (q.kind === "bolt") op = Math.random() < .5 ? .9 : .1;
+    if (q.kind === "photo") { tf += ` rotate(${f1(q.life * 12)})`; op = Math.min(1, (1 - k2) * 3); }
+    if (q.kind === "drop") tf += ` scale(${(1 + Math.sin(q.life * 8) * .12).toFixed(2)},${(1 - Math.sin(q.life * 8) * .12).toFixed(2)})`;
+    q.e.setAttribute("transform", tf);
+    q.e.setAttribute("opacity", op.toFixed(2));
+  }
+  if (ui.flash.flashT > 0) { ui.flash.flashT -= dt; ui.flash.setAttribute("opacity", Math.max(0, ui.flash.flashT * 2.5).toFixed(2)); }
+
+  requestAnimationFrame(frame);
+}
+
+/* =========================================================
+   【互動】滑鼠、點擊、按鈕
+   ========================================================= */
+function svgPoint(e) {
+  const pt = svg.createSVGPoint(); pt.x = e.clientX; pt.y = e.clientY;
+  return pt.matrixTransform(svg.getScreenCTM().inverse());
+}
+svg.addEventListener("pointermove", e => {
+  const p = svgPoint(e);
+  mouse.x = p.x; mouse.y = p.y; mouse.in = true;
+  mouse.nx = clamp(p.x / 800 - 1, -1, 1); mouse.ny = clamp(p.y / 300 - 1, -1, 1);
+});
+svg.addEventListener("pointerleave", () => { mouse.in = false; });
+
+svg.addEventListener("click", e => {
+  const hit = e.target.closest("[data-hit]");
+  if (!hit) return;
+  const p = svgPoint(e), kind = hit.dataset.hit;
+  const night = 1 - dayness(phase);
+  switch (kind) {
+    case "sky":
+      if (!reduced) meteor(p.x, p.y);
+      say(p.x, p.y, pick(["流星！快許願！", "又一顆流星", "看到了嗎？"]));
+      break;
+    case "earth":
+      if (night > .5) { lightning(p.x, p.y); say(p.x, p.y - 10, "雲層裡在打雷！"); }
+      else { storm(p.x, p.y); say(p.x, p.y - 30, "颱風雲旋形成中"); }
+      break;
+    case "crew": {
+      const C = byId(hit.dataset.id);
+      if (!reduced && C.flip < 0 && !C.run) C.flip = 0;
+      C.boost = 2.5;
+      if (C.id === "guitar" && !reduced) for (let i = 0; i < 5; i++) setTimeout(() => note(C.cur.x + rand(-20, 30), C.cur.y + rand(-10, 20)), i * 120);
+      say(C.cur.x, C.cur.y - 70, pick(C.lines));
+      break;
+    }
+    case "coffee": {
+      e.stopPropagation();
+      for (let i = 0; i < 8; i++) droplet(p.x + rand(-6, 6), p.y + rand(-6, 6));
+      say(p.x, p.y - 30, gravityOn ? "咖啡灑出來了！" : "咖啡變成小水珠了！");
+      break;
+    }
+    case "plants": {
+      const any = plants.some(Pl => Pl.target < 1);
+      plants.forEach((Pl, i) => { Pl.target = any ? 1 : 0; });
+      say(p.x, p.y - 20, any ? "長大了！番茄轉紅～" : "收成完畢，重新播種");
+      break;
+    }
+    case "window":
+      ui.flash.flashT = .4; ui.flash.setAttribute("opacity", 1);
+      photoOut();
+      say(800, 214, night > .5 ? "喀嚓！夜側的城市燈" : "喀嚓！今天的地球");
+      break;
+    case "tram": tram.boost = 4; tram.wait = 0; say(tram.x, 330, "叮叮！下一站～"); break;
+    case "shuttle": {
+      const s = shuttle.s;
+      if (s < .4 || s >= .95) { shuttle.s = .4; say(1530, 250, "接駁梭脫離，返回地面"); }
+      else if (s >= .52 && s < .8) { shuttle.s = .8; say(1480, 250, "接駁梭返航中"); }
+      else say(1530, 250, "移動中，請稍候");
+      if (reduced) shuttle.s = shuttle.s === .4 ? .6 : .1;
+      break;
+    }
+    case "arm": arm.boost = 3; say(780, 60, "機械臂：搬貨中"); break;
+    case "dish": dish.boost = 4; say(579, 70, "天線對準地面站"); break;
+    case "astro": if (!reduced) astro.flip = 0; astro.wave = 2.4; say(975, 40, "嗨～艙裡的大家！"); break;
+    case "taxi": taxi.fast = true; say(clamp(taxi.x, 80, 1520), 50, "太空計程車：下一站，月球！"); break;
+    case "drone": drone.spin = 1; say(drone.x, drone.y - 22, pick(["嗶啵！", "需要幫忙嗎？", "電量 87%"])); break;
+    case "curtain":
+      curtain.open = !curtain.open;
+      say(1328, 236, curtain.open ? "拉開簾子" : "勿擾～");
+      break;
+    case "sleeper": say(1262, 236, pick(["呼……再五分鐘……", "Zzz……", "（翻身）"])); if (!reduced) for (let i = 0; i < 3; i++) setTimeout(zzz, i * 200); break;
+    case "laptop":
+      laptopMode = (laptopMode + 1) % 3;
+      ui.lapModes.forEach((g, i) => g.setAttribute("opacity", i === laptopMode ? 1 : 0));
+      say(1133, 280, ["寫程式中", "查看軌道地圖", "分析藻類數據"][laptopMode]);
+      break;
+    case "screen":
+      heartT = 2; for (let i = 0; i < 3; i++) setTimeout(() => heartPop(590 + rand(-20, 20), 250), i * 200);
+      say(592, 230, "家人在地球揮手！");
+      break;
+  }
+});
+
+// 簾子開合（獨立的小補間）
+(function curtainLoop() {
+  curtain.s = reduced ? (curtain.open ? .12 : 1) : lerp(curtain.s, curtain.open ? .12 : 1, .12);
+  ui.curtainIn.setAttribute("transform", `scale(1,${curtain.s.toFixed(3)})`);
+  requestAnimationFrame(curtainLoop);
+})();
+
+$("btnDayNight").addEventListener("click", () => {
+  const isDay = dayness(phase) > .5;
+  let to = isDay ? .68 : 1.08;
+  if (!isDay && phase < .5) to = .08;   // 已在清晨的情況
+  if (reduced) { if (to >= 1) { orbit++; to -= 1; } phase = to; tween = null; lastApplied = -1; return; }
+  tween = { from: phase, to: to < phase ? to + 1 : to, k: 0, dur: 3.2, wrapped: false };
+});
+$("btnAuto").addEventListener("click", () => {
+  auto = !auto;
+  $("btnAuto").setAttribute("aria-pressed", auto);
+  $("btnAuto").textContent = "自動循環：" + (auto ? "開" : "關");
+});
+$("btnGravity").addEventListener("click", () => {
+  gravityOn = !gravityOn;
+  $("btnGravity").setAttribute("aria-pressed", gravityOn);
+  $("btnGravity").textContent = "人工重力：" + (gravityOn ? "開" : "關");
+  say(800, 214, gravityOn ? "人工重力啟動，大家落地！" : "回到無重力～");
+});
+RM_QUERY.addEventListener("change", e => { reduced = e.matches; if (reduced) { auto = false; $("btnAuto").setAttribute("aria-pressed", false); $("btnAuto").textContent = "自動循環：關"; } });
+if (!auto) { $("btnAuto").setAttribute("aria-pressed", false); $("btnAuto").textContent = "自動循環：關"; }
+
+// 對外的小工具：在主控台輸入 SC16.setPhase(0.7) 可直接跳到夜側
+window.SC16 = { setPhase: p => { phase = ((p % 1) + 1) % 1; tween = null; lastApplied = -1; }, setAuto: v => { auto = v; } };
+
+applyNight(1 - dayness(phase), true);
+requestAnimationFrame(frame);
+})();
+</script>
+</body>
+</html>

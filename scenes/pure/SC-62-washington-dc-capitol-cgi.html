@@ -1,0 +1,1910 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>國會大廈前的櫻花暮色</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<style>
+/* =========================================================
+   SC-62 華盛頓特區・國會倒影池與國會大廈｜CGI 電影質感
+   ---------------------------------------------------------
+   氛圍：政治驚悚影集的冷調調色——偏青的陰影、琥珀色的燈光、低飽和、
+   縮時攝影般快速流動的雲；黃昏夕陽從觀眾背後打在國會大廈西側立面上，
+   夜晚大廈由下往上打泛光。畫面四周常駐輕微暗角與底片顆粒（沒有上下黑邊）。
+   【色票 token】所有顏色集中在這裡。
+   --d-名稱 = 白天、--n-名稱 = 夜晚、--k-名稱 = 晨昏（可省略）。
+   JS 依時間混色後輸出成 --名稱，並自動產生 .f-名稱（填色）與 .s-名稱（線色）。
+   ========================================================= */
+:root{
+  /* —— 天空（天氣另外在 JS 裡混灰） —— */
+  --d-skyT:#6f8ea6;  --n-skyT:#050a17;  --k-skyT:#26324f;
+  --d-skyB:#d9dfdc;  --n-skyB:#1b2539;  --k-skyB:#e9a466;
+  --d-cloudL:#eef1f2; --n-cloudL:#2c3550; --k-cloudL:#f3b98a;  /* 雲的受光面 */
+  --d-cloudD:#8e9ba6; --n-cloudD:#0c1222; --k-cloudD:#4a3d58;  /* 雲的背光面 */
+
+  /* —— 國會大廈的大理石：上緣、下緣（夜裡由下往上打光，所以下緣亮） —— */
+  --d-mTop:#eceae4;  --n-mTop:#58617a;  --k-mTop:#f7d3a2;
+  --d-mBot:#c8c8c4;  --n-mBot:#f1d7a8;  --k-mBot:#e8a56c;
+  --d-mLight:#fbfaf6; --n-mLight:#f6e2bb; --k-mLight:#ffe0b4;  /* 柱子受光面 */
+  --d-mShade:#9aa2aa; --n-mShade:#3c4357; --k-mShade:#a9756a;  /* 柱子背光面 */
+  --d-mDeep:#5d6772;  --n-mDeep:#1a2030; --k-mDeep:#5a3f45;    /* 柱廊後方的深影 */
+  --d-glass:#3e4a58;  --n-glass:#1a2232;                       /* 窗玻璃 */
+  --d-bronze:#3b4040; --n-bronze:#0d1118; --k-bronze:#3a2a26;  /* 銅像（格蘭特將軍騎馬像） */
+  --d-bronzeL:#7c8678; --n-bronzeL:#3a4252; --k-bronzeL:#c58a55; /* 銅像邊緣的反光 */
+
+  /* —— 地景 —— */
+  --d-treeF:#55684f; --n-treeF:#0e1820; --k-treeF:#4c4a3a;    /* 國會山莊的大樹（遠） */
+  --d-treeN:#3f5140; --n-treeN:#091117; --k-treeN:#3a3a2e;    /* 大樹（近、較暗） */
+  --d-grass:#7d8f66; --n-grass:#121c22; --k-grass:#8a7a52;
+  --d-street:#5c636b; --n-street:#10141d;
+  --d-stone:#b9b6ae; --n-stone:#2a3040; --k-stone:#c79a74;    /* 倒影池池緣、步道 */
+  --d-stoneD:#8d8b85; --n-stoneD:#191e2b;
+  --d-walk:#a9a59c;  --n-walk:#1b2030; --k-walk:#b08d72;
+  --d-waterT:#8aa2b0; --n-waterT:#0a1222; --k-waterT:#c78d6a; /* 水面遠端（映著地平線） */
+  --d-waterB:#4f6878; --n-waterB:#060b16; --k-waterB:#3a3a52; /* 水面近端（映著高空） */
+
+  /* —— 櫻花（電影調色後略帶灰的粉） —— */
+  --d-bl1:#fbe3ea; --n-bl1:#b3a3b4; --k-bl1:#ffd9c6;  /* 花團亮面 */
+  --d-bl2:#eab3c6; --n-bl2:#5c4e62; --k-bl2:#e7a090;  /* 花團中間調 */
+  --d-bl3:#a9768f; --n-bl3:#221d2a; --k-bl3:#7a4c5a;  /* 花團暗面 */
+  --d-petal:#f6c9d6; --n-petal:#a98aa8;
+  --d-trunk:#3a3030; --n-trunk:#07090f;
+
+  /* —— 角色（低飽和的城市服裝色） —— */
+  --d-skin1:#e8c6a8; --n-skin1:#6a5a5c;
+  --d-skin2:#c79470; --n-skin2:#574740;
+  --d-skin3:#80583e; --n-skin3:#3a2c28;
+  --d-hair1:#1d1a1c; --n-hair1:#07080c;
+  --d-hair2:#5a3e2c; --n-hair2:#1e1612;
+  --d-hair3:#bfb6a8; --n-hair3:#545660;
+  --d-c1:#1f2a3c; --n-c1:#0b1018;   /* 海軍藍西裝 */
+  --d-c2:#3a3c40; --n-c2:#121418;   /* 炭灰 */
+  --d-c3:#a8875e; --n-c3:#3a3026;   /* 駝色風衣 */
+  --d-c4:#6e2a32; --n-c4:#2a1216;   /* 酒紅 */
+  --d-c5:#e4e2dc; --n-c5:#5a5c66;   /* 白襯衫／淺色外套 */
+  --d-c6:#40566a; --n-c6:#151d28;   /* 霧藍 */
+  --d-c7:#556048; --n-c7:#1a1f18;   /* 橄欖綠 */
+  --d-c8:#c4545a; --n-c8:#4a1e24;   /* 慢跑衣紅 */
+  --d-shoe:#151516; --n-shoe:#050507;
+  --d-police:#16203a; --n-police:#080c16; /* 國會警察制服 */
+
+  /* —— 鳥 —— */
+  --d-duckG:#2a5a46; --n-duckG:#0e1c1c;
+  --d-duckB:#7c6a58; --n-duckB:#221e1e;
+  --d-gull:#e8e8e4;  --n-gull:#5c6274;
+  --d-gullW:#9aa2aa; --n-gullW:#2c3242;
+
+  /* —— 固定色：燈光、天體、調色 —— */
+  --flood:#ffd9a0;   /* 國會大廈泛光 */
+  --lamp:#ffe1a8;    /* 路燈 */
+  --lantern:#fff1c8; /* 圓頂燈籠（國會夜間開會時亮） */
+  --redlight:#ff3b3b;
+  --tailR:#ff4a3a; --headW:#fff3d6;   /* 車尾燈、車頭燈（縮時光軌） */
+  --sun:#fff2d4; --sunGlow:#ffc77a; --moon:#eef2ff;
+  --gradeTeal:#1f4a5a; --gradeAmber:#d98a3a;
+  --rainc:#a9b8c8;
+  --phone:#bfe3ff;
+  --cine-shade:#05070c; --cine-light:#ffe6c0;   /* 表演氛圍：暗角與中央微亮 */
+
+  /* —— 頁面介面（深色電影風） —— */
+  --page-bg:#0f141c; --page-fg:#e6e8ec; --page-muted:#9aa3b0;
+  --ui-surface:#171e29; --ui-line:#2b3545; --ui-accent:#c99a5b; --ui-accent-2:#7d9bb5;
+
+  --font-ui:"Noto Sans TC","PingFang TC","Microsoft JhengHei",system-ui,sans-serif;
+  color-scheme:dark;
+}
+
+/* ---------- 頁面版面 ---------- */
+html,body{background:var(--page-bg);color:var(--page-fg);margin:0}
+body{font-family:var(--font-ui)}
+.wrap{max-width:1600px;margin:0 auto;padding-block:20px 32px;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));
+  display:flex;flex-direction:column;gap:14px}
+.stage{margin:0;border:1px solid var(--ui-line);border-radius:12px;overflow:hidden;background:#0b0f16;line-height:0;box-shadow:0 6px 30px #00000080}
+#scene{display:block;width:100%;height:auto;touch-action:manipulation;user-select:none;-webkit-user-select:none}
+.panel{display:flex;flex-wrap:wrap;align-items:center;gap:10px 12px;background:var(--ui-surface);border:1px solid var(--ui-line);border-radius:12px;padding:10px 14px}
+.panel button{font:500 14px/1 var(--font-ui);color:var(--page-fg);background:transparent;border:1px solid var(--ui-line);
+  border-radius:999px;padding:9px 14px;cursor:pointer}
+.panel button:hover{border-color:var(--ui-accent)}
+.panel button[aria-pressed="true"]{background:var(--page-fg);color:var(--page-bg);border-color:var(--page-fg);font-weight:700}
+.panel button.big{background:var(--ui-accent);border-color:var(--ui-accent);color:#14110c;font-weight:700}
+.panel button.big.alt{background:var(--ui-accent-2);border-color:var(--ui-accent-2)}
+.panel button.big.on{background:var(--page-fg);border-color:var(--page-fg)}
+.panel button:focus-visible,.panel input:focus-visible{outline:2px solid var(--ui-accent);outline-offset:3px}
+#scene [tabindex]:focus{outline:none}
+body.kbd #scene [tabindex]:focus{outline:2px solid var(--ui-accent);outline-offset:3px}
+.timebox{display:flex;align-items:center;gap:10px;margin-left:auto;font-size:14px;color:var(--page-muted)}
+.timebox input{width:min(240px,40vw);accent-color:var(--ui-accent)}
+.clock{font:700 15px/1 ui-monospace,Menlo,Consolas,monospace;color:var(--page-fg);min-width:3.2em}
+.hint{margin:0;padding-left:1.2em;color:var(--page-muted);font-size:14px;line-height:1.75}
+.hint b{color:var(--page-fg)}
+
+/* ---------- SVG ---------- */
+#scene .clickable,#scene [role="button"]{cursor:pointer}
+#scene .noHit{pointer-events:none}
+#scene .bubble rect,#scene .bubble path{fill:#11161f;fill-opacity:.88;stroke:#c99a5b;stroke-width:1}
+#scene .bubble text{fill:#f1ece2;font:600 15px var(--font-ui);text-anchor:middle;dominant-baseline:central;letter-spacing:.02em}
+@media (prefers-reduced-motion:reduce){ *{scroll-behavior:auto!important;transition:none!important} }
+</style>
+<style id="pure-art">
+/* =========================================================
+   純插畫版：只顯示場景畫面，隱藏控制列與說明文字。
+   想恢復完整版，刪掉這整段 <style id="pure-art"> 即可。
+   ========================================================= */
+html,body{height:100%;margin:0!important;overflow:hidden}
+body{display:flex!important;align-items:center;justify-content:center;padding:0!important}
+body>.wrap{width:100%!important;max-width:min(100vw,calc(100vh * 8 / 3))!important;
+  margin:0!important;padding:0!important;gap:0!important;display:block!important}
+body>.wrap>:not(.stage){display:none!important}
+body>.wrap>.stage{width:100%!important;max-width:100%!important;margin:0!important;
+  border:0!important;border-radius:0!important;box-shadow:none!important}
+</style>
+</head>
+<body>
+<main class="wrap">
+  <figure class="stage">
+  <svg id="scene" viewBox="0 0 1600 600" preserveAspectRatio="xMidYMid meet" role="img"
+       aria-label="從國會倒影池望向華盛頓的國會大廈：巨大的白色圓頂在冷調的天空下，格蘭特將軍騎馬像的剪影立在池子盡頭，水面倒映著整座大廈，兩側櫻花盛開，步道上有西裝上班族、慢跑者、遊客與國會警察。">
+    <defs>
+      <linearGradient id="skyGrad" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" style="stop-color:var(--skyT)"/>
+        <stop offset="1" style="stop-color:var(--skyB)"/>
+      </linearGradient>
+      <linearGradient id="waterGrad" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" style="stop-color:var(--waterT)"/>
+        <stop offset="1" style="stop-color:var(--waterB)"/>
+      </linearGradient>
+      <!-- 大理石：牆面（垂直漸層）、柱子與圓頂（水平明暗，模擬圓柱體受光） -->
+      <linearGradient id="mVert" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" style="stop-color:var(--mTop)"/>
+        <stop offset="1" style="stop-color:var(--mBot)"/>
+      </linearGradient>
+      <linearGradient id="colG" x1="0" y1="0" x2="1" y2="0">
+        <stop offset="0" style="stop-color:var(--mShade)"/>
+        <stop offset=".35" style="stop-color:var(--mLight)"/>
+        <stop offset="1" style="stop-color:var(--mShade)"/>
+      </linearGradient>
+      <linearGradient id="domeG" x1="0" y1="0" x2="1" y2="0">
+        <stop offset="0" style="stop-color:var(--mShade)"/>
+        <stop offset=".18" style="stop-color:var(--mTop)"/>
+        <stop offset=".42" style="stop-color:var(--mLight)"/>
+        <stop offset=".75" style="stop-color:var(--mTop)"/>
+        <stop offset="1" style="stop-color:var(--mShade)"/>
+      </linearGradient>
+      <linearGradient id="domeV" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" stop-color="#ffffff" stop-opacity=".25"/>
+        <stop offset=".6" stop-color="#ffffff" stop-opacity="0"/>
+        <stop offset="1" stop-color="#000000" stop-opacity=".12"/>
+      </linearGradient>
+      <linearGradient id="bronzeG" x1="0" y1="0" x2="1" y2="0">
+        <stop offset="0" style="stop-color:var(--bronze)"/>
+        <stop offset=".7" style="stop-color:var(--bronze)"/>
+        <stop offset="1" style="stop-color:var(--bronzeL)"/>
+      </linearGradient>
+      <linearGradient id="treeG" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" style="stop-color:var(--treeF)"/>
+        <stop offset="1" style="stop-color:var(--treeN)"/>
+      </linearGradient>
+      <!-- 櫻花花團：每一團都是球體受光（左上亮、右下暗） -->
+      <radialGradient id="blG" cx=".38" cy=".32" r=".7">
+        <stop offset="0" style="stop-color:var(--bl1)"/>
+        <stop offset=".55" style="stop-color:var(--bl2)"/>
+        <stop offset="1" style="stop-color:var(--bl3)"/>
+      </radialGradient>
+      <radialGradient id="cloudGrad" cx=".5" cy=".42" r=".5">
+        <stop offset="0" style="stop-color:var(--cloudL)" stop-opacity=".8"/>
+        <stop offset=".45" style="stop-color:var(--cloudL)" stop-opacity=".45"/>
+        <stop offset=".8" style="stop-color:var(--cloudD)" stop-opacity=".12"/>
+        <stop offset="1" style="stop-color:var(--cloudD)" stop-opacity="0"/>
+      </radialGradient>
+      <radialGradient id="cloudDark" cx=".5" cy=".5" r=".5">
+        <stop offset="0" style="stop-color:var(--cloudD)" stop-opacity=".85"/>
+        <stop offset=".7" style="stop-color:var(--cloudD)" stop-opacity=".45"/>
+        <stop offset="1" style="stop-color:var(--cloudD)" stop-opacity="0"/>
+      </radialGradient>
+      <radialGradient id="sunGlow">
+        <stop offset="0" stop-color="#fffaf0" stop-opacity="1"/>
+        <stop offset=".1" style="stop-color:var(--sun)" stop-opacity=".95"/>
+        <stop offset=".35" style="stop-color:var(--sunGlow)" stop-opacity=".35"/>
+        <stop offset="1" style="stop-color:var(--sunGlow)" stop-opacity="0"/>
+      </radialGradient>
+      <radialGradient id="moonGlow"><stop offset="0" stop-color="#dfe7ff" stop-opacity=".45"/><stop offset="1" stop-color="#dfe7ff" stop-opacity="0"/></radialGradient>
+      <radialGradient id="floodGrad"><stop offset="0" style="stop-color:var(--flood)" stop-opacity=".7"/><stop offset=".5" style="stop-color:var(--flood)" stop-opacity=".22"/><stop offset="1" style="stop-color:var(--flood)" stop-opacity="0"/></radialGradient>
+      <radialGradient id="lampGrad"><stop offset="0" style="stop-color:var(--lamp)" stop-opacity=".95"/><stop offset=".3" style="stop-color:var(--lamp)" stop-opacity=".35"/><stop offset="1" style="stop-color:var(--lamp)" stop-opacity="0"/></radialGradient>
+      <radialGradient id="shadowGrad"><stop offset="0" stop-color="#000" stop-opacity=".45"/><stop offset="1" stop-color="#000" stop-opacity="0"/></radialGradient>
+      <linearGradient id="streakG" x1="0" y1="0" x2="1" y2="0">
+        <stop offset="0" stop-color="#fff" stop-opacity="0"/><stop offset=".5" stop-color="#fff" stop-opacity=".55"/><stop offset="1" stop-color="#fff" stop-opacity="0"/>
+      </linearGradient>
+      <linearGradient id="fogG" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" stop-color="#c8d0d6" stop-opacity="0"/><stop offset=".55" stop-color="#c8d0d6" stop-opacity=".85"/><stop offset="1" stop-color="#c8d0d6" stop-opacity=".2"/>
+      </linearGradient>
+      <!-- 電影調色：上半偏青、下半偏琥珀；四周暗角 -->
+      <linearGradient id="gradeG" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" style="stop-color:var(--gradeTeal)" stop-opacity=".28"/>
+        <stop offset=".6" style="stop-color:var(--gradeTeal)" stop-opacity="0"/>
+        <stop offset="1" style="stop-color:var(--gradeAmber)" stop-opacity=".12"/>
+      </linearGradient>
+      <radialGradient id="vigGrad" cx=".5" cy=".48" r=".75">
+        <stop offset=".5" stop-color="#05070c" stop-opacity="0"/>
+        <stop offset="1" stop-color="#05070c" stop-opacity=".75"/>
+      </radialGradient>
+      <linearGradient id="figShade" x1="0" y1="0" x2="1" y2="0">
+        <stop offset="0" stop-color="#000" stop-opacity=".32"/><stop offset=".55" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#fff" stop-opacity=".08"/>
+      </linearGradient>
+      <clipPath id="poolClip"><rect x="0" y="404" width="1600" height="80"/></clipPath>
+    </defs>
+
+    <g id="cam">
+      <!-- ===== 場景：天空 ===== -->
+      <rect x="0" y="0" width="1600" height="600" fill="url(#skyGrad)"/>
+      <rect id="skyHit" x="0" y="0" width="1600" height="240" fill="transparent"/>
+      <g id="stars" class="noHit"></g>
+      <g id="sun" role="button" tabindex="0" aria-label="太陽：切換成夜晚" class="clickable"></g>
+      <g id="moon" role="button" tabindex="0" aria-label="月亮：切換成白天" class="clickable"></g>
+      <g id="cloudsFar" class="noHit"></g>
+      <g id="cloudsNear" class="noHit"></g>
+      <g id="sky2" class="noHit"></g>
+      <g id="plane" class="noHit"></g>
+
+      <!-- ===== 場景：國會山莊（大樹、國會大廈）——這一組也拿來做水面倒影 ===== -->
+      <g id="hill">
+        <g id="capArt"></g>
+      </g>
+      <g id="street"></g>
+      <g id="square"></g>     <!-- 聯合廣場：格蘭特將軍紀念像、騎兵與砲兵群像 -->
+
+      <!-- ===== 場景：國會倒影池 ===== -->
+      <g id="pool"></g>
+      <g id="poolFx" clip-path="url(#poolClip)" class="noHit"></g>
+      <g id="ducks"></g>
+
+      <!-- ===== 場景：近景步道 ===== -->
+      <g id="bank"></g>
+      <g id="statics"></g>
+      <g id="actors"></g>
+      <g id="gulls"></g>
+      <g id="fgTrees"></g>
+      <g id="petals" class="noHit"></g>
+      <g id="fog" class="noHit" opacity="0"></g>
+      <g id="rain" class="noHit"></g>
+      <rect id="wxDim" class="noHit" x="0" y="0" width="1600" height="600" fill="#1c2430" opacity="0"/>
+      <g id="lights" class="noHit"></g>
+    </g>
+    <!-- ===== 電影調色層（不跟鏡頭推近） ===== -->
+    <rect class="noHit" x="0" y="0" width="1600" height="600" fill="url(#gradeG)"/>
+    <image id="grain" class="noHit" x="0" y="0" width="1600" height="600" preserveAspectRatio="none" opacity=".16"/>
+    <rect id="vignette" class="noHit" x="0" y="0" width="1600" height="600" fill="url(#vigGrad)" opacity=".62"/>
+    <!-- 表演氛圍（取代寬銀幕黑邊）：表演時四周輕微變暗＋中央微微提亮，緩緩淡入淡出 -->
+    <g id="cineFx" class="noHit" opacity="0" pointer-events="none">
+      <defs>
+        <radialGradient id="cineShadeG" cx=".5" cy=".5" r=".72"><stop offset=".52" style="stop-color:var(--cine-shade);stop-opacity:0"/><stop offset="1" style="stop-color:var(--cine-shade);stop-opacity:.4"/></radialGradient>
+        <radialGradient id="cineLightG" cx=".5" cy=".42" r=".5"><stop offset="0" style="stop-color:var(--cine-light);stop-opacity:.08"/><stop offset="1" style="stop-color:var(--cine-light);stop-opacity:0"/></radialGradient>
+      </defs>
+      <rect x="0" y="0" width="1600" height="600" fill="url(#cineShadeG)"/>
+      <rect x="0" y="0" width="1600" height="600" fill="url(#cineLightG)"/>
+    </g>
+    <g id="bubbles" class="noHit"></g>
+  </svg>
+  </figure>
+
+  <!-- ===== 互動：控制列 ===== -->
+  <div class="panel">
+    <button id="btnLapse" class="big" type="button">⏱ 縮時攝影</button>
+    <button id="btnStorm" class="big alt" type="button">🌸 櫻吹雪</button>
+    <button id="btnWeather" type="button">天氣：晴</button>
+    <button id="btnSound" type="button" aria-pressed="true">🔊 聲音：開</button>
+    <button id="btnDay" type="button">☀ 白天</button>
+    <button id="btnNight" type="button">☾ 夜晚</button>
+    <button id="btnAuto" type="button" aria-pressed="true">自動播放</button>
+    <label class="timebox" for="timeRange">
+      <span>時間</span>
+      <input id="timeRange" type="range" min="0" max="1000" value="760">
+      <span class="clock" id="clock">18:14</span>
+    </label>
+  </div>
+  <ul class="hint">
+    <li><b>縮時攝影</b>：一天在 20 秒內流過，雲層飛逝、車燈拉成光軌。</li>
+    <li><b>櫻吹雪</b>：一陣強風捲起滿天櫻花瓣，飛過國會大廈。</li>
+    <li><b>點一點</b>：圓頂、自由女神像、格蘭特將軍像、櫻花樹、鴨子、海鷗、車子、行人。</li>
+    <li><b>滑鼠</b>：畫面跟著視差移動，掠過櫻花飄下花瓣，劃過池面起漣漪。</li>
+    <li><b>天氣</b>：晴、陰天、春雨、晨霧輪流切換。</li>
+  </ul>
+</main>
+
+<script id="showstop">
+/* =========================================================
+   ShowStop｜表演「再按一下優雅停止」共用模組（2026-11-24）
+   用法：放在場景主程式 <script> 之前；主程式最後呼叫
+     ShowStop.init({
+       on:      () => show.on,                  // 表演中回傳真值（多種表演時回傳種類）
+       ff:      () => { show.t = show.dur - .02; },  // （選用）快轉到結尾，讓場景下一幀自己收尾
+       btn:     'btnShow' 或 { fire: 'btnFire', stars: 'btnStars' },
+       save:    () => ({ ... }),                // 表演開始前記下使用者設定（日夜、天氣…）
+       restore: s => { ... },                   // 停止時還原
+       stop:    () => { endShow(); ... },       // 立刻結束表演、清掉秀中物件（有 ff 時：快轉後仍未結束才呼叫）
+       after:   () => { ... },                  // （選用）最後再補的清理
+     });
+   停止時：畫面凍結成一張「殘影」疊在上面 1.8 秒淡出（底下已回到原狀），
+           還沒響的表演音符取消、正在響的長音淡出，表演排程的計時器取消，
+           #cineFx 燈光歸零。播放中按鈕顯示「■ 停止」。
+   ========================================================= */
+(function () {
+  'use strict';
+  const W = window;
+  const FADE = 1.8;                      // 殘影淡出秒數
+  let cfg = null, saved = null, epoch = 0, zone = 0, quiet = null;
+  const reducedQ = W.matchMedia ? W.matchMedia('(prefers-reduced-motion: reduce)') : { matches: false };
+  const isOn = () => { try { return cfg ? cfg.on() : false; } catch (e) { return false; } };
+
+  /* ---------- ① 計時器：記下「表演開始時排程」的 setTimeout / setInterval ---------- */
+  const _st = W.setTimeout, _ct = W.clearTimeout, _si = W.setInterval, _ci = W.clearInterval;
+  const zt = new Map();                  // id → { iv, keep }
+  // 音訊收尾、泡泡移除這類「善後」計時器保留，其餘（放煙火、下一段劇情）停止時取消
+  const KEEP = /\.remove\(\)|disconnect|duck|level\(|\.gain\b|removeChild|classList\.remove/;
+  function wrapFn(fn, ep) {
+    if (typeof fn !== 'function') return fn;
+    return function () {
+      if (ep !== epoch) return;          // 已被停止
+      zone++; try { return fn.apply(this, arguments); } finally { zone--; }
+    };
+  }
+  // 表演進行中排程的「台詞」（say／bubble／narr）也算表演的，停止時一起取消
+  const LINE = /\b(say|bubble|narr)\(/;
+  W.setTimeout = function (fn, ms, ...a) {
+    if (!zone && !(cfg && typeof fn === 'function' && ms > 0 && LINE.test(String(fn)) && isOn())) return _st(fn, ms, ...a);
+    let id; const keep = typeof fn === 'function' && KEEP.test(String(fn)) && String(fn).length < 400;
+    const g = keep ? fn : wrapFn(fn, epoch);
+    id = _st(function () { zt.delete(id); return g.apply(this, arguments); }, ms, ...a);
+    zt.set(id, { iv: false, keep }); return id;
+  };
+  W.clearTimeout = function (id) { zt.delete(id); return _ct(id); };
+  W.setInterval = function (fn, ms, ...a) {
+    if (!zone) return _si(fn, ms, ...a);
+    const id = _si(wrapFn(fn, epoch), ms, ...a); zt.set(id, { iv: true, keep: false }); return id;
+  };
+  W.clearInterval = function (id) { zt.delete(id); return _ci(id); };
+
+  /* ---------- ② 聲音：記下表演期間排程的音符；停止時取消未響的、淡掉長音 ---------- */
+  const srcs = new Set(); const outs = new WeakMap();
+  const SN = W.AudioScheduledSourceNode && W.AudioScheduledSourceNode.prototype;
+  if (SN) {
+    const _start = SN.start, _stop = SN.stop;
+    SN.start = function (when, ...a) {
+      const c = this.context, now = c.currentTime;
+      if (quiet) quiet.push(this);       // 停止過程中（快轉到結尾）冒出的聲音，稍後直接靜音
+      this.__ss = { at: Math.max(now, when || 0), end: Infinity, show: !!(zone || isOn()) };
+      if (this.__ss.show) { srcs.add(this); this.addEventListener('ended', () => srcs.delete(this)); }
+      return _start.call(this, when, ...a);
+    };
+    SN.stop = function (when, ...a) {
+      if (this.__ss) this.__ss.end = Math.max(this.context.currentTime, when || 0);
+      return _stop.call(this, when, ...a);
+    };
+  }
+  const AN = W.AudioNode && W.AudioNode.prototype;
+  if (AN) {   // 所有接到喇叭的線都先經過一顆總音量，停止時可以短暫壓低長音
+    const _conn = AN.connect;
+    AN.connect = function (dest, ...a) {
+      if (dest && dest === this.context.destination && !this.__ssOut) {
+        let g = outs.get(this.context);
+        if (!g) { g = this.context.createGain(); g.__ssOut = true; _conn.call(g, this.context.destination); outs.set(this.context, g); }
+        return _conn.call(this, g, ...a);
+      }
+      return _conn.call(this, dest, ...a);
+    };
+  }
+  function stopAudio() {
+    let longs = [], ctx = null;
+    for (const s of srcs) {
+      const c = s.context, now = c.currentTime, m = s.__ss; ctx = c;
+      if (!m || !m.show) continue;
+      if (m.at > now + .02) { try { s.stop(); } catch (e) {} srcs.delete(s); }      // 還沒響：直接取消
+      else if (isFinite(m.end) && m.end > now + 1.2) longs.push(s);                                     // 長音：淡掉再停
+    }
+    if (longs.length && ctx) {
+      const g = outs.get(ctx), now = ctx.currentTime;
+      if (g) {
+        g.gain.cancelScheduledValues(now); g.gain.setValueAtTime(g.gain.value, now);
+        g.gain.linearRampToValueAtTime(0, now + 1.1); g.gain.setValueAtTime(0, now + 1.2);
+        g.gain.linearRampToValueAtTime(1, now + 1.9);
+      }
+      longs.forEach(s => { try { s.stop(now + 1.15); } catch (e) {} srcs.delete(s); });
+    }
+    srcs.clear();
+  }
+
+  /* ---------- ③ 殘影：把目前畫面凍結複製一份疊上去再淡出 ---------- */
+  let ghostCss = false;
+  function ghost(svg) {
+    if (!svg || reducedQ.matches) return;
+    if (!ghostCss) {
+      ghostCss = true;
+      const st = document.createElement('style');
+      st.textContent = '.ss-ghost,.ss-ghost *{animation-play-state:paused!important;pointer-events:none!important}.ss-ghost{position:absolute!important;margin:0!important;will-change:opacity;transition:opacity ' + FADE + 's cubic-bezier(.4,0,.2,1)}';
+      document.head.appendChild(st);
+    }
+    const cl = svg.cloneNode(true);
+    cl.classList.add('ss-ghost'); cl.removeAttribute('tabindex'); cl.setAttribute('aria-hidden', 'true');
+    // 凍結色票：把目前的 CSS 變數抄到殘影上，底下換色不影響殘影
+    const cs = getComputedStyle(svg);
+    const names = new Set();
+    for (let i = 0; i < cs.length; i++) if (cs[i].startsWith('--')) names.add(cs[i]);
+    try { for (const sh of document.styleSheets) for (const r of sh.cssRules) if (r.style) for (const p of r.style) if (p.startsWith('--')) names.add(p); } catch (e) {}
+    for (const p of document.documentElement.style) if (p.startsWith('--')) names.add(p);
+    names.forEach(p => { const v = cs.getPropertyValue(p); if (v) cl.style.setProperty(p, v); });
+    // 漸層、濾鏡等定義改名，殘影只用自己那份（凍結）
+    const map = {};
+    cl.querySelectorAll('[id]').forEach(e => { const n = e.id + '__ss'; map[e.id] = n; e.id = n; });
+    cl.id = svg.id; delete map[svg.id];
+    const fix = v => v.replace(/url\(\s*['"]?#([^'")\s]+)['"]?\s*\)/g, (m, id) => map[id] ? 'url(#' + map[id] + ')' : m);
+    const all = cl.querySelectorAll('*'), orig = svg.querySelectorAll('*');
+    let needCs = false;
+    try { for (const sh of document.styleSheets) for (const r of sh.cssRules) if (r.cssText.includes('url(#') || r.cssText.includes('url("#')) { needCs = true; break; } } catch (e) {}
+    for (let i = 0; i < all.length; i++) {
+      const e = all[i];
+      for (const a of e.attributes) {
+        if (a.value.includes('url(')) e.setAttribute(a.name, fix(a.value));
+        else if ((a.name === 'href' || a.name === 'xlink:href') && a.value[0] === '#' && map[a.value.slice(1)]) e.setAttribute(a.name, '#' + map[a.value.slice(1)]);
+      }
+      if (needCs && orig[i]) {
+        const o = getComputedStyle(orig[i]);
+        for (const p of ['fill', 'stroke', 'filter', 'clip-path', 'mask']) { const v = o.getPropertyValue(p); if (v && v.includes('url(')) e.style.setProperty(p, fix(v.replace(/url\("?[^#")]*#/g, 'url(#').replace(/"\)/g, ')'))); }
+      }
+    }
+    const par = svg.parentElement;
+    if (getComputedStyle(par).position === 'static') par.style.position = 'relative';
+    const r = svg.getBoundingClientRect(), pr = par.getBoundingClientRect();
+    Object.assign(cl.style, { left: (r.left - pr.left + par.scrollLeft - par.clientLeft) + 'px', top: (r.top - pr.top + par.scrollTop - par.clientTop) + 'px', width: r.width + 'px', height: r.height + 'px', opacity: 1 });
+    svg.after(cl);
+    try { cl.pauseAnimations && cl.pauseAnimations(); } catch (e) {}
+    requestAnimationFrame(() => requestAnimationFrame(() => { cl.style.opacity = 0; }));
+    _st(() => cl.remove(), FADE * 1000 + 300);
+  }
+
+  /* ---------- ④ 秀中冒出的說話泡泡：停止時一起收掉 ---------- */
+  let added = [];
+  const mo = W.MutationObserver ? new MutationObserver(ms => { if (!isOn()) return; for (const m of ms) for (const n of m.addedNodes) if (n.nodeType === 1) added.push(n); }) : null;
+  const BUB = /bubble|say|speech|talk|tip/i;
+  function clearBubbles() {
+    if (mo) for (const m of mo.takeRecords()) for (const n of m.addedNodes) if (n.nodeType === 1) added.push(n);
+    added.forEach(n => {
+      if (!n.isConnected || n.closest('.ss-ghost')) return;
+      const p = n.parentElement;
+      if (BUB.test(n.getAttribute('class') || '') || (p && BUB.test((p.id || '') + ' ' + (p.getAttribute('class') || '')))) n.remove();
+    });
+    added = [];
+  }
+
+  /* ---------- ⑤ 停止 ---------- */
+  let stopping = false;
+  function cancel() {
+    if (stopping) return; stopping = true;
+    const svg = cfg.svg ? document.querySelector(cfg.svg) : (document.getElementById('scene') || document.querySelector('svg'));
+    try { ghost(svg); } catch (e) {}
+    epoch++;
+    for (const [id, z] of zt) if (!z.keep) { z.iv ? _ci(id) : _ct(id); zt.delete(id); }
+    try { stopAudio(); } catch (e) {}
+    quiet = [];
+    zone++;   // 收尾過程中（快轉那幾幀、stop、restore）排出的計時器，例如散場後的鳴笛、煙火，最後一起取消
+    // ff：把表演時間快轉到結尾，讓場景自己的收尾邏輯跑完一幀（殘影蓋著看不到），再補 stop
+    if (cfg.ff) {
+      try { cfg.ff(); } catch (e) { console.warn('ShowStop ff', e); }
+      let n = 0; const wait = () => { if (isOn() && n++ < 8) requestAnimationFrame(wait); else finish(); };
+      requestAnimationFrame(wait);
+    } else finish();
+  }
+  function finish() {
+    try { if (isOn() || !cfg.ff) cfg.stop && cfg.stop(); } catch (e) { console.warn('ShowStop stop', e); }
+    try { if (typeof W.setCine === 'function') W.setCine(0); } catch (e) {}
+    try { if (cfg.cine) cfg.cine(); } catch (e) {}
+    if (saved && cfg.restore) { try { cfg.restore(saved); } catch (e) { console.warn('ShowStop restore', e); } }
+    saved = null;
+    clearBubbles();
+    (quiet || []).forEach(s => { try { s.stop(); } catch (e) {} }); quiet = null;
+    zone = Math.max(0, zone - 1);
+    for (const [id, z] of zt) if (!z.keep) { z.iv ? _ci(id) : _ct(id); zt.delete(id); }
+    try { cfg.after && cfg.after(); } catch (e) {}
+    // 背景配樂（scene-bgm）表演時被壓小聲：停止後很快恢復
+    try { if (W.sceneMusic && W.sceneMusic.playing) W.sceneMusic.duck(.3); } catch (e) {}
+    stopping = false;
+    sync();
+  }
+
+  /* ---------- ⑥ 按鈕：開始時記下設定；表演中再按＝停止；文字顯示「■ 停止」 ---------- */
+  const btns = [];
+  function btnFor(kind) {
+    if (!kind) return null;
+    if (typeof cfg.btn === 'string') return document.getElementById(cfg.btn);
+    const id = cfg.btn[kind] || cfg.btn['*']; return id ? document.getElementById(id) : null;
+  }
+  function sync() {
+    const k = isOn(), act = btnFor(k);
+    btns.forEach(b => {
+      const st = b === act, txt = cfg.label || '■ 停止';
+      if (st && b.disabled) b.disabled = false;   // 有些作品表演中會把按鈕停用，這裡讓它能按「停止」
+      // 作品自己改了按鈕文字（例如收場時換成下一個特效名稱）就記下來，結束時還原成它
+      if (b.classList.contains('ss-stop') && b.textContent !== txt) { b.__ssLabel = b.innerHTML; if (st) b.textContent = txt; }
+      if (st && !b.classList.contains('ss-stop')) {
+        b.__ssLabel = b.innerHTML; b.classList.add('ss-stop');
+        b.textContent = cfg.label || '■ 停止'; b.title = '再按一下停止表演';
+      } else if (!st && b.classList.contains('ss-stop')) {
+        b.classList.remove('ss-stop'); b.innerHTML = b.__ssLabel; b.removeAttribute('title');
+      }
+    });
+  }
+  function loop() { sync(); requestAnimationFrame(loop); }
+
+  W.ShowStop = {
+    init(c) {
+      cfg = c;
+      const ids = typeof c.btn === 'string' ? [c.btn] : Object.values(c.btn);
+      [...new Set(ids)].forEach(id => {
+        const b = document.getElementById(id); if (!b) return;
+        b.__ssLabel = b.innerHTML; btns.push(b);
+        b.addEventListener('click', e => {
+          const k = isOn();
+          if (k && btnFor(k) === b) {
+            e.stopImmediatePropagation(); e.preventDefault();
+            if (e.isTrusted || c.allowSynthetic) cancel();
+            return;
+          }
+          if (!k) {
+            if (c.save) { try { saved = c.save(); } catch (er) { saved = null; } }
+            epoch++; zone++; added = [];
+            // 這次點擊同步排出的計時器都算表演的（點擊處理完就關掉）
+            let done = false; const off = () => { if (!done) { done = true; zone = Math.max(0, zone - 1); W.removeEventListener('click', off); } };
+            W.addEventListener('click', off); _st(off, 0);
+          }
+        }, true);
+      });
+      if (mo) { const s = c.svg ? document.querySelector(c.svg) : (document.getElementById('scene') || document.querySelector('svg')); if (s) mo.observe(s, { childList: true, subtree: true }); }
+      requestAnimationFrame(loop);
+    },
+    cancel: () => { if (isOn()) cancel(); },
+    get saved() { return saved; }
+  };
+})();
+</script>
+<script>
+/* =========================================================
+   SC-62 國會大廈前的櫻花暮色｜程式區
+   區塊：①工具與色票 ②場景（天空、雲、國會大廈、大樹、街道、格蘭特將軍像、倒影池、步道、櫻花樹）
+         ③角色（行人、國會警察、車流、綠頭鴨、海鷗、飛機、雁群）
+         ④動畫（日夜與光線、天氣、花瓣、漣漪、縮時攝影、櫻吹雪）
+         ⑤互動（點擊、滑鼠視差、聲音、控制列）
+   ========================================================= */
+(() => {
+'use strict';
+
+/* ---------------- ① 工具與色票 ---------------- */
+const NS = 'http://www.w3.org/2000/svg';
+const $ = id => document.getElementById(id);
+const root = document.documentElement;
+const svg = $('scene');
+const DAY_SEC = 170;
+const rand = (a, b) => a + Math.random() * (b - a);
+const pick = a => a[Math.floor(Math.random() * a.length)];
+const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+const lerp = (a, b, t) => a + (b - a) * t;
+const smooth = (a, b, x) => { const t = clamp((x - a) / (b - a), 0, 1); return t * t * (3 - 2 * t); };
+let seed = 20261124;
+const srand = (a = 0, b = 1) => { seed = (seed * 16807) % 2147483647; return a + (seed / 2147483647) * (b - a); };
+const f1 = n => (+n).toFixed(1);
+function el(tag, attrs = {}, parent) {
+  const n = document.createElementNS(NS, tag);
+  for (const k in attrs) n.setAttribute(k, attrs[k]);
+  if (parent) parent.appendChild(n);
+  return n;
+}
+function frag(parent, html) { parent.insertAdjacentHTML('beforeend', html); return parent.lastElementChild; }
+const css = n => getComputedStyle(root).getPropertyValue(n).trim();
+const hex = h => { h = h.replace('#', ''); const n = parseInt(h.slice(0, 6), 16); return [n >> 16 & 255, n >> 8 & 255, n & 255, 1]; };
+const mix = (a, b, t) => a.map((v, i) => v + (b[i] - v) * t);
+const rgba = c => `rgba(${Math.round(c[0])},${Math.round(c[1])},${Math.round(c[2])},1)`;
+const PAIRS = {};
+(() => {
+  const names = [];
+  for (const sheet of document.styleSheets) {
+    try { for (const r of sheet.cssRules) if (r.selectorText === ':root') for (const p of r.style) if (p.startsWith('--d-')) names.push(p.slice(4)); } catch (e) {}
+  }
+  let cls = '';
+  names.forEach(k => {
+    const k2 = css('--k-' + k);
+    PAIRS[k] = { d: hex(css('--d-' + k)), n: hex(css('--n-' + k)), k: k2 ? hex(k2) : null };
+    cls += `#scene .f-${k}{fill:var(--${k})}#scene .s-${k}{stroke:var(--${k});fill:none}`;
+  });
+  const st = document.createElement('style'); st.textContent = cls; document.head.appendChild(st);
+})();
+const mq = window.matchMedia('(prefers-reduced-motion: reduce)');
+let reduced = mq.matches;
+
+/* ---------------- ② 底片顆粒（canvas 產生一次） ---------------- */
+function makeGrain() {
+  try {
+    const cv = document.createElement('canvas'); cv.width = 640; cv.height = 240;
+    const c = cv.getContext('2d'), im = c.createImageData(640, 240);
+    for (let i = 0; i < im.data.length; i += 4) { const v = Math.random() < .5 ? 0 : 255; im.data[i] = im.data[i + 1] = im.data[i + 2] = v; im.data[i + 3] = Math.random() * 60; }
+    c.putImageData(im, 0, 0);
+    $('grain').setAttribute('href', cv.toDataURL('image/png'));
+  } catch (e) {}
+}
+
+/* ---------------- ② 場景：天空（星星、太陽、月亮、縮時雲層） ---------------- */
+const stars = [], clouds = [];
+function drawSky() {
+  for (let i = 0; i < 40; i++) {     // 城市光害：星星不多
+    const s = el('circle', { cx: f1(srand(0, 1600)), cy: f1(srand(6, 200)), r: f1(srand(.5, 1.3)), fill: '#fff6e0', opacity: 0 }, $('stars'));
+    stars.push({ el: s, tw: srand(0, 6.28), sp: srand(1, 3) });
+  }
+  frag($('sun'), `<circle r="230" fill="url(#sunGlow)" opacity=".95"/><circle r="17" fill="#fffaf0"/>
+    <rect x="-420" y="-1.5" width="840" height="3" fill="url(#streakG)" opacity=".55"/>
+    <g class="flare" opacity=".35"><circle cx="-60" cy="40" r="10" fill="#ffd9a0"/><circle cx="-120" cy="80" r="22" fill="#9fd0ff" opacity=".4"/><circle cx="-170" cy="113" r="6" fill="#ffd9a0"/></g>`);
+  frag($('moon'), `<circle r="70" fill="url(#moonGlow)"/><circle r="15" fill="var(--moon)"/><circle cx="-4" cy="-3" r="3" fill="#c9d0e6" opacity=".6"/><circle cx="5" cy="5" r="2.2" fill="#c9d0e6" opacity=".5"/>`);
+  // 雲：遠層（細長、慢）與近層（大團、快），都是柔邊漸層橢圓，縮時攝影時會飛快掠過
+  for (let i = 0; i < 26; i++) {
+    const near = i >= 14;
+    const g = el('g', {}, $(near ? 'cloudsNear' : 'cloudsFar'));
+    const w = near ? srand(260, 460) : srand(180, 320), h = near ? srand(40, 70) : srand(14, 26);
+    for (let k = 0; k < (near ? 4 : 2); k++) el('ellipse', { cx: f1(srand(-w * .35, w * .35)), cy: f1(srand(-h * .3, h * .2)), rx: f1(w * srand(.3, .55)), ry: f1(h * srand(.6, 1)), fill: 'url(#cloudGrad)' }, g);
+    if (near) el('ellipse', { cx: 0, cy: f1(h * .45), rx: f1(w * .5), ry: f1(h * .35), fill: 'url(#cloudDark)' }, g);
+    clouds.push({ g, x: srand(-300, 1700), y: near ? srand(40, 200) : srand(20, 180), w, sp: near ? srand(14, 22) : srand(6, 10), near, th: srand(0, 1) });
+  }
+}
+
+/* ---------------- ② 場景：國會大廈（CGI 光影） ----------------
+   中軸 x=800；地面 y=352。兩翼是參議院（北、畫面左）與眾議院（南、畫面右），
+   中央是鑄鐵圓頂：柱廊鼓座（36 根柱）→ 上層鼓座 → 圓頂 → 燈籠亭 → 自由女神像。 */
+function colonnade(g, x0, x1, y0, y1, n, w = 6) {
+  el('rect', { x: x0, y: y0, width: x1 - x0, height: y1 - y0, class: 'f-mDeep' }, g);
+  let s = '';
+  for (let i = 0; i < n; i++) { const x = x0 + (i + .5) * (x1 - x0) / n; s += `<rect x="${f1(x - w / 2)}" y="${y0}" width="${w}" height="${y1 - y0}"/>`; }
+  frag(g, `<g fill="url(#colG)">${s}</g>`);
+}
+function windows(g, x0, x1, y, h, n, w = 5) {
+  let s = '';
+  for (let i = 0; i < n; i++) { const x = x0 + (i + .5) * (x1 - x0) / n; s += `<rect x="${f1(x - w / 2)}" y="${y}" width="${w}" height="${h}"/>`; }
+  return frag(g, `<g class="f-glass">${s}</g>`);
+}
+const litWins = [];
+function wing(g, x0, x1) {
+  const cx = (x0 + x1) / 2;
+  el('rect', { x: x0, y: 292, width: x1 - x0, height: 60, fill: 'url(#mVert)' }, g);
+  el('rect', { x: x0 - 3, y: 287, width: x1 - x0 + 6, height: 6, class: 'f-mLight' }, g);          // 屋簷
+  el('rect', { x: x0, y: 293, width: x1 - x0, height: 3, class: 'f-mShade', opacity: .6 }, g);      // 簷下陰影
+  // 窗戶兩層（夜裡有幾扇亮著）
+  [303, 326].forEach(y => { const w = windows(g, x0 + 8, x1 - 8, y, 13, Math.round((x1 - x0) / 13)); litWins.push(w); });
+  // 中央門廊（8 根柱）＋山牆
+  el('rect', { x: cx - 52, y: 284, width: 104, height: 68, class: 'f-mDeep' }, g);
+  colonnade(g, cx - 50, cx + 50, 290, 348, 8, 7);
+  el('rect', { x: cx - 56, y: 282, width: 112, height: 9, fill: 'url(#mVert)' }, g);
+  el('path', { d: `M${cx - 58} 282 L${cx} 262 L${cx + 58} 282Z`, class: 'f-mTop' }, g);
+  el('path', { d: `M${cx - 46} 280 L${cx} 266 L${cx + 46} 280Z`, class: 'f-mShade', opacity: .45 }, g);
+  el('rect', { x: cx - 60, y: 346, width: 120, height: 6, class: 'f-mLight' }, g);
+  // 屋頂欄杆
+  let b = ''; for (let x = x0 + 4; x < x1 - 2; x += 6) b += `<rect x="${x}" y="282" width="2.4" height="5"/>`;
+  frag(g, `<g class="f-mTop">${b}</g>`);
+}
+function drawCapitol() {
+  const g = $('capArt');
+  // —— 國會山莊的大樹（遠層：冷綠、近層：更暗），框住大廈兩側 ——
+  const tr = el('g', { id: 'hillTrees' }, g);
+  let far = '', near = '';
+  for (let x = -20; x < 1640; x += 26 + srand(0, 16)) {
+    if (x > 400 && x < 1200) { if (srand() < .7) continue; }
+    const r = srand(24, 44), y = 340 - srand(0, x < 420 || x > 1180 ? 70 : 10);
+    far += `<circle cx="${f1(x)}" cy="${f1(y)}" r="${f1(r)}"/>`;
+  }
+  for (let x = -20; x < 1640; x += 30 + srand(0, 20)) {
+    if (x > 380 && x < 1220) continue;
+    near += `<circle cx="${f1(x)}" cy="${f1(360 - srand(0, 40))}" r="${f1(srand(26, 40))}"/>`;
+  }
+  frag(tr, `<g fill="url(#treeG)">${far}</g><g class="f-treeN">${near}</g>`);
+  el('rect', { x: 0, y: 352, width: 1600, height: 22, class: 'f-grass' }, g);
+
+  const cap = el('g', { id: 'capBody', role: 'button', tabindex: 0, 'aria-label': '國會大廈', class: 'clickable' }, g);
+  // 西側台階與擋土牆
+  el('rect', { x: 360, y: 350, width: 880, height: 22, fill: 'url(#mVert)' }, cap);
+  let bal = ''; for (let x = 364; x < 1236; x += 7) bal += `<rect x="${x}" y="345" width="3" height="6"/>`;
+  frag(cap, `<g class="f-mTop">${bal}</g>`);
+  el('rect', { x: 360, y: 350, width: 880, height: 2, class: 'f-mLight' }, cap);
+  let st = ''; for (let y = 354; y < 372; y += 3) st += `M${640 + (y - 354)} ${y} H${960 - (y - 354)} `;
+  el('path', { d: st, class: 's-mShade', 'stroke-width': 1, opacity: .7 }, cap);
+  // 參議院翼、眾議院翼、連接段
+  wing(cap, 420, 640);
+  wing(cap, 960, 1180);
+  [[640, 704], [896, 960]].forEach(([a, b]) => { el('rect', { x: a, y: 298, width: b - a, height: 54, fill: 'url(#mVert)' }, cap); litWins.push(windows(cap, a + 6, b - 6, 312, 14, 4)); });
+  // 中央主體與東西向門廊
+  el('rect', { x: 700, y: 262, width: 200, height: 90, fill: 'url(#mVert)' }, cap);
+  litWins.push(windows(cap, 706, 744, 272, 14, 3)); litWins.push(windows(cap, 856, 894, 272, 14, 3));
+  el('rect', { x: 744, y: 270, width: 112, height: 82, class: 'f-mDeep' }, cap);
+  colonnade(cap, 746, 854, 276, 348, 10, 7);
+  el('rect', { x: 740, y: 266, width: 120, height: 10, fill: 'url(#mVert)' }, cap);
+  el('path', { d: 'M736 266 L800 240 L864 266Z', class: 'f-mTop' }, cap);
+  el('path', { d: 'M750 264 L800 245 L850 264Z', class: 'f-mShade', opacity: .45 }, cap);
+
+  const dome = el('g', { id: 'dome', role: 'button', tabindex: 0, 'aria-label': '國會大廈圓頂', class: 'clickable' }, g);
+  // 圓頂底座（方形基座）
+  el('rect', { x: 694, y: 238, width: 212, height: 26, fill: 'url(#mVert)' }, dome);
+  el('rect', { x: 690, y: 234, width: 220, height: 6, class: 'f-mLight' }, dome);
+  // 柱廊鼓座：前半圈 19 根柱，用 sin 算出透視間距與寬度
+  el('rect', { x: 702, y: 176, width: 196, height: 60, class: 'f-mDeep' }, dome);
+  let cols = '';
+  for (let i = 0; i < 19; i++) {
+    const th = -Math.PI / 2 + (i + .5) * Math.PI / 19;
+    const x = 800 + Math.sin(th) * 96, w = 2 + Math.cos(th) * 4.5;
+    cols += `<rect x="${f1(x - w / 2)}" y="178" width="${f1(w)}" height="56"/>`;
+  }
+  frag(dome, `<g fill="url(#colG)">${cols}</g>`);
+  el('rect', { x: 698, y: 172, width: 204, height: 7, fill: 'url(#domeG)' }, dome);
+  // 上層鼓座（閣樓＋窗）與圓頂基環
+  el('rect', { x: 712, y: 156, width: 176, height: 17, fill: 'url(#domeG)' }, dome);
+  litWins.push(windows(dome, 718, 882, 160, 9, 16, 4));
+  el('rect', { x: 724, y: 136, width: 152, height: 21, fill: 'url(#domeG)' }, dome);
+  litWins.push(windows(dome, 732, 868, 140, 12, 12, 5));
+  el('rect', { x: 720, y: 133, width: 160, height: 4, class: 'f-mLight' }, dome);
+  // 圓頂本體＋肋條＋三層小天窗
+  el('path', { d: 'M726 134 C728 92 764 70 800 68 C836 70 872 92 874 134Z', fill: 'url(#domeG)' }, dome);
+  el('path', { d: 'M726 134 C728 92 764 70 800 68 C836 70 872 92 874 134Z', fill: 'url(#domeV)' }, dome);
+  let ribs = '';
+  for (let i = -5; i <= 5; i++) { const xb = 800 + Math.sin(i / 6 * Math.PI / 2) * 74; ribs += `M${f1(xb)} 134 Q${f1(800 + (xb - 800) * .92)} 88 800 68 `; }
+  el('path', { d: ribs, class: 's-mShade', 'stroke-width': .9, opacity: .7 }, dome);
+  let luc = '';
+  [[122, 66, 3.2], [104, 54, 2.8], [88, 38, 2.4]].forEach(([y, hw, r]) => { for (let i = -4; i <= 4; i++) { const x = 800 + Math.sin(i / 5 * Math.PI / 2) * hw; luc += `<ellipse cx="${f1(x + 4)}" cy="${y}" rx="${f1(r * Math.cos(i / 5 * 1.2))}" ry="${r * 1.3}"/>`; } });
+  frag(dome, `<g class="f-glass" opacity=".8">${luc}</g>`);
+  // 燈籠亭（tholos）＋自由女神像
+  el('rect', { x: 787, y: 50, width: 26, height: 19, class: 'f-mDeep' }, dome);
+  let tc = ''; for (let i = 0; i < 6; i++) tc += `<rect x="${f1(788 + i * 4.6)}" y="51" width="2.4" height="17"/>`;
+  frag(dome, `<g fill="url(#colG)">${tc}</g>`);
+  el('rect', { id: 'lantern', x: 789, y: 52, width: 22, height: 15, fill: 'var(--lantern)', opacity: 0 }, dome);
+  el('path', { d: 'M784 51 H816 L812 45 Q800 38 788 45Z', fill: 'url(#domeG)' }, dome);
+  const sof = el('g', { id: 'freedom', role: 'button', tabindex: 0, 'aria-label': '自由女神像', class: 'clickable' }, dome);
+  el('path', { d: 'M796 40 L797 30 Q796 26 798 24 L798 21 Q800 18 802 21 L802 24 Q804 26 803 30 L804 40Z', fill: 'url(#bronzeG)' }, sof);
+  el('path', { d: 'M799 19 l1 -4 l1 4 M803 27 l3 -5', stroke: 'var(--bronze)', 'stroke-width': 1.2, fill: 'none' }, sof);
+  // 夜間泛光（從下往上打）與晨間逆光的剪影罩
+  el('ellipse', { id: 'capFlood', cx: 800, cy: 250, rx: 430, ry: 170, fill: 'url(#floodGrad)', opacity: 0, class: 'noHit' }, g);
+  el('path', { id: 'backlit', class: 'noHit', d: 'M420 287 H700 V238 H726 V134 C728 92 764 70 800 68 C836 70 872 92 874 134 V238 H900 V287 H1180 V372 H420Z', fill: '#2a3242', opacity: 0 }, g);
+  g.insertBefore($('capFlood'), cap);
+}
+
+/* ---------------- ② 場景：第一街（車流）與聯合廣場（格蘭特將軍紀念像） ---------------- */
+function drawStreet() {
+  const g = $('street');
+  el('rect', { x: 0, y: 372, width: 1600, height: 12, class: 'f-street' }, g);
+  el('path', { d: 'M0 378 H1600', stroke: '#e8d9a8', 'stroke-width': .8, 'stroke-dasharray': '14 12', opacity: .35 }, g);
+}
+function horseRider(g, x, y, s, dir) {
+  // 騎馬銅像（側面）：馬身、四條腿、低頭的馬首、披斗篷戴軟帽的騎士；邊緣帶一點環境反光
+  const h = el('g', { transform: `translate(${x} ${y}) scale(${s * dir} ${s})` }, g);
+  frag(h, `<g fill="url(#bronzeG)">
+    <ellipse cx="2" cy="-46" rx="33" ry="12.5"/>
+    <path d="M-20 -52L-31 -76Q-33 -83 -26 -84L-12 -58Z"/>
+    <path d="M-31 -84L-44 -66Q-46 -61 -41 -61L-35 -65L-24 -78Z"/>
+    <path d="M-29 -84L-30 -90L-26 -85Z"/>
+    <path d="M-27 -42L-30 -2H-25L-21 -38ZM-17 -40L-15 -2H-10L-10 -38ZM18 -40L16 -2H21L24 -38ZM27 -42L31 -2H36L33 -40Z"/>
+    <path d="M33 -52Q42 -50 42 -36Q41 -26 38 -20Q36 -30 33 -40Z"/>
+    <path d="M-8 -56Q-10 -76 -6 -86L4 -86Q6 -74 4 -56Z"/>
+    <path d="M-6 -84Q8 -80 14 -58Q4 -60 -2 -64Z"/>
+    <path d="M-2 -58L-4 -36L1 -36L3 -56Z"/>
+    <circle cx="-1" cy="-91" r="5"/>
+    <path d="M-9 -94H7L4 -99Q-1 -101 -6 -99Z"/>
+  </g>
+  <path d="M-31 -76Q-33 -83 -26 -84M33 -52Q42 -50 42 -36" stroke="var(--bronzeL)" stroke-width="1.2" fill="none" opacity=".7"/>`);
+  return h;
+}
+function drawSquare() {
+  const g = $('square');
+  el('rect', { x: 0, y: 384, width: 1600, height: 20, class: 'f-grass' }, g);
+  // 格蘭特將軍紀念像：大理石台座＋騎馬銅像（正對倒影池，迎著西方）
+  const gr = el('g', { id: 'grant', role: 'button', tabindex: 0, 'aria-label': '格蘭特將軍紀念像', class: 'clickable' }, g);
+  el('rect', { x: 700, y: 386, width: 200, height: 14, fill: 'url(#mVert)' }, gr);
+  el('rect', { x: 768, y: 344, width: 64, height: 44, fill: 'url(#mVert)' }, gr);
+  el('rect', { x: 764, y: 340, width: 72, height: 6, class: 'f-mLight' }, gr);
+  el('rect', { x: 780, y: 352, width: 40, height: 28, class: 'f-mShade', opacity: .35 }, gr);
+  // 台座四角的銅獅
+  [[748, 388], [852, 388]].forEach(([x, y]) => frag(gr, `<path d="M${x - 12} ${y} Q${x - 12} ${y - 10} ${x - 4} ${y - 12} Q${x + 4} ${y - 16} ${x + 10} ${y - 10} L${x + 12} ${y}Z" fill="url(#bronzeG)"/>`));
+  horseRider(gr, 800, 341, 1.12, 1);   // 格蘭特將軍騎在馬上，面朝西方的國家廣場
+  // 兩側的騎兵群像（左）與砲兵群像（右）
+  const cav = el('g', { id: 'cavalry', class: 'noHit' }, g);
+  el('rect', { x: 430, y: 384, width: 120, height: 14, fill: 'url(#mVert)' }, cav);
+  [[452, 384, .52, 1], [492, 384, .56, 1], [530, 384, .5, 1]].forEach(([x, y, s, d]) => horseRider(cav, x, y, s, d));
+  const art = el('g', { id: 'artillery', class: 'noHit' }, g);
+  el('rect', { x: 1050, y: 384, width: 120, height: 14, fill: 'url(#mVert)' }, art);
+  [[1070, 384, .5, -1], [1108, 384, .55, -1], [1146, 384, .5, -1]].forEach(([x, y, s, d]) => horseRider(art, x, y, s, d));
+  frag(art, `<circle cx="1160" cy="392" r="5" fill="url(#bronzeG)"/><path d="M1130 388 L1168 382" stroke="var(--bronze)" stroke-width="2"/>`);
+}
+
+/* ---------------- ② 場景：國會倒影池（水面、倒影、波光） ---------------- */
+const shimmer = [];
+function drawPool() {
+  const g = $('pool');
+  el('rect', { x: 0, y: 400, width: 1600, height: 5, class: 'f-stone' }, g);           // 遠端池緣
+  el('rect', { id: 'poolHit', x: 0, y: 404, width: 1600, height: 80, fill: 'url(#waterGrad)' }, g);
+  // 倒影：把國會山莊整組（大樹＋大廈）上下翻轉並壓扁，和格蘭特像一起映在水裡
+  const rf = el('g', { id: 'reflect', class: 'noHit', 'clip-path': 'url(#poolClip)', opacity: .5 }, g);
+  el('use', { href: '#capArt', transform: 'translate(0 404) scale(1 -.235) translate(0 -352)' }, rf);
+  el('use', { href: '#grant', transform: 'translate(0 404) scale(1 -.5) translate(0 -398)', opacity: .9 }, rf);
+  el('rect', { id: 'reflTint', x: 0, y: 404, width: 1600, height: 80, fill: 'url(#waterGrad)', opacity: .35 }, rf);
+  // 夜間泛光的倒影
+  el('ellipse', { id: 'floodRefl', cx: 800, cy: 440, rx: 360, ry: 26, fill: 'url(#floodGrad)', opacity: 0 }, g);
+  // 波光：幾條會漂動的細亮線
+  for (let i = 0; i < 40; i++) {
+    const y = srand(408, 482), w = srand(20, 90);
+    const l = el('rect', { x: 0, y: 0, width: f1(w), height: f1(srand(.8, 1.6)), fill: 'url(#streakG)', opacity: f1(srand(.2, .55)) }, g);
+    shimmer.push({ el: l, x: srand(0, 1600), y, sp: srand(4, 14) * (srand() < .5 ? -1 : 1), ph: srand(0, 6) });
+  }
+  el('rect', { x: 0, y: 483, width: 1600, height: 8, class: 'f-stone' }, g);            // 近端池緣
+  el('rect', { x: 0, y: 490, width: 1600, height: 3, class: 'f-stoneD' }, g);
+}
+
+/* ---------------- ② 場景：近景步道、路燈、靜態角色 ---------------- */
+const lamps = [];
+function drawBank() {
+  const g = $('bank');
+  el('rect', { x: 0, y: 493, width: 1600, height: 107, class: 'f-walk' }, g);
+  let j = ''; for (let i = 0; i < 26; i++) j += `M${f1(i * 64 + srand(-6, 6))} 493 L${f1(i * 64 - 40)} 600 `;
+  el('path', { d: j, class: 's-stoneD', 'stroke-width': 1, opacity: .4 }, g);
+  el('rect', { x: 0, y: 493, width: 1600, height: 107, fill: 'url(#gradeG)', opacity: .6 }, g);
+  [210, 560, 1040, 1390].forEach(x => {
+    frag(g, `<g><ellipse cx="${x + 6}" cy="497" rx="20" ry="3" fill="url(#shadowGrad)"/>
+      <path d="M${x - 5} 497 h10 l-2 -10 h-6z" class="f-c2"/><rect x="${x - 1.6}" y="410" width="3.2" height="80" class="f-c2"/>
+      <path d="M${x - 6} 410 h12 l-2 -5 h-8z" class="f-c2"/><circle cx="${x}" cy="396" r="10" fill="#e9e4d6" opacity=".9"/>
+      <circle class="lampOn" cx="${x}" cy="396" r="10" fill="var(--lamp)" opacity="0"/><path d="M${x - 3} 385 h6 v-4 h-6z" class="f-c2"/></g>`);
+    const glow = el('circle', { cx: x, cy: 396, r: 70, fill: 'url(#lampGrad)', opacity: 0 }, $('lights'));
+    lamps.push({ on: g.lastElementChild.querySelector('.lampOn'), glow });
+  });
+}
+
+/* ---------------- ② 場景：近景櫻花樹（左右框景，CGI 球體花團） ---------------- */
+const fgTrees = [];
+function drawTree(cx, baseY, side) {
+  const g = el('g', { class: 'clickable', role: 'button', tabindex: 0, 'aria-label': '櫻花樹：搖一搖' }, $('fgTrees'));
+  el('ellipse', { cx: cx + 20 * side, cy: baseY + 4, rx: 160, ry: 14, fill: 'url(#shadowGrad)' }, g);
+  const sway = el('g', {}, g);
+  const tx = x => cx + x * -side;
+  frag(sway, `<path d="M${tx(-16)} ${baseY} C${tx(-12)} ${baseY - 70} ${tx(-26)} ${baseY - 120} ${tx(-8)} ${baseY - 190}
+      C${tx(6)} ${baseY - 230} ${tx(36)} ${baseY - 260} ${tx(50)} ${baseY - 300} L${tx(62)} ${baseY - 292}
+      C${tx(46)} ${baseY - 250} ${tx(22)} ${baseY - 210} ${tx(14)} ${baseY - 176} C${tx(8)} ${baseY - 120} ${tx(20)} ${baseY - 60} ${tx(18)} ${baseY}Z" class="f-trunk"/>
+    <path d="M${tx(-4)} ${baseY - 170} C${tx(-50)} ${baseY - 220} ${tx(-110)} ${baseY - 260} ${tx(-170)} ${baseY - 330}" class="s-trunk" stroke-width="11" stroke-linecap="round"/>
+    <path d="M${tx(36)} ${baseY - 270} C${tx(100)} ${baseY - 330} ${tx(190)} ${baseY - 390} ${tx(320)} ${baseY - 460}" class="s-trunk" stroke-width="8" stroke-linecap="round"/>`);
+  const pts = [];
+  // 主樹冠：橢圓範圍內的花團
+  for (let i = 0; i < 46; i++) {
+    const a = srand(0, Math.PI * 2), d = Math.sqrt(srand(0, 1));
+    pts.push([tx(-70 + Math.cos(a) * d * 170), baseY - 310 + Math.sin(a) * d * 105, srand(22, 42)]);
+  }
+  // 斜伸向畫面中央的長枝：每一段放 2～3 團大小不一的花，錯落不成串
+  for (let i = 0; i < 16; i++) {
+    const t = i / 15, n = 2 + (srand() < .5 ? 1 : 0);
+    for (let k = 0; k < n; k++) pts.push([tx(lerp(60, 330, t) + srand(-34, 34)), baseY - lerp(300, 470, t) + srand(-34, 34), srand(14, 32) * (1 - t * .3)]);
+  }
+  // 低枝末端的一小團
+  for (let i = 0; i < 8; i++) pts.push([tx(-170 + srand(-40, 40)), baseY - 330 + srand(-30, 30), srand(14, 28)]);
+  pts.sort((a, b) => a[1] - b[1]);
+  const crown = el('g', {}, sway);
+  // 暗部底層 → 每一團球體花 → 亮面花點（逆光時邊緣會被光勾出）
+  frag(crown, `<g class="f-bl3">${pts.map(([x, y, r]) => `<circle cx="${f1(x + 6)}" cy="${f1(y + 8)}" r="${f1(r)}"/>`).join('')}</g>`);
+  frag(crown, `<g fill="url(#blG)">${pts.map(([x, y, r]) => `<circle cx="${f1(x)}" cy="${f1(y)}" r="${f1(r)}"/>`).join('')}</g>`);
+  let sp = '';
+  pts.forEach(([x, y, r]) => { for (let k = 0; k < r / 3; k++) { const a = srand(3.4, 5.6), d = srand(r * .3, r * .9); sp += `<circle cx="${f1(x + Math.cos(a) * d)}" cy="${f1(y + Math.sin(a) * d)}" r="${f1(srand(1.4, 3))}"/>`; } });
+  frag(crown, `<g class="f-bl1" opacity=".85">${sp}</g>`);
+  fgTrees.push({ g, sway, cx, baseY, ph: srand(0, 6.28), shake: 0, pts });
+  return g;
+}
+
+/* ---------------- ⑤ 互動：聲音（Web Audio，全部原創、即時合成） ----------------
+   分「音樂軌」與「音效軌」：同一軌新的聲音會讓舊的淡出；音樂響起時音效轉小聲；
+   「聲音：關」會立即全部停止；所有聲音都要點了才會響 */
+let actx = null, master = null, sfxBus = null, musBus = null, soundOn = true, userGesture = false, noiseBuf = null, rainGain = null, windGain = null;
+let musNode = null, sfxNode = null, OUT = null;
+function ensureAudio() {
+  if (!actx) {
+    const AC = window.AudioContext || window.webkitAudioContext;
+    if (!AC) return null;
+    actx = new AC();
+    master = actx.createGain(); master.gain.value = soundOn ? .5 : 0;
+    const comp = actx.createDynamicsCompressor(); comp.threshold.value = -16; comp.ratio.value = 3;
+    master.connect(comp); comp.connect(actx.destination);
+    sfxBus = actx.createGain(); sfxBus.connect(master);
+    musBus = actx.createGain(); musBus.gain.value = .64; /* 音樂軌音量 ×0.64（2026-11-24 兩次各調降 20%） */ musBus.connect(master);
+  }
+  if (actx.state === 'suspended' && userGesture) actx.resume();
+  return actx;
+}
+const audioOK = () => actx && actx.state === 'running' && soundOn;
+function newTrack(kind) {
+  const bus = kind === 'mus' ? musBus : sfxBus;
+  const g = actx.createGain(); g.connect(bus);
+  const old = kind === 'mus' ? musNode : sfxNode;
+  if (old) { old.gain.setTargetAtTime(0, actx.currentTime, .12); setTimeout(() => { try { old.disconnect(); } catch (e) {} }, 900); }
+  if (kind === 'mus') musNode = g; else sfxNode = g;
+  return g;
+}
+function nbuf() {
+  if (!noiseBuf) { noiseBuf = actx.createBuffer(1, actx.sampleRate * 2, actx.sampleRate); const d = noiseBuf.getChannelData(0); for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1; }
+  return noiseBuf;
+}
+function gainEnv(t, a, d, v, dest) {
+  const g = actx.createGain();
+  g.gain.setValueAtTime(.0001, t); g.gain.linearRampToValueAtTime(v, t + a); g.gain.exponentialRampToValueAtTime(.0001, t + a + d);
+  g.connect(dest || OUT || sfxBus); return g;
+}
+function osc(type, f, t, dur, dest) { const o = actx.createOscillator(); o.type = type; o.frequency.value = f; if (dest) o.connect(dest); o.start(t); o.stop(t + dur + .05); return o; }
+function noise(t, dur, freq, vol, type = 'bandpass', q = 1, a = .004, dest) {
+  const s = actx.createBufferSource(); s.buffer = nbuf(); s.loop = true;
+  const f = actx.createBiquadFilter(); f.type = type; f.frequency.value = freq; f.Q.value = q;
+  s.connect(f); f.connect(gainEnv(t, a, dur, vol, dest)); s.start(t); s.stop(t + a + dur + .1); return f;
+}
+const sfx = fn => { if (!audioOK()) return; OUT = newTrack('sfx'); fn(actx.currentTime + .02); OUT = null; };
+function loopNoise(hpF, lpF) {
+  const s = actx.createBufferSource(); s.buffer = nbuf(); s.loop = true;
+  const hp = actx.createBiquadFilter(); hp.type = 'highpass'; hp.frequency.value = hpF;
+  const lp = actx.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = lpF;
+  const g = actx.createGain(); g.gain.value = 0;
+  s.connect(hp); hp.connect(lp); lp.connect(g); g.connect(sfxBus); s.start();
+  return g;
+}
+function ambience() {
+  // 雨聲與風聲：只在使用者點過畫面、聲音開著時才有
+  if (!actx || actx.state !== 'running') return;
+  if (!rainGain) rainGain = loopNoise(600, 5200);
+  if (!windGain) windGain = loopNoise(120, 700);
+  rainGain.gain.setTargetAtTime(soundOn ? wx.rain * .07 : 0, actx.currentTime, .3);
+  windGain.gain.setTargetAtTime(soundOn ? wx.wind * .06 : 0, actx.currentTime, .4);
+}
+const duckMusic = sec => { try { window.sceneMusic && window.sceneMusic.duck(sec); } catch (e) {} };
+function duckSfx(sec) { if (!actx) return; const t = actx.currentTime; sfxBus.gain.setTargetAtTime(.35, t, .2); sfxBus.gain.setTargetAtTime(1, t + sec, .6); }
+
+/* —— 音效 —— */
+const hz = n => 440 * Math.pow(2, (n - 69) / 12);
+function quack(t) {   // 綠頭鴨：鼻音很重的「呱呱」
+  for (let k = 0; k < 2; k++) {
+    const tt = t + k * .22;
+    const o = osc('sawtooth', 520, tt, .16, null);
+    const f = actx.createBiquadFilter(); f.type = 'bandpass'; f.frequency.value = 1100; f.Q.value = 4;
+    o.disconnect(); o.connect(f); f.connect(gainEnv(tt, .01, .15, .14));
+    o.frequency.setValueAtTime(560, tt); o.frequency.linearRampToValueAtTime(380, tt + .15);
+  }
+}
+function splash(t, v = 1) { noise(t, .35, 1400, .12 * v, 'bandpass', .8, .01); noise(t + .05, .5, 600, .06 * v, 'lowpass', .7, .05); }
+function plop(t) { const o = osc('sine', 300, t, .2, gainEnv(t, .005, .18, .12)); o.frequency.exponentialRampToValueAtTime(900, t + .12); splash(t + .03, .4); }
+function rustle(t) { for (let i = 0; i < 26; i++) noise(t + i * .03 + Math.random() * .02, .03, 3200 + Math.random() * 3000, .035, 'highpass', .8); const f = noise(t, .9, 500, .05, 'bandpass', .5, .2); }
+function shutter(t) { noise(t, .03, 3500, .16, 'highpass', 1); noise(t + .09, .04, 2500, .11, 'bandpass', 2); }
+function bikeBell(t) { for (let k = 0; k < 2; k++) { const tt = t + k * .2; [2350, 2900, 3650].forEach((f, i) => osc('sine', f, tt, .5, gainEnv(tt, .002, .5, [.07, .04, .02][i]))); } }
+function cartBell(t) { [0, .14, .28].forEach(d => [1568, 2349].forEach((f, i) => osc('triangle', f, t + d, .3, gainEnv(t + d, .002, .3, i ? .03 : .06)))); }
+function chime(t) { [72, 76, 79, 84].forEach((n, i) => osc('sine', hz(n), t + i * .08, .7, gainEnv(t + i * .08, .004, .7, .06))); }
+function jet(t) {   // 客機飛過：寬頻噪音由遠而近再遠去
+  const f = noise(t, 3.2, 500, .14, 'lowpass', .6, 1.4);
+  f.frequency.setValueAtTime(400, t); f.frequency.linearRampToValueAtTime(1100, t + 1.6); f.frequency.linearRampToValueAtTime(300, t + 4.4);
+  const o = osc('sawtooth', 1900, t, 4, gainEnv(t, 1.4, 3, .008)); o.frequency.linearRampToValueAtTime(1500, t + 4);
+}
+function honk(t) {   // 加拿大雁：此起彼落的「昂、昂」
+  for (let k = 0; k < 5; k++) {
+    const tt = t + k * .26 + Math.random() * .08;
+    const o = osc('sawtooth', 420, tt, .18, null);
+    const f = actx.createBiquadFilter(); f.type = 'bandpass'; f.frequency.value = 900; f.Q.value = 3;
+    o.disconnect(); o.connect(f); f.connect(gainEnv(tt, .015, .16, .07));
+    o.frequency.setValueAtTime(380, tt); o.frequency.linearRampToValueAtTime(470, tt + .06); o.frequency.linearRampToValueAtTime(400, tt + .16);
+  }
+}
+function twinkle(t) { [88, 91, 95, 100].forEach((n, i) => osc('sine', hz(n), t + i * .05, .4, gainEnv(t + i * .05, .003, .4, .03))); }
+function windGust(t) { const f = noise(t, 1.6, 400, .1, 'bandpass', .7, .5); f.frequency.linearRampToValueAtTime(900, t + .8); f.frequency.linearRampToValueAtTime(300, t + 2); }
+function flutter(t) { for (let i = 0; i < 10; i++) noise(t + i * .05, .03, 1300, .05, 'bandpass', 1); }
+function match(t) { noise(t, .25, 2400, .1, 'highpass', .7, .01); noise(t + .12, .6, 800, .05, 'bandpass', .8, .05); }
+function boom(t, v = 1, dest) {
+  const o = osc('sine', 90, t, 1.2, gainEnv(t, .005, 1.1, .3 * v, dest)); o.frequency.exponentialRampToValueAtTime(36, t + .8);
+  noise(t, .9, 900, .2 * v, 'lowpass', .7, .005, dest);
+  for (let i = 0; i < 14; i++) noise(t + .25 + i * .05 + Math.random() * .05, .03, 5000, .03 * v, 'highpass', 1, .003, dest); // 劈哩啪啦
+}
+function whistle(t, dest) { const o = osc('sine', 900, t, .9, gainEnv(t, .05, .85, .025, dest)); o.frequency.linearRampToValueAtTime(2200, t + .9); }
+
+function koto(t, f, v, dest) {
+  const o = osc('sawtooth', f, t, 1.4, null);
+  const lp = actx.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.setValueAtTime(f * 6, t); lp.frequency.exponentialRampToValueAtTime(f * 1.2, t + .8);
+  o.disconnect(); o.connect(lp); lp.connect(gainEnv(t, .003, 1.3, v, dest));
+}
+function horn(t, f, d, v, dest) {
+  const g = gainEnv(t, .06, d, v, dest);
+  const lp = actx.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.setValueAtTime(900, t); lp.frequency.linearRampToValueAtTime(2200, t + .12); lp.connect(g);
+  [0, 4].forEach(c => { const o = osc('sawtooth', f, t, d, null); o.detune.value = c; o.disconnect(); o.connect(lp); });
+}
+function pad(t, notes, d, v, dest) {
+  const lp = actx.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 1300;
+  const g = gainEnv(t, .6, d, v, dest); lp.connect(g);
+  notes.forEach(n => [-6, 6].forEach(c => { const o = osc('sawtooth', hz(n), t, d + .6, null); o.detune.value = c; o.disconnect(); o.connect(lp); }));
+}
+function timp(t, f, v, dest) { const o = osc('sine', f, t, 1, gainEnv(t, .004, .9, v, dest)); o.frequency.exponentialRampToValueAtTime(f * .92, t + .5); noise(t, .1, 300, v * .4, 'lowpass', 1, .002, dest); }
+
+/* 鋼琴感的撥弦（表演配樂用） */
+function piano(t, f, v, dest) {
+  osc('triangle', f, t, 1.8, gainEnv(t, .004, 1.7, v, dest));
+  osc('sine', f * 2, t, 1, gainEnv(t, .003, .9, v * .35, dest));
+}
+function tick(t, v, dest) { noise(t, .018, 4200, v, 'highpass', 1, .001, dest); }
+
+/* =========================================================
+   ③ 角色
+   ========================================================= */
+const wx = { cloud: 0, rain: 0, fog: 0, wind: .2 };
+const SKIN = ['skin1', 'skin1', 'skin2', 'skin3'], HAIR = ['hair1', 'hair1', 'hair2', 'hair3'];
+const ALLP = [];
+/* 人物：腳底在 (0,0)，s=1 時身高約 100。冷調城市服裝，平塗色塊＋一層側光陰影（CGI 風） */
+function person(parent, o) {
+  const kind = o.kind || 'suit', s = (o.s || 1) * (kind === 'kid' ? .64 : 1);
+  const P = { kind, s, dir: o.dir || 1, x: o.x || 0, y: o.y || 0, ph: rand(0, 6.28), sp: o.sp || rand(24, 32), act: 0, actT: 0, lane: o.lane, jump: 0, stop: 0 };
+  P.g = el('g', { class: 'clickable' }, parent);
+  el('ellipse', { cx: 0, cy: f1(o.y > 450 ? 0 : 0), rx: f1(16 * s), ry: f1(3.6 * s), fill: 'url(#shadowGrad)' }, P.g);
+  P.b = el('g', {}, P.g);
+  const b = P.b;
+  const skin = pick(SKIN), hair = pick(HAIR);
+  let top, pants;
+  if (kind === 'suit' || kind === 'phone') { top = pick(['c1', 'c2', 'c1', 'c4']); pants = top === 'c4' ? 'c2' : top; }
+  else if (kind === 'trench') { top = 'c3'; pants = 'c2'; }
+  else if (kind === 'jogger') { top = 'c8'; pants = 'c2'; }
+  else if (kind === 'police') { top = 'police'; pants = 'police'; }
+  else if (kind === 'photog') { top = 'c7'; pants = 'c2'; }
+  else { top = pick(['c6', 'c7', 'c5', 'c4', 'c8']); pants = pick(['c3', 'c2', 'c1']); }
+  if (o.top) top = o.top;
+  const ty = kind === 'sit' ? 16 : 0;
+  // 雨傘（下雨時才出現）
+  P.umb = el('g', { display: 'none' }, b);
+  el('path', { d: 'M5 -58V-122', stroke: '#222', 'stroke-width': 1.6 }, P.umb);
+  el('path', { d: 'M-24 -114Q5 -146 34 -114Q27 -118 20 -114Q13 -118 5 -114Q-3 -118 -10 -114Q-17 -118 -24 -114Z', class: 'f-' + pick(['shoe', 'c1', 'c2', 'c4']) }, P.umb);
+  // 後手臂、腿
+  P.armB = el('path', { d: `M-2 ${-76 + ty}L-5 ${-50 + ty}`, class: 's-' + top, 'stroke-width': 5.5, 'stroke-linecap': 'round', opacity: .85 }, b);
+  if (kind === 'sit') {
+    el('path', { d: 'M0 -30H15V-4', class: 's-' + pants, 'stroke-width': 7, 'stroke-linecap': 'round', 'stroke-linejoin': 'round' }, b);
+    el('path', { d: 'M14 -2H21', class: 's-shoe', 'stroke-width': 4, 'stroke-linecap': 'round' }, b);
+  } else {
+    const legCls = kind === 'jogger' ? 'skin2' : pants;
+    P.legB = el('path', { d: 'M0 -44V-2', class: 's-' + legCls, 'stroke-width': 7, 'stroke-linecap': 'round', opacity: .8 }, b);
+    P.legA = el('path', { d: 'M0 -44V-2', class: 's-' + legCls, 'stroke-width': 7, 'stroke-linecap': 'round' }, b);
+    P.shoeA = el('circle', { cx: 0, cy: -2, r: 3.6, class: 'f-shoe' }, b);
+    P.shoeB = el('circle', { cx: 0, cy: -2, r: 3.6, class: 'f-shoe', opacity: .8 }, b);
+  }
+  // 身體
+  let body;
+  if (kind === 'trench') body = `M-10 -80Q-14 -52 -16 -28H16Q14 -52 10 -80Q0 -85 -10 -80Z`;
+  else if (kind === 'jogger') body = `M-9 -80Q-12 -62 -9 -46H9Q12 -62 9 -80Q0 -84 -9 -80Z`;
+  else body = `M-10 ${-80 + ty}Q-13 ${-60 + ty} -11 ${-40 + ty}H11Q13 ${-60 + ty} 10 ${-80 + ty}Q0 ${-85 + ty} -10 ${-80 + ty}Z`;
+  el('path', { d: body, class: 'f-' + top }, b);
+  if (kind === 'jogger') el('path', { d: 'M-9 -47H9L10 -38H-10Z', class: 'f-c2' }, b);
+  if (kind === 'suit' || kind === 'phone') {
+    el('path', { d: 'M-4 -82L0 -66L4 -82Z', class: 'f-c5' }, b);
+    el('path', { d: 'M-1.2 -80L0 -66L1.2 -80Z', class: 'f-' + pick(['c4', 'c6', 'c8']) }, b);
+  }
+  if (kind === 'trench') el('rect', { x: -14, y: -56, width: 28, height: 3, class: 'f-c2', opacity: .5 }, b);
+  if (kind === 'police') { el('circle', { cx: -4, cy: -72, r: 2, fill: '#d9b75a' }, b); el('rect', { x: -11, y: -46, width: 22, height: 3, class: 'f-shoe' }, b); }
+  if (kind === 'tour' || kind === 'kid') if (Math.random() < .5) el('rect', { x: -16, y: -77, width: 7, height: 20, rx: 2, class: 'f-' + pick(['c8', 'c4', 'c1', 'c2']) }, b);
+  el('path', { d: body, fill: 'url(#figShade)' }, b);
+  // 頭與頭髮／帽子
+  el('circle', { cx: 0, cy: -91 + ty, r: 8, class: 'f-' + skin }, b);
+  if (kind === 'police') el('path', { d: 'M-9 -95Q-8 -103 1 -103Q10 -102 9 -95ZM-4 -95H13L12 -93H-4Z', class: 'f-police' }, b);
+  else if (kind === 'jogger') { el('path', { d: `M-8 -92Q-8 -100 0 -100Q8 -100 8 -93Q2 -96 -8 -92Z`, class: 'f-' + hair }, b); el('rect', { x: -8, y: -96, width: 16, height: 2.6, fill: '#e8e6e0' }, b); }
+  else el('path', { d: `M-8 ${-92 + ty}Q-8 ${-100 + ty} 0 ${-100 + ty}Q8 ${-100 + ty} 8 ${-93 + ty}Q2 ${-96 + ty} -8 ${-92 + ty}Z`, class: 'f-' + hair }, b);
+  // 前手臂＋手上的東西
+  P.armF = el('path', { d: `M2 ${-76 + ty}L5 ${-50 + ty}`, class: 's-' + top, 'stroke-width': 5.5, 'stroke-linecap': 'round' }, b);
+  if (kind === 'suit' && Math.random() < .7) { P.case = el('rect', { x: 0, y: -50, width: 14, height: 10, rx: 1.5, class: 'f-shoe' }, b); P.fixArm = 1; }
+  if (kind === 'phone') {
+    P.armF.setAttribute('d', 'M2 -76L9 -62L5 -88');
+    P.phone = el('rect', { x: 2, y: -93, width: 4, height: 8, rx: 1, fill: 'var(--phone)' }, b);
+    P.fixArm = 2;
+  }
+  if (kind === 'tour') { P.cam = el('rect', { x: 3, y: -66, width: 8, height: 6, rx: 1, class: 'f-shoe' }, b); }
+  if (kind === 'photog') {
+    el('path', { d: 'M22 -2L28 -58M34 -2L28 -58M28 -2L28 -58', stroke: '#2a2c30', 'stroke-width': 1.8 }, b);
+    el('rect', { x: 22, y: -66, width: 14, height: 9, rx: 1.5, fill: '#1a1b1e' }, b);
+    el('circle', { cx: 37, cy: -61.5, r: 3, fill: '#3a3d44' }, b);
+    P.armF.setAttribute('d', 'M2 -76L14 -66L22 -62'); P.fixArm = 3;
+  }
+  if (kind === 'police') P.fixArm = 0;
+  P.flash = el('circle', { cx: 30, cy: -62, r: 14, fill: '#fff', opacity: 0 }, b);
+  ALLP.push(P);
+  P.place = () => P.g.setAttribute('transform', `translate(${f1(P.x)} ${f1(P.y - P.jump)}) scale(${P.dir * P.s} ${P.s})`);
+  P.place();
+  return P;
+}
+function poseWalk(P, dt, run) {
+  const amp = P.kind === 'jogger' ? .75 : .42, L = 44;
+  const a = Math.sin(P.ph) * amp;
+  const lift = P.kind === 'jogger' ? Math.abs(Math.sin(P.ph)) * 6 : 0;
+  const ax = Math.sin(a) * L, ay = -L + Math.cos(a) * L;
+  P.legA.setAttribute('d', `M0 -44L${f1(ax)} ${f1(ay - 2)}`); P.shoeA.setAttribute('cx', f1(ax + 1)); P.shoeA.setAttribute('cy', f1(ay - 2));
+  P.legB.setAttribute('d', `M0 -44L${f1(-ax)} ${f1(ay - 2)}`); P.shoeB.setAttribute('cx', f1(-ax + 1)); P.shoeB.setAttribute('cy', f1(ay - 2));
+  P.armB.setAttribute('d', `M-2 -76L${f1(-2 + Math.sin(a) * 26)} ${f1(-76 + Math.cos(a) * 26)}`);
+  if (!P.fixArm) P.armF.setAttribute('d', `M2 -76L${f1(2 - Math.sin(a) * 26)} ${f1(-76 + Math.cos(a) * 26)}`);
+  P.b.setAttribute('transform', `translate(0 ${f1(-lift - Math.abs(Math.cos(P.ph)) * 1.2)})`);
+}
+function poseStand(P) {
+  P.legA.setAttribute('d', 'M2 -44L3 -2'); P.legB.setAttribute('d', 'M-2 -44L-3 -2');
+  P.shoeA.setAttribute('cx', 4); P.shoeA.setAttribute('cy', -2); P.shoeB.setAttribute('cx', -2); P.shoeB.setAttribute('cy', -2);
+  P.armB.setAttribute('d', 'M-2 -76L-5 -50');
+  if (!P.fixArm) P.armF.setAttribute('d', 'M2 -76L5 -50');
+  P.b.setAttribute('transform', '');
+}
+
+/* —— 步道的三條人行道：每條單一方向，跟隨前人保持距離，不會穿過彼此 —— */
+const SPAN = 1760, X0 = -80;
+const lanes = [
+  { y: 548, s: .74, dir: 1, ppl: [] },
+  { y: 590, s: .9, dir: -1, ppl: [] },
+  { y: 403, s: .24, dir: -1, ppl: [] }     // 倒影池對岸的小人（遠景）
+];
+function buildPeople() {
+  const far = el('g', { id: 'farPeople' });
+  $('cam').insertBefore(far, $('pool'));
+  const A = $('actors');
+  const laneB = el('g', {}, A);      // 近的那條要畫在上面
+  const laneA = el('g', {}, A);
+  A.insertBefore(laneA, laneB);
+  const plan = [
+    [0, ['suit', 'tour', 'phone', 'trench', 'kid', 'tour', 'suit']],
+    [1, ['jogger', 'suit', 'tour', 'trench', 'phone', 'tour']],
+    [2, ['tour', 'suit', 'tour', 'trench', 'tour', 'suit', 'tour', 'tour']]
+  ];
+  plan.forEach(([li, kinds]) => {
+    const L = lanes[li], par = li === 0 ? laneA : li === 1 ? laneB : far;
+    kinds.forEach((k, i) => {
+      const P = person(par, { kind: k, s: L.s * rand(.94, 1.06), dir: L.dir, x: X0 + (i + rand(.1, .6)) * SPAN / kinds.length, y: L.y + rand(-3, 3), lane: li, sp: k === 'jogger' ? 70 : rand(22, 30) });
+      if (li === 2) P.sp *= .32;
+      L.ppl.push(P);
+      if (li < 2) P.g.addEventListener('click', e => { e.stopPropagation(); reactPerson(P); });
+    });
+  });
+}
+function laneGap(P, L) {
+  // 同一條道上，前方最近那個人的距離
+  let best = 1e9;
+  for (const Q of L.ppl) {
+    if (Q === P) continue;
+    let d = (Q.x - P.x) * P.dir; if (d < 0) d += SPAN;
+    if (d < best) best = d;
+  }
+  return best;
+}
+let crowdMul = 1;
+function stepPeople(dt) {
+  lanes.forEach(L => {
+    const need = 46 * L.s * 1.15 / .74 * .74;
+    L.ppl.forEach(P => {
+      if (P.actT > 0) { P.actT -= dt; if (P.actT <= 0) { P.act = 0; P.stop = 0; } }
+      if (P.jump > 0 || P.jv) { P.jv = (P.jv || 0) - 900 * dt * P.s; P.jump = Math.max(0, P.jump + P.jv * dt); if (P.jump === 0) P.jv = 0; }
+      let v = P.stop ? 0 : P.sp * crowdMul;
+      const gap = laneGap(P, L);
+      const g0 = (P.kind === 'jogger' ? 70 : 52) * L.s;
+      if (gap < g0) v *= clamp((gap - g0 * .55) / (g0 * .45), 0, 1);
+      P.x += v * P.dir * dt;
+      if (P.x > X0 + SPAN) P.x -= SPAN; if (P.x < X0) P.x += SPAN;
+      if (L !== lanes[2]) {
+        if (v > 1) { P.ph += dt * v / (P.kind === 'jogger' ? 9 : 7.5) / P.s * .74; poseWalk(P, dt); }
+        else if (!P.stood) poseStand(P);
+        P.stood = v <= 1;
+      } else if (v > .5) { P.ph += dt * 5; P.b.setAttribute('transform', `translate(0 ${f1(-Math.abs(Math.cos(P.ph)) * 3)})`); }
+      P.place();
+    });
+  });
+}
+function reactPerson(P) {
+  const sx = P.x, sy = P.y - 110 * P.s;
+  P.stop = 1; P.actT = 2.4; poseStand(P);
+  if (P.kind === 'tour') { cameraFlash(P); bubble(sx, sy, '咔嚓！拍下圓頂與櫻花'); }
+  else if (P.kind === 'phone') { bubble(sx, sy, '「表決改到今晚，先別聲張。」'); sfx(t => { osc('sine', 1320, t, .08, gainEnv(t, .003, .08, .04)); osc('sine', 1760, t + .1, .1, gainEnv(t + .1, .003, .1, .04)); }); }
+  else if (P.kind === 'suit') { bubble(sx, sy, '看了一眼錶，加快腳步'); P.actT = .6; setTimeout(() => { P.sp *= 1.25; setTimeout(() => P.sp /= 1.25, 4000); }, 600); sfx(t => tick(t, .12) || tick(t + .5, .1)); }
+  else if (P.kind === 'trench') { bubble(sx, sy, '豎起衣領，望向圓頂'); sfx(windGust); }
+  else if (P.kind === 'jogger') { P.jv = 260 * P.s; bubble(sx, sy, '早安！晨跑繞國家廣場一圈'); P.actT = .8; }
+  else if (P.kind === 'kid') { P.jv = 300 * P.s; bubble(sx, sy, '哇，好多櫻花！'); sfx(twinkle); petalBurst(P.x, P.y - 160, 14); }
+}
+function cameraFlash(P) {
+  sfx(shutter);
+  const f = P.flash; let k = 1;
+  const fade = () => { k -= .12; f.setAttribute('opacity', Math.max(0, k).toFixed(2)); if (k > 0) requestAnimationFrame(fade); };
+  fade();
+}
+
+/* —— 靜態角色：國會警察、腳架攝影師、長椅上的情侶 —— */
+let police, photog, couple = [];
+function buildStatics() {
+  const g = $('statics');
+  police = person(g, { kind: 'police', s: .72, dir: -1, x: 1268, y: 528 }); poseStand(police);
+  photog = person(g, { kind: 'photog', s: .72, dir: 1, x: 300, y: 530 }); poseStand(photog);
+  // 長椅
+  const bx = 960, by = 516;
+  frag(g, `<g><ellipse cx="${bx}" cy="${by + 2}" rx="56" ry="5" fill="url(#shadowGrad)"/>
+    <rect x="${bx - 46}" y="${by - 30}" width="92" height="4" class="f-c2"/><rect x="${bx - 46}" y="${by - 22}" width="92" height="4" class="f-c2"/>
+    <rect x="${bx - 48}" y="${by - 16}" width="96" height="5" class="f-c2"/>
+    <path d="M${bx - 40} ${by - 11}V${by} M${bx + 40} ${by - 11}V${by}" class="s-shoe" stroke-width="3"/></g>`);
+  couple = [person(g, { kind: 'sit', s: .7, dir: 1, x: bx - 18, y: by - 2, top: 'c4' }), person(g, { kind: 'sit', s: .7, dir: 1, x: bx + 6, y: by - 2, top: 'c1' })];
+  couple.forEach(P => P.g.addEventListener('click', e => { e.stopPropagation(); heart(bx - 6, by - 90); bubble(bx, by - 110, '長椅上一起賞櫻'); sfx(chime); }));
+  police.g.addEventListener('click', e => {
+    e.stopPropagation(); bubble(police.x, police.y - 95, '國會警察正在巡邏');
+    police.armF.setAttribute('d', 'M2 -76L10 -88L4 -96'); police.fixArm = 1;
+    setTimeout(() => { police.fixArm = 0; poseStand(police); }, 1400);
+    sfx(t => { tick(t, .1); tick(t + .18, .08); });
+  });
+  photog.g.addEventListener('click', e => { e.stopPropagation(); cameraFlash(photog); bubble(photog.x + 20, photog.y - 100, '長曝光：拍水面上的圓頂倒影'); });
+}
+function heart(x, y) {
+  const h = el('path', { d: `M${x} ${y + 8}C${x - 14} ${y - 2} ${x - 8} ${y - 14} ${x} ${y - 6}C${x + 8} ${y - 14} ${x + 14} ${y - 2} ${x} ${y + 8}Z`, fill: '#e2667a' }, $('bubbles'));
+  let k = 0; const up = () => { k += .02; h.setAttribute('transform', `translate(0 ${f1(-k * 40)})`); h.setAttribute('opacity', f1(1 - k)); if (k < 1) requestAnimationFrame(up); else h.remove(); }; up();
+}
+
+/* —— 第一街的車流（白天是小小的車影，夜裡與縮時攝影時拉成車燈光軌） —— */
+const cars = [];
+function buildCars() {
+  const defs = svg.querySelector('defs');
+  frag(defs, `<linearGradient id="trailR" x1="0" x2="1"><stop offset="0" style="stop-color:var(--tailR)" stop-opacity="0"/><stop offset="1" style="stop-color:var(--tailR)" stop-opacity=".9"/></linearGradient>`);
+  frag(defs, `<linearGradient id="trailW" x1="0" x2="1"><stop offset="0" style="stop-color:var(--headW)" stop-opacity="0"/><stop offset="1" style="stop-color:var(--headW)" stop-opacity=".9"/></linearGradient>`);
+  const g = $('street');
+  [[377, -1, 'trailW'], [382, 1, 'trailR']].forEach(([y, dir, tg], li) => {
+    for (let i = 0; i < 5; i++) {
+      const c = { x: X0 + i * SPAN / 5 + rand(0, 120), y, dir, sp: rand(55, 75), li };
+      c.g = el('g', { class: 'clickable' }, g);
+      // 光軌（車子後方），朝向依行進方向
+      c.trail = el('rect', { x: -230, y: -2.6, width: 230, height: 3.4, fill: `url(#${li ? 'trailR' : 'trailW'})`, opacity: 0, class: 'noHit' }, c.g);
+      const col = pick(['c2', 'c1', 'c5', 'c6', 'shoe', 'c4']);
+      el('path', { d: 'M-15 0V-4Q-14 -6 -10 -6L-7 -9H5L9 -6Q15 -5.5 15 -3V0Z', class: 'f-' + col }, c.g);
+      el('path', { d: 'M-6 -8.2H4L7 -6H-8Z', class: 'f-glass' }, c.g);
+      c.head = el('circle', { cx: 14.5, cy: -3, r: 1.6, fill: 'var(--headW)', opacity: 0 }, c.g);
+      c.tail = el('circle', { cx: -14.5, cy: -3, r: 1.4, fill: 'var(--tailR)', opacity: 0 }, c.g);
+      c.g.addEventListener('click', e => { e.stopPropagation(); c.boost = 2.5; sfx(t => noise(t, .9, 700, .12, 'bandpass', .6, .2)); bubble(c.x, 340, '第一街上的車流'); });
+      cars.push(c);
+    }
+  });
+}
+let carMul = 1, trailK = 0, lightK = 0;
+function stepCars(dt) {
+  for (const c of cars) {
+    let ahead = 1e9;
+    for (const d of cars) if (d !== c && d.li === c.li) { let g = (d.x - c.x) * c.dir; if (g < 0) g += SPAN; if (g < ahead) ahead = g; }
+    if (c.boost) c.boost = Math.max(0, c.boost - dt);
+    let v = c.sp * carMul * (c.boost ? 2 : 1);
+    if (ahead < 44) v *= clamp((ahead - 26) / 18, 0, 1);
+    c.x += v * c.dir * dt;
+    if (c.x > X0 + SPAN) c.x -= SPAN; if (c.x < X0) c.x += SPAN;
+    c.g.setAttribute('transform', `translate(${f1(c.x)} ${c.y}) scale(${c.dir} 1)`);
+  }
+}
+function carLights() {
+  cars.forEach(c => {
+    c.head.setAttribute('opacity', f1(lightK)); c.tail.setAttribute('opacity', f1(lightK));
+    c.trail.setAttribute('opacity', f1(trailK));
+  });
+}
+
+/* —— 倒影池上的綠頭鴨 —— */
+const ducks = [];
+function buildDucks() {
+  const g = $('ducks');
+  for (let i = 0; i < 5; i++) {
+    const male = i % 2 === 0;
+    const d = { x: rand(200, 1400), y: rand(426, 474), dir: Math.random() < .5 ? 1 : -1, sp: rand(8, 16), ph: rand(0, 6), dive: 0, male };
+    d.g = el('g', { class: 'clickable' }, g);
+    d.b = el('g', {}, d.g);
+    const s = lerp(.7, 1.05, (d.y - 426) / 48);
+    d.s = s;
+    frag(d.b, `<ellipse cx="0" cy="0" rx="12" ry="2" fill="#000" opacity=".18"/>
+      <path d="M-12 -2Q-13 -9 -4 -9Q6 -10 9 -4Q11 0 6 0H-10Z" class="f-${male ? 'duckB' : 'duckB'}"/>
+      <path d="M-11 -3Q-2 -8 6 -4" class="s-c5" stroke-width="1" opacity="${male ? .6 : .2}"/>
+      <path d="M-12 -3L-16 -7L-11 -6Z" class="f-${male ? 'shoe' : 'duckB'}"/>
+      <path d="M5 -6Q6 -14 10 -14Q14 -14 13 -9Q12 -6 9 -5Z" class="f-${male ? 'duckG' : 'duckB'}"/>
+      ${male ? '<path d="M5 -6.5Q9 -5 10 -6" stroke="#f2f0ea" stroke-width="1.2" fill="none"/>' : ''}
+      <path d="M13 -11L18 -10L13 -9Z" fill="${male ? '#d9b23a' : '#c27a3a'}"/>`);
+    d.g.addEventListener('click', e => {
+      e.stopPropagation(); if (d.dive) return;
+      d.dive = 1.6; sfx(t => { quack(t); splash(t + .5, .5); }); ripple(d.x, d.y, 1.4);
+      bubble(d.x, d.y - 40, d.male ? '綠頭鴨（公）：潛下去找吃的' : '綠頭鴨（母）：呱呱！');
+    });
+    ducks.push(d);
+  }
+}
+function stepDucks(dt, time) {
+  for (const d of ducks) {
+    if (d.dive > 0) {
+      d.dive -= dt;
+      const k = d.dive > 1.2 ? (1.6 - d.dive) / .4 : d.dive < .3 ? d.dive / .3 : 1;
+      d.b.setAttribute('transform', `rotate(${f1(k * -50)}) translate(0 ${f1(k * 6)})`);
+      d.b.setAttribute('opacity', f1(1 - k * .95));
+      if (d.dive <= 0) { d.b.setAttribute('transform', ''); d.b.setAttribute('opacity', 1); ripple(d.x, d.y, 1); }
+    }
+    d.x += d.sp * d.dir * dt;
+    if (d.x < 120 && d.dir < 0 || d.x > 1480 && d.dir > 0 || Math.random() < dt * .02) d.dir *= -1;
+    // 互相避讓
+    for (const e of ducks) if (e !== d && Math.abs(e.y - d.y) < 8 && Math.abs(e.x - d.x) < 30 && (e.x - d.x) * d.dir > 0) d.dir *= -1;
+    d.ph += dt * 2;
+    d.g.setAttribute('transform', `translate(${f1(d.x)} ${f1(d.y + Math.sin(d.ph) * .6)}) scale(${f1(d.dir * d.s)} ${f1(d.s)})`);
+    if (Math.random() < dt * .7) ripple(d.x - d.dir * 10 * d.s, d.y, .45);
+  }
+}
+
+/* —— 漣漪 —— */
+const ripples = [];
+function buildRipples() { for (let i = 0; i < 34; i++) { const e = el('ellipse', { cx: 0, cy: 0, rx: 1, ry: 1, fill: 'none', stroke: '#f2f4f6', 'stroke-width': 1, opacity: 0 }, $('poolFx')); ripples.push({ el: e, life: 0 }); } }
+let ripI = 0;
+function ripple(x, y, sz = 1) {
+  if (y < 406 || y > 482) return;
+  const r = ripples[ripI++ % ripples.length]; r.x = x; r.y = y; r.life = 1; r.sz = sz * lerp(.6, 1.2, (y - 404) / 80);
+}
+function stepRipples(dt) {
+  for (const r of ripples) {
+    if (r.life <= 0) continue;
+    r.life -= dt * .8;
+    const k = 1 - r.life, R = 4 + k * 26 * r.sz;
+    r.el.setAttribute('cx', f1(r.x)); r.el.setAttribute('cy', f1(r.y)); r.el.setAttribute('rx', f1(R)); r.el.setAttribute('ry', f1(R * .22));
+    r.el.setAttribute('opacity', f1(Math.max(0, r.life) * .55));
+  }
+}
+
+/* —— 海鷗：池緣站著幾隻，點了會飛起來繞一圈再落到別處；天上也有兩隻在盤旋 —— */
+const gulls = [];
+function buildGulls() {
+  const g = $('gulls');
+  for (let i = 0; i < 6; i++) {
+    let hx = rand(180, 1420); if (hx > 870 && hx < 1050) hx += 200;
+    const G = { home: hx, y: 488, x: 0, st: 'stand', t: 0, ph: rand(0, 6), dir: Math.random() < .5 ? 1 : -1, sky: i >= 4 };
+    G.x = G.home;
+    G.g = el('g', { class: 'clickable' }, g);
+    G.stand = el('g', {}, G.g);
+    frag(G.stand, `<ellipse cx="0" cy="0" rx="8" ry="1.6" fill="#000" opacity=".2"/>
+      <path d="M-1 -1V-6M2 -1V-6" stroke="#c8a040" stroke-width="1"/>
+      <path d="M-10 -9Q-6 -14 3 -13Q9 -12 9 -8Q8 -5 2 -5H-6Z" class="f-gull"/>
+      <path d="M-11 -10Q-4 -13 4 -11Q0 -8 -8 -8Z" class="f-gullW"/>
+      <path d="M-13 -10L-9 -9L-12 -8Z" fill="#222"/>
+      <circle cx="7" cy="-14" r="4" class="f-gull"/><circle cx="8.4" cy="-14.6" r=".8" fill="#222"/>
+      <path d="M10.6 -14L14.5 -13.2L10.6 -12.4Z" fill="#e0b84a"/>`);
+    G.fly = el('path', { d: '', class: 's-gull', 'stroke-width': 2.6, 'stroke-linecap': 'round', 'stroke-linejoin': 'round', display: 'none' }, G.g);
+    if (G.sky) { G.st = 'sky'; G.x = rand(300, 1300); G.y = rand(140, 220); G.cx = G.x; G.cy = G.y; G.R = rand(60, 120); }
+    G.g.addEventListener('click', e => {
+      e.stopPropagation();
+      if (G.st === 'stand') { G.st = 'up'; G.t = 0; G.ox = G.x; sfx(flutter); bubble(G.x, G.y - 50, '環嘴鷗：飛起來繞一圈'); }
+      else sfx(flutter);
+    });
+    gulls.push(G);
+  }
+}
+function wingPath(ph, s = 1) {
+  const f = Math.sin(ph) * 7 * s;
+  return `M${f1(-14 * s)} ${f1(-f * .4)}Q${f1(-7 * s)} ${f1(-6 * s - f)} 0 0Q${f1(7 * s)} ${f1(-6 * s - f)} ${f1(14 * s)} ${f1(-f * .4)}`;
+}
+function stepGulls(dt) {
+  for (const G of gulls) {
+    G.ph += dt * (G.st === 'stand' ? 1 : 9);
+    if (G.st === 'stand') {
+      if (Math.random() < dt * .08) G.dir *= -1;
+      G.g.setAttribute('transform', `translate(${f1(G.x)} ${G.y}) scale(${G.dir * .9} .9)`);
+      continue;
+    }
+    G.stand.setAttribute('display', 'none'); G.fly.setAttribute('display', '');
+    if (G.st === 'sky') {
+      G.t += dt * .25 * (1 + wx.wind);
+      G.x = G.cx + Math.cos(G.t) * G.R * 1.8; G.y = G.cy + Math.sin(G.t) * G.R * .35;
+      G.fly.setAttribute('d', wingPath(G.ph * .5, .8));
+    } else if (G.st === 'up') {
+      G.t += dt / 6;
+      const a = G.t * Math.PI * 2;
+      G.x = G.ox + Math.sin(a) * 260 * (G.ox > 800 ? -1 : 1); G.y = 488 - Math.sin(Math.min(1, G.t) * Math.PI) * 230;
+      G.fly.setAttribute('d', wingPath(G.ph));
+      if (G.t >= 1) { G.st = 'stand'; G.x = clamp(G.ox + rand(-200, 200), 160, 1440); if (G.x > 870 && G.x < 1050) G.x -= 200; G.y = 488; G.stand.setAttribute('display', ''); G.fly.setAttribute('display', 'none'); }
+    }
+    G.g.setAttribute('transform', `translate(${f1(G.x)} ${f1(G.y)})`);
+  }
+}
+
+/* —— 飛機（偶爾劃過高空，夜裡有閃燈）與雁群 —— */
+let plane = null;
+function buildPlane() {
+  const g = $('plane'); g.removeAttribute('class');
+  plane = { x: 1800, y: 70, t: 20, g: el('g', { class: 'clickable' }, g) };
+  frag(plane.g, `<rect x="-26" y="-8" width="52" height="16" fill="transparent"/>
+    <path d="M-20 0Q-20 -2 -16 -2H14Q19 -1.6 20 0Q19 1.6 14 2H-16Q-20 2 -20 0Z" fill="#6a7280"/>
+    <path d="M-2 0L-10 9H-6L6 0ZM-2 0L-8 -6H-5L4 0ZM14 -1L19 -7H21L19 0Z" fill="#5a6270"/>`);
+  plane.red = el('circle', { cx: -2, cy: 8, r: 1.4, fill: 'var(--redlight)', opacity: 0 }, plane.g);
+  plane.wht = el('circle', { cx: 20, cy: -6, r: 1.2, fill: '#fff', opacity: 0 }, plane.g);
+  plane.g.addEventListener('click', e => { e.stopPropagation(); sfx(jet); bubble(plane.x, plane.y + 30, '準備降落雷根國家機場的客機'); });
+}
+function stepPlane(dt, night, time) {
+  if (plane.t > 0) { plane.t -= dt; plane.g.setAttribute('display', 'none'); return; }
+  plane.g.setAttribute('display', '');
+  plane.x -= 38 * dt; plane.y += 2 * dt;
+  const blink = (time % 1.2) < .12 ? 1 : 0;
+  plane.red.setAttribute('opacity', f1(night * blink)); plane.wht.setAttribute('opacity', f1(night * ((time + .6) % 1.2 < .1 ? 1 : 0)));
+  plane.g.setAttribute('transform', `translate(${f1(plane.x)} ${f1(plane.y)}) scale(-.8 .8)`);
+  if (plane.x < -60) { plane.x = 1680; plane.y = rand(50, 110); plane.t = rand(25, 45); }
+}
+let geese = null;
+function launchGeese() {
+  if (geese) return;
+  const g = el('g', { class: 'noHit' }, $('sky2'));
+  const birds = [];
+  for (let i = 0; i < 9; i++) { const k = Math.ceil(i / 2) * (i % 2 ? 1 : -1); birds.push({ dx: Math.abs(k) * 22, dy: k * 12, ph: rand(0, 6), el: el('path', { stroke: '#2a2c34', 'stroke-width': 2.2, fill: 'none', 'stroke-linecap': 'round' }, g) }); }
+  geese = { g, birds, x: -120, y: rand(110, 160) };
+  sfx(honk);
+  bubble(400, 120, '加拿大雁排成 V 字飛過');
+}
+function stepGeese(dt) {
+  if (!geese) return;
+  geese.x += 70 * dt; geese.y -= 4 * dt;
+  geese.birds.forEach(b => { b.ph += dt * 7; b.el.setAttribute('d', wingPath(b.ph, .7)); b.el.setAttribute('transform', `translate(${f1(geese.x - b.dx)} ${f1(geese.y + b.dy)})`); });
+  if (geese.x > 1900) { geese.g.remove(); geese = null; }
+}
+let meteor = null;
+function launchMeteor() {
+  const m = el('path', { d: 'M0 0L-90 -30', stroke: 'url(#streakG)', 'stroke-width': 2, opacity: 0, class: 'noHit' }, $('sky2'));
+  meteor = { el: m, x: rand(400, 1200), y: rand(40, 100), t: 0 };
+  sfx(twinkle);
+}
+function stepMeteor(dt) {
+  if (!meteor) return;
+  meteor.t += dt;
+  const k = meteor.t / 1;
+  meteor.el.setAttribute('transform', `translate(${f1(meteor.x + k * 260)} ${f1(meteor.y + k * 90)})`);
+  meteor.el.setAttribute('opacity', f1(Math.sin(Math.min(1, k) * Math.PI)));
+  if (k >= 1) { meteor.el.remove(); meteor = null; }
+}
+
+/* —— 櫻花瓣：平常從樹冠零星飄落；櫻吹雪時滿天飛 —— */
+const petals = [];
+function buildPetals() {
+  const g = $('petals');
+  for (let i = 0; i < 560; i++) {
+    const e = el('ellipse', { cx: 0, cy: 0, rx: 3, ry: 1.8, class: 'f-petal', opacity: 0 }, g);
+    petals.push({ el: e, life: 0 });
+  }
+}
+let petI = 0;
+function spawnPetal(x, y, vx, vy, big) {
+  const p = petals[petI++ % petals.length];
+  Object.assign(p, { x, y, vx, vy, life: 1, dur: rand(4, 8), rot: rand(0, 360), vr: rand(-200, 200), s: big ? rand(1.5, 2.8) : rand(.8, 1.4), ph: rand(0, 6) });
+}
+function canopyPoint() {
+  const T = pick(fgTrees), p = pick(T.pts);
+  return [p[0] + rand(-p[2], p[2]) * .8 + mouse.px * -18, p[1] + rand(-p[2], p[2]) * .6];
+}
+function petalBurst(x, y, n) { for (let i = 0; i < n; i++) spawnPetal(x + rand(-30, 30), y + rand(-20, 20), rand(-60, 60), rand(-60, 10)); }
+let windNow = .2;
+function stepPetals(dt, time) {
+  for (const p of petals) {
+    if (p.life <= 0) continue;
+    p.life -= dt / p.dur;
+    p.ph += dt * 3;
+    p.vx += (-windNow * 55 - p.vx * .4) * dt + Math.sin(p.ph) * 14 * dt;
+    p.vy += (24 - showWind * 46 - p.vy * .8) * dt + Math.cos(p.ph * 1.3) * 10 * dt;
+    p.x += p.vx * dt; p.y += p.vy * dt; p.rot += p.vr * dt;
+    if (p.y > 404 && p.y < 482 && p.vy > 0 && Math.random() < dt * 2) { ripple(p.x, p.y, .25); p.vy = 0; p.vx *= .2; p.float = 1; }
+    if (p.float) { p.vy = 0; p.vx = -6; }
+    if (p.y > 610 || p.x < -40 || p.x > 1640) p.life = 0;
+    const o = Math.min(1, p.life * 4) * .95;
+    p.el.setAttribute('transform', `translate(${f1(p.x)} ${f1(p.y)}) rotate(${p.rot | 0}) scale(${f1(p.s * (.55 + Math.abs(Math.sin(p.ph)) * .45))} ${f1(p.s)})`);
+    p.el.setAttribute('opacity', p.life > 0 ? f1(o) : 0);
+    if (p.life <= 0) p.float = 0;
+  }
+}
+
+/* —— 雨、霧 —— */
+const drops = [];
+function buildWeather() {
+  for (let i = 0; i < 110; i++) drops.push({ el: el('path', { d: 'M0 0l-4 18', stroke: 'var(--rainc)', 'stroke-width': 1.3, opacity: 0 }, $('rain')), x: rand(0, 1600), y: rand(0, 600), sp: rand(700, 950) });
+  const fg = $('fog');
+  $('cam').insertBefore(fg, $('bank'));   // 霧只蓋遠景，前景的人和樹保持清楚
+  el('rect', { x: 0, y: 0, width: 1600, height: 404, fill: '#c8d0d6', opacity: .42 }, fg);
+  [[230, 220, .9], [330, 150, 1], [400, 100, .6]].forEach(([y, h, o], i) => el('rect', { class: 'fogBand', x: -600, y, width: 2800, height: h, fill: 'url(#fogG)', opacity: o }, fg));
+}
+let rainOn = false;
+function stepRain(dt) {
+  const on = wx.rain > .05;
+  if (!on && !rainOn) return;
+  rainOn = on;
+  for (const d of drops) {
+    d.y += d.sp * dt; d.x -= d.sp * dt * .2;
+    if (d.y > 600) { if (Math.random() < .25) ripple(d.x, rand(408, 480), .35); d.y = rand(-60, 0); d.x = rand(0, 1700); }
+    d.el.setAttribute('transform', `translate(${f1(d.x)} ${f1(d.y)})`);
+    d.el.setAttribute('opacity', on ? f1(wx.rain * .75) : 0);
+  }
+}
+
+/* =========================================================
+   ④ 動畫：時間、光線、天氣
+   ========================================================= */
+const T = { t: .76, auto: true };
+const WX = [['晴', 0, 0, 0, .2], ['陰天', .85, 0, 0, .45], ['春雨', 1, 1, .2, .55], ['晨霧', .45, 0, 1, .08]];
+let wxIdx = 0;
+const wxT = { cloud: 0, rain: 0, fog: 0, wind: .2 };
+function setWeather(i) {
+  wxIdx = i % WX.length;
+  const w = WX[wxIdx];
+  Object.assign(wxT, { cloud: w[1], rain: w[2], fog: w[3], wind: w[4] });
+  $('btnWeather').textContent = '天氣：' + w[0];
+  setTimeout(ambience, 50);
+}
+const bell = (t, c, w) => 1 - smooth(0, w, Math.min(Math.abs(t - c), 1 - Math.abs(t - c)));
+let lastT = -1, lastWx = -1, F = { day: 1, dusk: 0, night: 0, morn: 0 };
+const GRAY_D = hex('#8a939b'), GRAY_N = hex('#161a22'), GRAY_K = hex('#8a7a78');
+const skyKeys = { skyT: 1, skyB: 1, cloudL: .6, cloudD: .5 };
+const litOn = [];
+function buildLitWins() {
+  litWins.forEach(g => {
+    const lg = el('g', { fill: 'var(--lantern)', opacity: 0, class: 'noHit' });
+    g.parentNode.insertBefore(lg, g.nextSibling);
+    [...g.children].forEach(r => { if (srand() < .45) lg.appendChild(r.cloneNode()); });
+    litOn.push(lg);
+  });
+}
+let lanternWant = 1;
+function applyTime(force) {
+  const t = ((T.t % 1) + 1) % 1;
+  const wsum = wx.cloud + wx.rain * 2 + wx.fog * 3;
+  if (!force && Math.abs(t - lastT) < .0012 && Math.abs(wsum - lastWx) < .01) return;
+  lastT = t; lastWx = wsum;
+  const day = smooth(.265, .325, t) * (1 - smooth(.79, .85, t));
+  const dusk = Math.max(bell(t, .30, .045), bell(t, .785, .07)) * (1 - wx.cloud * .6);
+  const night = 1 - smooth(.25, .31, t) * (1 - smooth(.8, .865, t));
+  const morn = bell(t, .335, .09) * (1 - wx.cloud);
+  F = { day, dusk, night, morn };
+  for (const k in PAIRS) {
+    const P = PAIRS[k];
+    let c = mix(P.n, P.d, day);
+    if (P.k) c = mix(c, P.k, dusk * .9);
+    if (skyKeys[k]) { const gr = mix(mix(GRAY_N, GRAY_D, day), GRAY_K, dusk * .3); c = mix(c, gr, wx.cloud * skyKeys[k] * .85); }
+    root.style.setProperty('--' + k, rgba(c));
+  }
+  // 太陽：早上從國會大廈後方升起（逆光剪影）；下午在觀眾背後，看不到
+  const p = clamp((t - .28) / .2, 0, 1);
+  const sunO = smooth(.285, .305, t) * (1 - smooth(.44, .48, t)) * (1 - wx.cloud * .9);
+  $('sun').setAttribute('transform', `translate(${f1(lerp(1010, 880, p))} ${f1(lerp(352, 20, Math.sqrt(p)))})`);
+  $('sun').setAttribute('opacity', f1(sunO));
+  $('sun').style.display = sunO < .02 ? 'none' : '';
+  $('backlit').setAttribute('opacity', f1(morn * .5 * (1 - smooth(.4, .46, t))));
+  // 月亮與星星
+  const nt = ((t - .82 + 1) % 1) / .45;
+  const moonO = night * (1 - wx.cloud * .9) * (nt <= 1 ? 1 : 0);
+  $('moon').setAttribute('transform', `translate(${f1(lerp(1400, 260, clamp(nt, 0, 1)))} ${f1(230 - Math.sin(clamp(nt, 0, 1) * Math.PI) * 170)})`);
+  $('moon').setAttribute('opacity', f1(moonO)); $('moon').style.display = moonO < .02 ? 'none' : '';
+  starK = night * (1 - wx.cloud);
+  // 夜間：泛光、亮窗、燈籠亭、路燈、車燈
+  $('capFlood').setAttribute('opacity', f1(night * .95));
+  $('floodRefl').setAttribute('opacity', f1(night * .8 * (1 - wx.rain * .4)));
+  const winK = smooth(.3, .9, night);
+  litOn.forEach(g => g.setAttribute('opacity', f1(winK * .85)));
+  const hr = t * 24;
+  $('lantern').setAttribute('opacity', f1(winK * lanternWant * (hr < 4 || hr > 17 ? 1 : 0)));
+  const lampK = smooth(.25, .55, night);
+  lamps.forEach(L => { L.on.setAttribute('opacity', f1(lampK)); L.glow.setAttribute('opacity', f1(lampK * (1 - wx.fog * .3))); });
+  lightK = smooth(.2, .6, night) + (show.on && show.kind === 'lapse' ? .4 : 0);
+  $('wxDim').setAttribute('opacity', f1(wx.cloud * .16 + wx.rain * .1));
+  $('fog').setAttribute('opacity', f1(wx.fog));
+  $('reflect').setAttribute('opacity', f1(.5 * (1 - wx.rain * .5) * (1 - wx.fog * .4)));
+  // 時鐘
+  const h = Math.floor(hr), m = Math.floor((hr - h) * 60);
+  $('clock').textContent = `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`;
+  if (!dragging) $('timeRange').value = Math.round(t * 1000);
+}
+let starK = 0;
+function stepSky(dt, time) {
+  const mul = show.on && show.kind === 'lapse' ? 22 : 1;
+  for (const c of clouds) {
+    c.x -= c.sp * dt * mul * (1 + wx.wind * 1.5) * .35;
+    if (c.x < -c.w - 100) { c.x = 1600 + c.w * .6 + rand(0, 200); }
+    const vis = smooth(c.th - .15, c.th + .1, wx.cloud * .9 + .3);
+    if (Math.abs((c.vis || 0) - vis) > .02) { c.vis = vis; c.g.setAttribute('opacity', f1(vis)); }
+    c.g.setAttribute('transform', `translate(${f1(c.x + mouse.px * (c.near ? -14 : -6))} ${f1(c.y + mouse.py * -4)})`);
+  }
+  if (starK > .02) stars.forEach(s => { s.tw += dt * s.sp; s.el.setAttribute('opacity', f1(starK * (.5 + .5 * Math.sin(s.tw)))); });
+  else if (stars[0].el.getAttribute('opacity') !== '0') stars.forEach(s => s.el.setAttribute('opacity', 0));
+  // 波光
+  for (const s of shimmer) {
+    s.x += s.sp * dt; if (s.x > 1650) s.x = -100; if (s.x < -100) s.x = 1650;
+    s.ph += dt * 2;
+    s.el.setAttribute('transform', `translate(${f1(s.x)} ${f1(s.y)})`);
+  }
+  // 霧帶飄移
+  if (wx.fog > .02) document.querySelectorAll('#fog .fogBand').forEach((b, i) => b.setAttribute('transform', `translate(${f1(Math.sin(time * .05 + i) * 160)} 0)`));
+}
+function stepTrees(dt, time) {
+  const storm = show.on && show.kind === 'storm' ? showWind : 0;
+  for (const tr of fgTrees) {
+    tr.shake = Math.max(0, tr.shake - dt * .8);
+    const w = wx.wind * 1.2 + storm * 4 + tr.shake * 5;
+    const a = Math.sin(time * (1.1 + storm) + tr.ph) * w + w * .6;
+    tr.sway.setAttribute('transform', `rotate(${f1(a * (tr.cx < 800 ? -1 : 1) * .5)} ${tr.cx} ${tr.baseY})`);
+  }
+}
+
+/* =========================================================
+   ④ 表演：縮時攝影、櫻吹雪
+   ========================================================= */
+const show = { on: false, kind: '', t: 0, t0: 0 };
+let showWind = 0;
+function busy() { bubble(800, 300, '表演進行中，請稍候'); }
+function startShow(kind, quiet) {
+  if (show.on) { if (!quiet) busy(); return; }
+  Object.assign(show, { on: true, kind, t: 0, t0: T.t });
+  $(kind === 'lapse' ? 'btnLapse' : 'btnStorm').classList.add('on');
+  if (kind === 'lapse') { playLapse(); if (!quiet) bubble(800, 200, '縮時攝影：國會山莊的一天'); }
+  else { playStorm(); bubble(800, 200, '一陣強風，櫻吹雪！'); sfx(windGust); }
+}
+function endShow() {
+  $('btnLapse').classList.remove('on'); $('btnStorm').classList.remove('on');
+  if (show.kind === 'lapse') { T.t = show.t0; carMul = 1; crowdMul = 1; trailK = 0; }
+  showWind = 0;
+  show.on = false; show.kind = '';
+  applyTime(true);
+}
+function stepShow(dt) {
+  if (!show.on) return;
+  show.t += dt;
+  if (show.kind === 'lapse') {
+    const p = smooth(0, 18, show.t);
+    T.t = (show.t0 + p) % 1;
+    const sp = Math.sin(Math.min(1, show.t / 18) * Math.PI);
+    carMul = 1 + sp * 5; crowdMul = 1 + sp * 2.2;
+    trailK = sp * clamp(.35 + F.night * .65, 0, 1);
+    if (show.t > 19.5) endShow();
+  } else {
+    showWind = smooth(0, 1.5, show.t) * (1 - smooth(13, 17, show.t));
+    windNow = .2 + showWind * 3.5;
+    const n = Math.round(dt * 60 * showWind * (show.t < 4 ? 9 : 5) + Math.random() * .5);
+    for (let i = 0; i < n; i++) {
+      if (Math.random() < .7) { const [x, y] = canopyPoint(); spawnPetal(x, y, rand(-260, -120), rand(-120, 40), Math.random() < .5); }
+      else spawnPetal(rand(1600, 1700), rand(60, 560), rand(-320, -180), rand(-80, 40), Math.random() < .5);
+    }
+    if (show.t > 19) endShow();
+  }
+}
+function playLapse() {
+  if (!audioOK() || (inPicks && !pickAudio)) return;
+  duckSfx(20); duckMusic(20);
+  const g = newTrack('mus'), t0 = actx.currentTime + .05;
+  g.gain.setValueAtTime(1, t0); g.gain.setValueAtTime(1, t0 + 17.6); g.gain.linearRampToValueAtTime(0, t0 + 20);
+  const beat = 60 / 112, bar = beat * 4;
+  // D 小調：Dm–Dm–B♭–B♭–Gm–A–Dm–Dm（低音弦樂撥奏的固定音型＋時鐘滴答）
+  const prog = [[50, [62, 65, 69]], [50, [62, 65, 69]], [46, [62, 65, 70]], [46, [62, 65, 70]], [43, [62, 67, 70]], [45, [61, 64, 69]], [50, [62, 65, 69]], [50, [57, 62, 65]]];
+  prog.forEach(([root, ch], b) => {
+    const tb = t0 + b * bar;
+    if (tb > t0 + 18) return;
+    pad(tb, ch.map(n => n - 12), bar * .95, .035 + b * .004, g);
+    horn(tb, hz(root - 12), bar * .9, .05, g);
+    for (let i = 0; i < 8; i++) {
+      const n = [0, 7, 12, 7, 15, 7, 12, 7][i] + root;
+      koto(tb + i * beat / 2, hz(n), .05 + (b > 3 ? .02 : 0), g);
+    }
+    for (let i = 0; i < 4; i++) tick(tb + i * beat, .05, g);
+    if (b >= 2) timp(tb, hz(root - 12), .16, g);
+    if (b >= 4) timp(tb + beat * 2, hz(root - 12), .12, g);
+    if (b >= 5) [0, 3].forEach(q => piano(tb + q * beat, hz(ch[2] + 12), .04, g));
+  });
+  const te = t0 + 8 * bar;
+  timp(Math.min(te, t0 + 17.2), hz(38), .22, g);
+  pad(Math.min(te, t0 + 17.2), [50, 57, 62, 65], 2.4, .05, g);
+}
+function playStorm() {
+  if (!audioOK()) return;
+  duckSfx(20); duckMusic(20);
+  const g = newTrack('mus'), t0 = actx.currentTime + .05;
+  g.gain.setValueAtTime(1, t0); g.gain.setValueAtTime(1, t0 + 17.8); g.gain.linearRampToValueAtTime(0, t0 + 20.5);
+  const bar = 2;
+  // 6/8 鋼琴琶音＋弦樂：Dm–B♭–F–C–Dm–B♭–C–F（最後解決到大調，雲開見日）
+  const prog = [[50, [62, 65, 69]], [46, [62, 65, 70]], [41, [60, 65, 69]], [48, [60, 64, 67]], [50, [62, 65, 69]], [46, [62, 65, 70]], [48, [60, 64, 67]], [41, [60, 65, 69, 72]]];
+  const mel = [[81, 77], [77, 74], [72, 77], [76, 79], [81, 84], [82, 77], [79, 76], [77]];
+  prog.forEach(([root, ch], b) => {
+    const tb = t0 + b * bar;
+    pad(tb, ch, bar * .98, .03 + (b >= 4 ? .015 : 0), g);
+    const arp = [root, root + 7, ch[0] + 12, ch[1] + 12, ch[2] + 12, ch[1] + 12];
+    arp.forEach((n, i) => piano(tb + i * bar / 6, hz(n - 12 + (i ? 12 : 0)), .045, g));
+    mel[b].forEach((n, i) => piano(tb + i * bar / 2, hz(n), .07, g));
+    if (b === 4) timp(tb, hz(38), .14, g);
+  });
+  piano(t0 + 16, hz(89), .05, g); piano(t0 + 16.4, hz(84), .05, g);
+  pad(t0 + 16, [53, 60, 65, 69, 72], 3.5, .05, g);
+}
+
+/* =========================================================
+   ⑤ 互動
+   ========================================================= */
+const bubbleList = [];
+function bubble(x, y, txt, sec = 3.2) {
+  const g = el('g', { class: 'bubble' }, $('bubbles'));
+  const w = Math.max(80, [...txt].length * 15.5 + 30);
+  x = clamp(x, w / 2 + 10, 1590 - w / 2); y = clamp(y, 30, 560);
+  el('rect', { x: f1(x - w / 2), y: y - 18, width: f1(w), height: 36, rx: 12 }, g);
+  const tx = el('text', { x: f1(x), y: y + 1 }, g); tx.textContent = txt;
+  bubbleList.push(g);
+  if (bubbleList.length > 2) bubbleList.shift().remove();
+  setTimeout(() => { g.style.transition = 'opacity .5s'; g.style.opacity = 0; setTimeout(() => { g.remove(); const i = bubbleList.indexOf(g); if (i >= 0) bubbleList.splice(i, 1); }, 520); }, sec * 1000);
+}
+function act(node, fn) {
+  node.addEventListener('click', e => { e.stopPropagation(); fn(e); });
+  node.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); fn(e); } });
+}
+function svgPt(e) {
+  const r = svg.getBoundingClientRect();
+  return [(e.clientX - r.left) / r.width * 1600, (e.clientY - r.top) / r.height * 600];
+}
+const mouse = { x: 800, y: 300, px: 0, py: 0, tx: 0, ty: 0, lastPetal: 0, lastRip: 0 };
+let dragging = false;
+function bindAll() {
+  act($('capBody'), () => { bubble(800, 230, '左翼是參議院，右翼是眾議院'); sfx(chime); });
+  act($('dome'), () => {
+    if (F.night > .5) { lanternWant = lanternWant ? 0 : 1; applyTime(true); bubble(800, 30, lanternWant ? '燈籠亭亮起：國會夜間仍在開會' : '燈籠亭熄燈：今晚休會'); sfx(twinkle); }
+    else { bubble(800, 60, '鑄鐵打造的圓頂，1866 年完工'); sfx(chime); }
+  });
+  act($('freedom'), () => { bubble(800, 30, '圓頂上的自由女神像，1863 年安上'); sfx(twinkle); glint(); });
+  act($('grant'), () => { bubble(800, 230, '格蘭特將軍紀念像，1922 年揭幕'); sfx(t => { horn(t, hz(50), 1.2, .05); horn(t + .02, hz(57), 1.2, .04); }); });
+  act($('poolHit'), e => { const [x, y] = svgPt(e); ripple(x, y, 1.3); sfx(plop); if (Math.random() < .4) bubble(x, 380, '國會倒影池，1971 年完工'); });
+  fgTrees.forEach(tr => act(tr.g, () => {
+    tr.shake = 1; sfx(rustle);
+    for (let i = 0; i < 30; i++) { const p = pick(tr.pts); spawnPetal(p[0] + rand(-p[2], p[2]), p[1] + rand(-p[2], p[2]) * .5, rand(-60, 40), rand(-30, 30), Math.random() < .3); }
+    bubble(tr.cx < 800 ? 320 : 1280, 120, '華盛頓的櫻花源自 1912 年東京市的贈禮');
+  }));
+  act($('sun'), () => { T.t = .9; applyTime(true); sfx(twinkle); });
+  act($('moon'), () => { T.t = .54; applyTime(true); sfx(chime); });
+  act($('skyHit'), () => { if (F.night > .5) { if (!meteor) launchMeteor(); } else launchGeese(); });
+
+  $('btnLapse').addEventListener('click', () => startShow('lapse'));
+  $('btnStorm').addEventListener('click', () => startShow('storm'));
+  $('btnWeather').addEventListener('click', () => setWeather(wxIdx + 1));
+  $('btnDay').addEventListener('click', () => { if (show.on && show.kind === 'lapse') return busy(); T.t = .54; applyTime(true); });
+  $('btnNight').addEventListener('click', () => { if (show.on && show.kind === 'lapse') return busy(); T.t = .9; applyTime(true); });
+  $('btnAuto').addEventListener('click', () => { T.auto = !T.auto; $('btnAuto').setAttribute('aria-pressed', T.auto); });
+  $('btnSound').addEventListener('click', () => {
+    soundOn = !soundOn;
+    $('btnSound').setAttribute('aria-pressed', soundOn); $('btnSound').textContent = soundOn ? '🔊 聲音：開' : '🔇 聲音：關';
+    if (actx) {
+      master.gain.cancelScheduledValues(actx.currentTime);
+      master.gain.setValueAtTime(soundOn ? .5 : 0, actx.currentTime);
+      if (!soundOn) { [musNode, sfxNode].forEach(n => { try { n && n.disconnect(); } catch (e) {} }); musNode = sfxNode = null; }
+    }
+    if (!soundOn) { try { window.sceneMusic && window.sceneMusic.stop(); } catch (e) {} }
+    ambience();
+  });
+  const tr = $('timeRange');
+  tr.addEventListener('input', () => { if (show.on && show.kind === 'lapse') return; dragging = true; T.t = tr.value / 1000; applyTime(true); });
+  tr.addEventListener('change', () => { dragging = false; });
+
+  const gesture = () => { userGesture = true; ensureAudio(); if (actx && actx.state === 'suspended') actx.resume().then(ambience); else ambience(); };
+  window.addEventListener('pointerdown', gesture, { capture: true });
+  window.addEventListener('keydown', e => { if (e.key === 'Tab') document.body.classList.add('kbd'); gesture(); }, { capture: true });
+  window.addEventListener('pointerdown', () => document.body.classList.remove('kbd'));
+
+  svg.addEventListener('pointermove', e => {
+    const [x, y] = svgPt(e);
+    mouse.x = x; mouse.y = y;
+    if (!reduced) { mouse.tx = (x / 1600 - .5) * 2; mouse.ty = (y / 600 - .5) * 2; }
+    const now = performance.now();
+    if (y > 406 && y < 482 && now - mouse.lastRip > 140) { mouse.lastRip = now; ripple(x, y, .6); }
+    if (now - mouse.lastPetal > 90) {
+      for (const T2 of fgTrees) for (const p of T2.pts) if (Math.hypot(p[0] - x, p[1] - y) < p[2]) { mouse.lastPetal = now; spawnPetal(x, y, rand(-40, 40), rand(-10, 20)); break; }
+    }
+  });
+  svg.addEventListener('pointerleave', () => { mouse.tx = 0; mouse.ty = 0; });
+  mq.addEventListener && mq.addEventListener('change', e => { reduced = e.matches; });
+}
+function glint() {
+  const s = el('g', { class: 'noHit' }, $('dome'));
+  frag(s, `<path d="M800 8L802 22L816 24L802 26L800 40L798 26L784 24L798 22Z" fill="#fff"/>`);
+  let k = 0; const f = () => { k += .04; s.setAttribute('opacity', f1(Math.sin(Math.min(1, k) * Math.PI))); if (k < 1) requestAnimationFrame(f); else s.remove(); }; f();
+}
+
+/* —— 主迴圈 —— */
+let lastNow = 0, time = 0, umbOn = false;
+function step(dt) {
+  time += dt;
+  if (T.auto && !show.on && !dragging) T.t = (T.t + dt / DAY_SEC) % 1;
+  stepShow(dt);
+  for (const k in wx) wx[k] += (wxT[k] - wx[k]) * Math.min(1, dt * .8);
+  if (!(show.on && show.kind === 'storm')) windNow += (wx.wind - windNow) * Math.min(1, dt);
+  applyTime(false);
+  mouse.px += (mouse.tx - mouse.px) * Math.min(1, dt * 3); mouse.py += (mouse.ty - mouse.py) * Math.min(1, dt * 3);
+  $('hill').setAttribute('transform', `translate(${f1(mouse.px * -4)} 0)`);
+  $('fgTrees').setAttribute('transform', `translate(${f1(mouse.px * -18)} ${f1(mouse.py * -4)})`);
+  stepSky(dt, time);
+  stepTrees(dt, time);
+  stepPeople(dt);
+  stepCars(dt);
+  carLights();
+  stepDucks(dt, time);
+  stepGulls(dt);
+  stepPlane(dt, F.night, time);
+  stepGeese(dt);
+  stepMeteor(dt);
+  stepRipples(dt);
+  stepRain(dt);
+  const umb = wx.rain > .4;
+  if (umb !== umbOn) { umbOn = umb; ALLP.forEach(P => { if (P.kind !== 'sit' && P.kind !== 'photog' && P.kind !== 'police' && P.kind !== 'jogger') P.umb.setAttribute('display', umb ? '' : 'none'); }); }
+  // 平常零星飄落的花瓣
+  if (Math.random() < dt * (1.4 + windNow * 3)) { const [x, y] = canopyPoint(); spawnPetal(x, y, rand(-30, 10), rand(0, 20)); }
+  stepPetals(dt, time);
+  // 表演氛圍：約 2.5 秒淡入淡出，鏡頭小幅推近（約 3%）
+  const want = show.on && show.t < 18 ? 1 : 0;
+  cineK += clamp(want - cineK, -dt * .4, dt * .4);
+  setCine(cineK);
+  const z = 1 + (reduced ? 0 : .03) * smooth(0, 1, cineK);
+  $('cam').setAttribute('transform', z > 1.0005 ? `translate(800 300) scale(${z.toFixed(4)}) translate(-800 -300)` : '');
+}
+let cineK = 0, cineW = -1;
+function setCine(k) {
+  if (Math.abs(k - cineW) < .004 && k > 0 && k < 1) return;
+  if (k === cineW) return;
+  cineW = k; $('cineFx').setAttribute('opacity', k.toFixed(3));
+}
+function loop(now) {
+  const dt = Math.min(.05, (now - (lastNow || now)) / 1000); lastNow = now;
+  step(dt);
+  requestAnimationFrame(loop);
+}
+
+/* —— 網站「作者精選」播放區（純插畫版放在 iframe 裡）：預設播放縮時攝影、結束後重複輪播；
+   不會自己出聲，網站的「播放配樂」開關直接控制縮時攝影自己的音樂 —— */
+const inPicks = (() => { let top = true; try { top = window.top === window; } catch (e) { top = false; } return !!document.getElementById('pure-art') && !top; })();
+let pickAudio = false;
+function useCtx(c) {
+  actx = c; noiseBuf = null; rainGain = windGain = null; musNode = sfxNode = null;
+  master = actx.createGain(); master.gain.value = soundOn ? .5 : 0;
+  const comp = actx.createDynamicsCompressor(); comp.threshold.value = -16; comp.ratio.value = 3;
+  master.connect(comp); comp.connect(actx.destination);
+  sfxBus = actx.createGain(); sfxBus.connect(master);
+  musBus = actx.createGain(); musBus.gain.value = .64; /* 音樂軌音量 ×0.64（2026-11-24 兩次各調降 20%） */ musBus.connect(master);
+}
+function setupPicks() {
+  if (!inPicks) return;
+  setTimeout(() => startShow('lapse', true), 800);
+  setInterval(() => { if (!show.on) startShow('lapse', true); }, 3000);
+  window.sceneMusic = {
+    playing: false,
+    start(c) {
+      if (this.playing) return; this.playing = true; pickAudio = true; userGesture = true;
+      if (c && c !== actx) useCtx(c); else ensureAudio();
+      if (actx && actx.state !== 'running') actx.resume();
+      if (show.on && show.kind === 'lapse' && show.t < 4) playLapse();
+    },
+    stop() {
+      this.playing = false; pickAudio = false;
+      if (musNode && actx) { musNode.gain.setTargetAtTime(0, actx.currentTime, .15); const n = musNode; musNode = null; setTimeout(() => { try { n.disconnect(); } catch (e) {} }, 800); }
+    },
+    duck() {}
+  };
+}
+
+/* —— 開始 —— */
+function init() {
+  makeGrain();
+  drawSky();
+  drawCapitol();
+  drawStreet();
+  drawSquare();
+  drawPool();
+  drawBank();
+  drawTree(110, 500, -1);
+  drawTree(1490, 500, 1);
+  buildLitWins();
+  buildCars();
+  buildDucks();
+  buildRipples();
+  buildPeople();
+  buildStatics();
+  buildGulls();
+  buildPlane();
+  buildPetals();
+  buildWeather();
+  bindAll();
+  if (reduced) { T.auto = false; $('btnAuto').setAttribute('aria-pressed', 'false'); }
+  setWeather(0);
+  for (const k in wx) wx[k] = wxT[k];
+  applyTime(true);
+  for (let i = 0; i < 40; i++) { const [x, y] = canopyPoint(); spawnPetal(x, y + rand(0, 200), rand(-30, 10), rand(0, 20)); }
+  step(1 / 60);
+  requestAnimationFrame(loop);
+  setupPicks();
+}
+init();
+/* ShowStop：再按一下優雅停止表演（共用模組在上方 <script id="showstop">） */
+ShowStop.init({
+  on: () => show.on && show.kind,
+  btn: { lapse: 'btnLapse', storm: 'btnStorm' },
+  save: () => ({ t: T.t, auto: T.auto }),
+  stop: () => endShow(),
+  restore: s => { T.t = s.t; T.auto = s.auto; applyTime(true); }
+});
+/* /ShowStop */
+})();
+</script>
+</body>
+</html>

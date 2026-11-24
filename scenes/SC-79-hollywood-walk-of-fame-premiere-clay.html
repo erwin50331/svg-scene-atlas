@@ -1,0 +1,2466 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>好萊塢星光大道的紅毯首映</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<style>
+/* =========================================================
+   SC-79 好萊塢星光大道的紅毯首映｜黏土定格動畫風
+   地點：美國加州洛杉磯，好萊塢大道（Hollywood Blvd）上的星光大道（Walk of Fame）。
+         背後是聖塔莫尼卡山的好萊塢山丘：左邊山脊上是格里斐斯天文台，
+         右邊李山（Mount Lee）山坡上是一排白色大字招牌（只做空白板塊剪影，不重現字樣）。
+         中間的裝飾藝術風電影宮殿、禮車、紅毯、看板都是原創設計，不用任何片廠商標、明星或電影角色。
+   版面：單一寬版 SVG 舞台（1600×600）＋下方控制列
+   風格重點：所有物件像手捏黏土——圓潤邊緣、左上打光的高光、右下厚度陰影、
+            整片指紋紋理；太陽、月亮、雲朵用細線吊著；動畫一律「逐格」更新（每秒 12 格）。
+   ---------------------------------------------------------
+   【色票 token】所有顏色集中在這裡，改這裡就能換色。
+   成對的色票寫成 --d-名稱（白天）／--n-名稱（夜晚），部分另有 --k-名稱（晨昏）。
+   JS 會依時間內插輸出成 --名稱，並自動產生 .f-名稱（填色）、.s-名稱（描邊）class。
+   ========================================================= */
+:root{
+  color-scheme: light;
+
+  /* —— 天空（黏土背板）：洛杉磯的乾爽藍天、粉橘色夕陽 —— */
+  --d-sky-top:#6fb2e8;  --k-sky-top:#6a58a8;  --n-sky-top:#10123a;
+  --d-sky-mid:#a6d3f2;  --k-sky-mid:#f2867a;  --n-sky-mid:#211f56;
+  --d-sky-low:#f7e8c8;  --k-sky-low:#ffbe6a;  --n-sky-low:#46346c;
+  --d-cloud:#fffaf0;    --k-cloud:#ffd4bc;    --n-cloud:#3c3a6c;
+  --d-cloud-sh:#dcdfe8; --n-cloud-sh:#2a2752;
+  --d-thread:#8a8f99;   --n-thread:#5a5878;    /* 吊太陽、雲朵的細線 */
+  --d-overcast:#c4c6cc; --n-overcast:#34334e;  /* 海霧（June Gloom 的低雲） */
+
+  /* —— 好萊塢山丘：乾燥的灌木叢山坡（chaparral） —— */
+  --d-hill-far:#c8b28a; --k-hill-far:#c08a7a; --n-hill-far:#2c2a50;
+  --d-hill-mid:#a9a06e; --k-hill-mid:#9a7a6a; --n-hill-mid:#252a46;
+  --d-brush:#748048;    --n-brush:#1a2434;
+  --d-sign:#fbf8f0;     --n-sign:#9a9cb8;      /* 山坡上的白色大字招牌板塊 */
+  --d-sign-leg:#8a8a8a; --n-sign-leg:#3a3a54;
+  --d-obs:#f2ecdc;      --n-obs:#7a7a98;       /* 格里斐斯天文台 */
+  --d-obs-dome:#5a6670; --n-obs-dome:#2a3044;
+
+  /* —— 大道兩旁的建築 —— */
+  --d-bldg-1:#f2b6a6;   --n-bldg-1:#5a3a52;    /* 粉紅灰泥（西班牙殖民風） */
+  --d-bldg-2:#e8d2a6;   --n-bldg-2:#4e4658;    /* 沙色裝飾藝術大樓 */
+  --d-bldg-3:#a6d8c2;   --n-bldg-3:#2e4a52;    /* 薄荷綠 */
+  --d-bldg-4:#bc644c;   --n-bldg-4:#4a2a34;    /* 紅磚老旅館 */
+  --d-bldg-5:#f4e6cc;   --n-bldg-5:#5a5062;    /* 奶油色拱廊 */
+  --d-roof-tile:#c8603a; --n-roof-tile:#4a2a2c;
+  --d-trim:#fff6e6;     --n-trim:#8a8090;
+  --d-win:#4f6282;      --n-win:#262236;       /* 窗：壓進去的凹洞，夜晚另有燈光層 */
+  --d-awning-1:#2a9a8a; --n-awning-1:#1e3a40;
+  --d-awning-2:#e8504a; --n-awning-2:#4a2028;
+
+  /* —— 主角：裝飾藝術風電影宮殿（原創） —— */
+  --d-theater:#f4e0bc;  --n-theater:#6e5a6a;
+  --d-theater-sh:#d8bf92; --n-theater-sh:#4a3e52;
+  --d-gold:#e2b03e;     --n-gold:#b08a34;
+  --d-theater-red:#c8283a; --n-theater-red:#6a1a2c;
+  --d-marquee:#fbf6ea;  --n-marquee:#efe6d2;
+  --d-door:#6a3a2a;     --n-door:#2a1a1e;
+  --d-glass:#8ab8d0;    --n-glass:#ffd890;
+
+  /* —— 地面：店前廣場、柏油路、星光大道的水磨石人行道 —— */
+  --d-forecourt:#dccfba; --n-forecourt:#4a4458;
+  --d-asphalt:#6a6670;  --n-asphalt:#2a2836;
+  --d-asphalt-2:#5e5a64; --n-asphalt-2:#232130;
+  --d-lane-y:#f0c040;   --n-lane-y:#8a7030;
+  --d-lane-w:#f4f0e8;   --n-lane-w:#6a6878;
+  --d-curb:#d8d2c4;     --n-curb:#5a5870;
+  --d-terrazzo:#57505a; --n-terrazzo:#28232e;  /* 星光大道的炭灰水磨石 */
+  --d-terrazzo-sq:#3e373f; --n-terrazzo-sq:#1c1822;
+  --d-star-pink:#ec9088; --n-star-pink:#8a4e5e; /* 珊瑚粉紅的星星 */
+  --d-brass:#d8a840;    --n-brass:#9a7a36;     /* 星星的黃銅鑲邊 */
+  --d-palm-trunk:#a89478; --n-palm-trunk:#3a3442;
+  --d-palm-frond:#5a8c3e; --n-palm-frond:#1e3028;
+  --d-palm-dry:#b8a060; --n-palm-dry:#3a3630;
+  --d-shadow:#3a280f38; --n-shadow:#00000066;  /* 角色腳下的影子 */
+
+  /* —— 不隨日夜變化的顏色 —— */
+  --sun:#ffc93c;  --sun-hi:#fff0a8;  --moon:#f4efd8;  --star:#fff6d6;
+  --lamp:#ffcf6a; --bulb:#ffe7a0; --bulb-off:#c8b890;
+  --beam:#fff6d8;                                    /* 探照燈光柱 */
+  --neon-pink:#ff5a9a; --neon-blue:#4ad8ff; --neon-red:#ff3b3b; --neon-gold:#ffd23a;
+  --carpet:#c8142e; --carpet-dk:#8a0c20; --carpet-hi:#e8404e;  /* 紅毯 */
+  --velvet:#a8102a; --stanchion:#e0b040;                      /* 紅絨繩與黃銅柱 */
+  --backdrop:#1e2240; --backdrop-2:#e0b040;                     /* 拍照背板 */
+  --flash:#ffffff;
+  --confetti-1:#ffd23a; --confetti-2:#ff5a9a; --confetti-3:#4ad8ff; --confetti-4:#fff6e0; --confetti-5:#7ad86a;
+  --clay-shade:#2a1408;  --veil:#0c0e2c; --haze:#e8a860;
+  --rainc:#b8d0ea; --dust:#d8b884;
+  --parrot:#4ab84a; --parrot-hi:#d8f06a; --parrot-red:#e03a3a;
+  --hawk:#7a4e2e;
+
+  /* —— 角色、車輛 —— */
+  --skin-1:#f2cba6; --skin-2:#d8a476; --skin-3:#b07a52; --skin-4:#7a4e32;
+  --hair-1:#1e181c; --hair-2:#5a3a22; --hair-3:#e8c870; --hair-4:#c8c0b8; --hair-5:#a8442a;
+  --coat-1:#e8445a; --coat-2:#2f6dba; --coat-3:#f2b43a; --coat-4:#3f9a7a; --coat-5:#8a5ab0;
+  --coat-6:#f27a9a; --coat-7:#3a3a48; --coat-8:#f6f0e4; --coat-9:#2ab8b0; --coat-10:#f28a3a;
+  --pants-1:#2a3450; --pants-2:#6a5a4a; --pants-3:#4a7ab8; --pants-4:#d8c8a0;
+  --tux:#1a1a24; --gown:#d81e4a; --gown-hi:#ff7a9a; --gown-2:#e8c25a;
+  --car-1:#e8e4dc; --car-2:#2a5aa8; --car-3:#c8283a; --car-4:#3a3a44; --car-5:#7ac8d8; --car-6:#f2c43a;
+  --limo:#16161e; --bus-1:#f28a2a; --bus-2:#f6f0e4; --tour:#2a8ac8; --police:#16161e;
+  --tire:#24222a; --hub:#c8c8d0; --headl:#fff4c8; --taill:#ff3a3a;
+
+  /* —— 頁面介面 —— */
+  --page-bg:#f7ede0; --page-fg:#2a1e2a; --page-muted:#7a6a62;
+  --ui-surface:#fff8ee; --ui-line:#e6d2b8; --ui-accent:#c8142e;
+  --ui-hot-2:#b8862a;
+
+  --font-ui:"Noto Sans TC","PingFang TC","Microsoft JhengHei",system-ui,sans-serif;
+  --font-sign:"Arial Black","Helvetica Neue",Arial,sans-serif;
+}
+
+/* ---------- 頁面版面 ---------- */
+html,body{background:var(--page-bg);color:var(--page-fg);margin:0}
+body{font-family:var(--font-ui)}
+.wrap{max-width:1600px;margin:0 auto;padding-block:20px 32px;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));
+  display:flex;flex-direction:column;gap:14px}
+.stage{margin:0;border:1px solid var(--ui-line);border-radius:14px;overflow:hidden;background:#1c1830;line-height:0;box-shadow:0 2px 12px #0000002a}
+#scene{display:block;width:100%;height:auto;touch-action:manipulation;user-select:none;-webkit-user-select:none}
+.panel{display:flex;flex-wrap:wrap;align-items:center;gap:10px 12px;background:var(--ui-surface);
+  border:1px solid var(--ui-line);border-radius:12px;padding:10px 14px}
+.panel button{font:500 14px/1 var(--font-ui);color:var(--page-fg);background:transparent;border:1px solid var(--ui-line);
+  border-radius:999px;padding:9px 14px;cursor:pointer}
+.panel button:hover{border-color:var(--ui-accent)}
+.panel button[aria-pressed="true"]{background:var(--page-fg);border-color:var(--page-fg);color:var(--ui-surface);font-weight:700}
+.panel button.big{border-color:var(--ui-accent);color:#fff;background:var(--ui-accent);font-weight:700}
+.panel button.big.alt{border-color:var(--ui-hot-2);background:var(--ui-hot-2)}
+.panel button.big.on{background:var(--neon-gold);border-color:var(--neon-gold);color:var(--page-fg)}
+.panel button:focus-visible,.panel input:focus-visible{outline:2px solid var(--ui-accent);outline-offset:3px}
+/* 畫面內可點物件：滑鼠點不顯示外框，用鍵盤 Tab 時才顯示 */
+#scene [tabindex]:focus{outline:none}
+body.kbd #scene [tabindex]:focus{outline:2px solid var(--ui-accent);outline-offset:3px}
+.timebox{display:flex;align-items:center;gap:10px;margin-left:auto;font-size:14px;color:var(--page-muted)}
+.timebox input{width:min(240px,40vw);accent-color:var(--ui-accent)}
+.clock{font:700 15px/1 ui-monospace,Menlo,Consolas,monospace;color:var(--page-fg);min-width:3.2em}
+.hint{margin:0;padding-left:1.2em;color:var(--page-muted);font-size:14px;line-height:1.75}
+.hint b{color:var(--page-fg)}
+
+/* ---------- SVG 內的樣式 ---------- */
+#scene .clickable,#scene [role="button"]{cursor:pointer}
+#scene .noHit{pointer-events:none}
+#scene .bubble text{fill:#2a1e2a;font:700 15px var(--font-ui);text-anchor:middle;dominant-baseline:central}
+#scene .signTxt{font-family:var(--font-sign);font-weight:900;text-anchor:middle;dominant-baseline:central}
+</style>
+</head>
+<body>
+<main class="wrap">
+
+  <figure class="stage">
+  <!-- =====================================================
+       【場景】SVG 主畫布 1600×600，由後往前：
+       天空（吊線太陽、月亮、雲）→ 探照燈光柱 → 好萊塢山丘（天文台、大字招牌）
+       → 大道建築（電影宮殿、旅館、餐館、看板）→ 店前廣場（紅毯、拍照背板、粉絲、攝影師）
+       → 好萊塢大道（車流）→ 星光大道人行道（星星、棕櫚樹、街燈、行人、熱狗攤）
+       → 特效 → 雨／風沙 → 夜色 → 燈光 → 指紋紋理 → 對話泡泡
+       ===================================================== -->
+  <svg id="scene" viewBox="0 0 1600 600" preserveAspectRatio="xMidYMid meet" role="img"
+       aria-label="黏土定格動畫風格的好萊塢星光大道：背景是乾燥的好萊塢山丘，左邊山脊上有白色圓頂的天文台，右邊山坡上有一排白色大字招牌板塊；中間是奶油色裝飾藝術風的電影宮殿，有直立招牌、亮著燈泡的跑馬燈和屋頂上的兩座探照燈，門前鋪著紅毯、紅絨繩欄杆和拍照背板，粉絲與攝影師在繩外等候；大道上有禮車、觀光巴士、公車和汽車，前方是嵌著粉紅星星的炭灰色星光大道人行道，有高瘦的棕櫚樹、街燈、吹薩克斯風的街頭藝人、拍星星的觀光客、擦星星的清潔員和熱狗攤">
+    <defs>
+      <linearGradient id="skyGrad" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" style="stop-color:var(--sky-top)"/>
+        <stop offset=".55" style="stop-color:var(--sky-mid)"/>
+        <stop offset="1" style="stop-color:var(--sky-low)"/>
+      </linearGradient>
+      <!-- 探照燈光柱：底部最亮，往上漸漸消失 -->
+      <linearGradient id="beamGrad" x1="0" y1="1" x2="0" y2="0">
+        <stop offset="0" style="stop-color:var(--beam)" stop-opacity=".9"/>
+        <stop offset=".45" style="stop-color:var(--beam)" stop-opacity=".38"/>
+        <stop offset="1" style="stop-color:var(--beam)" stop-opacity="0"/>
+      </linearGradient>
+      <!-- 黏土質感：左上打光的高光＋右下厚度陰影 -->
+      <filter id="clay" x="-6%" y="-6%" width="112%" height="112%" color-interpolation-filters="sRGB">
+        <feGaussianBlur in="SourceAlpha" stdDeviation="3" result="b"/>
+        <feSpecularLighting in="b" surfaceScale="4" specularConstant=".9" specularExponent="26" lighting-color="#fff4e2" result="spec">
+          <feDistantLight azimuth="225" elevation="40"/>
+        </feSpecularLighting>
+        <feComposite in="spec" in2="SourceAlpha" operator="in" result="specIn"/>
+        <feOffset in="b" dx="-3.5" dy="-4.5" result="off"/>
+        <feComposite in="SourceAlpha" in2="off" operator="arithmetic" k2="1" k3="-1" result="rim"/>
+        <feFlood style="flood-color:var(--clay-shade)" flood-opacity=".45"/>
+        <feComposite in2="rim" operator="in" result="shade"/>
+        <feMerge><feMergeNode in="SourceGraphic"/><feMergeNode in="shade"/><feMergeNode in="specIn"/></feMerge>
+      </filter>
+      <filter id="clayS" x="-12%" y="-12%" width="124%" height="124%" color-interpolation-filters="sRGB">
+        <feGaussianBlur in="SourceAlpha" stdDeviation="1.5" result="b"/>
+        <feSpecularLighting in="b" surfaceScale="2.4" specularConstant=".85" specularExponent="24" lighting-color="#fff6e8" result="spec">
+          <feDistantLight azimuth="225" elevation="42"/>
+        </feSpecularLighting>
+        <feComposite in="spec" in2="SourceAlpha" operator="in" result="specIn"/>
+        <feOffset in="b" dx="-1.5" dy="-2" result="off"/>
+        <feComposite in="SourceAlpha" in2="off" operator="arithmetic" k2="1" k3="-1" result="rim"/>
+        <feFlood style="flood-color:var(--clay-shade)" flood-opacity=".42"/>
+        <feComposite in2="rim" operator="in" result="shade"/>
+        <feMerge><feMergeNode in="SourceGraphic"/><feMergeNode in="shade"/><feMergeNode in="specIn"/></feMerge>
+      </filter>
+      <!-- 霓虹字的小光暈（只套在小物件上，避免大圖層模糊掉幀） -->
+      <filter id="neonGlow" x="-30%" y="-60%" width="160%" height="220%">
+        <feGaussianBlur stdDeviation="3" result="g"/>
+        <feMerge><feMergeNode in="g"/><feMergeNode in="SourceGraphic"/></feMerge>
+      </filter>
+      <radialGradient id="glowGrad"><stop offset="0" style="stop-color:var(--lamp)" stop-opacity=".85"/><stop offset="1" style="stop-color:var(--lamp)" stop-opacity="0"/></radialGradient>
+      <radialGradient id="flashGrad"><stop offset="0" stop-color="#fff" stop-opacity="1"/><stop offset=".25" stop-color="#fff" stop-opacity=".7"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></radialGradient>
+      <radialGradient id="sunGlow"><stop offset="0" style="stop-color:var(--sun-hi)" stop-opacity=".7"/><stop offset="1" style="stop-color:var(--sun)" stop-opacity="0"/></radialGradient>
+      <radialGradient id="beamSpot"><stop offset="0" style="stop-color:var(--beam)" stop-opacity=".55"/><stop offset="1" style="stop-color:var(--beam)" stop-opacity="0"/></radialGradient>
+      <radialGradient id="starShine"><stop offset="0" stop-color="#fff8d0" stop-opacity=".95"/><stop offset=".4" style="stop-color:var(--neon-gold)" stop-opacity=".5"/><stop offset="1" style="stop-color:var(--neon-gold)" stop-opacity="0"/></radialGradient>
+      <!-- 柏油路：細細的黏土顆粒 -->
+      <pattern id="asphaltPat" width="40" height="18" patternUnits="userSpaceOnUse">
+        <rect width="40" height="18" class="f-asphalt"/>
+        <circle cx="6" cy="4" r="1.6" class="f-asphalt-2"/><circle cx="22" cy="11" r="2" class="f-asphalt-2"/>
+        <circle cx="33" cy="5" r="1.3" class="f-asphalt-2"/><circle cx="14" cy="15" r="1.2" class="f-asphalt-2"/>
+      </pattern>
+      <!-- 水磨石：炭灰底撒上淺色石屑 -->
+      <pattern id="terrazzoPat" width="36" height="20" patternUnits="userSpaceOnUse">
+        <rect width="36" height="20" class="f-terrazzo"/>
+        <circle cx="5" cy="4" r="1" fill="#e8e0d8" opacity=".35"/><circle cx="19" cy="12" r="1.2" fill="#e8e0d8" opacity=".3"/>
+        <circle cx="29" cy="5" r=".9" fill="#d8a890" opacity=".4"/><circle cx="11" cy="16" r=".8" fill="#e8e0d8" opacity=".3"/>
+        <circle cx="32" cy="16" r="1" fill="#d8a890" opacity=".3"/>
+      </pattern>
+      <!-- 指紋紋理：由程式用 canvas 畫好再填進來 -->
+      <pattern id="thumbPat" width="420" height="420" patternUnits="userSpaceOnUse">
+        <image id="thumbImg" width="420" height="420" href=""/>
+      </pattern>
+    </defs>
+
+    <!-- 天空背板 -->
+    <g id="skyLayer">
+      <rect x="0" y="0" width="1600" height="420" fill="url(#skyGrad)"/>
+      <rect id="skyGrey" x="0" y="0" width="1600" height="420" fill="#8a909e" opacity="0"/>
+      <rect id="skyHaze" x="0" y="0" width="1600" height="420" style="fill:var(--haze)" opacity="0"/>
+      <g id="stars"></g>
+      <g id="sun" class="clickable" tabindex="0" role="button" aria-label="吊在線上的黏土太陽：點一下切換成夜晚"></g>
+      <g id="moon" class="clickable" tabindex="0" role="button" aria-label="吊在線上的黏土月亮：點一下切換成白天"></g>
+      <g id="clouds"></g>
+      <g id="flyers"></g>
+    </g>
+    <rect id="skyHit" x="0" y="0" width="1600" height="150" fill="transparent" class="clickable"/>
+
+    <!-- 探照燈光柱（在建築後面，從屋頂往天空打） -->
+    <g id="beams" class="noHit"></g>
+
+    <!-- 好萊塢山丘（滑鼠移動有視差） -->
+    <g id="farPx"><g id="hills"></g></g>
+    <!-- 海霧：低雲蓋住山頭 -->
+    <g id="overcast" class="noHit"><rect id="fogVeil" x="0" y="90" width="1600" height="260" style="fill:var(--overcast)" opacity="0"/></g>
+    <!-- 大道兩旁的建築 -->
+    <g id="buildings"></g>
+    <!-- 主角：電影宮殿 -->
+    <g id="theater"></g>
+    <!-- 店前廣場：紅毯、背板、欄杆 -->
+    <g id="forecourt"></g>
+    <g id="backActors"></g>
+    <!-- 好萊塢大道與車流 -->
+    <g id="road"></g>
+    <g id="laneFar"></g>
+    <g id="laneNear"></g>
+    <!-- 星光大道人行道 -->
+    <g id="walk"></g>
+    <g id="props"></g>
+    <g id="frontActors"></g>
+    <!-- 特效：彩帶、閃光、鸚鵡、塵沙 -->
+    <g id="fx" class="noHit"></g>
+    <g id="rain" class="noHit" opacity="0"></g>
+    <g id="dust" class="noHit" opacity="0"></g>
+    <!-- 夜色與首映時的暗場 -->
+    <rect id="veil" class="noHit" x="0" y="0" width="1600" height="600" style="fill:var(--veil)" opacity="0"/>
+    <!-- 燈光：窗、跑馬燈燈泡、霓虹、街燈、閃光燈（不被夜色壓暗） -->
+    <g id="lights" class="noHit"></g>
+    <rect class="noHit" x="0" y="0" width="1600" height="600" fill="url(#thumbPat)" opacity=".55"/>
+    <g id="bubbles" class="noHit"></g>
+  </svg>
+  </figure>
+
+  <!-- ===== 互動：控制列 ===== -->
+  <div class="panel">
+    <button id="btnPremiere" class="big" type="button">🎬 紅毯首映</button>
+    <button id="btnStar" class="big alt" type="button">⭐ 星星揭幕典禮</button>
+    <button id="btnWeather" type="button">天氣：晴</button>
+    <button id="btnSound" type="button" aria-pressed="true">🔊 聲音：開</button>
+    <button id="btnDay" type="button">☀ 白天</button>
+    <button id="btnNight" type="button">☾ 夜晚</button>
+    <button id="btnAuto" type="button" aria-pressed="true">自動播放</button>
+    <label class="timebox" for="timeRange">
+      <span>時間</span>
+      <input id="timeRange" type="range" min="0" max="1000" value="688">
+      <span class="clock" id="clock">16:30</span>
+    </label>
+  </div>
+  <ul class="hint">
+    <li><b>紅毯首映</b>：禮車抵達，明星走紅毯，閃光燈和探照燈一起亮。</li>
+    <li><b>星星揭幕典禮</b>：星光大道揭開一顆新星星，彩帶噴發。</li>
+    <li><b>點一點</b>：探照燈、跑馬燈、星星、攝影師、粉絲、車子、街頭藝人、熱狗攤、棕櫚樹、山上招牌、天文台。</li>
+    <li><b>滑鼠</b>：移到天空，探照燈跟著你轉。</li>
+    <li><b>天氣</b>：晴、海霧、冬雨、聖塔安娜強風。</li>
+  </ul>
+</main>
+
+<script id="showstop">
+/* =========================================================
+   ShowStop｜表演「再按一下優雅停止」共用模組（2026-11-24）
+   用法：放在場景主程式 <script> 之前；主程式最後呼叫
+     ShowStop.init({
+       on:      () => show.on,                  // 表演中回傳真值（多種表演時回傳種類）
+       ff:      () => { show.t = show.dur - .02; },  // （選用）快轉到結尾，讓場景下一幀自己收尾
+       btn:     'btnShow' 或 { fire: 'btnFire', stars: 'btnStars' },
+       save:    () => ({ ... }),                // 表演開始前記下使用者設定（日夜、天氣…）
+       restore: s => { ... },                   // 停止時還原
+       stop:    () => { endShow(); ... },       // 立刻結束表演、清掉秀中物件（有 ff 時：快轉後仍未結束才呼叫）
+       after:   () => { ... },                  // （選用）最後再補的清理
+     });
+   停止時：畫面凍結成一張「殘影」疊在上面 1.8 秒淡出（底下已回到原狀），
+           還沒響的表演音符取消、正在響的長音淡出，表演排程的計時器取消，
+           #cineFx 燈光歸零。播放中按鈕顯示「■ 停止」。
+   ========================================================= */
+(function () {
+  'use strict';
+  const W = window;
+  const FADE = 1.8;                      // 殘影淡出秒數
+  let cfg = null, saved = null, epoch = 0, zone = 0, quiet = null;
+  const reducedQ = W.matchMedia ? W.matchMedia('(prefers-reduced-motion: reduce)') : { matches: false };
+  const isOn = () => { try { return cfg ? cfg.on() : false; } catch (e) { return false; } };
+
+  /* ---------- ① 計時器：記下「表演開始時排程」的 setTimeout / setInterval ---------- */
+  const _st = W.setTimeout, _ct = W.clearTimeout, _si = W.setInterval, _ci = W.clearInterval;
+  const zt = new Map();                  // id → { iv, keep }
+  // 音訊收尾、泡泡移除這類「善後」計時器保留，其餘（放煙火、下一段劇情）停止時取消
+  const KEEP = /\.remove\(\)|disconnect|duck|level\(|\.gain\b|removeChild|classList\.remove/;
+  function wrapFn(fn, ep) {
+    if (typeof fn !== 'function') return fn;
+    return function () {
+      if (ep !== epoch) return;          // 已被停止
+      zone++; try { return fn.apply(this, arguments); } finally { zone--; }
+    };
+  }
+  // 表演進行中排程的「台詞」（say／bubble／narr）也算表演的，停止時一起取消
+  const LINE = /\b(say|bubble|narr)\(/;
+  W.setTimeout = function (fn, ms, ...a) {
+    if (!zone && !(cfg && typeof fn === 'function' && ms > 0 && LINE.test(String(fn)) && isOn())) return _st(fn, ms, ...a);
+    let id; const keep = typeof fn === 'function' && KEEP.test(String(fn)) && String(fn).length < 400;
+    const g = keep ? fn : wrapFn(fn, epoch);
+    id = _st(function () { zt.delete(id); return g.apply(this, arguments); }, ms, ...a);
+    zt.set(id, { iv: false, keep }); return id;
+  };
+  W.clearTimeout = function (id) { zt.delete(id); return _ct(id); };
+  W.setInterval = function (fn, ms, ...a) {
+    if (!zone) return _si(fn, ms, ...a);
+    const id = _si(wrapFn(fn, epoch), ms, ...a); zt.set(id, { iv: true, keep: false }); return id;
+  };
+  W.clearInterval = function (id) { zt.delete(id); return _ci(id); };
+
+  /* ---------- ② 聲音：記下表演期間排程的音符；停止時取消未響的、淡掉長音 ---------- */
+  const srcs = new Set(); const outs = new WeakMap();
+  const SN = W.AudioScheduledSourceNode && W.AudioScheduledSourceNode.prototype;
+  if (SN) {
+    const _start = SN.start, _stop = SN.stop;
+    SN.start = function (when, ...a) {
+      const c = this.context, now = c.currentTime;
+      if (quiet) quiet.push(this);       // 停止過程中（快轉到結尾）冒出的聲音，稍後直接靜音
+      this.__ss = { at: Math.max(now, when || 0), end: Infinity, show: !!(zone || isOn()) };
+      if (this.__ss.show) { srcs.add(this); this.addEventListener('ended', () => srcs.delete(this)); }
+      return _start.call(this, when, ...a);
+    };
+    SN.stop = function (when, ...a) {
+      if (this.__ss) this.__ss.end = Math.max(this.context.currentTime, when || 0);
+      return _stop.call(this, when, ...a);
+    };
+  }
+  const AN = W.AudioNode && W.AudioNode.prototype;
+  if (AN) {   // 所有接到喇叭的線都先經過一顆總音量，停止時可以短暫壓低長音
+    const _conn = AN.connect;
+    AN.connect = function (dest, ...a) {
+      if (dest && dest === this.context.destination && !this.__ssOut) {
+        let g = outs.get(this.context);
+        if (!g) { g = this.context.createGain(); g.__ssOut = true; _conn.call(g, this.context.destination); outs.set(this.context, g); }
+        return _conn.call(this, g, ...a);
+      }
+      return _conn.call(this, dest, ...a);
+    };
+  }
+  function stopAudio() {
+    let longs = [], ctx = null;
+    for (const s of srcs) {
+      const c = s.context, now = c.currentTime, m = s.__ss; ctx = c;
+      if (!m || !m.show) continue;
+      if (m.at > now + .02) { try { s.stop(); } catch (e) {} srcs.delete(s); }      // 還沒響：直接取消
+      else if (isFinite(m.end) && m.end > now + 1.2) longs.push(s);                                     // 長音：淡掉再停
+    }
+    if (longs.length && ctx) {
+      const g = outs.get(ctx), now = ctx.currentTime;
+      if (g) {
+        g.gain.cancelScheduledValues(now); g.gain.setValueAtTime(g.gain.value, now);
+        g.gain.linearRampToValueAtTime(0, now + 1.1); g.gain.setValueAtTime(0, now + 1.2);
+        g.gain.linearRampToValueAtTime(1, now + 1.9);
+      }
+      longs.forEach(s => { try { s.stop(now + 1.15); } catch (e) {} srcs.delete(s); });
+    }
+    srcs.clear();
+  }
+
+  /* ---------- ③ 殘影：把目前畫面凍結複製一份疊上去再淡出 ---------- */
+  let ghostCss = false;
+  function ghost(svg) {
+    if (!svg || reducedQ.matches) return;
+    if (!ghostCss) {
+      ghostCss = true;
+      const st = document.createElement('style');
+      st.textContent = '.ss-ghost,.ss-ghost *{animation-play-state:paused!important;pointer-events:none!important}.ss-ghost{position:absolute!important;margin:0!important;will-change:opacity;transition:opacity ' + FADE + 's cubic-bezier(.4,0,.2,1)}';
+      document.head.appendChild(st);
+    }
+    const cl = svg.cloneNode(true);
+    cl.classList.add('ss-ghost'); cl.removeAttribute('tabindex'); cl.setAttribute('aria-hidden', 'true');
+    // 凍結色票：把目前的 CSS 變數抄到殘影上，底下換色不影響殘影
+    const cs = getComputedStyle(svg);
+    const names = new Set();
+    for (let i = 0; i < cs.length; i++) if (cs[i].startsWith('--')) names.add(cs[i]);
+    try { for (const sh of document.styleSheets) for (const r of sh.cssRules) if (r.style) for (const p of r.style) if (p.startsWith('--')) names.add(p); } catch (e) {}
+    for (const p of document.documentElement.style) if (p.startsWith('--')) names.add(p);
+    names.forEach(p => { const v = cs.getPropertyValue(p); if (v) cl.style.setProperty(p, v); });
+    // 漸層、濾鏡等定義改名，殘影只用自己那份（凍結）
+    const map = {};
+    cl.querySelectorAll('[id]').forEach(e => { const n = e.id + '__ss'; map[e.id] = n; e.id = n; });
+    cl.id = svg.id; delete map[svg.id];
+    const fix = v => v.replace(/url\(\s*['"]?#([^'")\s]+)['"]?\s*\)/g, (m, id) => map[id] ? 'url(#' + map[id] + ')' : m);
+    const all = cl.querySelectorAll('*'), orig = svg.querySelectorAll('*');
+    let needCs = false;
+    try { for (const sh of document.styleSheets) for (const r of sh.cssRules) if (r.cssText.includes('url(#') || r.cssText.includes('url("#')) { needCs = true; break; } } catch (e) {}
+    for (let i = 0; i < all.length; i++) {
+      const e = all[i];
+      for (const a of e.attributes) {
+        if (a.value.includes('url(')) e.setAttribute(a.name, fix(a.value));
+        else if ((a.name === 'href' || a.name === 'xlink:href') && a.value[0] === '#' && map[a.value.slice(1)]) e.setAttribute(a.name, '#' + map[a.value.slice(1)]);
+      }
+      if (needCs && orig[i]) {
+        const o = getComputedStyle(orig[i]);
+        for (const p of ['fill', 'stroke', 'filter', 'clip-path', 'mask']) { const v = o.getPropertyValue(p); if (v && v.includes('url(')) e.style.setProperty(p, fix(v.replace(/url\("?[^#")]*#/g, 'url(#').replace(/"\)/g, ')'))); }
+      }
+    }
+    const par = svg.parentElement;
+    if (getComputedStyle(par).position === 'static') par.style.position = 'relative';
+    const r = svg.getBoundingClientRect(), pr = par.getBoundingClientRect();
+    Object.assign(cl.style, { left: (r.left - pr.left + par.scrollLeft - par.clientLeft) + 'px', top: (r.top - pr.top + par.scrollTop - par.clientTop) + 'px', width: r.width + 'px', height: r.height + 'px', opacity: 1 });
+    svg.after(cl);
+    try { cl.pauseAnimations && cl.pauseAnimations(); } catch (e) {}
+    requestAnimationFrame(() => requestAnimationFrame(() => { cl.style.opacity = 0; }));
+    _st(() => cl.remove(), FADE * 1000 + 300);
+  }
+
+  /* ---------- ④ 秀中冒出的說話泡泡：停止時一起收掉 ---------- */
+  let added = [];
+  const mo = W.MutationObserver ? new MutationObserver(ms => { if (!isOn()) return; for (const m of ms) for (const n of m.addedNodes) if (n.nodeType === 1) added.push(n); }) : null;
+  const BUB = /bubble|say|speech|talk|tip/i;
+  function clearBubbles() {
+    if (mo) for (const m of mo.takeRecords()) for (const n of m.addedNodes) if (n.nodeType === 1) added.push(n);
+    added.forEach(n => {
+      if (!n.isConnected || n.closest('.ss-ghost')) return;
+      const p = n.parentElement;
+      if (BUB.test(n.getAttribute('class') || '') || (p && BUB.test((p.id || '') + ' ' + (p.getAttribute('class') || '')))) n.remove();
+    });
+    added = [];
+  }
+
+  /* ---------- ⑤ 停止 ---------- */
+  let stopping = false;
+  function cancel() {
+    if (stopping) return; stopping = true;
+    const svg = cfg.svg ? document.querySelector(cfg.svg) : (document.getElementById('scene') || document.querySelector('svg'));
+    try { ghost(svg); } catch (e) {}
+    epoch++;
+    for (const [id, z] of zt) if (!z.keep) { z.iv ? _ci(id) : _ct(id); zt.delete(id); }
+    try { stopAudio(); } catch (e) {}
+    quiet = [];
+    zone++;   // 收尾過程中（快轉那幾幀、stop、restore）排出的計時器，例如散場後的鳴笛、煙火，最後一起取消
+    // ff：把表演時間快轉到結尾，讓場景自己的收尾邏輯跑完一幀（殘影蓋著看不到），再補 stop
+    if (cfg.ff) {
+      try { cfg.ff(); } catch (e) { console.warn('ShowStop ff', e); }
+      let n = 0; const wait = () => { if (isOn() && n++ < 8) requestAnimationFrame(wait); else finish(); };
+      requestAnimationFrame(wait);
+    } else finish();
+  }
+  function finish() {
+    try { if (isOn() || !cfg.ff) cfg.stop && cfg.stop(); } catch (e) { console.warn('ShowStop stop', e); }
+    try { if (typeof W.setCine === 'function') W.setCine(0); } catch (e) {}
+    try { if (cfg.cine) cfg.cine(); } catch (e) {}
+    if (saved && cfg.restore) { try { cfg.restore(saved); } catch (e) { console.warn('ShowStop restore', e); } }
+    saved = null;
+    clearBubbles();
+    (quiet || []).forEach(s => { try { s.stop(); } catch (e) {} }); quiet = null;
+    zone = Math.max(0, zone - 1);
+    for (const [id, z] of zt) if (!z.keep) { z.iv ? _ci(id) : _ct(id); zt.delete(id); }
+    try { cfg.after && cfg.after(); } catch (e) {}
+    // 背景配樂（scene-bgm）表演時被壓小聲：停止後很快恢復
+    try { if (W.sceneMusic && W.sceneMusic.playing) W.sceneMusic.duck(.3); } catch (e) {}
+    stopping = false;
+    sync();
+  }
+
+  /* ---------- ⑥ 按鈕：開始時記下設定；表演中再按＝停止；文字顯示「■ 停止」 ---------- */
+  const btns = [];
+  function btnFor(kind) {
+    if (!kind) return null;
+    if (typeof cfg.btn === 'string') return document.getElementById(cfg.btn);
+    const id = cfg.btn[kind] || cfg.btn['*']; return id ? document.getElementById(id) : null;
+  }
+  function sync() {
+    const k = isOn(), act = btnFor(k);
+    btns.forEach(b => {
+      const st = b === act, txt = cfg.label || '■ 停止';
+      if (st && b.disabled) b.disabled = false;   // 有些作品表演中會把按鈕停用，這裡讓它能按「停止」
+      // 作品自己改了按鈕文字（例如收場時換成下一個特效名稱）就記下來，結束時還原成它
+      if (b.classList.contains('ss-stop') && b.textContent !== txt) { b.__ssLabel = b.innerHTML; if (st) b.textContent = txt; }
+      if (st && !b.classList.contains('ss-stop')) {
+        b.__ssLabel = b.innerHTML; b.classList.add('ss-stop');
+        b.textContent = cfg.label || '■ 停止'; b.title = '再按一下停止表演';
+      } else if (!st && b.classList.contains('ss-stop')) {
+        b.classList.remove('ss-stop'); b.innerHTML = b.__ssLabel; b.removeAttribute('title');
+      }
+    });
+  }
+  function loop() { sync(); requestAnimationFrame(loop); }
+
+  W.ShowStop = {
+    init(c) {
+      cfg = c;
+      const ids = typeof c.btn === 'string' ? [c.btn] : Object.values(c.btn);
+      [...new Set(ids)].forEach(id => {
+        const b = document.getElementById(id); if (!b) return;
+        b.__ssLabel = b.innerHTML; btns.push(b);
+        b.addEventListener('click', e => {
+          const k = isOn();
+          if (k && btnFor(k) === b) {
+            e.stopImmediatePropagation(); e.preventDefault();
+            if (e.isTrusted || c.allowSynthetic) cancel();
+            return;
+          }
+          if (!k) {
+            if (c.save) { try { saved = c.save(); } catch (er) { saved = null; } }
+            epoch++; zone++; added = [];
+            // 這次點擊同步排出的計時器都算表演的（點擊處理完就關掉）
+            let done = false; const off = () => { if (!done) { done = true; zone = Math.max(0, zone - 1); W.removeEventListener('click', off); } };
+            W.addEventListener('click', off); _st(off, 0);
+          }
+        }, true);
+      });
+      if (mo) { const s = c.svg ? document.querySelector(c.svg) : (document.getElementById('scene') || document.querySelector('svg')); if (s) mo.observe(s, { childList: true, subtree: true }); }
+      requestAnimationFrame(loop);
+    },
+    cancel: () => { if (isOn()) cancel(); },
+    get saved() { return saved; }
+  };
+})();
+</script>
+<script>
+/* =========================================================
+   SC-79 好萊塢星光大道的紅毯首映｜程式區
+   區塊：①工具與色票 ②場景（天空、山丘、天文台、大字招牌、建築、電影宮殿、紅毯、道路、星光大道）
+         ③角色（行人、粉絲、攝影師、明星、街頭藝人、熱狗攤、車流、鸚鵡）
+         ④動畫（日夜、天氣、探照燈、紅毯首映、星星揭幕典禮）
+         ⑤互動（點擊、滑鼠、聲音、控制列）
+   ========================================================= */
+(() => {
+'use strict';
+
+/* ---------------- ① 工具與色票 ---------------- */
+const NS = 'http://www.w3.org/2000/svg';
+const $ = id => document.getElementById(id);
+const root = document.documentElement;
+const svg = $('scene');
+const FPS = 12;                 // 定格動畫：每秒 12 格
+const DAY_SEC = 150;            // 自動播放時一天幾秒
+const rand = (a, b) => a + Math.random() * (b - a);
+const pick = a => a[Math.floor(Math.random() * a.length)];
+const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+const smooth = (a, b, x) => { const t = clamp((x - a) / (b - a), 0, 1); return t * t * (3 - 2 * t); };
+let seed = 20261124;            // 固定亂數：每次開啟構圖一樣
+const srand = (a = 0, b = 1) => { seed = (seed * 16807) % 2147483647; return a + (seed / 2147483647) * (b - a); };
+const spick = a => a[Math.floor(srand(0, a.length - .001))];
+const f1 = n => (+n).toFixed(1);
+function el(tag, attrs = {}, parent) {
+  const n = document.createElementNS(NS, tag);
+  for (const k in attrs) n.setAttribute(k, attrs[k]);
+  if (parent) parent.appendChild(n);
+  return n;
+}
+function frag(parent, html) { parent.insertAdjacentHTML('beforeend', html); return parent.lastElementChild; }
+const clay = (parent, attrs = {}, f = 'clay') => el('g', Object.assign({ filter: `url(#${f})` }, attrs), parent);
+const txt = (parent, x, y, s, attrs = {}) => { const t = el('text', Object.assign({ x, y }, attrs), parent); t.textContent = s; return t; };
+
+// 讀取色票、依日夜內插混色
+const css = n => getComputedStyle(root).getPropertyValue(n).trim();
+const hex = h => {
+  h = h.replace('#', '');
+  if (h.length === 3) h = [...h].map(c => c + c).join('');
+  const n = parseInt(h.slice(0, 6), 16);
+  return [n >> 16 & 255, n >> 8 & 255, n & 255, h.length === 8 ? parseInt(h.slice(6), 16) / 255 : 1];
+};
+const mix = (a, b, t) => a.map((v, i) => v + (b[i] - v) * t);
+const rgba = c => `rgba(${Math.round(c[0])},${Math.round(c[1])},${Math.round(c[2])},${(c[3] ?? 1).toFixed(3)})`;
+const PAIRS = {};
+(() => {
+  const names = [];
+  for (const sheet of document.styleSheets) {
+    try { for (const r of sheet.cssRules) if (r.selectorText === ':root') for (const p of r.style) if (p.startsWith('--d-')) names.push(p.slice(4)); } catch (e) {}
+  }
+  let cls = '';
+  names.forEach(k => {
+    const k2 = css('--k-' + k);
+    PAIRS[k] = { d: hex(css('--d-' + k)), n: hex(css('--n-' + k)), k: k2 ? hex(k2) : null };
+    cls += `#scene .f-${k}{fill:var(--${k})}#scene .s-${k}{stroke:var(--${k});fill:none}`;
+  });
+  const st = document.createElement('style'); st.textContent = cls; document.head.appendChild(st);
+})();
+
+const mq = window.matchMedia('(prefers-reduced-motion: reduce)');
+let reduced = mq.matches;
+
+// 指紋紋理（canvas 畫好再當成 pattern）
+function makeThumbprints() {
+  try {
+    const S = 420, c = document.createElement('canvas'); c.width = c.height = S;
+    const x = c.getContext('2d');
+    const stamp = (cx, cy, rot, sc) => {
+      x.save(); x.translate(cx, cy); x.rotate(rot); x.scale(sc, sc * .78);
+      for (let k = 0; k < 9; k++) {
+        const r = 4 + k * 2.6, a0 = Math.random() * 6.28, a1 = a0 + 2.4 + Math.random() * 2.6;
+        x.beginPath(); x.arc(0, 0, r, a0, a1); x.strokeStyle = 'rgba(60,36,20,.10)'; x.lineWidth = 1.1; x.stroke();
+        x.beginPath(); x.arc(.8, .8, r, a0, a1); x.strokeStyle = 'rgba(255,248,236,.09)'; x.lineWidth = 1; x.stroke();
+      }
+      x.restore();
+    };
+    for (let i = 0; i < 34; i++) {
+      const px = Math.random() * S, py = Math.random() * S, r = Math.random() * 6.28, s = .7 + Math.random() * .9;
+      [[0, 0], [S, 0], [-S, 0], [0, S], [0, -S]].forEach(([ox, oy]) => stamp(px + ox, py + oy, r, s));
+    }
+    const img = x.getImageData(0, 0, S, S), d = img.data;
+    for (let i = 0; i < d.length; i += 4) {
+      const r = Math.random();
+      if (r < .035) { d[i] = 50; d[i + 1] = 30; d[i + 2] = 20; d[i + 3] = Math.max(d[i + 3], 22); }
+      else if (r < .06) { d[i] = 255; d[i + 1] = 248; d[i + 2] = 236; d[i + 3] = Math.max(d[i + 3], 20); }
+    }
+    x.putImageData(img, 0, 0);
+    $('thumbImg').setAttribute('href', c.toDataURL('image/png'));
+  } catch (e) {}
+}
+
+// 燈光層裡的分組
+const LG = {};
+['beamSpots', 'winLights', 'neonLights', 'lampLights', 'bulbLights', 'carLights', 'flashLights', 'starLights'].forEach(k => { LG[k] = el('g', { id: k }, $('lights')); });
+const winGlows = [], lampGlows = [], neons = [];
+
+/* ---------------- ② 場景：天空背板（太陽、月亮、雲朵都用細線吊著） ---------------- */
+const stars = [], clouds = [], overcastClouds = [];
+function cloudShape(parent, w, cls1, cls2) {
+  const g = clay(parent, {}, 'clayS');
+  const n = Math.max(3, Math.round(w / 34));
+  el('rect', { x: -w / 2, y: -4, width: w, height: 22, rx: 11, class: cls2 }, g);
+  for (let i = 0; i < n; i++) {
+    const cx = -w / 2 + 16 + i * (w - 32) / (n - 1), r = 16 + Math.sin(i * 1.7) * 6 + (i === Math.floor(n / 2) ? 10 : 0);
+    el('circle', { cx: f1(cx), cy: f1(4 - r * .5), r: f1(r), class: cls1 }, g);
+  }
+  el('rect', { x: -w / 2 + 2, y: -6, width: w - 4, height: 20, rx: 10, class: cls1 }, g);
+  return g;
+}
+function drawSky() {
+  for (let i = 0; i < 70; i++) {
+    const s = el('circle', { cx: f1(srand(10, 1590)), cy: f1(srand(10, 250)), r: f1(srand(1.1, 2.4)), style: 'fill:var(--star)' }, $('stars'));
+    stars.push({ el: s, ph: srand(0, 6.28) });
+  }
+  // 太陽：一顆圓圓的黏土球，指甲壓出的光芒刻痕
+  frag($('sun'), `<line class="s-thread" x1="0" y1="-600" x2="0" y2="-36" stroke-width="1.6"/>
+    <circle r="72" fill="url(#sunGlow)"/>
+    <g filter="url(#clayS)"><circle r="34" style="fill:var(--sun)"/></g>
+    ${[...Array(12)].map((_, i) => { const a = i / 12 * Math.PI * 2; return `<path d="M${f1(Math.cos(a) * 22)} ${f1(Math.sin(a) * 22)}L${f1(Math.cos(a) * 29)} ${f1(Math.sin(a) * 29)}" stroke="#d8902a" stroke-width="2.4" stroke-linecap="round" opacity=".6"/>`; }).join('')}
+    <ellipse cx="-12" cy="-13" rx="8" ry="5" fill="#fff" opacity=".45"/>`);
+  frag($('moon'), `<line class="s-thread" x1="0" y1="-600" x2="0" y2="-30" stroke-width="1.6"/>
+    <circle r="58" style="fill:var(--moon)" opacity=".12"/>
+    <g filter="url(#clayS)"><path d="M10 -28A28 28 0 1 0 10 28A22 26 0 1 1 10 -28Z" style="fill:var(--moon)"/></g>
+    <ellipse cx="-15" cy="-15" rx="5" ry="3" fill="#fff" opacity=".5"/>`);
+  [[170, 92, 140], [480, 60, 100], [1080, 56, 120], [1290, 104, 110], [1520, 74, 130]].forEach(([x, y, w], i) => {
+    const g = el('g', { class: 'clickable' }, $('clouds'));
+    el('line', { x1: -w / 3, y1: -y - 20, x2: -w / 3, y2: -8, class: 's-thread', 'stroke-width': 1.4 }, g);
+    el('line', { x1: w / 3, y1: -y - 20, x2: w / 3, y2: -8, class: 's-thread', 'stroke-width': 1.4 }, g);
+    cloudShape(g, w, 'f-cloud', 'f-cloud-sh');
+    clouds.push({ el: g, x, y, w, ph: srand(0, 6), sw: 0, sp: srand(3, 7) });
+    g.addEventListener('click', e => { e.stopPropagation(); userGesture = true; ensureAudio(); clouds[i].sw = 1; sfx(t => tok(t, 500)); });
+  });
+  // 海霧：一整排低低的灰雲，平常收在天空外
+  for (let i = 0; i < 8; i++) {
+    const g = el('g', {}, $('overcast'));
+    const x = i * 220 - 10, y = 196 + (i % 2) * 16;
+    el('line', { x1: 0, y1: -260, x2: 0, y2: -10, class: 's-thread', 'stroke-width': 1.4 }, g);
+    cloudShape(g, 280, 'f-overcast', 'f-cloud-sh');
+    overcastClouds.push({ el: g, x, y, ph: srand(0, 6) });
+  }
+}
+
+/* ---------------- ② 場景：好萊塢山丘、格里斐斯天文台、山坡上的大字招牌 ---------------- */
+let obsDome = null, signPanels = [];
+function drawHills() {
+  const g = clay($('hills'));
+  // 遠山稜線：左邊天文台所在的山脊，右邊是李山（Mount Lee）
+  el('path', { d: 'M-40 330 L-40 226 Q60 204 150 206 Q210 192 270 200 Q340 186 420 210 Q560 236 700 222 Q840 206 960 214 Q1060 200 1130 160 Q1220 104 1320 98 Q1400 100 1460 140 Q1530 180 1600 186 L1660 196 L1660 330Z', class: 'f-hill-far' }, g);
+  // 山坡上的灌木叢
+  for (let i = 0; i < 60; i++) {
+    const x = srand(0, 1600), y = srand(232, 300);
+    el('ellipse', { cx: f1(x), cy: f1(y), rx: f1(srand(5, 11)), ry: f1(srand(3, 6)), class: 'f-brush', opacity: .6 }, g);
+  }
+  for (let i = 0; i < 26; i++) el('ellipse', { cx: f1(srand(1140, 1500)), cy: f1(srand(130, 200)), rx: f1(srand(4, 8)), ry: f1(srand(2, 4)), class: 'f-brush', opacity: .55 }, g);
+  // 近一點的山丘
+  el('path', { d: 'M-40 340 L-40 286 Q100 262 240 276 Q380 290 520 270 Q660 254 800 270 Q960 286 1100 266 Q1260 246 1400 266 Q1520 280 1660 262 L1660 340Z', class: 'f-hill-mid' }, g);
+  for (let i = 0; i < 34; i++) el('circle', { cx: f1(srand(0, 1600)), cy: f1(srand(282, 318)), r: f1(srand(4, 8)), class: 'f-brush', opacity: .7 }, g);
+  // 山坡上的小房子（好萊塢山丘的住宅）
+  for (let i = 0; i < 22; i++) {
+    const x = srand(20, 1580), y = srand(268, 300);
+    el('rect', { x: f1(x), y: f1(y), width: f1(srand(10, 18)), height: 8, rx: 1.5, class: srand() < .5 ? 'f-bldg-5' : 'f-bldg-1' }, g);
+    el('rect', { x: f1(x - 1), y: f1(y - 3), width: f1(14), height: 4, rx: 1.5, class: 'f-roof-tile' }, g);
+  }
+
+  // 格里斐斯天文台：白色建築、中央大圓頂、兩側小圓頂
+  const o = el('g', { id: 'observatory', class: 'clickable', tabindex: 0, role: 'button', 'aria-label': '格里斐斯天文台：點一下打開圓頂' }, $('hills'));
+  const ob = clay(o, {}, 'clayS');
+  el('rect', { x: 188, y: 182, width: 84, height: 18, rx: 2, class: 'f-obs' }, ob);
+  el('rect', { x: 214, y: 170, width: 32, height: 14, class: 'f-obs' }, ob);
+  el('path', { d: 'M212 172 A18 18 0 0 1 248 172Z', class: 'f-obs-dome' }, ob);
+  obsDome = el('rect', { x: 228, y: 154, width: 4, height: 18, fill: '#1a1a2a', opacity: 0 }, ob);
+  [192, 268].forEach(x => {
+    el('rect', { x: x - 9, y: 176, width: 18, height: 8, class: 'f-obs' }, ob);
+    el('path', { d: `M${x - 9} 177 A9 9 0 0 1 ${x + 9} 177Z`, class: 'f-obs-dome' }, ob);
+  });
+  for (let i = 0; i < 7; i++) el('rect', { x: 196 + i * 10, y: 188, width: 3, height: 8, fill: '#8a8070', opacity: .6 }, ob);
+  // 天文台的燈（夜裡打亮）
+  const og = el('ellipse', { cx: 230, cy: 186, rx: 56, ry: 18, fill: 'url(#glowGrad)', opacity: 0 }, LG.winLights);
+  winGlows.push({ el: og, k: .6 });
+
+  // 大字招牌：九塊白色板塊、下面用鐵架撐著（只做空白剪影，不重現字樣）
+  const s = el('g', { id: 'bigSign', class: 'clickable', tabindex: 0, role: 'button', 'aria-label': '山坡上的白色大字招牌' }, $('hills'));
+  const sc = clay(s, {}, 'clayS');
+  const widths = [21, 22, 19, 19, 22, 24, 22, 22, 23];
+  let x = 1194;
+  widths.forEach((w, i) => {
+    const y = 152 - (x - 1194) * .06 + (i % 3 === 1 ? 2 : 0);
+    const leg = el('g', {}, sc);
+    el('path', { d: `M${f1(x + 4)} ${f1(y + 26)} L${f1(x + 4)} ${f1(y + 36)} M${f1(x + w - 4)} ${f1(y + 26)} L${f1(x + w - 4)} ${f1(y + 34)} M${f1(x + 4)} ${f1(y + 32)} L${f1(x + w - 4)} ${f1(y + 28)}`, class: 's-sign-leg', 'stroke-width': 1.8 }, leg);
+    const p = el('rect', { x: f1(x), y: f1(y), width: w, height: 27, rx: 2.5, class: 'f-sign', transform: `rotate(${f1(-2 + (i % 2) * 3)} ${f1(x + w / 2)} ${f1(y + 27)})` }, sc);
+    signPanels.push({ el: p, x: x + w / 2, y });
+    x += w + 5;
+  });
+}
+
+/* ---------------- ② 場景：大道兩旁的建築 ---------------- */
+// 壓進黏土的窗戶：深色凹洞＋下緣一道亮邊；夜晚在燈光層加一片暖光
+function win(g, x, y, w, h, o = {}) {
+  const d = o.arch ? `M${x} ${y + h} L${x} ${y + w / 2} A${w / 2} ${w / 2} 0 0 1 ${x + w} ${y + w / 2} L${x + w} ${y + h}Z` : null;
+  if (d) el('path', { d, class: 'f-win' }, g); else el('rect', { x, y, width: w, height: h, rx: Math.min(3, w / 4), class: 'f-win' }, g);
+  el('path', { d: `M${x + 1} ${y + h - .8} L${x + w - 1} ${y + h - .8}`, stroke: '#fff', 'stroke-width': 1.2, opacity: .35 }, g);
+  if (o.sill !== false) el('rect', { x: x - 2, y: y + h, width: w + 4, height: 3, rx: 1.5, class: 'f-trim' }, g);
+  if (o.lit !== false) {
+    const gl = d ? el('path', { d, style: 'fill:var(--lamp)', opacity: 0 }, LG.winLights) : el('rect', { x, y, width: w, height: h, rx: Math.min(3, w / 4), style: 'fill:var(--lamp)', opacity: 0 }, LG.winLights);
+    winGlows.push({ el: gl, k: o.k ?? (srand() < .25 ? 0 : srand(.55, .95)) });
+  }
+}
+let billboard = { i: 0, posters: [] }, hotelSign = null;
+function drawBuildings() {
+  const B = $('buildings');
+  // B1 粉紅西班牙殖民風兩層樓：紀念品店
+  const b1 = clay(el('g', { id: 'gift', class: 'clickable', tabindex: 0, role: 'button', 'aria-label': '紀念品店' }, B));
+  el('rect', { x: -10, y: 280, width: 166, height: 108, class: 'f-bldg-1' }, b1);
+  el('path', { d: 'M-14 284 L160 284 L150 266 L-4 266Z', class: 'f-roof-tile' }, b1);
+  for (let i = 0; i < 9; i++) el('path', { d: `M${-4 + i * 18} 266 l0 18`, stroke: '#8a3a22', 'stroke-width': 1.2, opacity: .5 }, b1);
+  [14, 58, 102].forEach(xx => win(b1, xx, 296, 26, 28, { arch: true }));
+  el('rect', { x: 0, y: 338, width: 146, height: 50, class: 'f-win' }, b1);
+  el('path', { d: 'M-6 336 L152 336 L146 350 L0 350Z', class: 'f-awning-2' }, b1);
+  for (let i = 0; i < 8; i++) el('path', { d: `M${2 + i * 19} 337 l9 0 l-1 13 l-9 0Z`, fill: '#fff6e6', opacity: .85 }, b1);
+  // T 恤與明信片架
+  [[16, '#e8445a'], [38, '#2f6dba'], [60, '#f2b43a'], [82, '#3f9a7a']].forEach(([xx, c]) => el('path', { d: `M${xx} 356 l6 -3 l4 2 l4 -2 l6 3 l-3 5 l-2 -1 l0 14 l-10 0 l0 -14 l-2 1Z`, fill: c }, b1));
+  el('rect', { x: 108, y: 354, width: 30, height: 28, rx: 2, fill: '#f6f0e4' }, b1);
+  for (let r = 0; r < 3; r++) for (let c = 0; c < 3; c++) el('rect', { x: 111 + c * 9, y: 357 + r * 8.5, width: 7, height: 6, fill: ['#6fb2e8', '#f28a3a', '#e8445a', '#3f9a7a'][(r + c) % 4] }, b1);
+  const gs = el('g', {}, b1);
+  el('rect', { x: 40, y: 318, width: 66, height: 16, rx: 4, fill: '#fff6e6' }, gs);
+  txt(gs, 73, 326.5, 'GIFTS', { class: 'signTxt', 'font-size': 11, fill: '#c8283a' });
+
+  // B2 沙色裝飾藝術大樓（層層退縮的塔頂）
+  const b2 = clay(el('g', {}, B));
+  el('rect', { x: 150, y: 214, width: 214, height: 174, class: 'f-bldg-2' }, b2);
+  el('rect', { x: 176, y: 182, width: 162, height: 36, class: 'f-bldg-2' }, b2);
+  el('rect', { x: 206, y: 150, width: 102, height: 36, class: 'f-bldg-2' }, b2);
+  el('rect', { x: 238, y: 126, width: 38, height: 28, class: 'f-bldg-2' }, b2);
+  el('path', { d: 'M257 126 L257 100', stroke: '#6a5a4a', 'stroke-width': 2 }, b2);
+  el('path', { d: 'M258 101 L276 104 L258 108Z', fill: '#c8283a' }, b2);
+  [[176, 182], [206, 150], [238, 126], [150, 214]].forEach(([xx, yy]) => el('rect', { x: xx - 2, y: yy - 3, width: (xx === 150 ? 218 : xx === 176 ? 166 : xx === 206 ? 106 : 42), height: 5, rx: 2, class: 'f-trim' }, b2));
+  for (let r = 0; r < 5; r++) for (let c = 0; c < 6; c++) win(b2, 162 + c * 33, 226 + r * 30, 16, 20);
+  for (let c = 0; c < 4; c++) win(b2, 186 + c * 38, 192, 14, 18);
+  for (let c = 0; c < 2; c++) win(b2, 222 + c * 50, 160, 14, 18);
+  for (let c = 0; c < 7; c++) el('rect', { x: 154 + c * 33, y: 214, width: 4, height: 174, class: 'f-bldg-2', opacity: .25 }, b2);
+  el('rect', { x: 152, y: 360, width: 210, height: 28, class: 'f-win' }, b2);
+
+  // B3 薄荷綠兩層樓：老派餐館，屋頂上有霓虹招牌
+  const b3 = clay(el('g', { id: 'diner', class: 'clickable', tabindex: 0, role: 'button', 'aria-label': '餐館的霓虹招牌' }, B));
+  el('rect', { x: 364, y: 286, width: 226, height: 102, class: 'f-bldg-3' }, b3);
+  el('rect', { x: 360, y: 280, width: 234, height: 8, rx: 3, class: 'f-trim' }, b3);
+  [380, 430, 480, 530].forEach(xx => win(b3, xx, 296, 30, 22));
+  el('rect', { x: 372, y: 340, width: 210, height: 48, rx: 3, class: 'f-win' }, b3);
+  el('path', { d: 'M366 336 L588 336 L580 350 L374 350Z', class: 'f-awning-1' }, b3);
+  for (let i = 0; i < 11; i++) el('path', { d: `M${372 + i * 20} 337 l10 0 l-1 13 l-10 0Z`, fill: '#fff6e6', opacity: .85 }, b3);
+  // 窗裡的吧台椅與客人
+  for (let i = 0; i < 6; i++) { el('rect', { x: 386 + i * 32, y: 372, width: 3, height: 14, fill: '#c8c8d0' }, b3); el('ellipse', { cx: 387.5 + i * 32, cy: 371, rx: 7, ry: 3, fill: '#e8445a' }, b3); }
+  // 屋頂霓虹招牌（支架＋招牌框）
+  el('path', { d: 'M410 280 L410 246 M540 280 L540 246', stroke: '#5a5a66', 'stroke-width': 3 }, b3);
+  el('rect', { x: 396, y: 218, width: 158, height: 34, rx: 8, fill: '#2a2a3a' }, b3);
+  el('circle', { cx: 418, cy: 235, r: 11, fill: '#2a2a3a' }, b3);
+  const dn = txt(b3, 486, 236, 'DINER', { class: 'signTxt', 'font-size': 22, fill: '#ff9ab8', 'letter-spacing': 3 });
+  el('path', { d: 'M411 231 l14 0 l-2 10 l-10 0Z M425 233 q5 0 4 4 q-1 3 -4 3', fill: 'none', stroke: '#8ae8ff', 'stroke-width': 2 }, b3);
+  // 夜晚霓虹（燈光層）
+  const dl = el('g', { filter: 'url(#neonGlow)', opacity: 0 }, LG.neonLights);
+  txt(dl, 486, 236, 'DINER', { class: 'signTxt', 'font-size': 22, fill: '#ff5a9a', 'letter-spacing': 3 });
+  el('path', { d: 'M411 231 l14 0 l-2 10 l-10 0Z M425 233 q5 0 4 4 q-1 3 -4 3 M415 228 q-2 -4 1 -7 M420 228 q-2 -4 1 -7', fill: 'none', stroke: '#4ad8ff', 'stroke-width': 2.2 }, dl);
+  neons.push({ el: dl, k: 1, flick: 0, id: 'diner' });
+
+  // B4 薄荷綠裝飾藝術三層樓＋屋頂電影看板
+  const b4 = clay(el('g', {}, B));
+  el('rect', { x: 996, y: 250, width: 214, height: 138, class: 'f-bldg-3' }, b4);
+  el('rect', { x: 992, y: 244, width: 222, height: 8, rx: 3, class: 'f-trim' }, b4);
+  for (let r = 0; r < 3; r++) for (let c = 0; c < 5; c++) win(b4, 1010 + c * 40, 262 + r * 34, 22, 22);
+  for (let c = 0; c < 6; c++) el('rect', { x: 1001 + c * 40, y: 252, width: 3, height: 104, fill: '#fff6e6', opacity: .4 }, b4);
+  el('rect', { x: 1000, y: 360, width: 206, height: 28, class: 'f-win' }, b4);
+  // 看板支架
+  el('path', { d: 'M1040 244 L1040 236 M1100 244 L1100 236 M1160 244 L1160 236', stroke: '#5a5a66', 'stroke-width': 4 }, b4);
+  const bb = el('g', { id: 'billboard', class: 'clickable', tabindex: 0, role: 'button', 'aria-label': '屋頂上的電影看板：點一下換海報' }, B);
+  const bbc = clay(bb, {}, 'clayS');
+  el('rect', { x: 1020, y: 164, width: 160, height: 74, rx: 4, fill: '#f6f0e4' }, bbc);
+  // 三張原創電影海報
+  const P = [];
+  P[0] = frag(bbc, `<g><rect x="1024" y="168" width="152" height="66" rx="2" fill="#1e2a5a"/>
+    <circle cx="1060" cy="196" r="20" fill="#f4efd8"/><circle cx="1054" cy="190" r="4" fill="#d8d0b0"/><circle cx="1066" cy="203" r="3" fill="#d8d0b0"/>
+    <path d="M1052 178 l3 -8 l4 7 Z M1064 178 l3 -8 l3 8Z" fill="#2a2a3a"/><path d="M1050 180 Q1060 170 1072 180 Q1074 192 1061 194 Q1048 192 1050 180Z" fill="#2a2a3a"/>
+    <path d="M1070 188 q14 6 8 18" stroke="#2a2a3a" stroke-width="3" fill="none"/>
+    ${[...Array(9)].map((_, i) => `<circle cx="${1095 + (i * 23) % 76}" cy="${174 + (i * 13) % 26}" r="1.4" fill="#fff6d6"/>`).join('')}
+    <text x="1132" y="208" class="signTxt" font-size="15" fill="#ffd23a">MOON CAT</text>
+    <text x="1132" y="224" class="signTxt" font-size="8" fill="#fff" letter-spacing="2">COMING SOON</text></g>`);
+  P[1] = frag(bbc, `<g display="none"><rect x="1024" y="168" width="152" height="66" rx="2" fill="#7ac8e8"/>
+    <rect x="1024" y="212" width="152" height="22" fill="#2a8ac8"/><path d="M1024 214 q10 -6 20 0 t20 0 t20 0 t20 0 t20 0 t20 0 t20 0 t12 0" stroke="#fff" stroke-width="2" fill="none"/>
+    <circle cx="1150" cy="186" r="12" fill="#ffc93c"/><path d="M1056 232 Q1062 178 1072 176 Q1080 200 1066 232Z" fill="#f28a3a"/><path d="M1064 182 L1068 228" stroke="#fff" stroke-width="1.5"/>
+    <text x="1118" y="210" class="signTxt" font-size="14" fill="#fff">SUMMER</text><text x="1118" y="224" class="signTxt" font-size="14" fill="#fff">WAVES</text></g>`);
+  P[2] = frag(bbc, `<g display="none"><rect x="1024" y="168" width="152" height="66" rx="2" fill="#f2d8b0"/>
+    ${[0, 1, 2, 3, 4, 5].map(i => `<rect x="${1030 + i * 24}" y="${206 - (i % 3) * 8}" width="18" height="${28 + (i % 3) * 8}" fill="#8a7a9a"/>`).join('')}
+    <path d="M1100 206 Q1096 190 1104 178" stroke="#555" stroke-width="1" fill="none"/><ellipse cx="1106" cy="186" rx="10" ry="12" fill="#e8283a"/><ellipse cx="1102" cy="181" rx="2.5" ry="4" fill="#fff" opacity=".6"/>
+    <text x="1150" y="186" class="signTxt" font-size="9" fill="#5a2a2a">THE</text><text x="1150" y="200" class="signTxt" font-size="11" fill="#5a2a2a">RED</text><text x="1150" y="214" class="signTxt" font-size="9" fill="#5a2a2a">BALLOON</text></g>`);
+  billboard.posters = P;
+  const bbl = el('g', { opacity: 0 }, LG.neonLights);
+  [1040, 1100, 1160].forEach(xx => { el('path', { d: `M${xx} 248 l-14 -10 l28 0Z`, fill: '#3a3a44' }, bbl); el('path', { d: `M${xx - 12} 236 L${xx - 40} 168 L${xx + 40} 168 L${xx + 12} 236Z`, fill: 'url(#glowGrad)', opacity: .4 }, bbl); });
+  neons.push({ el: bbl, k: .8, flick: 0 });
+
+  // B5 紅磚老旅館：五層樓、外掛防火梯、轉角直立霓虹招牌
+  const b5 = clay(el('g', { id: 'hotel', class: 'clickable', tabindex: 0, role: 'button', 'aria-label': '紅磚老旅館' }, B));
+  el('rect', { x: 1210, y: 196, width: 206, height: 192, class: 'f-bldg-4' }, b5);
+  el('rect', { x: 1204, y: 190, width: 218, height: 10, rx: 3, class: 'f-trim' }, b5);
+  for (let r = 0; r < 11; r++) el('path', { d: `M1210 ${212 + r * 16} L1416 ${212 + r * 16}`, stroke: '#7a3a2a', 'stroke-width': 1, opacity: .35 }, b5);
+  for (let r = 0; r < 5; r++) for (let c = 0; c < 5; c++) win(b5, 1226 + c * 38, 210 + r * 30, 18, 20);
+  // 防火梯
+  for (let r = 0; r < 4; r++) {
+    const yy = 236 + r * 30;
+    el('rect', { x: 1296, y: yy, width: 52, height: 3, fill: '#2a2a34' }, b5);
+    el('path', { d: `M1298 ${yy} l0 -10 M1346 ${yy} l0 -10 M1298 ${yy - 9} L1346 ${yy - 9}`, stroke: '#2a2a34', 'stroke-width': 1.4 }, b5);
+    el('path', { d: r % 2 ? `M1300 ${yy + 3} L1344 ${yy + 30}` : `M1344 ${yy + 3} L1300 ${yy + 30}`, stroke: '#2a2a34', 'stroke-width': 2 }, b5);
+  }
+  el('rect', { x: 1214, y: 356, width: 198, height: 32, class: 'f-win' }, b5);
+  el('rect', { x: 1290, y: 344, width: 46, height: 10, rx: 3, fill: '#2a5a3a' }, b5);
+  // 轉角直立招牌
+  hotelSign = el('g', {}, b5);
+  el('rect', { x: 1396, y: 210, width: 26, height: 108, rx: 5, fill: '#2a2a3a' }, hotelSign);
+  'HOTEL'.split('').forEach((ch, i) => txt(hotelSign, 1409, 226 + i * 20, ch, { class: 'signTxt', 'font-size': 16, fill: '#ffb0b0' }));
+  const hl = el('g', { filter: 'url(#neonGlow)', opacity: 0 }, LG.neonLights);
+  'HOTEL'.split('').forEach((ch, i) => txt(hl, 1409, 226 + i * 20, ch, { class: 'signTxt', 'font-size': 16, fill: '#ff3b3b' }));
+  neons.push({ el: hl, k: 1, flick: 0, id: 'hotel' });
+
+  // B6 奶油色西班牙殖民風拱廊：塔可小店、紅瓦塔樓
+  const b6 = clay(el('g', {}, B));
+  el('rect', { x: 1416, y: 278, width: 200, height: 110, class: 'f-bldg-5' }, b6);
+  el('rect', { x: 1516, y: 220, width: 56, height: 70, class: 'f-bldg-5' }, b6);
+  el('path', { d: 'M1510 222 L1544 196 L1578 222Z', class: 'f-roof-tile' }, b6);
+  win(b6, 1532, 234, 22, 30, { arch: true });
+  el('path', { d: 'M1412 282 L1620 282 L1612 266 L1420 266Z', class: 'f-roof-tile' }, b6);
+  [1430, 1474, 1518, 1562].forEach(xx => win(b6, xx, 296, 22, 24, { arch: true }));
+  for (let i = 0; i < 5; i++) el('path', { d: `M${1420 + i * 44} 388 L${1420 + i * 44} 352 A20 20 0 0 1 ${1460 + i * 44} 352 L${1460 + i * 44} 388Z`, class: 'f-win' }, b6);
+  const tc = el('g', {}, b6);
+  el('rect', { x: 1440, y: 330, width: 74, height: 16, rx: 4, fill: '#2a9a8a' }, tc);
+  txt(tc, 1477, 338.5, 'TACOS', { class: 'signTxt', 'font-size': 11, fill: '#fff6e6' });
+  // 九重葛
+  for (let i = 0; i < 18; i++) el('circle', { cx: f1(1418 + srand(0, 30)), cy: f1(srand(284, 340)), r: f1(srand(3, 6)), fill: i % 3 ? '#d4237a' : '#4f8a3e' }, b6);
+}
+
+/* ---------------- ② 場景：主角——裝飾藝術風電影宮殿（原創） ---------------- */
+const marqueeBulbs = [], lights = [];
+let marqueeTitle = null, marqueeTitleI = 0, bladeLetters = [], bladeGlow = null, searchlights = [];
+const TITLES = ['MOON CAT', 'CLAY DREAMS', 'THE RED BALLOON', 'SUMMER WAVES'];
+function drawTheater() {
+  const T0 = $('theater');
+  const g = clay(T0);
+  // 主體
+  el('rect', { x: 590, y: 196, width: 400, height: 192, class: 'f-theater' }, g);
+  // 兩翼的階梯狀女兒牆
+  [[586, 1], [924, -1]].forEach(([x]) => {
+    el('rect', { x, y: 178, width: 70, height: 24, rx: 3, class: 'f-theater' }, g);
+    el('rect', { x: x + 10, y: 168, width: 50, height: 14, rx: 3, class: 'f-theater' }, g);
+    for (let i = 0; i < 6; i++) el('rect', { x: x + 6 + i * 11, y: 184, width: 4, height: 18, class: 'f-theater-sh' }, g);
+    el('rect', { x: x + 2, y: 200, width: 66, height: 4, class: 'f-gold' }, g);
+  });
+  // 中央塔樓（層層退縮）＋尖塔
+  el('rect', { x: 732, y: 146, width: 116, height: 54, class: 'f-theater' }, g);
+  el('rect', { x: 752, y: 118, width: 76, height: 32, class: 'f-theater' }, g);
+  el('rect', { x: 776, y: 76, width: 28, height: 46, class: 'f-theater' }, g);
+  el('rect', { x: 786, y: 52, width: 8, height: 26, class: 'f-gold' }, g);
+  el('circle', { cx: 790, cy: 50, r: 6, class: 'f-gold' }, g);
+  [[732, 146, 116], [752, 118, 76], [776, 76, 28]].forEach(([x, y, w]) => el('rect', { x: x - 3, y: y - 3, width: w + 6, height: 5, rx: 2, class: 'f-gold' }, g));
+  for (let i = 0; i < 5; i++) el('rect', { x: 738 + i * 24, y: 156, width: 4, height: 40, class: 'f-theater-sh' }, g);
+  // 二樓：拱頂長窗與日出放射紋浮雕
+  [612, 652, 692, 864, 904, 944].forEach(x => {
+    win(g, x, 216, 22, 54, { arch: true });
+    for (let k = -2; k <= 2; k++) el('path', { d: `M${x + 11} 212 l${k * 6} -8`, class: 's-gold', 'stroke-width': 2, 'stroke-linecap': 'round' }, g);
+  });
+  // 金色腰帶與豎線
+  el('rect', { x: 590, y: 196, width: 400, height: 5, class: 'f-gold' }, g);
+  el('rect', { x: 590, y: 276, width: 400, height: 5, class: 'f-gold' }, g);
+  [598, 640, 680, 720, 860, 900, 940, 982].forEach(x => el('rect', { x: x - 1.5, y: 201, width: 3, height: 75, class: 'f-gold', opacity: .7 }, g));
+  // 一樓大廳：玻璃門、售票亭、海報框
+  el('rect', { x: 598, y: 330, width: 384, height: 58, class: 'f-theater-sh' }, g);
+  [706, 740, 812, 846].forEach(x => {
+    el('rect', { x, y: 342, width: 30, height: 46, rx: 2, class: 'f-gold' }, g);
+    el('rect', { x: x + 3, y: 345, width: 24, height: 43, class: 'f-glass' }, g);
+    el('rect', { x: x + 13, y: 360, width: 4, height: 10, rx: 2, class: 'f-gold' }, g);
+  });
+  // 售票亭（圓頂小亭）
+  el('path', { d: 'M774 388 L774 352 Q790 334 806 352 L806 388Z', class: 'f-gold' }, g);
+  el('path', { d: 'M778 372 L778 354 Q790 342 802 354 L802 372Z', class: 'f-glass' }, g);
+  el('rect', { x: 772, y: 372, width: 36, height: 16, class: 'f-theater-red' }, g);
+  [898, 944].forEach((x, i) => {
+    el('rect', { x, y: 336, width: 38, height: 50, rx: 3, class: 'f-gold' }, g);
+    frag(g, i === 0
+      ? `<g><rect x="${x + 3}" y="339" width="32" height="44" fill="#1e2a5a"/><circle cx="${x + 19}" cy="356" r="9" fill="#f4efd8"/><path d="M${x + 12} 349 l2 -5 l3 4Z M${x + 21} 349 l2 -5 l2 5Z" fill="#2a2a3a"/><text x="${x + 19}" y="376" class="signTxt" font-size="6" fill="#ffd23a">MOON CAT</text></g>`
+      : `<g><rect x="${x + 3}" y="339" width="32" height="44" fill="#f2d8b0"/><ellipse cx="${x + 19}" cy="354" rx="7" ry="9" fill="#e8283a"/><path d="M${x + 19} 363 q-2 8 1 16" stroke="#555" stroke-width=".8" fill="none"/><text x="${x + 19}" y="378" class="signTxt" font-size="5" fill="#5a2a2a">THE RED BALLOON</text></g>`);
+  });
+  // 屋頂探照燈（兩座，裝在兩翼女兒牆上）
+  [[621, 166], [959, 166]].forEach(([x, y], i) => {
+    const sl = el('g', { class: 'clickable', tabindex: 0, role: 'button', 'aria-label': '屋頂的探照燈：點一下轉一圈' }, T0);
+    const base = clay(sl, {}, 'clayS');
+    el('rect', { x: x - 16, y: y - 4, width: 32, height: 8, rx: 3, fill: '#4a4a56' }, base);
+    el('path', { d: `M${x - 10} ${y - 4} L${x - 6} ${y - 16} M${x + 10} ${y - 4} L${x + 6} ${y - 16}`, stroke: '#4a4a56', 'stroke-width': 3, 'stroke-linecap': 'round' }, base);
+    const drum = el('g', { transform: `translate(${x} ${y - 16})` }, sl);
+    const dc = clay(drum, {}, 'clayS');
+    el('rect', { x: -10, y: -20, width: 20, height: 26, rx: 4, fill: '#5a5a68' }, dc);
+    el('ellipse', { cx: 0, cy: -20, rx: 10, ry: 3.6, fill: '#fff6d0' }, dc);
+    el('rect', { x: -12, y: -4, width: 24, height: 4, rx: 2, fill: '#3a3a46' }, dc);
+    // 光柱（在建築後面的 beams 層）
+    const bg = el('g', {}, $('beams'));
+    const beam = el('path', { d: 'M-9 0 L9 0 L95 -900 L-95 -900Z', fill: 'url(#beamGrad)' }, bg);
+    const spot = el('ellipse', { cx: x, cy: 205, rx: 64, ry: 16, fill: 'url(#beamSpot)', opacity: 0 }, LG.beamSpots);
+    searchlights.push({ g: bg, drum, x, y: y - 36, a: i ? 16 : -16, base: i ? 16 : -16, ph: i * 2.2, spin: 0, v: 0, spot });
+    onAct(sl, () => { searchlights[i].spin = 1; sfx(t => clunk(t)); say(x, 120, pick(['探照燈：首映夜的招牌光柱', '咻——光柱轉一圈！']), 1.6); });
+  });
+
+  // 直立招牌（blade sign）：紅底金邊，夜裡字一個個亮起
+  const bl = el('g', { id: 'blade', class: 'clickable', tabindex: 0, role: 'button', 'aria-label': '電影院的直立招牌：點一下讓霓虹字一個個亮' }, T0);
+  const blc = clay(bl, {}, 'clayS');
+  el('rect', { x: 768, y: 96, width: 44, height: 184, rx: 8, class: 'f-theater-red' }, blc);
+  el('rect', { x: 772, y: 100, width: 36, height: 176, rx: 6, fill: 'none', class: 's-gold', 'stroke-width': 2.5 }, blc);
+  el('path', { d: 'M768 104 Q790 78 812 104Z', class: 'f-gold' }, blc);
+  'STARLIGHT'.split('').forEach((ch, i) => txt(bl, 790, 116 + i * 18.6, ch, { class: 'signTxt', 'font-size': 16, fill: '#f6e6b8' }));
+  bladeGlow = el('g', { filter: 'url(#neonGlow)' }, LG.neonLights);
+  'STARLIGHT'.split('').forEach((ch, i) => bladeLetters.push(txt(bladeGlow, 790, 116 + i * 18.6, ch, { class: 'signTxt', 'font-size': 16, fill: '#ffe680', opacity: 0 })));
+
+  // 跑馬燈（marquee）：白底黑字＋上下兩排燈泡
+  const mq0 = el('g', { id: 'marquee', class: 'clickable', tabindex: 0, role: 'button', 'aria-label': '跑馬燈：點一下換片名、燈泡快閃' }, T0);
+  const mc = clay(mq0);
+  el('rect', { x: 600, y: 280, width: 380, height: 54, rx: 6, class: 'f-theater-red' }, mc);
+  el('rect', { x: 608, y: 290, width: 364, height: 34, rx: 3, class: 'f-marquee' }, mc);
+  el('path', { d: 'M600 334 L980 334 L970 342 L610 342Z', class: 'f-theater-sh' }, mc);
+  txt(mq0, 790, 299, 'WORLD PREMIERE TONIGHT', { class: 'signTxt', 'font-size': 10.5, fill: '#2a1e2a', 'letter-spacing': 2 });
+  marqueeTitle = txt(mq0, 790, 315, TITLES[0], { class: 'signTxt', 'font-size': 16, fill: '#c8142e', 'letter-spacing': 3 });
+  for (let i = 0; i < 31; i++) {
+    [284.5, 329.5].forEach((y, r) => {
+      const x = 606 + i * 12.2;
+      el('circle', { cx: f1(x), cy: y, r: 2.6, style: 'fill:var(--bulb-off)' }, mq0);
+      const b = el('circle', { cx: f1(x), cy: y, r: 3, style: 'fill:var(--bulb)', opacity: 0 }, LG.bulbLights);
+      marqueeBulbs.push({ el: b, i: r ? 30 - i : i + 31 });
+    });
+  }
+  // 雨棚下的燈泡格
+  for (let i = 0; i < 16; i++) {
+    const b = el('circle', { cx: 620 + i * 23, cy: 338, r: 2.2, style: 'fill:var(--bulb)', opacity: 0 }, LG.bulbLights);
+    marqueeBulbs.push({ el: b, i: i * 4, under: true });
+  }
+  // 大廳的暖光
+  [706, 740, 812, 846].forEach(x => { const lob = el('rect', { x: x + 3, y: 345, width: 24, height: 43, style: 'fill:var(--lamp)', opacity: 0 }, LG.winLights); winGlows.push({ el: lob, k: .75 }); });
+  const booth = el('path', { d: 'M778 372 L778 354 Q790 342 802 354 L802 372Z', style: 'fill:var(--lamp)', opacity: 0 }, LG.winLights); winGlows.push({ el: booth, k: .8 });
+}
+
+/* ---------------- ② 場景：店前廣場——紅毯、拍照背板、紅絨繩欄杆 ---------------- */
+let carpetG = null;
+function drawForecourt() {
+  const F = $('forecourt');
+  el('rect', { x: 0, y: 388, width: 1600, height: 54, class: 'f-forecourt' }, F);
+  for (let i = 0; i < 40; i++) el('path', { d: `M${i * 42} 388 L${i * 42 - 8} 442`, stroke: '#00000018', 'stroke-width': 1 }, F);
+  el('path', { d: 'M0 414 L1600 414', stroke: '#00000012', 'stroke-width': 1 }, F);
+  // 紅毯：從路邊一路鋪到大門
+  carpetG = clay(el('g', { id: 'carpet', class: 'clickable', tabindex: 0, role: 'button', 'aria-label': '紅毯' }, F));
+  el('path', { d: 'M574 396 L996 396 L1002 430 L560 430Z', style: 'fill:var(--carpet)' }, carpetG);
+  el('path', { d: 'M560 428 L614 428 L618 446 L554 446Z', style: 'fill:var(--carpet)' }, carpetG);
+  el('path', { d: 'M576 400 L994 400', style: 'stroke:var(--carpet-hi)', 'stroke-width': 1.4, opacity: .7 }, carpetG);
+  el('path', { d: 'M566 426 L998 426', style: 'stroke:var(--carpet-dk)', 'stroke-width': 2 }, carpetG);
+  // 拍照背板（step-and-repeat）：深藍底，金色星星與膠卷圖樣交錯
+  const bd = clay(el('g', { id: 'backdrop', class: 'clickable', tabindex: 0, role: 'button', 'aria-label': '拍照背板' }, F), {}, 'clayS');
+  el('rect', { x: 618, y: 334, width: 140, height: 64, rx: 3, style: 'fill:var(--backdrop)' }, bd);
+  for (let r = 0; r < 4; r++) for (let c = 0; c < 7; c++) {
+    const x = 628 + c * 20 + (r % 2) * 10, y = 344 + r * 15;
+    if (x > 752) continue;
+    if ((r + c) % 2) frag(bd, `<path d="${starPath(x, y, 5, .45)}" style="fill:var(--backdrop-2)"/>`);
+    else frag(bd, `<g><circle cx="${x}" cy="${y}" r="4" fill="none" style="stroke:var(--backdrop-2)" stroke-width="1.3"/><circle cx="${x}" cy="${y}" r="1.2" style="fill:var(--backdrop-2)"/></g>`);
+  }
+  el('rect', { x: 614, y: 334, width: 4, height: 66, fill: '#3a3a46' }, bd);
+  el('rect', { x: 758, y: 334, width: 4, height: 66, fill: '#3a3a46' }, bd);
+  // 紅絨繩欄杆（前緣，留出從路邊上紅毯的缺口）
+  const posts = [626, 676, 726, 776, 826, 876, 926, 976];
+  const st = clay(el('g', {}, F), {}, 'clayS');
+  let d = '';
+  posts.forEach((x, i) => {
+    el('rect', { x: x - 2, y: 414, width: 4, height: 22, rx: 1.5, style: 'fill:var(--stanchion)' }, st);
+    el('circle', { cx: x, cy: 413, r: 3.2, style: 'fill:var(--stanchion)' }, st);
+    el('ellipse', { cx: x, cy: 436, rx: 6, ry: 2.2, style: 'fill:var(--stanchion)' }, st);
+    if (i) d += `M${posts[i - 1]} 416 Q${(posts[i - 1] + x) / 2} 428 ${x} 416 `;
+  });
+  el('path', { d, style: 'stroke:var(--velvet)', 'stroke-width': 3.4, 'stroke-linecap': 'round', fill: 'none' }, st);
+  // 左側門口的兩根柱子（入口）
+  [556, 616].forEach(x => {
+    el('rect', { x: x - 2, y: 422, width: 4, height: 22, rx: 1.5, style: 'fill:var(--stanchion)' }, st);
+    el('circle', { cx: x, cy: 421, r: 3.2, style: 'fill:var(--stanchion)' }, st);
+  });
+  // 廣場上的老式街燈
+  [120, 1300].forEach(x => streetLamp(F, x, 392, .8));
+}
+// 五角星路徑（ry 是上下壓扁比例，做出平放在地上的透視）
+function starPath(cx, cy, r, ry = 1) {
+  let d = '';
+  for (let i = 0; i < 10; i++) {
+    const a = -Math.PI / 2 + i * Math.PI / 5, rr = i % 2 ? r * .42 : r;
+    d += (i ? 'L' : 'M') + f1(cx + Math.cos(a) * rr) + ' ' + f1(cy + Math.sin(a) * rr * ry);
+  }
+  return d + 'Z';
+}
+// 好萊塢大道的老式街燈：鑄鐵燈柱＋兩顆燈球
+function streetLamp(parent, x, y, s = 1) {
+  const g = clay(el('g', { transform: `translate(${x} ${y}) scale(${s})` }, parent), {}, 'clayS');
+  el('path', { d: 'M-7 0 L7 0 L4 -10 L-4 -10Z', fill: '#3a3a44' }, g);
+  el('rect', { x: -2.2, y: -96, width: 4.4, height: 88, rx: 2, fill: '#3a3a44' }, g);
+  el('path', { d: 'M0 -92 Q-14 -96 -16 -86 M0 -92 Q14 -96 16 -86', stroke: '#3a3a44', 'stroke-width': 2.6, fill: 'none' }, g);
+  [-16, 16].forEach(dx => el('circle', { cx: dx, cy: -80, r: 6.5, fill: '#f6efdc' }, g));
+  el('circle', { cx: 0, cy: -100, r: 5, fill: '#f6efdc' }, g);
+  [[-16, -80], [16, -80], [0, -100]].forEach(([dx, dy]) => {
+    const gl = el('circle', { cx: x + dx * s, cy: y + dy * s, r: 20 * s, fill: 'url(#glowGrad)', opacity: 0 }, LG.lampLights);
+    const core = el('circle', { cx: x + dx * s, cy: y + dy * s, r: 6 * s, style: 'fill:var(--bulb)', opacity: 0 }, LG.lampLights);
+    lampGlows.push(gl, core);
+  });
+  return g;
+}
+
+/* ---------------- ② 場景：好萊塢大道（雙黃線、斑馬線）與星光大道人行道 ---------------- */
+const walkStars = [];
+let ceremonyStar = null;
+const EMBLEMS = ['camera', 'tv', 'record', 'mic', 'masks'];
+function emblem(g, kind, x, y) {   // 星星中間的小圓徽：電影攝影機、電視、唱片、麥克風、戲劇面具
+  el('circle', { cx: x, cy: y, r: 5.2, class: 'f-brass' }, g);
+  const c = '#3a2a1a';
+  if (kind === 'camera') frag(g, `<path d="M${x - 3} ${y - 1} h4 v3 h-4Z M${x + 1} ${y} l2.4 -1.2 v3.4 l-2.4 -1.2Z" fill="${c}"/><circle cx="${x - 2}" cy="${y - 2.4}" r="1.1" fill="${c}"/><circle cx="${x}" cy="${y - 2.4}" r="1.1" fill="${c}"/>`);
+  else if (kind === 'tv') frag(g, `<rect x="${x - 3}" y="${y - 2}" width="6" height="4" rx="1" fill="${c}"/><path d="M${x - 1.5} ${y - 2} l-1.2 -2 M${x + 1.5} ${y - 2} l1.2 -2" stroke="${c}" stroke-width=".7"/>`);
+  else if (kind === 'record') frag(g, `<circle cx="${x}" cy="${y}" r="3.3" fill="${c}"/><circle cx="${x}" cy="${y}" r=".9" fill="#d8a840"/>`);
+  else if (kind === 'mic') frag(g, `<rect x="${x - 1.2}" y="${y - 3.4}" width="2.4" height="4" rx="1.2" fill="${c}"/><path d="M${x - 2.2} ${y - .4} q2.2 3 4.4 0 M${x} ${y + 1.6} v1.6" stroke="${c}" stroke-width=".7" fill="none"/>`);
+  else frag(g, `<circle cx="${x - 1.4}" cy="${y}" r="2.2" fill="${c}"/><circle cx="${x + 1.6}" cy="${y + .4}" r="2.2" fill="#6a5040"/>`);
+}
+function drawRoadAndWalk() {
+  const R = $('road');
+  el('rect', { x: 0, y: 440, width: 1600, height: 84, fill: 'url(#asphaltPat)' }, R);
+  el('rect', { x: 0, y: 440, width: 1600, height: 4, class: 'f-curb' }, R);
+  el('path', { d: 'M0 484 L1600 484 M0 488.5 L1600 488.5', class: 's-lane-y', 'stroke-width': 2.2 }, R);
+  for (let x = 20; x < 1600; x += 70) {
+    el('path', { d: `M${x} 462 l34 0`, class: 's-lane-w', 'stroke-width': 1.6, opacity: .45 }, R);
+  }
+  // 雨天的路面反光
+  el('rect', { id: 'wetRoad', x: 0, y: 444, width: 1600, height: 80, fill: '#c8d8f0', opacity: 0 }, R);
+  el('rect', { x: 0, y: 520, width: 1600, height: 9, rx: 2, class: 'f-curb' }, R);
+  el('rect', { x: 0, y: 527, width: 1600, height: 2.5, fill: '#00000022' }, R);
+
+  // 星光大道：炭灰水磨石，每格一顆珊瑚粉紅星星，黃銅鑲邊，中間有類別圓徽
+  const W = $('walk');
+  el('rect', { x: 0, y: 529, width: 1600, height: 71, fill: 'url(#terrazzoPat)' }, W);
+  for (let i = 0; i < 20; i++) {
+    const x = 38 + i * 80, y = 568;
+    const g = el('g', { class: 'clickable', tabindex: 0, role: 'button', 'aria-label': '星光大道上的星星' }, W);
+    el('path', { d: `M${x - 37} 550 L${x + 37} 550 L${x + 39} 586 L${x - 39} 586Z`, class: 'f-terrazzo-sq' }, g);
+    el('path', { d: `M${x - 37} 550 L${x + 37} 550 L${x + 39} 586 L${x - 39} 586Z`, class: 's-brass', 'stroke-width': 1, opacity: .45 }, g);
+    const sp = el('path', { d: starPath(x, y, 26, .55), class: 'f-star-pink' }, g);
+    el('path', { d: starPath(x, y, 26, .55), class: 's-brass', 'stroke-width': 2, 'stroke-linejoin': 'round' }, g);
+    el('path', { d: `M${x - 8} ${y - 4} L${x + 8} ${y - 4}`, class: 's-brass', 'stroke-width': 1.6, opacity: .8 }, g);   // 名牌（只是一道黃銅線，不寫名字）
+    emblem(g, EMBLEMS[i % 5], x, y + 3.5);
+    const sh = el('ellipse', { cx: x, cy: y, rx: 40, ry: 16, fill: 'url(#starShine)', opacity: 0 }, LG.starLights);
+    const ws = { g, x, y, shine: 0, sh, sp };
+    walkStars.push(ws);
+    if (i === 10) ceremonyStar = ws;
+    onAct(g, () => {
+      ws.shine = 1; sfx(t => chime(t));
+      for (let k = 0; k < 8; k++) sparkle(x + rand(-24, 24), y + rand(-10, 6));
+      say(x, 500, pick(['星光大道上有超過 2,700 顆星星', '每顆星星都是粉紅色水磨石加黃銅鑲邊', '圓徽代表類別：電影、電視、音樂、廣播、舞台劇', '閃亮亮！']), 1.9);
+    });
+  }
+}
+
+/* ---------------- ② 場景：棕櫚樹（加州的華盛頓椰子，高高瘦瘦、頂上一撮扇形葉） ---------------- */
+const palms = [];
+function drawPalms() {
+  [[372, 64, 6], [1000, 92, -5], [1482, 50, 8]].forEach(([x, top, lean], i) => {
+    const g = el('g', { class: 'clickable', tabindex: 0, role: 'button', 'aria-label': '棕櫚樹：點一下搖一搖' }, $('props'));
+    const tr = clay(g, {}, 'clayS');
+    el('ellipse', { cx: x, cy: 532, rx: 14, ry: 4, fill: '#3a2a1a', opacity: .4 }, tr);
+    el('path', { d: `M${x - 6} 532 Q${x - 3 + lean * .3} ${(532 + top) / 2} ${x + lean - 3.5} ${top + 14} L${x + lean + 3.5} ${top + 14} Q${x + 3 + lean * .3} ${(532 + top) / 2} ${x + 6} 532Z`, class: 'f-palm-trunk' }, tr);
+    for (let y = top + 30; y < 528; y += 9) {
+      const k = (y - top) / (532 - top), cx = x + lean * (1 - k);
+      el('path', { d: `M${f1(cx - 4 - k * 2)} ${y} q${f1(4 + k * 2)} 2 ${f1(8 + k * 4)} 0`, stroke: '#6a5a46', 'stroke-width': 1, fill: 'none', opacity: .5 }, tr);
+    }
+    // 樹冠：枯葉裙＋扇形葉（整團會隨風擺）
+    const crown = el('g', {}, g);
+    const cc = clay(crown, {}, 'clayS');
+    const cx = x + lean, cy = top + 14;
+    for (let k = 0; k < 7; k++) el('path', { d: `M${f1(cx - 12 + k * 4)} ${cy} q${f1(-3 + k)} 16 ${f1(-2 + k * .6)} 30 l4 0 q0 -16 ${f1(2 - k * .4)} -30Z`, class: 'f-palm-dry' }, cc);
+    const fronds = [];
+    for (let k = 0; k < 11; k++) {
+      const a = -170 + k * 16 + srand(-4, 4), len = srand(38, 50);
+      const fr = el('g', { transform: `rotate(${f1(a)} ${f1(cx)} ${f1(cy)})` }, cc);
+      el('path', { d: `M${cx} ${cy} L${f1(cx + len * .7)} ${f1(cy - 9)} Q${f1(cx + len)} ${f1(cy)} ${f1(cx + len * .7)} ${f1(cy + 9)}Z`, class: 'f-palm-frond' }, fr);
+      for (let j = -2; j <= 2; j++) el('path', { d: `M${f1(cx + len * .35)} ${f1(cy)} L${f1(cx + len * .92)} ${f1(cy + j * 3.6)}`, stroke: '#2a4a1e', 'stroke-width': .8, opacity: .45 }, fr);
+      fronds.push(fr);
+    }
+    el('circle', { cx, cy, r: 6, class: 'f-palm-trunk' }, cc);
+    const p = { g, crown, x: cx, y: cy, shake: 0, ph: srand(0, 6), i };
+    palms.push(p);
+    onAct(g, () => { p.shake = 1; sfx(t => rustle(t)); parrotsFrom(cx, cy); say(cx, cy + 40, pick(['洛杉磯街頭的野生鸚鵡！', '加州的棕櫚樹又高又瘦', '嘎嘎！']), 1.6); });
+  });
+  // 人行道上的街燈與路牌
+  streetLamp($('props'), 468, 532, 1);
+  const sl = streetLamp($('props'), 1108, 532, 1);
+  frag($('props'), `<g filter="url(#clayS)"><rect x="1094" y="448" width="62" height="13" rx="2" fill="#1e6a3a"/><rect x="1096" y="450" width="58" height="9" rx="1.5" fill="none" stroke="#fff" stroke-width=".8"/>
+    <text x="1125" y="455" class="signTxt" font-size="6.4" fill="#fff">HOLLYWOOD BLVD</text></g>`);
+}
+
+
+/* ---------------- ③ 角色：黏土小人（側面，臉朝右；往左走時整個水平翻轉） ---------------- */
+const SK = ['var(--skin-1)', 'var(--skin-2)', 'var(--skin-3)', 'var(--skin-4)'];
+const HR = ['var(--hair-1)', 'var(--hair-2)', 'var(--hair-3)', 'var(--hair-4)', 'var(--hair-5)', 'var(--hair-1)'];
+const CT = ['var(--coat-1)', 'var(--coat-2)', 'var(--coat-3)', 'var(--coat-4)', 'var(--coat-5)', 'var(--coat-6)', 'var(--coat-7)', 'var(--coat-8)', 'var(--coat-9)', 'var(--coat-10)'];
+const PT = ['var(--pants-1)', 'var(--pants-2)', 'var(--pants-3)', 'var(--pants-4)'];
+function personSVG(o) {
+  const sk = o.skin, hr = o.hair, ct = o.coat, pt = o.pants || ct;
+  const shoe = o.shoe || '#2a2228';
+  let legs;
+  if (o.kneel) legs = `<g class="legB"><path d="M-7 -20 L-7 -4 Q-7 0 -3 0 L12 0 L12 -6 L0 -6 L0 -20Z" fill="${pt}"/><ellipse cx="-7" cy="-2" rx="4" ry="2.6" fill="${shoe}"/></g><g class="legF"></g>`;
+  else if (o.gown) legs = `<g class="legB"><ellipse cx="0" cy="-1" rx="4.5" ry="2.4" fill="${shoe}"/></g><g class="legF"><ellipse cx="6" cy="-1" rx="4.5" ry="2.4" fill="${shoe}"/></g>`;
+  else if (o.dress) legs = `<g class="legB"><rect x="-4" y="-22" width="5" height="22" rx="2.5" fill="${sk}"/><ellipse cx="0" cy="-1" rx="4.5" ry="2.6" fill="${shoe}"/></g>
+       <g class="legF"><rect x="1" y="-22" width="5" height="22" rx="2.5" fill="${sk}"/><ellipse cx="5" cy="-1" rx="4.5" ry="2.6" fill="${shoe}"/></g>`;
+  else if (o.shorts) legs = `<g class="legB"><rect x="-6" y="-26" width="7" height="12" rx="3" fill="${pt}"/><rect x="-5" y="-16" width="5" height="16" rx="2.5" fill="${sk}"/><ellipse cx="0" cy="-1" rx="5.4" ry="2.8" fill="${shoe}"/></g>
+       <g class="legF"><rect x="-1" y="-26" width="7" height="12" rx="3" fill="${pt}"/><rect x="0" y="-16" width="5" height="16" rx="2.5" fill="${sk}"/><ellipse cx="5" cy="-1" rx="5.4" ry="2.8" fill="${shoe}"/></g>`;
+  else legs = `<g class="legB"><rect x="-6" y="-26" width="7" height="26" rx="3.5" fill="${pt}"/><ellipse cx="0" cy="-1" rx="5.4" ry="2.8" fill="${shoe}"/></g>
+       <g class="legF"><rect x="-1" y="-26" width="7" height="26" rx="3.5" fill="${pt}"/><ellipse cx="5" cy="-1" rx="5.4" ry="2.8" fill="${shoe}"/></g>`;
+  let body;
+  if (o.gown) {   // 晚禮服：長裙拖地、亮片
+    body = `<path d="M-8 -48 Q0 -51 8 -48 L9 -36 Q14 -16 22 -1 Q4 3 -16 0 Q-10 -18 -9 -36Z" fill="${ct}"/>
+      <path d="M-4 -40 Q2 -20 -2 -4 M3 -38 Q8 -20 10 -4" stroke="#fff" stroke-width="1.2" opacity=".35" fill="none"/>
+      ${[[-2, -30], [5, -22], [-6, -14], [10, -10], [2, -8]].map(([x, y]) => `<circle cx="${x}" cy="${y}" r="1" fill="#fff" opacity=".8"/>`).join('')}`;
+  } else if (o.tux) {   // 燕尾服：黑外套、白襯衫、領結
+    body = `<path d="M-10 -48 Q0 -52 10 -48 L11 -22 Q0 -19 -11 -22Z" fill="var(--tux)"/><path d="M4 -48 L10 -48 L10 -24 L6 -24Z" fill="#fbf8f0"/>
+      <path d="M5 -48 L8 -38 L4 -30" stroke="#2a2a34" stroke-width="1.2" fill="none"/><path d="M5 -47 l4 -2 l0 4Z M9 -47 l4 -2 l0 4Z" fill="${o.tie || '#1a1a24'}"/>`;
+  } else if (o.dress) {
+    body = `<path d="M-9 -48 Q0 -51 9 -48 L15 -12 Q0 -8 -15 -12Z" fill="${ct}"/><path d="M-14 -16 Q0 -12 14 -16" stroke="#fff" stroke-width="1.6" fill="none" opacity=".45"/>`;
+  } else if (o.uniform) {
+    body = `<path d="M-10 -48 Q0 -52 10 -48 L11 -22 Q0 -19 -11 -22Z" fill="${ct}"/><rect x="-3" y="-44" width="7" height="4" rx="1" fill="#f2d84a"/>`;
+  } else {
+    body = `<path d="M-10 -48 Q0 -52 10 -48 L11 -22 Q0 -19 -11 -22Z" fill="${ct}"/>${o.print ? `<circle cx="3" cy="-37" r="4" fill="${o.print}" opacity=".8"/>` : ''}`;
+  }
+  let hair = '';
+  if (o.hs === 0) hair = `<path d="M-8 -62 Q-9 -77 3 -77 Q13 -76 14 -68 Q6 -72 -1 -69 Q-4 -64 -8 -62Z" fill="${hr}"/>`;
+  else if (o.hs === 1) hair = `<path d="M-8 -60 Q-10 -78 3 -78 Q15 -77 14 -68 Q4 -71 -2 -66 Q-3 -54 -8 -44 Q-13 -50 -8 -60Z" fill="${hr}"/>`;           // 長髮
+  else if (o.hs === 2) hair = `<path d="M-8 -62 Q-9 -77 3 -77 Q13 -76 14 -68 Q6 -72 -1 -69 Q-4 -64 -8 -62Z" fill="${hr}"/><circle cx="-7" cy="-70" r="5.5" fill="${hr}"/>`;  // 髮髻
+  else if (o.hs === 3) hair = `<path d="M-9 -62 Q-12 -82 3 -81 Q17 -80 15 -66 Q8 -74 0 -70 Q-4 -66 -9 -62Z" fill="${hr}"/><circle cx="-4" cy="-76" r="6" fill="${hr}"/><circle cx="6" cy="-79" r="5.5" fill="${hr}"/>`; // 捲髮
+  else hair = `<path d="M-6 -70 Q3 -79 12 -70 Q3 -74 -6 -70Z" fill="${hr}"/>`;
+  let hat = '';
+  if (o.hat === 'cap') hat = `<path d="M-8 -68 Q3 -82 14 -68Z" fill="${o.hatC}"/><path d="M8 -69 L21 -67 L14 -65Z" fill="${o.hatC}"/>`;
+  else if (o.hat === 'sunhat') hat = `<ellipse cx="3" cy="-71" rx="18" ry="4" fill="${o.hatC}"/><path d="M-6 -71 Q-4 -84 3 -84 Q10 -84 12 -71Z" fill="${o.hatC}"/><path d="M-6 -73 L12 -73" stroke="#fff" stroke-width="1.6" opacity=".7"/>`;
+  else if (o.hat === 'beanie') hat = `<path d="M-9 -66 Q-8 -82 3 -82 Q15 -82 15 -66Z" fill="${o.hatC}"/><circle cx="3" cy="-83" r="3" fill="${o.hatC}"/>`;
+  else if (o.hat === 'tiara') hat = `<path d="M-4 -76 l3 -5 l2 4 l3 -6 l3 6 l2 -4 l3 5Z" fill="#ffe680"/>`;
+  let acc = '';
+  if (o.acc === 'phone') acc = `<rect x="12" y="-58" width="5" height="9" rx="1.2" fill="#2a2a34"/><rect x="13" y="-57" width="3" height="6" fill="#8ae0ff"/>`;
+  else if (o.acc === 'camera') acc = `<rect x="10" y="-44" width="11" height="8" rx="2" fill="#2a2a32"/><circle cx="20" cy="-40" r="2.4" fill="#8ab0d8"/>`;
+  else if (o.acc === 'coffee') acc = `<path d="M11 -34 l7 0 l-1 9 l-5 0Z" fill="#f6f0e4"/><rect x="11" y="-36" width="7" height="2.4" rx="1" fill="#2a8a5a"/>`;
+  else if (o.acc === 'bag') acc = `<rect x="-14" y="-36" width="11" height="13" rx="2" fill="${o.accC}"/><path d="M-11 -36 q2.5 -6 5 0" stroke="#3a2a2a" stroke-width="1.2" fill="none"/>`;
+  else if (o.acc === 'map') acc = `<path d="M10 -44 l10 -2 l0 12 l-10 2Z" fill="#f6efd8"/><path d="M13 -42 l0 10 M16 -43 l0 10" stroke="#7ab0d8" stroke-width="1"/>`;
+  else if (o.acc === 'clutch') acc = `<rect x="12" y="-32" width="8" height="5" rx="1.5" fill="#ffe680"/>`;
+  else if (o.acc === 'sax') acc = `<path d="M8 -58 Q16 -60 15 -50 L14 -28 Q14 -20 20 -21 Q25 -22 24 -30" stroke="var(--gold)" stroke-width="4.4" fill="none" stroke-linecap="round"/><ellipse cx="24" cy="-31" rx="4" ry="2" fill="var(--gold)"/><path d="M14 -46 l3 0 M14 -40 l3 0 M14 -34 l3 0" stroke="#8a6a20" stroke-width="1.2"/>`;
+  else if (o.acc === 'brush') acc = `<rect x="12" y="-14" width="14" height="5" rx="2" fill="#f2c43a"/><path d="M13 -9 l0 4 M17 -9 l0 4 M21 -9 l0 4 M25 -9 l0 4" stroke="#8a6a3a" stroke-width="1.2"/>`;
+  else if (o.acc === 'vacuum') acc = `<path d="M12 -40 L28 -2" stroke="#4a4a56" stroke-width="2.4"/><rect x="18" y="-4" width="20" height="6" rx="3" fill="#e8445a"/><rect x="24" y="-26" width="9" height="16" rx="3" fill="#e8445a" transform="rotate(22 28 -18)"/>`;
+  else if (o.acc === 'card') acc = `<rect x="12" y="-56" width="9" height="6" rx="1" fill="#fbf8f0"/>`;
+  const glasses = o.shades ? `<rect x="0" y="-68" width="13" height="4.6" rx="2.2" fill="#14141c"/><path d="M-4 -66 L0 -66" stroke="#14141c" stroke-width="1.2"/>` : '';
+  const face = `${o.shades ? '' : `<circle cx="2" cy="-65" r="1.6" fill="#1e1a22"/><circle cx="8.5" cy="-65" r="1.6" fill="#1e1a22"/>`}
+     <ellipse cx="8" cy="-59.5" rx="2.2" ry="1.3" fill="#e8806a" opacity=".45"/>
+     <path class="mouth" d="M4 -58.6 Q6.6 -57 9 -58.6" stroke="#5a2a2a" stroke-width="1.2" fill="none" stroke-linecap="round"/>${glasses}`;
+  const up = o.kneel ? ' transform="translate(0 14)"' : '';
+  const armC = o.tux ? 'var(--tux)' : o.gown ? 'var(--skin-1)' : ct;
+  const armCol = o.gown ? sk : armC;
+  return `<ellipse cx="2" cy="0" rx="14" ry="3.6" style="fill:var(--shadow)"/>
+    <g filter="url(#clayS)">
+      ${legs}
+      <g${up}>
+      <g class="armB"><rect x="-4" y="-49" width="6" height="22" rx="3" fill="${armCol}"/><circle cx="-1" cy="-27" r="3" fill="${sk}"/></g>
+      ${body}
+      ${o.acc === 'bag' ? acc : ''}
+      <rect x="0" y="-55" width="6" height="7" rx="2" fill="${sk}"/>
+      <circle cx="3" cy="-64" r="11.5" fill="${sk}"/>
+      <path d="M13 -64 q3 1.6 0 3.6" fill="${sk}"/>
+      ${hair}${hat}
+      </g>
+    </g>
+    <g class="face"${up}>${face}<ellipse cx="-1" cy="-71" rx="3.4" ry="2" fill="#fff" opacity=".3"/></g>
+    <g${up}><g class="armF" filter="url(#clayS)"><rect x="-1" y="-49" width="6" height="22" rx="3" fill="${armCol}"/><circle cx="2" cy="-27" r="3" fill="${sk}"/></g>
+    ${o.acc && o.acc !== 'bag' ? `<g class="acc" filter="url(#clayS)">${acc}</g>` : ''}</g>
+    <g class="umb" display="none" filter="url(#clayS)"><path d="M14 -30 L14 -82" stroke="#3a3030" stroke-width="2"/><path d="M-14 -80 Q14 -110 42 -80 Q35 -86 28 -80 Q21 -86 14 -80 Q7 -86 0 -80 Q-7 -86 -14 -80Z" fill="${o.umb || '#2a8ad8'}"/></g>`;
+}
+// 背影小人：粉絲、攝影師（面向紅毯，我們看到的是後腦勺）
+function backPersonSVG(o, kind) {
+  const sk = o.skin, hr = o.hair, ct = o.coat, pt = o.pants;
+  const crouch = kind === 'crouch';
+  const dy = crouch ? 16 : 0;
+  const legs = crouch
+    ? `<ellipse cx="0" cy="-6" rx="13" ry="7" fill="${pt}"/><ellipse cx="-9" cy="-1" rx="5" ry="2.6" fill="#2a2228"/><ellipse cx="9" cy="-1" rx="5" ry="2.6" fill="#2a2228"/>`
+    : `<rect x="-8" y="-26" width="7" height="26" rx="3.5" fill="${pt}"/><rect x="1" y="-26" width="7" height="26" rx="3.5" fill="${pt}"/>
+       <ellipse cx="-4.5" cy="-1" rx="4.6" ry="2.6" fill="#2a2228"/><ellipse cx="4.5" cy="-1" rx="4.6" ry="2.6" fill="#2a2228"/>`;
+  let arms = '', prop = '';
+  if (kind === 'sign') {
+    arms = `<g class="arms"><rect x="-15" y="-80" width="6" height="32" rx="3" fill="${ct}" transform="rotate(-10 -12 -48)"/><rect x="9" y="-80" width="6" height="32" rx="3" fill="${ct}" transform="rotate(10 12 -48)"/></g>`;
+    prop = `<g class="prop"><rect x="-20" y="-104" width="40" height="24" rx="3" fill="#fbf8f0"/>${o.sign === 'star' ? `<path d="${starPath(0, -92, 8)}" fill="#f2b43a"/>` : `<path d="M0 -86 q-9 -6 -7 -11 q2 -4 7 0 q5 -4 7 0 q2 5 -7 11Z" fill="#e8445a"/>`}</g>`;
+  } else if (kind === 'phone') {
+    arms = `<g class="arms"><rect x="-13" y="-48" width="6" height="22" rx="3" fill="${ct}"/><rect x="8" y="-84" width="6" height="36" rx="3" fill="${ct}" transform="rotate(8 11 -48)"/></g>`;
+    prop = `<g class="prop"><rect x="5" y="-98" width="10" height="15" rx="2" fill="#2a2a34"/><rect x="6.5" y="-96" width="7" height="11" fill="#8ae0ff" opacity=".8"/></g>`;
+  } else {   // camera / crouch：攝影師舉起相機，上面裝著閃光燈
+    arms = `<g class="arms"><rect x="-14" y="-74" width="6" height="28" rx="3" fill="${ct}" transform="rotate(-14 -11 -48)"/><rect x="8" y="-74" width="6" height="28" rx="3" fill="${ct}" transform="rotate(14 11 -48)"/></g>`;
+    prop = `<g class="prop"><rect x="-10" y="-82" width="20" height="12" rx="2.5" fill="#22222a"/><rect x="-3" y="-92" width="7" height="10" rx="1.5" fill="#3a3a44"/><rect x="-4" y="-96" width="9" height="5" rx="1" fill="#f6f6f0"/></g>`;
+  }
+  const vest = o.vest ? `<path d="M-11 -48 L-6 -48 L-6 -22 L-11 -22Z M6 -48 L11 -48 L11 -22 L6 -22Z" fill="#b8a070"/>` : '';
+  return `<ellipse cx="0" cy="0" rx="15" ry="3.8" style="fill:var(--shadow)"/>
+    <g filter="url(#clayS)">${legs}
+      <g transform="translate(0 ${dy})">
+        <path d="M-12 -50 Q0 -54 12 -50 L13 -22 Q0 -19 -13 -22Z" fill="${ct}"/>${vest}
+        <rect x="-3" y="-56" width="6" height="7" rx="2" fill="${sk}"/>
+        <circle cx="-11.5" cy="-63" r="3" fill="${sk}"/><circle cx="11.5" cy="-63" r="3" fill="${sk}"/>
+        <circle cx="0" cy="-65" r="11.5" fill="${sk}"/>
+        <path d="M-11.5 -62 Q-13 -79 0 -79 Q13 -79 11.5 -62 Q8 -56 0 -55 Q-8 -56 -11.5 -62Z" fill="${hr}"/>
+        ${o.hat === 'cap' ? `<path d="M-11 -68 Q0 -84 11 -68Z" fill="${o.hatC}"/>` : ''}
+        ${arms}${prop}
+      </g>
+    </g>`;
+}
+function randomLook() {
+  const dress = srand() < .38;
+  const o = {
+    skin: spick(SK), hair: spick(HR), hs: Math.floor(srand(0, 4.99)), coat: spick(CT), pants: spick(PT), dress,
+    shorts: !dress && srand() < .4,
+    hat: spick(['', '', 'cap', 'sunhat', '', 'beanie', 'cap']), hatC: spick(['#e8445a', '#2f6dba', '#3f9a7a', '#f6f0e4', '#2a2a34', '#f2b43a']),
+    acc: spick(['', 'phone', 'phone', 'coffee', 'bag', 'camera', 'map', '']),
+    accC: spick(['#e8445a', '#f2b43a', '#4aa8e8', '#8a5ad8', '#f6f0e4']),
+    shades: srand() < .45, print: srand() < .3 ? spick(['#fff6e6', '#ffd23a', '#2a2a34']) : '',
+    umb: spick(['#e8445a', '#2a8ad8', '#f28a3a', '#7a3ab8', '#2aa86a'])
+  };
+  if (o.hat === 'sunhat') o.hs = 1;
+  return o;
+}
+
+/* 可依前後排序的角色清單：每格依 y 重排（前、後兩區各自排序） */
+const actorsF = [], actorsB = [];
+function addActor(a, back) { (back ? actorsB : actorsF).push(a); (back ? $('backActors') : $('frontActors')).appendChild(a.g); return a; }
+function sortActors(list, L) {
+  list.sort((a, b) => a.y - b.y);
+  list.forEach(a => { if (L.lastChild !== a.g) L.appendChild(a.g); });
+}
+function poseLimbs(w, f, armMode) {
+  const ang = [18, 0, -18, 0][f];
+  if (w.legB) w.legB.setAttribute('transform', `rotate(${ang} -1 -24)`);
+  if (w.legF) w.legF.setAttribute('transform', `rotate(${-ang} 3 -24)`);
+  let aB = -ang * .8, aF = ang * .8;
+  if (armMode === 'clap') { const c = (frame % 4 < 2); aB = -70 + (c ? 0 : 12); aF = -80 + (c ? 14 : 0); }
+  else if (armMode === 'wave') { aF = -150 + (frame % 4 < 2 ? 0 : 24); }
+  else if (armMode === 'pose') { aB = 20; aF = -40; }
+  else if (armMode === 'hold') { aF = -60; }
+  if (w.armB) w.armB.setAttribute('transform', `rotate(${aB} -1 -46)`);
+  if (w.armF) w.armF.setAttribute('transform', `rotate(${aF} 2 -46)`);
+}
+function makeFigure(o, parentBack) {
+  const g = el('g', { class: 'clickable' });
+  const inner = el('g', {}, g); inner.innerHTML = personSVG(o);
+  return { g, inner, o, legB: inner.querySelector('.legB'), legF: inner.querySelector('.legF'), armB: inner.querySelector('.armB'), armF: inner.querySelector('.armF'), umb: inner.querySelector('.umb') };
+}
+function place(a, x, y, s, dir = 1, extra = '') {
+  const jit = reduced ? 0 : (Math.random() - .5) * .5;
+  a.g.setAttribute('transform', `translate(${f1(x + jit)} ${f1(y)}) scale(${f1(s * dir * 100) / 100} ${s})${extra}`);
+}
+
+/* ---------------- ③ 角色：星光大道上的行人（每條步道單一方向，互相保持距離，不穿過彼此） ---------------- */
+const LANES = [{ y: 556, dir: 1, s: .7 }, { y: 592, dir: -1, s: .78 }];
+const SPAN = 1840, X0W = -120;
+const walkers = [];
+const GREET = ['Hi! 你好！', 'Have a nice day!', '我在找偶像的星星', '今晚有首映耶！', '好萊塢的陽光好舒服', 'Welcome to Hollywood!', '要不要一起拍照？', '那邊的熱狗超香'];
+function addWalker(laneIdx, x) {
+  const L = LANES[laneIdx], o = randomLook();
+  const w = Object.assign(makeFigure(o), { y: L.y, lane: laneIdx, dir: L.dir, s: L.s, x, base: srand(26, 38), v: 0, ph: srand(0, 4), hasUmb: srand() < .75, wave: 0, hop: 0, snap: 0 });
+  addActor(w); walkers.push(w);
+  onAct(w.g, () => {
+    w.hop = 1; w.wave = 1.2; sfx(t => tok(t, 700));
+    if (o.acc === 'phone' || o.acc === 'camera') { flashAt(w.x + 12 * w.dir * w.s, w.y - 50 * w.s, .6); sfx(t => shutter(t)); }
+    say(w.x, w.y - 82 * w.s, pick(GREET), 1.8);
+  });
+}
+function laneGap(a, b, span) { let d = (b.x - a.x) * a.dir; if (a.noWrap || b.noWrap) return d > 0 ? d : Infinity; return ((d % span) + span) % span; }
+function stepWalkers(dt) {
+  const rain = wx.rain > .5;
+  const cer = show.on === 'star' && show.t < show.dur - 1.5;
+  LANES.forEach((L, li) => {
+    const ws = walkers.filter(w => w.lane === li);
+    ws.forEach(w => {
+      let want = w.base;
+      // 揭幕典禮時大家停下來圍觀；剛好在典禮區裡的人先走出去
+      if (cer && Math.abs(w.x - CER_X) > 150) want = 0;
+      else if (cer) want = w.base * 1.6;
+      let minGap = Infinity, front = null;
+      ws.forEach(o => { if (o === w) return; const g = laneGap(w, o, SPAN); if (g < minGap) { minGap = g; front = o; } });
+      const need = 40 * w.s;
+      if (minGap < need) want = 0;
+      else if (minGap < need * 2.2 && front) want = Math.min(want, front.v);
+      w.v += (want - w.v) * Math.min(1, dt * 4);
+      w.x += w.v * w.dir * dt;
+      if (w.x > X0W + SPAN) w.x -= SPAN; if (w.x < X0W) w.x += SPAN;
+    });
+  });
+  walkers.forEach(w => {
+    const moving = w.v > 4;
+    if (moving) w.ph += dt * w.v / 8;
+    const f = moving ? Math.floor(w.ph) % 4 : 1;
+    if (w.wave > 0) w.wave -= dt;
+    const cheer = show.on === 'star' && show.t > 10 && show.t < 16;
+    poseLimbs(w, f, w.wave > 0 ? 'wave' : cheer ? 'clap' : '');
+    w.umb.setAttribute('display', rain && w.hasUmb ? '' : 'none');
+    if (w.hop > 0) w.hop = Math.max(0, w.hop - dt * 2.5);
+    const hop = Math.sin(w.hop * Math.PI) * 14;
+    const bob = moving && f % 2 === 0 ? -1.2 : 0;
+    place(w, w.x, w.y + bob - hop, w.s, w.dir);
+  });
+}
+
+/* ---------------- ③ 角色：粉絲與攝影師（紅毯外的背影）、警衛、吸紅毯的工作人員 ---------------- */
+const fans = [], press = [];
+let guard = null, sweeper = null;
+function buildCrowd() {
+  // 左群粉絲、右群粉絲：舉牌、舉手機
+  const spots = [[452, 'sign'], [478, 'phone'], [504, 'sign'], [530, 'phone'], [836, 'phone'], [862, 'sign'], [890, 'phone'], [918, 'sign'], [946, 'phone'], [974, 'sign']];
+  spots.forEach(([x, kind], i) => {
+    const o = { skin: spick(SK), hair: spick(HR), coat: spick(CT), pants: spick(PT), hat: srand() < .3 ? 'cap' : '', hatC: spick(['#e8445a', '#2f6dba', '#f2b43a']), sign: srand() < .5 ? 'star' : 'heart' };
+    const g = el('g', { class: 'clickable' });
+    const inner = el('g', {}, g); inner.innerHTML = backPersonSVG(o, kind);
+    const f = { g, inner, x, y: 442 + (i % 2) * 2, s: .6, kind, hop: 0, ph: srand(0, 6), prop: inner.querySelector('.prop') };
+    addActor(f, true); fans.push(f);
+    onAct(g, () => {
+      f.hop = 1; sfx(t => cheer(t, .6));
+      if (kind === 'phone') flashAt(x + 6, f.y - 58, .5);
+      say(x, 330, pick(['好想要簽名！', '我從早上就在這裡排隊了', '看這邊！看這邊！', 'We love you!', '我的牌子做得好看嗎？']), 1.6);
+    });
+  });
+  // 攝影師：前排蹲著、兩側站著
+  [[628, 'camera'], [662, 'crouch'], [694, 'crouch'], [726, 'crouch'], [760, 'camera']].forEach(([x, kind], i) => {
+    const o = { skin: spick(SK), hair: spick(HR), coat: spick(['var(--coat-7)', 'var(--pants-1)', 'var(--coat-2)']), pants: spick(PT), hat: i % 2 ? 'cap' : '', hatC: '#2a2a34', vest: i % 2 === 0 };
+    const g = el('g', { class: 'clickable' });
+    const inner = el('g', {}, g); inner.innerHTML = backPersonSVG(o, kind);
+    const p = { g, inner, x, y: 446 + (i % 2), s: .6, kind, hop: 0, ph: srand(0, 6), flashT: 0, cool: srand(0, 2) };
+    addActor(p, true); press.push(p);
+    onAct(g, () => { p.flashT = .3; flashAt(x, p.y - (kind === 'crouch' ? 46 : 58), 1); sfx(t => shutter(t)); say(x, 330, pick(['看鏡頭！', '這邊！往右一點！', '紅毯前的攝影師區', '喀嚓！']), 1.4); });
+  });
+  // 警衛：黑西裝、墨鏡，站在大門口
+  guard = Object.assign(makeFigure({ skin: 'var(--skin-4)', hair: 'var(--hair-1)', hs: 4, coat: 'var(--tux)', pants: 'var(--tux)', tux: true, shades: true }), { x: 880, y: 406, s: .58, dir: -1 });
+  addActor(guard, true);
+  onAct(guard.g, () => { guard.wave = 1; sfx(t => tok(t, 400)); say(880, 330, pick(['請從紅毯這邊進場', '今晚是首映，要有邀請函喔', '保持微笑，閃光燈很多']), 1.6); });
+  // 白天：工作人員用吸塵器吸紅毯（真實的首映前準備）
+  sweeper = Object.assign(makeFigure({ skin: spick(SK), hair: spick(HR), hs: 0, coat: 'var(--coat-7)', pants: 'var(--pants-1)', uniform: true, hat: 'cap', hatC: '#2a2a34', acc: 'vacuum' }), { x: 700, y: 414, s: .56, dir: 1, v: 26, on: 1 });
+  addActor(sweeper, true);
+  onAct(sweeper.g, () => { sfx(t => vacuum(t)); say(sweeper.x, 330, pick(['首映前要把紅毯吸得乾乾淨淨', '嗡——', '紅毯上不能有一根線頭']), 1.6); });
+}
+function stepCrowd(dt) {
+  const prem = show.on === 'premiere';
+  const hot = prem && pct > 1 && pct < 14;
+  fans.forEach((f, i) => {
+    if (f.hop > 0) f.hop = Math.max(0, f.hop - dt * 2.5);
+    const bounce = hot && (frame + i) % 4 < 2 ? -3 : 0;
+    const hop = Math.sin(f.hop * Math.PI) * 10;
+    if (f.prop) f.prop.setAttribute('transform', hot || f.hop > 0 ? `translate(0 ${frame % 2 ? -2 : 0})` : '');
+    place(f, f.x, f.y + bounce - hop, f.s);
+  });
+  press.forEach((p, i) => {
+    if (p.hop > 0) p.hop = Math.max(0, p.hop - dt * 2.5);
+    // 首映高潮時閃光燈連發；入夜後偶爾試閃
+    p.cool -= dt;
+    const rate = hot && Math.abs(celeb.x - 700) < 120 ? 7 : hot ? 2.5 : night > .5 && !show.on ? .08 : 0;
+    if (Math.random() < dt * rate && p.cool < 0) { p.cool = .12; flashAt(p.x, p.y - (p.kind === 'crouch' ? 46 : 58), hot ? 1 : .7); if (hot && Math.random() < .5) sfx(t => shutter(t)); }
+    place(p, p.x, p.y, p.s);
+  });
+  // 警衛
+  if (guard.wave > 0) guard.wave -= dt;
+  poseLimbs(guard, 1, guard.wave > 0 ? 'wave' : '');
+  place(guard, guard.x, guard.y, guard.s, guard.dir);
+  // 吸紅毯：白天在紅毯上來回走（首映、晚上收工）
+  const want = !prem && night < .55 ? 1 : 0;
+  sweeper.on += (want - sweeper.on) * Math.min(1, dt * 2);
+  sweeper.g.setAttribute('opacity', f1(sweeper.on));
+  sweeper.g.style.display = sweeper.on < .03 ? 'none' : '';
+  if (sweeper.on > .5) {
+    sweeper.x += sweeper.v * sweeper.dir * dt;
+    if (sweeper.x > 840) sweeper.dir = -1; if (sweeper.x < 640) sweeper.dir = 1;
+    sweeper.ph = (sweeper.ph || 0) + dt * 3;
+  }
+  poseLimbs(sweeper, Math.floor(sweeper.ph || 0) % 4, 'hold');
+  place(sweeper, sweeper.x, sweeper.y, sweeper.s, sweeper.dir);
+}
+
+/* ---------------- ③ 角色：首映的明星（原創人物：紅色晚禮服＋燕尾服的搭檔） ---------------- */
+const celeb = { x: -999, y: 460, on: false, ph: 0, a: null, b: null, fade: 1 };
+function buildCeleb() {
+  celeb.a = Object.assign(makeFigure({ skin: 'var(--skin-3)', hair: 'var(--hair-1)', hs: 1, coat: 'var(--gown-2)', gown: true, shades: true, acc: 'clutch', shoe: '#e8c25a', hat: 'tiara' }), { y: 0 });
+  celeb.b = Object.assign(makeFigure({ skin: 'var(--skin-1)', hair: 'var(--hair-3)', hs: 0, coat: 'var(--tux)', pants: 'var(--tux)', tux: true, shades: true }), { y: 0 });
+  [celeb.a, celeb.b].forEach(f => { addActor(f, true); f.g.style.display = 'none'; onAct(f.g, () => { flashAt(f.x, f.y - 40, 1); sfx(t => cheer(t, .5)); say(f.x, 300, pick(['謝謝大家來看首映！', '今晚的禮服是黏土捏的喔', '電影一定要進戲院看！']), 1.8); }); });
+}
+// 明星的路線：禮車旁 → 上紅毯 → 背板前擺姿勢 → 走到大門 → 進場
+const CELEB_PATH = [[570, 462], [588, 432], [606, 412], [704, 412], [704, 412], [780, 404], [790, 392]];
+function stepCeleb(dt) {
+  const A = celeb.a, B = celeb.b;
+  if (!celeb.on) { A.g.style.display = B.g.style.display = 'none'; return; }
+  const t = pct;   // 禮車停好之後的秒數（和首映配樂同步）
+  if (t < 1) { A.g.style.display = B.g.style.display = 'none'; return; }
+  A.g.style.display = B.g.style.display = '';
+  // 依時間決定走到哪裡
+  let x, y, mode = 'walk', moving = true;
+  const seg = (t0, t1, p0, p1) => { const k = clamp((t - t0) / (t1 - t0), 0, 1); return [p0[0] + (p1[0] - p0[0]) * k, p0[1] + (p1[1] - p0[1]) * k]; };
+  if (t < 2.2) { [x, y] = seg(1, 2.2, CELEB_PATH[0], CELEB_PATH[1]); }
+  else if (t < 3) { [x, y] = seg(2.2, 3, CELEB_PATH[1], CELEB_PATH[2]); }
+  else if (t < 5.5) { [x, y] = seg(3, 5.5, CELEB_PATH[2], CELEB_PATH[3]); }
+  else if (t < 11) { [x, y] = CELEB_PATH[3]; moving = false; mode = t < 8.5 ? 'pose' : 'wave'; }
+  else if (t < 13.5) { [x, y] = seg(11, 13.5, CELEB_PATH[4], CELEB_PATH[5]); mode = 'wave'; }
+  else { [x, y] = seg(13.5, 14.5, CELEB_PATH[5], CELEB_PATH[6]); }
+  celeb.x = x; celeb.y = y;
+  const fade = t > 13.8 ? clamp(1 - (t - 13.8) / .9, 0, 1) : clamp((t - 1) / .3, 0, 1);
+  if (moving) celeb.ph += dt * 3.2;
+  const f = moving ? Math.floor(celeb.ph) % 4 : 1;
+  A.x = x; A.y = y; B.x = x - 22; B.y = y - 1;
+  poseLimbs(A, f, mode === 'pose' ? 'pose' : mode === 'wave' ? 'wave' : '');
+  poseLimbs(B, f, mode === 'pose' ? 'hold' : mode === 'wave' ? 'wave' : '');
+  const bob = moving && f % 2 === 0 ? -1 : 0;
+  place(A, A.x, A.y + bob, .68, 1); place(B, B.x, B.y + bob, .68, 1);
+  A.g.setAttribute('opacity', f1(fade)); B.g.setAttribute('opacity', f1(fade));
+  if (t >= 14.8) celeb.on = false;
+}
+
+/* ---------------- ③ 角色：人行道上的街頭藝人、拍星星的觀光客、擦星星的清潔員、熱狗攤 ---------------- */
+let busker = null, tourist = null, cleaner = null, cart = null, steamT = 0, saxT = 0;
+function buildStatics() {
+  // 吹薩克斯風的街頭藝人＋打開的琴盒
+  frag($('props'), `<g filter="url(#clayS)"><path d="M178 540 L214 540 L210 532 L182 532Z" fill="#2a2a34"/><path d="M182 536 L210 536" stroke="#c8283a" stroke-width="3"/>
+    <circle cx="190" cy="535" r="1.6" fill="#ffd23a"/><circle cx="198" cy="536" r="1.6" fill="#ffd23a"/><circle cx="204" cy="534" r="1.4" fill="#e8e8f0"/></g>`);
+  busker = Object.assign(makeFigure({ skin: 'var(--skin-4)', hair: 'var(--hair-1)', hs: 0, coat: 'var(--coat-4)', pants: 'var(--pants-1)', hat: 'beanie', hatC: '#e8b43a', acc: 'sax', shades: true }), { x: 158, y: 538, s: .7, dir: 1 });
+  addActor(busker);
+  onAct(busker.g, () => { saxT = 4; if (audioOK()) { const t0 = actx.currentTime + .05; OUT = newTrack('sfx'); saxRiff(t0); OUT = null; } say(158, 450, pick(['來一段爵士！', '投一枚硬幣，再吹一首', 'Smooth jazz on the boulevard~']), 1.8); });
+  // 跪在地上拍星星的觀光客
+  tourist = Object.assign(makeFigure({ skin: 'var(--skin-1)', hair: 'var(--hair-5)', hs: 2, coat: 'var(--coat-9)', pants: 'var(--pants-4)', kneel: true, acc: 'phone', hat: 'sunhat', hatC: '#f6f0e4' }), { x: 640, y: 540, s: .68, dir: 1, snap: 0 });
+  addActor(tourist);
+  onAct(tourist.g, () => { flashAt(652, 506, .8); sfx(t => shutter(t)); walkStars[8].shine = 1; say(640, 450, pick(['找到我最喜歡的那顆星星了！', '拍星星要蹲低一點', '傳給朋友看！']), 1.8); });
+  // 跪著擦星星的清潔員（星光大道真的會定期清潔）
+  cleaner = Object.assign(makeFigure({ skin: 'var(--skin-3)', hair: 'var(--hair-2)', hs: 0, coat: 'var(--coat-3)', pants: 'var(--pants-1)', uniform: true, kneel: true, acc: 'brush', hat: 'cap', hatC: '#2a2a34' }), { x: 1188, y: 540, s: .68, dir: -1, scrub: 0 });
+  addActor(cleaner);
+  frag($('props'), `<g filter="url(#clayS)"><path d="M1206 540 L1220 540 L1222 524 L1204 524Z" fill="#4a8ac8"/><ellipse cx="1213" cy="524" rx="9" ry="2.6" fill="#8ad0f0"/><path d="M1205 526 Q1213 514 1221 526" stroke="#3a3a44" stroke-width="1.2" fill="none"/></g>`);
+  onAct(cleaner.g, () => { cleaner.scrub = 3; walkStars[14].shine = 1; sfx(t => scrubSound(t)); say(1188, 450, pick(['把星星擦得亮晶晶', '黃銅邊要用力擦才會亮', '每顆星星都要照顧好']), 1.8); });
+  // 熱狗攤：條紋陽傘、烤盤上的培根捲熱狗（洛杉磯街頭小吃）
+  cart = el('g', { class: 'clickable', tabindex: 0, role: 'button', 'aria-label': '熱狗攤：點一下烤熱狗' }, $('props'));
+  const cg = clay(cart, {}, 'clayS');
+  el('ellipse', { cx: 1392, cy: 540, rx: 44, ry: 4, style: 'fill:var(--shadow)' }, cg);
+  el('path', { d: 'M1392 540 L1392 452', stroke: '#6a6a74', 'stroke-width': 2.4 }, cg);
+  el('path', { d: 'M1346 458 Q1392 424 1438 458Z', fill: '#f2c43a' }, cg);
+  for (let k = 0; k < 4; k++) el('path', { d: `M1392 434 L${1350 + k * 25} 458 L${1362 + k * 25} 458Z`, fill: '#e8445a' }, cg);
+  el('rect', { x: 1356, y: 494, width: 72, height: 38, rx: 6, fill: '#d8dce4' }, cg);
+  el('rect', { x: 1360, y: 498, width: 64, height: 8, rx: 2, fill: '#3a3a44' }, cg);
+  for (let k = 0; k < 5; k++) { el('rect', { x: 1363 + k * 12, y: 494, width: 10, height: 5, rx: 2.5, fill: '#c8603a' }, cg); el('path', { d: `M${1365 + k * 12} 496 l6 0`, stroke: '#8a2a1a', 'stroke-width': 1.4 }, cg); }
+  el('rect', { x: 1362, y: 512, width: 60, height: 12, rx: 2, fill: '#fff6e6' }, cg);
+  txt(cart, 1392, 518.5, 'HOT DOGS', { class: 'signTxt', 'font-size': 8, fill: '#c8283a' });
+  [1366, 1418].forEach(x => { el('circle', { cx: x, cy: 535, r: 5.4, fill: '#24222a' }, cg); el('circle', { cx: x, cy: 535, r: 2, fill: '#c8c8d0' }, cg); });
+  el('rect', { x: 1352, y: 488, width: 10, height: 8, rx: 2, fill: '#f2c43a' }, cg);
+  el('rect', { x: 1422, y: 488, width: 8, height: 9, rx: 2, fill: '#e8445a' }, cg);
+  const vend = Object.assign(makeFigure({ skin: 'var(--skin-3)', hair: 'var(--hair-1)', hs: 0, coat: 'var(--coat-8)', pants: 'var(--pants-1)', hat: 'cap', hatC: '#e8445a' }), { x: 1440, y: 534, s: .66, dir: -1 });
+  addActor(vend);
+  cart.vend = vend;
+  onAct(cart, () => { steamT = 2.5; vend.wave = 1; sfx(t => sizzle(t)); say(1392, 440, pick(['培根捲熱狗，烤洋蔥加辣椒！', '一份熱狗，馬上好！', '首映散場後最好吃的宵夜']), 1.8); });
+  onAct(vend.g, () => { steamT = 2.5; vend.wave = 1; sfx(t => sizzle(t)); say(1440, 440, 'Hot dogs! 熱騰騰的熱狗喔！', 1.6); });
+}
+function stepStatics(dt) {
+  // 街頭藝人：搖擺身體吹奏
+  if (saxT > 0) saxT -= dt;
+  const sw = saxT > 0 || show.on === 'star' ? (frame % 4 < 2 ? -4 : 3) : (frame % 12 < 6 ? -1 : 1);
+  poseLimbs(busker, 1, 'hold');
+  place(busker, busker.x, busker.y, busker.s, 1, ` rotate(${sw} 0 -20)`);
+  // 觀光客：舉手機
+  poseLimbs(tourist, 1, 'hold');
+  place(tourist, tourist.x, tourist.y, tourist.s, 1);
+  // 清潔員：刷子來回刷
+  if (cleaner.scrub > 0) cleaner.scrub -= dt;
+  const sc = (cleaner.scrub > 0 ? frame % 2 : Math.floor(frame / 3) % 2) ? -30 : -10;
+  cleaner.armF.setAttribute('transform', `rotate(${sc} 2 -46)`); cleaner.armB.setAttribute('transform', 'rotate(-20 -1 -46)');
+  if (cleaner.scrub > 0 && Math.random() < dt * 6) sparkle(1158 + rand(-20, 20), 566 + rand(-8, 4));
+  place(cleaner, cleaner.x, cleaner.y, cleaner.s, -1);
+  // 熱狗攤老闆
+  const v = cart.vend;
+  if (v.wave > 0) v.wave -= dt;
+  poseLimbs(v, 1, v.wave > 0 ? 'wave' : 'hold');
+  place(v, v.x, v.y, v.s, -1);
+  if (steamT > 0) steamT -= dt;
+  if (Math.random() < dt * (steamT > 0 ? 9 : 1.4)) puff(1380 + rand(0, 30), 490, steamT > 0);
+}
+
+/* ---------------- ③ 角色：好萊塢大道上的車流（遠車道往左、近車道往右；車頭朝行進方向） ---------------- */
+const VLANES = [{ y: 468, dir: -1, s: .74, layer: 'laneFar' }, { y: 508, dir: 1, s: .86, layer: 'laneNear' }];
+const VSPAN = 2240, VX0 = -320;
+const vehicles = [];
+function wheel(x, r = 9) {
+  return `<g class="wheel" data-x="${x}"><circle cx="${x}" cy="-${r}" r="${r}" style="fill:var(--tire)"/><circle cx="${x}" cy="-${r}" r="${r * .45}" style="fill:var(--hub)"/><path class="spk" d="M${x - r * .4} -${r} L${x + r * .4} -${r} M${x} -${r * 1.4} L${x} -${r * .6}" stroke="#7a7a84" stroke-width="1.4"/></g>`;
+}
+function vehicleSVG(kind, col) {
+  const lightF = (x, y) => `<ellipse cx="${x}" cy="${y}" rx="3" ry="2.4" style="fill:var(--headl)"/><path class="hbeam" d="M${x} ${y - 3} L${x + 70} ${y - 12} L${x + 70} ${y + 12} L${x} ${y + 3}Z" fill="url(#glowGrad)" opacity="0"/>`;
+  const lightB = (x, y) => `<rect x="${x - 1.5}" y="${y - 3}" width="3" height="6" rx="1.4" style="fill:var(--taill)"/><circle class="tglow" cx="${x}" cy="${y}" r="9" fill="#ff3a3a" opacity="0"/>`;
+  if (kind === 'sedan' || kind === 'police') {
+    const body = kind === 'police' ? 'var(--police)' : col;
+    return { len: 104, svg: `<g filter="url(#clayS)">
+      <path d="M-50 -10 Q-50 -24 -40 -26 L-26 -28 Q-14 -44 4 -44 L18 -44 Q30 -42 36 -28 L46 -25 Q53 -22 53 -10 L53 -6 L-50 -6Z" fill="${body}"/>
+      ${kind === 'police' ? `<path d="M-22 -27 L28 -27 L30 -10 L-24 -10Z" fill="#f6f6f0"/><rect x="-8" y="-50" width="20" height="6" rx="2" fill="#2a2a34"/><rect class="pl1" x="-8" y="-50" width="10" height="6" rx="2" fill="#e83a3a"/><rect class="pl2" x="2" y="-50" width="10" height="6" rx="2" fill="#3a6ae8"/>` : ''}
+      <path d="M-22 -28 Q-12 -40 2 -40 L4 -28Z M8 -28 L8 -40 L17 -40 Q27 -38 31 -28Z" fill="#9ad0e8" opacity=".9"/>
+      <path d="M-46 -16 L50 -16" stroke="#fff" stroke-width="1.2" opacity=".3"/>
+      ${wheel(-30)}${wheel(33)}</g>${lightF(51, -18)}${lightB(-49, -18)}` };
+  }
+  if (kind === 'convertible') {
+    return { len: 108, svg: `<g filter="url(#clayS)">
+      <path d="M-40 -52 L30 -26" stroke="#f2c43a" stroke-width="8" stroke-linecap="round"/><path d="M-40 -52 L30 -26" stroke="#e8445a" stroke-width="2"/>
+      <circle cx="-6" cy="-40" r="7" fill="var(--skin-2)"/><path d="M-13 -42 Q-6 -52 1 -42Z" fill="var(--hair-3)"/><rect x="-6" y="-43" width="8" height="3" rx="1.4" fill="#14141c"/>
+      <circle cx="16" cy="-40" r="7" fill="var(--skin-1)"/><path d="M9 -42 Q16 -52 23 -42 L24 -34 L22 -42Z" fill="var(--hair-2)"/>
+      <path d="M-52 -10 Q-52 -24 -42 -28 L44 -30 Q55 -26 55 -10 L55 -6 L-52 -6Z" fill="${col}"/>
+      <path d="M26 -30 L34 -44" stroke="#9ad0e8" stroke-width="3"/>
+      ${wheel(-32)}${wheel(34)}</g>${lightF(53, -18)}${lightB(-51, -18)}` };
+  }
+  if (kind === 'limo') {
+    return { len: 206, svg: `<g filter="url(#clayS)">
+      <path d="M-100 -10 Q-100 -24 -90 -27 L-74 -29 Q-64 -44 -50 -44 L66 -44 Q80 -42 86 -29 L96 -26 Q104 -22 104 -10 L104 -6 L-100 -6Z" fill="var(--limo)"/>
+      ${[-66, -36, -6, 24, 54].map(x => `<path d="M${x} -40 L${x + 24} -40 L${x + 24} -29 L${x} -29Z" fill="#3a4a5a"/>`).join('')}
+      <path d="M-96 -18 L100 -18" stroke="#e0b040" stroke-width="1.4" opacity=".7"/>
+      <rect x="96" y="-28" width="3" height="10" rx="1" fill="#c8c8d0"/>
+      ${wheel(-74)}${wheel(-40)}${wheel(76)}</g>${lightF(101, -19)}${lightB(-99, -19)}` };
+  }
+  if (kind === 'tour') {   // 敞篷雙層觀光巴士
+    const heads = [-70, -46, -22, 2, 26, 50].map((x, i) => `<g class="tourist"><circle cx="${x}" cy="-72" r="7" fill="${['var(--skin-1)', 'var(--skin-2)', 'var(--skin-3)', 'var(--skin-4)'][i % 4]}"/><path d="M${x - 7} -74 Q${x} -84 ${x + 7} -74Z" fill="${['var(--hair-1)', 'var(--hair-3)', 'var(--hair-2)', 'var(--hair-5)'][i % 4]}"/>${i % 2 ? `<rect x="${x + 4}" y="-84" width="5" height="8" rx="1" fill="#2a2a34"/>` : ''}</g>`).join('');
+    return { len: 196, svg: `<g filter="url(#clayS)">${heads}
+      <path d="M-96 -8 L-96 -62 Q-96 -66 -90 -66 L84 -66 Q96 -66 98 -56 L100 -8Z" style="fill:var(--tour)"/>
+      <rect x="-94" y="-66" width="190" height="4" fill="#fbf8f0"/><path d="M-92 -66 L-92 -78 L92 -78 L92 -66" stroke="#fbf8f0" stroke-width="2.2" fill="none"/>
+      ${[-84, -56, -28, 0, 28, 56].map(x => `<rect x="${x}" y="-52" width="22" height="18" rx="3" fill="#9ad0e8"/>`).join('')}
+      <rect x="80" y="-52" width="14" height="40" rx="2" fill="#9ad0e8"/>
+      <rect x="-60" y="-30" width="100" height="14" rx="3" fill="#fbf8f0"/>
+      <text x="-10" y="-22.5" class="signTxt" font-size="9" fill="#2a8ac8">CITY TOURS</text>
+      ${wheel(-62, 11)}${wheel(66, 11)}</g>${lightF(98, -20)}${lightB(-95, -20)}` };
+  }
+  // 市區公車：橘色車身、白色上半部
+  return { len: 224, svg: `<g filter="url(#clayS)">
+      <path d="M-110 -8 L-110 -66 Q-110 -72 -102 -72 L102 -72 Q112 -72 113 -60 L114 -8Z" style="fill:var(--bus-2)"/>
+      <path d="M-110 -8 L-110 -30 L114 -30 L114 -8Z" style="fill:var(--bus-1)"/>
+      ${[-100, -70, -40, -10, 20, 50].map(x => `<rect x="${x}" y="-62" width="26" height="22" rx="3" fill="#7a9ab8"/>`).join('')}
+      <rect x="82" y="-62" width="12" height="54" rx="2" fill="#7a9ab8"/><rect x="96" y="-64" width="14" height="30" rx="2" fill="#9ad0e8"/>
+      <rect x="40" y="-70" width="62" height="7" rx="1.5" fill="#1e1e26"/><text x="71" y="-66.2" class="signTxt" font-size="5.6" fill="#ffb84a">HOLLYWOOD</text>
+      ${wheel(-78, 11)}${wheel(74, 11)}</g>${lightF(112, -18)}${lightB(-109, -18)}` };
+}
+function addVehicle(laneIdx, kind, x, col) {
+  const L = VLANES[laneIdx];
+  const v = vehicleSVG(kind, col || spick(['var(--car-1)', 'var(--car-2)', 'var(--car-3)', 'var(--car-4)', 'var(--car-5)', 'var(--car-6)']));
+  const g = el('g', { class: 'clickable' }, $(L.layer));
+  g.innerHTML = v.svg;
+  if (L.dir < 0) g.querySelectorAll('text').forEach(t => { const x = +t.getAttribute('x'); t.setAttribute('transform', `translate(${2 * x} 0) scale(-1 1)`); });
+  const veh = { g, kind, lane: laneIdx, dir: L.dir, s: L.s, y: L.y, x, len: v.len * L.s, v: 0, base: kind === 'limo' ? 70 : kind === 'tour' || kind === 'bus' ? srand(46, 56) : srand(62, 84),
+    wheels: [...g.querySelectorAll('.spk')], beams: [...g.querySelectorAll('.hbeam')], tglow: [...g.querySelectorAll('.tglow')], blink: 0, pl: [g.querySelector('.pl1'), g.querySelector('.pl2')], wave: 0, rot: 0, stopAt: null };
+  vehicles.push(veh);
+  onAct(g, () => {
+    veh.blink = 1.2;
+    if (kind === 'tour') { veh.wave = 2; sfx(t => cheer(t, .35)); say(veh.x, 380, pick(['右手邊就是星光大道！', '觀光巴士載大家去看明星住的山丘', '大家揮揮手！']), 1.8); }
+    else if (kind === 'bus') { sfx(t => busKneel(t)); say(veh.x, 400, pick(['下一站：好萊塢／高地', '公車沿著好萊塢大道開']), 1.6); }
+    else if (kind === 'police') { sfx(t => tok(t, 520)); say(veh.x, 420, '巡邏車亮燈巡邏（不鳴笛）', 1.6); }
+    else if (kind === 'limo') { sfx(t => tok(t, 380)); say(veh.x, 420, '加長禮車：首映專用', 1.4); }
+    else { sfx(t => blinker(t)); say(veh.x, 420, pick(['閃一下大燈打招呼', '敞篷車最適合加州的陽光', '慢慢開，看看星星']), 1.4); }
+  });
+  return veh;
+}
+function stepVehicles(dt) {
+  VLANES.forEach((L, li) => {
+    const vs = vehicles.filter(v => v.lane === li);
+    vs.forEach(v => {
+      let want = v.base;
+      if (v.stopAt != null) {   // 禮車：停在紅毯前
+        const d = (v.x - v.stopAt) * -v.dir;
+        if (d <= 0 && v.hold) want = 0;
+        else if (v.hold) want = Math.min(want, Math.max(0, d) * 1.4 + 2);
+        if (d <= 1 && v.hold) { v.x = v.stopAt; }
+      }
+      let minGap = Infinity, front = null;
+      vs.forEach(o => { if (o === v) return; const g = laneGap(v, o, VSPAN); if (g < minGap) { minGap = g; front = o; } });
+      const need = front ? (v.len + front.len) / 2 + 24 : 0;
+      if (minGap < need) want = 0;
+      else if (front && minGap < need + 70) want = Math.min(want, front.v * (minGap - need) / 70 + 0);
+      v.v += (want - v.v) * Math.min(1, dt * 2.2);
+      if (v.v < .5 && want === 0) v.v = 0;
+      v.x += v.v * v.dir * dt;
+      if (!v.noWrap) { if (v.x > VX0 + VSPAN) v.x -= VSPAN; if (v.x < VX0) v.x += VSPAN; }
+      v.rot += v.v * dt * 6;
+    });
+  });
+  for (let i = vehicles.length - 1; i >= 0; i--) { const v = vehicles[i]; if (v.noWrap && v.leaving && v.x < VX0) { v.g.remove(); vehicles.splice(i, 1); } }
+  const nl = clamp(nOn + wx.cloud * .3 + wx.rain * .5, 0, 1);
+  vehicles.forEach(v => {
+    const rot = (v.rot % 360).toFixed(0);
+    v.wheels.forEach(w => { const p = w.parentNode, x = +p.dataset.x; const r = +p.querySelector('circle').getAttribute('r'); w.setAttribute('transform', `rotate(${rot} ${x} ${-r})`); });
+    if (v.blink > 0) v.blink -= dt;
+    const bl = v.blink > 0 && frame % 3 === 0 ? 1 : 0;
+    v.beams.forEach(b => b.setAttribute('opacity', f1(Math.max(nl * .8, bl))));
+    v.tglow.forEach(b => b.setAttribute('opacity', f1(nl * .55 + (v.v < 8 ? .25 * nl : 0))));
+    if (v.pl[0]) { const on = v.blink > 0 || v.kind === 'police' && v.flashOn; v.pl[0].setAttribute('opacity', on && frame % 2 ? 1 : .35); v.pl[1].setAttribute('opacity', on && frame % 2 === 0 ? 1 : .35); }
+    if (v.wave > 0) { v.wave -= dt; v.g.querySelectorAll('.tourist').forEach((h, k) => h.setAttribute('transform', `translate(0 ${(frame + k) % 2 ? -3 : 0})`)); }
+    const bob = v.v > 5 && frame % 4 === 0 ? -.6 : 0;
+    v.g.setAttribute('transform', `translate(${f1(v.x)} ${f1(v.y + bob)}) scale(${f1(v.s * v.dir * 100) / 100} ${v.s})`);
+  });
+}
+function buildTraffic() {
+  [['sedan', 160], ['tour', 640], ['convertible', 1120], ['sedan', 1560]].forEach(([k, x]) => addVehicle(0, k, x));
+  [['bus', 20], ['sedan', 480], ['police', 900], ['sedan', 1300], ['convertible', 1700]].forEach(([k, x]) => addVehicle(1, k, x));
+}
+
+/* ---------------- ③ 角色：天上的鸚鵡、老鷹、拉布條的小飛機、夜間直升機 ---------------- */
+const flyers = [];
+const PARROT = `<g filter="url(#clayS)"><ellipse cx="0" cy="0" rx="9" ry="5" style="fill:var(--parrot)"/><path d="M-8 0 L-20 4 L-8 3Z" style="fill:var(--parrot)"/>
+  <circle cx="8" cy="-3" r="4.4" style="fill:var(--parrot)"/><path d="M8 -7 Q11 -8 12 -5Z" style="fill:var(--parrot-red)"/><path d="M12 -3 q4 1 1 4Z" fill="#f2d8a0"/><circle cx="9.4" cy="-3.6" r=".9" fill="#111"/>
+  <path class="wing" d="M-2 -2 Q2 -14 8 -4Z" style="fill:var(--parrot-hi)"/></g>`;
+function parrotsFrom(x, y) {
+  for (let i = 0; i < 5; i++) {
+    const g = el('g', {}, $('flyers')); g.innerHTML = PARROT;
+    const dir = Math.random() < .5 ? -1 : 1;
+    flyers.push({ g, kind: 'parrot', x: x + rand(-20, 20), y: y + rand(-10, 10), vx: dir * rand(140, 220), vy: rand(-80, -20), wing: g.querySelector('.wing'), life: 8, s: rand(.7, .9) });
+  }
+  sfx(t => squawk(t));
+}
+function plane() {
+  const g = el('g', {}, $('flyers'));
+  g.innerHTML = `<g filter="url(#clayS)"><path d="M-30 -2 L18 -4 Q28 -2 28 2 Q28 6 18 6 L-30 4Z" fill="#f6f0e4"/><path d="M-4 -2 L-12 -16 L-4 -16 L6 -2Z M-4 4 L-12 18 L-4 18 L6 4Z" fill="#e8445a"/><path d="M-30 -2 L-36 -12 L-28 -12 L-24 -2Z" fill="#e8445a"/><rect x="12" y="-3" width="8" height="4" rx="2" fill="#9ad0e8"/></g>
+    <path class="prop" d="M29 -8 L29 12" stroke="#555" stroke-width="2"/>
+    <path d="M-36 2 L-60 2" stroke="#8a8a8a" stroke-width="1"/>
+    <g class="banner"><path d="M-60 -10 L-200 -10 L-196 2 L-200 14 L-60 14Z" fill="#fbf8f0"/><text x="-130" y="2.5" class="signTxt" font-size="13" fill="#c8142e">★ HELLO LA ★</text></g>`;
+  flyers.push({ g, kind: 'plane', x: -100, y: rand(50, 90), vx: 110, vy: 0, life: 22, s: .8, dir: 1 });
+  sfx(t => planeDrone(t));
+}
+function helicopter() {
+  const g = el('g', {}, $('flyers'));
+  g.innerHTML = `<path class="spotB" d="M-3 8 L-60 360 L60 360 L3 8Z" fill="#fff6d8" opacity=".16"/>
+    <g filter="url(#clayS)"><ellipse cx="0" cy="0" rx="18" ry="10" fill="#2a3a5a"/><path d="M-16 -2 L-46 -4 L-46 2 L-16 4Z" fill="#2a3a5a"/><path d="M-46 -10 L-44 4" stroke="#2a3a5a" stroke-width="3"/>
+    <ellipse cx="8" cy="-1" rx="7" ry="5" fill="#9ad0e8"/><path d="M-10 12 L14 12 M-6 10 L-6 12 M8 10 L8 12" stroke="#3a3a44" stroke-width="2"/></g>
+    <path class="rotor" d="M-34 -14 L34 -14" stroke="#3a3a44" stroke-width="2.4" stroke-linecap="round"/><circle cx="0" cy="-12" r="2" fill="#3a3a44"/>
+    <circle class="blinkL" cx="-46" cy="-10" r="2.4" fill="#ff3a3a"/>`;
+  flyers.push({ g, kind: 'heli', x: -80, y: rand(70, 110), vx: 90, vy: 0, life: 22, s: .85, dir: 1, rotor: g.querySelector('.rotor'), blink: g.querySelector('.blinkL') });
+  sfx(t => heliSound(t));
+}
+function hawk() {
+  const g = el('g', {}, $('flyers'));
+  g.innerHTML = `<g filter="url(#clayS)"><path class="wing" d="M-24 0 Q-10 -10 0 -2 Q10 -10 24 0 Q10 -4 0 4 Q-10 -4 -24 0Z" style="fill:var(--hawk)"/><ellipse cx="0" cy="1" rx="5" ry="8" style="fill:var(--hawk)"/><path d="M-3 8 L0 14 L3 8Z" fill="#c8603a"/></g>`;
+  flyers.push({ g, kind: 'hawk', cx: 1310, cy: 96, a: 0, life: 10, s: .8 });
+}
+function stepFlyers(dt) {
+  for (let i = flyers.length - 1; i >= 0; i--) {
+    const f = flyers[i];
+    f.life -= dt;
+    if (f.kind === 'parrot') {
+      f.x += f.vx * dt; f.y += f.vy * dt; f.vy += (Math.sin(frame * .4 + i) * 30 - f.vy * .5) * dt;
+      f.wing.setAttribute('transform', frame % 2 ? 'scale(1 -1) translate(0 4)' : '');
+      f.g.setAttribute('transform', `translate(${f1(f.x)} ${f1(f.y)}) scale(${f1(f.s * Math.sign(f.vx))} ${f1(f.s)})`);
+    } else if (f.kind === 'hawk') {
+      f.a += dt * .9;
+      const x = f.cx + Math.cos(f.a) * 90, y = f.cy + Math.sin(f.a) * 26;
+      f.g.setAttribute('transform', `translate(${f1(x)} ${f1(y)}) scale(${f1(f.s)}) rotate(${f1(Math.sin(f.a) * 12)})`);
+      f.g.querySelector('.wing').setAttribute('transform', frame % 6 < 3 ? '' : 'scale(1 .8)');
+      f.g.setAttribute('opacity', f1(clamp(f.life, 0, 1)));
+    } else {
+      f.x += f.vx * dt;
+      if (f.rotor) { f.rotor.setAttribute('transform', `scale(${frame % 2 ? 1 : .3} 1)`); f.blink.setAttribute('opacity', frame % 6 < 2 ? 1 : .2); }
+      if (f.kind === 'plane') f.g.querySelector('.prop').setAttribute('transform', `scale(1 ${frame % 2 ? 1 : .3})`);
+      f.g.setAttribute('transform', `translate(${f1(f.x)} ${f1(f.y + Math.sin(frame * .15) * 2)}) scale(${f1(f.s)})`);
+    }
+    const out = f.x < -260 || f.x > 1900 || f.y < -80;
+    if (f.life <= 0 || (f.kind !== 'hawk' && f.kind !== 'parrot' && out) || (f.kind === 'parrot' && out)) { f.g.remove(); flyers.splice(i, 1); }
+  }
+}
+
+/* ---------------- ③ 特效：閃光燈、亮晶晶、熱氣、彩帶 ---------------- */
+const fx = [];
+function flashAt(x, y, k = 1) {
+  const g = el('g', { transform: `translate(${f1(x)} ${f1(y)})` }, LG.flashLights);
+  el('circle', { r: 26 * k, fill: 'url(#flashGrad)' }, g);
+  el('path', { d: 'M0 -14 L2 -2 L14 0 L2 2 L0 14 L-2 2 L-14 0 L-2 -2Z', fill: '#fff', transform: `scale(${f1(k)}) rotate(${f1(rand(0, 45))})` }, g);
+  fx.push({ g, kind: 'flash', life: .25 });
+}
+function sparkle(x, y) {
+  const g = el('path', { d: 'M0 -6 L1.4 -1.4 L6 0 L1.4 1.4 L0 6 L-1.4 1.4 L-6 0 L-1.4 -1.4Z', fill: '#fff8c8', transform: `translate(${f1(x)} ${f1(y)})` }, LG.flashLights);
+  fx.push({ g, kind: 'spark', life: rand(.5, .9), x, y, vy: -rand(10, 30) });
+}
+function puff(x, y, big, col = '#f6f0e4') {
+  const c = el('circle', { cx: f1(x), cy: f1(y), r: big ? 5 : 3.5, fill: col, opacity: .7 }, $('fx'));
+  fx.push({ g: c, kind: 'puff', life: big ? 2 : 1.4, x, y, r: big ? 5 : 3.5, vx: rand(-5, 5) - wind * 20, vy: -rand(14, 24) });
+}
+const CONF = ['--confetti-1', '--confetti-2', '--confetti-3', '--confetti-4', '--confetti-5'];
+function confetti(x, y, n = 30, spread = 1) {
+  for (let i = 0; i < n; i++) {
+    const r = el('rect', { width: rand(4, 7), height: rand(2.4, 4), rx: 1, style: `fill:var(${pick(CONF)})` }, $('fx'));
+    fx.push({ g: r, kind: 'conf', life: rand(2.5, 4), x, y, vx: rand(-160, 160) * spread, vy: rand(-320, -160), rot: rand(0, 360), vr: rand(-400, 400) });
+  }
+}
+function stepFx(dt) {
+  for (let i = fx.length - 1; i >= 0; i--) {
+    const p = fx[i];
+    p.life -= dt;
+    if (p.life <= 0) { p.g.remove(); fx.splice(i, 1); continue; }
+    if (p.kind === 'flash') p.g.setAttribute('opacity', f1(p.life / .25));
+    else if (p.kind === 'spark') { p.y += p.vy * dt; p.g.setAttribute('transform', `translate(${f1(p.x)} ${f1(p.y)}) scale(${f1(.5 + p.life)}) rotate(${frame * 20})`); p.g.setAttribute('opacity', f1(Math.min(1, p.life * 2))); }
+    else if (p.kind === 'puff') { p.x += p.vx * dt; p.y += p.vy * dt; p.r += dt * 5; p.g.setAttribute('cx', f1(p.x)); p.g.setAttribute('cy', f1(p.y)); p.g.setAttribute('r', f1(p.r)); p.g.setAttribute('opacity', f1(Math.min(.7, p.life * .5))); }
+    else if (p.kind === 'conf') {
+      p.vy += 360 * dt; p.vx *= .985; if (p.vy > 70) p.vy = 70;
+      p.x += (p.vx - wind * 60) * dt; p.y += p.vy * dt; p.rot += p.vr * dt;
+      if (p.y > 596) { p.y = 596; p.vx = 0; p.vr = 0; }
+      p.g.setAttribute('transform', `translate(${f1(p.x)} ${f1(p.y)}) rotate(${f1(p.rot)}) scale(1 ${f1(Math.abs(Math.cos(p.rot * .05)) + .2)})`);
+      p.g.setAttribute('opacity', f1(Math.min(1, p.life)));
+    }
+  }
+}
+
+/* ---------------- ⑤ 互動：聲音引擎（音樂軌、音效軌分開；同軌新聲音淡出舊的） ---------------- */
+let actx = null, master = null, sfxBus = null, musBus = null, soundOn = true, userGesture = false, noiseBuf = null, rainGain = null, windGain = null, murmurGain = null;
+let musNode = null, sfxNode = null, OUT = null, pickAudio = false;
+// 是否在網站「作者精選」播放區（純插畫版放在 iframe 裡）
+const inPicks = (() => { let top = true; try { top = window.top === window; } catch (e) { top = false; } return !!document.getElementById('pure-art') && !top; })();
+const quiet = () => inPicks && !pickAudio;   // 精選區還沒打開配樂時，一律不出聲
+function ensureAudio() {
+  if (!actx) {
+    const AC = window.__SceneAudioContext || window.AudioContext || window.webkitAudioContext;
+    if (!AC) return null;
+    actx = new AC();
+    master = actx.createGain(); master.gain.value = soundOn ? .5 : 0;
+    const comp = actx.createDynamicsCompressor(); comp.threshold.value = -16; comp.ratio.value = 3;
+    master.connect(comp); comp.connect(actx.destination);
+    sfxBus = actx.createGain(); sfxBus.connect(master);
+    musBus = actx.createGain(); musBus.gain.value = .64; /* 音樂軌音量 ×0.64（2026-11-24 兩次各調降 20%） */ musBus.connect(master);
+  }
+  if (actx.state === 'suspended' && userGesture) actx.resume();
+  return actx;
+}
+const audioOK = () => !quiet() && actx && actx.state === 'running' && soundOn;
+// 精選區交來的 AudioContext：改用它出聲
+function useCtx(c) {
+  actx = c; noiseBuf = null; musNode = sfxNode = null; rainGain = windGain = murmurGain = null;
+  master = actx.createGain(); master.gain.value = soundOn ? .5 : 0;
+  const comp = actx.createDynamicsCompressor(); comp.threshold.value = -16; comp.ratio.value = 3;
+  master.connect(comp); comp.connect(actx.destination);
+  sfxBus = actx.createGain(); sfxBus.connect(master);
+  musBus = actx.createGain(); musBus.gain.value = .64; /* 音樂軌音量 ×0.64（2026-11-24 兩次各調降 20%） */ musBus.connect(master);
+}
+function newTrack(kind) {
+  const bus = kind === 'mus' ? musBus : sfxBus;
+  const g = actx.createGain(); g.connect(bus);
+  const old = kind === 'mus' ? musNode : sfxNode;
+  if (old) { old.gain.setTargetAtTime(0, actx.currentTime, .12); setTimeout(() => { try { old.disconnect(); } catch (e) {} }, 900); }
+  if (kind === 'mus') musNode = g; else sfxNode = g;
+  return g;
+}
+function nbuf() {
+  if (!noiseBuf) { noiseBuf = actx.createBuffer(1, actx.sampleRate * 2, actx.sampleRate); const d = noiseBuf.getChannelData(0); for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1; }
+  return noiseBuf;
+}
+function gainEnv(t, a, d, v, dest) {
+  const g = actx.createGain();
+  g.gain.setValueAtTime(.0001, t); g.gain.linearRampToValueAtTime(v, t + a); g.gain.exponentialRampToValueAtTime(.0001, t + a + d);
+  g.connect(dest || OUT || sfxBus); return g;
+}
+// 有持續段的包絡：起音 a、持續 hold、釋放 rel
+function holdEnv(t, a, hold, rel, v, dest) {
+  const g = actx.createGain();
+  g.gain.setValueAtTime(.0001, t); g.gain.linearRampToValueAtTime(v, t + a);
+  g.gain.setValueAtTime(v * .85, t + a + hold); g.gain.exponentialRampToValueAtTime(.0001, t + a + hold + rel);
+  g.connect(dest || OUT || sfxBus); return g;
+}
+function osc(type, f, t, dur, dest) { const o = actx.createOscillator(); o.type = type; o.frequency.value = f; o.connect(dest); o.start(t); o.stop(t + dur + .05); return o; }
+function noise(t, dur, freq, vol, type = 'bandpass', q = 1, a = .004, dest) {
+  const s = actx.createBufferSource(); s.buffer = nbuf(); s.loop = true;
+  const f = actx.createBiquadFilter(); f.type = type; f.frequency.value = freq; f.Q.value = q;
+  s.connect(f); f.connect(gainEnv(t, a, dur, vol, dest)); s.start(t); s.stop(t + a + dur + .1); return f;
+}
+// 一般音效：每個新的音效自成一段，同軌淡出前一個
+const sfx = fn => { if (!audioOK()) return; OUT = newTrack('sfx'); fn(actx.currentTime + .02); OUT = null; };
+// 環境聲：雨聲、強風、首映前的人群嘈雜（持續的濾波噪音，跟著天氣大小聲）
+function loopNoise(type, f1q, f2, gainMul) {
+  const s = actx.createBufferSource(); s.buffer = nbuf(); s.loop = true;
+  const a = actx.createBiquadFilter(); a.type = type; a.frequency.value = f1q;
+  const b = actx.createBiquadFilter(); b.type = 'lowpass'; b.frequency.value = f2;
+  const g = actx.createGain(); g.gain.value = 0; g.mul = gainMul;
+  s.connect(a); a.connect(b); b.connect(g); g.connect(sfxBus); s.start();
+  return g;
+}
+function ambience() {
+  if (!actx || actx.state !== 'running') return;
+  if (!rainGain) { rainGain = loopNoise('highpass', 600, 5200, .07); windGain = loopNoise('bandpass', 420, 900, .09); murmurGain = loopNoise('bandpass', 700, 1600, .05); }
+  const on = soundOn && !quiet() ? 1 : 0, t = actx.currentTime;
+  rainGain.gain.setTargetAtTime(on * wx.rain * rainGain.mul, t, .3);
+  windGain.gain.setTargetAtTime(on * wx.wind * windGain.mul * (.7 + .3 * Math.sin(frame * .2)), t, .3);
+  const crowd = show.on === 'premiere' ? (pct < 0 ? .8 : pct < 15 ? .5 : .2) : show.on === 'star' ? .35 : 0;
+  murmurGain.gain.setTargetAtTime(on * crowd * murmurGain.mul, t, .4);
+}
+const duckMusic = sec => { try { window.sceneMusic && window.sceneMusic.duck(sec); } catch (e) {} };
+function duckSfx(sec) { if (!actx) return; const t = actx.currentTime; sfxBus.gain.setTargetAtTime(.35, t, .2); sfxBus.gain.setTargetAtTime(1, t + sec, .6); }
+
+/* ---------------- ⑤ 互動：音效（每個都做成聽得出是什麼的聲音） ---------------- */
+const hz = n => 440 * Math.pow(2, (n - 69) / 12);
+function tok(t, f = 700) { osc('sine', f, t, .12, gainEnv(t, .004, .1, .12)); noise(t, .03, f * 2, .04, 'bandpass', 3); }
+function chime(t) { [84, 88, 91, 96].forEach((n, i) => osc('sine', hz(n), t + i * .07, .7, gainEnv(t + i * .07, .004, .7, .06))); }
+function shutter(t) {   // 相機快門「喀嚓」＋閃光燈充電的細細高音
+  noise(t, .02, 3500, .16, 'highpass', 1); noise(t + .07, .03, 2400, .12, 'bandpass', 2);
+  const o = osc('sine', 2400, t + .1, .35, gainEnv(t + .1, .02, .3, .015)); o.frequency.exponentialRampToValueAtTime(6000, t + .4);
+}
+function cheer(t, v = 1) {   // 人群歡呼：幾組母音頻帶的噪音一起湧上來＋口哨
+  [520, 780, 1150, 1600, 2300].forEach((f, i) => { const fl = noise(t + i * .03, 1.1, f, .05 * v, 'bandpass', 4, .18); fl.frequency.linearRampToValueAtTime(f * 1.1, t + .8); });
+  for (let k = 0; k < 2; k++) { const tt = t + .15 + k * .35; const o = osc('sine', 1900, tt, .4, gainEnv(tt, .03, .35, .04 * v)); o.frequency.linearRampToValueAtTime(2700, tt + .15); o.frequency.linearRampToValueAtTime(2300, tt + .35); }
+}
+function applause(t, dur = 3, v = 1, dest) {   // 掌聲：很多短促的拍手聲
+  const n = Math.floor(dur * 40);
+  for (let i = 0; i < n; i++) { const tt = t + Math.random() * dur; noise(tt, .02, rand(1200, 3200), .035 * v * (1 - (tt - t) / dur * .5), 'bandpass', 1.4, .002, dest); }
+}
+function clunk(t) {   // 探照燈轉動：機械咔噠＋馬達嗡嗡聲
+  osc('sine', 90, t, .2, gainEnv(t, .004, .2, .2)); noise(t, .05, 900, .1, 'bandpass', 2);
+  const f = actx.createBiquadFilter(); f.type = 'lowpass'; f.frequency.value = 500; f.connect(holdEnv(t + .05, .1, 1.1, .3, .05));
+  const o = osc('sawtooth', 110, t + .05, 1.5, f); o.frequency.linearRampToValueAtTime(150, t + .8); o.frequency.linearRampToValueAtTime(110, t + 1.5);
+}
+function rustle(t) { for (let i = 0; i < 26; i++) noise(t + i * .04 + Math.random() * .03, .04, 2500 + Math.random() * 2500, .045, 'highpass', .8); }
+function squawk(t) {   // 鸚鵡「嘎——嘎」
+  for (let k = 0; k < 4; k++) {
+    const tt = t + .1 + k * .28;
+    const f = actx.createBiquadFilter(); f.type = 'bandpass'; f.frequency.value = 1800; f.Q.value = 2; f.connect(gainEnv(tt, .01, .16, .09));
+    const o = osc('square', 900, tt, .18, f); o.frequency.linearRampToValueAtTime(1400, tt + .05); o.frequency.linearRampToValueAtTime(800, tt + .17);
+  }
+}
+function vacuum(t) {   // 吸塵器：馬達嗡聲往上爬＋氣流聲
+  const f = actx.createBiquadFilter(); f.type = 'lowpass'; f.frequency.value = 1200; f.connect(holdEnv(t, .2, 1.2, .3, .06));
+  const o = osc('sawtooth', 160, t, 1.8, f); o.frequency.linearRampToValueAtTime(240, t + .6);
+  noise(t, 1.5, 1400, .05, 'bandpass', .8, .2);
+}
+function sizzle(t) { for (let i = 0; i < 40; i++) noise(t + Math.random() * 1.6, .015, rand(4000, 8000), .05, 'highpass', 1); noise(t, 1.6, 6000, .025, 'highpass', .7, .1); }
+function scrubSound(t) { for (let i = 0; i < 8; i++) noise(t + i * .14, .1, 2200, .06, 'bandpass', 1.2, .02); }
+function busKneel(t) { noise(t, .9, 3000, .1, 'highpass', .7, .02); osc('sine', 70, t, 1, gainEnv(t, .1, .9, .08)); }
+function blinker(t) { [0, .34, .68].forEach(d => { noise(t + d, .015, 1800, .12, 'bandpass', 3); noise(t + d + .17, .015, 1300, .1, 'bandpass', 3); }); }
+function planeDrone(t) {
+  const f = actx.createBiquadFilter(); f.type = 'lowpass'; f.frequency.value = 500; f.connect(holdEnv(t, 1.5, 3, 2.5, .05));
+  osc('sawtooth', 92, t, 7, f); osc('sawtooth', 94.5, t, 7, f);
+}
+function heliSound(t) {   // 直升機：低沉的噠噠噠旋翼聲
+  for (let i = 0; i < 60; i++) { const tt = t + i * .085; noise(tt, .05, 220, .14 * Math.min(1, i / 10, (60 - i) / 15), 'lowpass', .7, .005); }
+}
+function confPop(t) { osc('sine', 140, t, .2, gainEnv(t, .003, .18, .25)).frequency.exponentialRampToValueAtTime(60, t + .15); noise(t, .12, 1800, .2, 'bandpass', .7); for (let i = 0; i < 20; i++) noise(t + .1 + Math.random() * .8, .02, rand(3000, 6000), .03, 'highpass', 1); }
+function doorThud(t) { osc('sine', 85, t, .25, gainEnv(t, .003, .22, .25)); noise(t, .06, 500, .12, 'lowpass', .7); }
+function saxRiff(t0) {   // 薩克斯風：鋸齒波＋濾波＋顫音，吹一段 F 大調藍調樂句
+  const L = [[65, .22], [68, .22], [70, .22], [71, .22], [72, .44], [70, .22], [68, .22], [65, .5], [63, .22], [65, .9]];
+  let t = t0;
+  L.forEach(([n, d]) => {
+    const bp = actx.createBiquadFilter(); bp.type = 'bandpass'; bp.frequency.value = 1100; bp.Q.value = .9;
+    const lp = actx.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 2600;
+    bp.connect(lp); lp.connect(holdEnv(t, .04, d * .8, .12, .11));
+    const o1 = osc('sawtooth', hz(n), t, d + .2, bp), o2 = osc('square', hz(n) * 1.003, t, d + .2, bp);
+    const lfo = actx.createOscillator(); lfo.frequency.value = 5.5; const lg = actx.createGain(); lg.gain.value = hz(n) * .012;
+    lfo.connect(lg); lg.connect(o1.frequency); lg.connect(o2.frequency); lfo.start(t + .08); lfo.stop(t + d + .2);
+    noise(t, .05, 2500, .02, 'bandpass', 2);   // 吹氣聲
+    t += d;
+  });
+}
+
+/* ---------------- ⑤ 互動：原創配樂的樂器 ---------------- */
+function brass(t, f, d, v, dest) {   // 銅管：兩把稍微走音的鋸齒波，濾波器打開再收回
+  const lp = actx.createBiquadFilter(); lp.type = 'lowpass'; lp.Q.value = 1.2;
+  lp.frequency.setValueAtTime(500, t); lp.frequency.linearRampToValueAtTime(2800, t + .06); lp.frequency.linearRampToValueAtTime(1500, t + Math.min(d, .4));
+  lp.connect(holdEnv(t, .03, Math.max(.05, d - .08), .12, v, dest));
+  osc('sawtooth', f, t, d + .2, lp); osc('sawtooth', f * 1.004, t, d + .2, lp);
+}
+function piano(t, f, d, v, dest) { osc('triangle', f, t, d + 1, gainEnv(t, .004, d * 1.4 + .3, v, dest)); osc('sine', f * 2, t, d + .6, gainEnv(t, .004, d * .7 + .1, v * .3, dest)); }
+function bass(t, f, d, v, dest) {
+  const lp = actx.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 700; lp.connect(holdEnv(t, .01, d * .6, .15, v, dest));
+  osc('triangle', f, t, d + .2, lp); osc('sine', f, t, d + .2, lp);
+}
+function kick(t, v, dest) { const o = osc('sine', 110, t, .3, gainEnv(t, .003, .28, v, dest)); o.frequency.exponentialRampToValueAtTime(48, t + .2); }
+function snare(t, v, dest) { noise(t, .12, 2500, v, 'highpass', .7, .002, dest); osc('triangle', 220, t, .06, gainEnv(t, .002, .06, v * .5, dest)); }
+function ride(t, v, dest) { noise(t, .25, 7000, v, 'highpass', .8, .002, dest); osc('sine', 5300, t, .2, gainEnv(t, .002, .2, v * .15, dest)); }
+function brush(t, v, dest) { noise(t, .18, 3000, v, 'bandpass', .6, .05, dest); }
+function crash(t, v, dest) { noise(t, 2.2, 4500, v, 'highpass', .6, .003, dest); }
+function timp(t, f, v, dest) { const o = osc('sine', f * 1.05, t, 1.3, gainEnv(t, .005, 1.2, v, dest)); o.frequency.exponentialRampToValueAtTime(f, t + .1); noise(t, .1, 200, v * .4, 'lowpass', .7, .002, dest); }
+function roll(t, dur, v0, v1, dest, drum = 'snare', f = 65) {
+  const n = Math.floor(dur * 22);
+  for (let i = 0; i < n; i++) { const tt = t + i / 22, v = v0 + (v1 - v0) * i / n; if (drum === 'snare') noise(tt, .05, 2600, v, 'highpass', .7, .002, dest); else timp(tt, f, v, dest); }
+}
+function glock(t, f, v, dest) { osc('sine', f, t, 1, gainEnv(t, .002, .9, v, dest)); osc('sine', f * 4, t, .3, gainEnv(t, .002, .25, v * .2, dest)); }
+// 依「第幾拍」排音符；B 是一拍幾秒
+function seq(t0, B, start, notes, fn) { let b = start; notes.forEach(([n, d]) => { if (n) fn(t0 + b * B, hz(n), d * B); b += d; }); return b; }
+
+// 紅毯首映（原創，C 大調，120 BPM，約 20 秒）：定音鼓滾奏 → 銅管號角 → 搖擺爵士大樂隊 → 收尾大和弦
+function premiereMusic(t0) {
+  const D = newTrack('mus'), B = .5;
+  roll(t0, 2, .01, .09, D, 'snare'); roll(t0, 2, .04, .14, D, 'timp', 65.4);
+  // 號角（第 4–11 拍）
+  seq(t0, B, 4, [[67, .5], [72, .5], [76, .5], [79, 1.5], [76, .5], [79, .5], [84, 3]], (t, f, d) => { brass(t, f, d, .09, D); brass(t, f / 2, d, .05, D); });
+  [[4, [48, 52, 55]], [8, [53, 57, 60]], [10, [55, 59, 62]]].forEach(([b, ch], i) => { ch.forEach(n => brass(t0 + b * B, hz(n), i ? 1.9 * B : 3.9 * B, .045, D)); timp(t0 + b * B, i === 0 ? 65.4 : i === 1 ? 87.3 : 98, .2, D); });
+  crash(t0 + 4 * B, .08, D);
+  // 搖擺段（第 12–36 拍）：旋律
+  seq(t0, B, 12, [[76, 1], [77, .5], [79, 1.5], [81, 1], [79, 1], [76, 1], [72, 2],
+                  [74, 1], [76, .5], [77, 1.5], [79, 1], [77, 1], [74, 1], [71, 2],
+                  [72, .5], [76, .5], [79, .5], [84, 1.5], [83, 1], [81, 1], [79, 1], [76, 2]], (t, f, d) => brass(t, f, d, .08, D));
+  // 行走低音與和弦切分
+  const BASS = [[36, 40, 43, 45], [33, 36, 40, 43], [38, 41, 45, 43], [31, 35, 38, 40], [41, 45, 48, 47], [43, 47, 50, 48]];
+  const CH = [[60, 64, 67], [57, 60, 64], [62, 65, 69], [59, 62, 67], [57, 60, 65], [59, 62, 65]];
+  BASS.forEach((bar, k) => {
+    bar.forEach((n, i) => bass(t0 + (12 + k * 4 + i) * B, hz(n), B * .9, .16, D));
+    [1.66, 3.66].forEach(off => CH[k].forEach(n => brass(t0 + (12 + k * 4 + off) * B, hz(n), .18, .03, D)));
+  });
+  // 鼓：搖擺的 ride、二四拍小鼓、一三拍大鼓
+  for (let b = 12; b < 36; b++) {
+    ride(t0 + b * B, .03, D); if (b % 2) ride(t0 + (b + .66) * B, .02, D);
+    if (b % 2) snare(t0 + b * B, .05, D); else kick(t0 + b * B, .18, D);
+  }
+  // 收尾（第 36–40 拍）
+  seq(t0, B, 36, [[84, 1]], (t, f, d) => brass(t, f, d, .09, D));
+  [48, 60, 64, 67, 72].forEach(n => brass(t0 + 37 * B, hz(n), 2.4 * B, .055, D));
+  roll(t0 + 36 * B, B, .03, .08, D, 'snare'); crash(t0 + 37 * B, .1, D); timp(t0 + 37 * B, 65.4, .25, D);
+}
+// 星星揭幕典禮（原創，F 大調，120 BPM，約 20 秒）：酒廊鋼琴 → 小鼓滾奏 → 揭幕銅管＋鐘琴 → 輕快搖擺 → 收尾
+function ceremonyMusic(t0) {
+  const D = newTrack('mus'), B = .5;
+  // 前奏：慵懶的酒廊鋼琴和弦（Fmaj7、Dm7、Gm7、C7），刷子鼓
+  [[0, [53, 57, 60, 64], 41], [4, [50, 53, 57, 60], 38], [8, [55, 58, 62, 65], 43], [12, [48, 52, 55, 58], 36]].forEach(([b, ch, root]) => {
+    ch.forEach((n, i) => piano(t0 + (b + i * .25) * B, hz(n), B * 3, .05, D));
+    bass(t0 + b * B, hz(root), B * 1.8, .14, D); bass(t0 + (b + 2) * B, hz(root + 7), B * 1.8, .12, D);
+  });
+  for (let b = 0; b < 14; b++) brush(t0 + b * B, .025, D);
+  seq(t0, B, 1, [[72, 1], [69, 1], [0, 2], [74, 1], [72, 1], [0, 2], [70, 1], [74, 1], [0, 2], [76, 2]], (t, f, d) => piano(t, f, d, .05, D));
+  // 第 14–20 拍：小鼓滾奏越來越大聲
+  roll(t0 + 14 * B, 6 * B, .01, .12, D, 'snare');
+  roll(t0 + 17 * B, 3 * B, .03, .12, D, 'timp', 87.3);
+  // 第 20 拍：揭幕！銅管大和弦＋鐘琴往上灑
+  crash(t0 + 20 * B, .12, D); timp(t0 + 20 * B, 87.3, .3, D);
+  [53, 57, 60, 65].forEach(n => brass(t0 + 20 * B, hz(n), 1.6 * B, .06, D));
+  [77, 81, 84, 89, 93].forEach((n, i) => glock(t0 + (20 + i * .25) * B, hz(n), .06, D));
+  // 第 20–36 拍：輕快的搖擺小調
+  seq(t0, B, 21.5, [[72, 1], [69, .5], [72, .5], [74, 1], [72, .5],
+                    [77, 1.5], [76, .5], [74, 1], [70, 1],
+                    [72, 1], [70, .5], [69, .5], [67, 1], [64, 1],
+                    [65, 1], [69, 1], [72, 1], [77, .5]], (t, f, d) => { piano(t, f, d, .07, D); piano(t, f * 2, d, .02, D); });
+  const WB = [[41, 45, 48, 46], [46, 50, 53, 48], [48, 52, 55, 46], [41, 45, 48, 40]];
+  const PC = [[57, 60, 64], [58, 62, 65], [58, 64, 67], [57, 60, 64]];
+  WB.forEach((bar, k) => {
+    bar.forEach((n, i) => bass(t0 + (20 + k * 4 + i) * B, hz(n), B * .9, .15, D));
+    [1.66, 3.66].forEach(off => PC[k].forEach(n => piano(t0 + (20 + k * 4 + off) * B, hz(n), .2, .03, D)));
+  });
+  for (let b = 21; b < 36; b++) { ride(t0 + b * B, .03, D); if (b % 2) { ride(t0 + (b + .66) * B, .02, D); snare(t0 + b * B, .03, D); } }
+  // 收尾
+  seq(t0, B, 36, [[77, .5], [72, .5], [69, .5], [65, .5]], (t, f, d) => piano(t, f, d, .07, D));
+  [41, 53, 57, 62, 65].forEach(n => piano(t0 + 38 * B, hz(n), 2 * B, .06, D));
+  [77, 81, 86].forEach((n, i) => glock(t0 + (38 + i * .2) * B, hz(n), .04, D));
+  ride(t0 + 38 * B, .05, D);
+}
+
+/* ---------------- ④ 動畫：日夜 ---------------- */
+const T = { t: 16.5 / 24, auto: true, target: null, dragging: false };
+let night = 0, dusk = 0, nOn = 0, lastApplied = -1;
+function clockText() {
+  const h = T.t * 24, hh = Math.floor(h) % 24, mm = Math.floor((h - Math.floor(h)) * 60 + 1e-6);
+  return `${String(hh).padStart(2, '0')}:${String(mm).padStart(2, '0')}`;
+}
+function applyTime(force) {
+  if (!force && Math.abs(T.t - lastApplied) < .0003) return;
+  lastApplied = T.t;
+  const h = T.t * 24;
+  night = clamp(1 - smooth(5.6, 7.2, h) + smooth(18.2, 19.8, h), 0, 1);
+  dusk = Math.max(Math.exp(-Math.pow((h - 6.5) / 1, 2)), Math.exp(-Math.pow((h - 18.9) / 1, 2)));
+  for (const k in PAIRS) {
+    const Pp = PAIRS[k];
+    let c = mix(Pp.d, Pp.n, night);
+    if (Pp.k) c = mix(c, Pp.k, dusk * .85);
+    root.style.setProperty('--' + k, rgba(c));
+  }
+  // 吊在線上的太陽、月亮：從左邊升起往右邊落下（低的時候會沉到山丘後面）
+  const sp = (h - 6) / 13, mp = ((h - 18.9 + 24) % 24) / 11.1;
+  $('sun').setAttribute('transform', `translate(${f1(120 + sp * 1360)} ${f1(250 - Math.sin(Math.PI * clamp(sp, 0, 1)) * 175)})`);
+  $('sun').style.display = sp > -.05 && sp < 1.05 ? '' : 'none';
+  $('moon').setAttribute('transform', `translate(${f1(120 + mp * 1360)} ${f1(250 - Math.sin(Math.PI * clamp(mp, 0, 1)) * 165)})`);
+  $('moon').style.display = mp > -.05 && mp < 1.05 ? '' : 'none';
+  nOn = smooth(.35, .9, night);
+  $('clock').textContent = clockText();
+  if (!T.dragging) $('timeRange').value = Math.round(T.t * 1000);
+}
+
+/* ---------------- ④ 動畫：天氣（洛杉磯多半晴朗；初夏早上常有海霧、冬天偶爾下雨、秋冬會吹乾熱的聖塔安娜風） ---------------- */
+const WX_LIST = [['sun', '晴'], ['fog', '海霧'], ['rain', '冬雨'], ['wind', '聖塔安娜強風']];
+let wxI = 0, wind = .25, gust = 0;
+const wx = { fog: 0, rain: 0, wind: 0, cloud: 0 };
+const rainDrops = [], dustMotes = [];
+function buildWeather() {
+  for (let i = 0; i < 130; i++) {
+    const l = el('line', { style: 'stroke:var(--rainc)', 'stroke-width': 2, opacity: .85, 'stroke-linecap': 'round' }, $('rain'));
+    rainDrops.push({ el: l, x: srand(-100, 1700), y: srand(-40, 600), sp: srand(620, 820) });
+  }
+  for (let i = 0; i < 70; i++) {
+    const big = i < 8;
+    const d = big ? el('path', { d: 'M0 0 q8 -4 16 0 q-8 3 -16 0Z', style: 'fill:var(--palm-dry)' }, $('dust')) : el('circle', { r: f1(srand(1, 2.6)), style: 'fill:var(--dust)', opacity: .7 }, $('dust'));
+    dustMotes.push({ el: d, x: srand(0, 1600), y: srand(60, 590), sp: srand(260, 520), ph: srand(0, 6), big });
+  }
+}
+
+/* ---------------- ④ 動畫：兩種表演（不能同時進行） ----------------
+   premiere：紅毯首映——時間轉到入夜，探照燈交叉掃動，人群鼓譟；加長禮車開到紅毯前停好，
+             配樂響起：明星（原創人物）從禮車下來、走上紅毯、在背板前擺姿勢，攝影師閃光燈連發、
+             粉絲跳起來揮牌子，最後揮手走進戲院，禮車開走（配樂約 20 秒）
+   star    ：星星揭幕典禮——人行道上擺出講台與蓋著紅絨布的星星，行人停下來圍觀；主持人致詞、
+             主角走進來，小鼓滾奏後掀開紅布，新星星閃閃發亮、彩帶炮噴發、大家鼓掌（約 22 秒，配樂約 20 秒） */
+const show = { on: '', t: 0, dur: 0 };
+let pct = -1, limo = null, premDim = 0;
+const CER_X = 838;
+const cer = { g: null, cloth: null, host: null, hero: null, extras: [], pressX: [], shine: 0, clothUp: 0 };
+function startPremiere(auto) {
+  if (show.on) { busy(); return; }
+  ensureAudio();
+  Object.assign(show, { on: 'premiere', t: 0, dur: 60, cheered: false });
+  pct = -1;
+  $('btnPremiere').classList.add('on');
+  const h = T.t * 24;
+  if (h > 5.5 && h < 19.6) goTo(20.2 / 24);
+  // 禮車從右邊進來；若右側入口剛好有車，就排在它後面
+  let x = 1720;
+  vehicles.filter(v => v.lane === 0).forEach(v => { if (Math.abs(v.x - x) < 200) x = Math.max(x, v.x + 200); });
+  limo = addVehicle(0, 'limo', x, 'var(--limo)');
+  Object.assign(limo, { noWrap: true, stopAt: 600, hold: true, base: 230 });
+  celeb.on = true; celeb.ph = 0;
+  say(800, 120, pick(['首映夜！探照燈打亮天空', '禮車要來了！', 'Red carpet time!']), 1.8);
+  if (!auto) sfx(t => cheer(t, .6));
+}
+function startCeremony(auto) {
+  if (show.on) { busy(); return; }
+  ensureAudio();
+  Object.assign(show, { on: 'star', t: 0, dur: 22 });
+  cer.g.style.display = ''; cer.clothUp = 0; cer.shine = 0;
+  cer.cloth.setAttribute('transform', ''); cer.cloth.setAttribute('opacity', 1);
+  $('btnStar').classList.add('on');
+  if ((!auto || pickAudio) && audioOK()) { ceremonyMusic(actx.currentTime + .05); duckSfx(21); duckMusic(21); }
+  say(CER_X, 440, pick(['星光大道要揭幕一顆新星星！', '典禮開始囉，大家靠過來看']), 1.8);
+}
+function endShow() {
+  $('btnPremiere').classList.remove('on'); $('btnStar').classList.remove('on');
+  if (show.on === 'star') { cer.g.style.display = 'none'; }
+  if (limo) { limo.hold = false; limo.leaving = true; limo.base = 70; limo = null; }
+  celeb.on = false; pct = -1;
+  show.on = '';
+}
+function busy() { say(800, 160, '表演進行中，等一下喔！', 1.4); }
+function showStep(dt) {
+  show.t += dt;
+  if (show.on === 'premiere') {
+    // 禮車前面的車稍微加速讓路
+    if (pct < 0 && limo) {
+      vehicles.forEach(v => { if (v.lane === 0 && v !== limo && v.x < limo.x && v.x > 400) v.v = Math.max(v.v, v.base * 1.8); });
+      if (limo.v < 1 && Math.abs(limo.x - limo.stopAt) < 3) {
+        pct = 0; show.dur = show.t + 20.5;
+        if (audioOK()) { premiereMusic(actx.currentTime + .05); duckSfx(20); duckMusic(20); }
+        sfx(t => doorThud(t + .9));
+      }
+    }
+    if (pct >= 0) {
+      pct += dt;
+      if (pct > 15 && limo) { limo.hold = false; limo.leaving = true; limo.base = 70; limo = null; }
+      if (pct > 5.5 && !show.cheered) { show.cheered = true; sfx(t => cheer(t, .8)); }
+    }
+    if (show.t > 40 && pct < 0) endShow();   // 保險：禮車一直到不了就結束
+  } else if (show.on === 'star') {
+    const t = show.t;
+    if (t > 1.5 && t < 1.6) say(760, 440, '歡迎來到星光大道揭星典禮！', 2.2);
+    if (t > 5 && t < 5.1) say(760, 440, '讓我們歡迎今天的主角！', 2);
+    if (t > 7.6 && t < 7.7) say(CER_X, 470, '三、二、一——', 2);
+    if (t >= 10 && cer.clothUp === 0) {
+      cer.clothUp = .001; cer.shine = 1;
+      confetti(790, 520, 34, .9); confetti(900, 520, 34, .9);
+      for (let k = 0; k < 10; k++) sparkle(CER_X + rand(-30, 30), 566 + rand(-12, 8));
+      if (audioOK()) { const t0 = actx.currentTime; applause(t0 + .3, 5, 1, sfxBus); }
+    }
+    if (cer.clothUp > 0) cer.clothUp = Math.min(1, cer.clothUp + dt * 1.6);
+    if (t > 12.5 && t < 12.6) say(912, 440, '謝謝大家！這顆星星屬於每個追夢的人', 2.4);
+    if (t > 10 && t < 17 && Math.random() < dt * 5) { const px = pick(cer.pressX); flashAt(px, 540, .8); }
+    if (t > 10 && Math.random() < dt * 4) sparkle(CER_X + rand(-26, 26), 566 + rand(-10, 6));
+  }
+  if (show.t >= show.dur) endShow();
+}
+
+// 揭幕典禮的道具與人物（平常藏起來）
+function buildCeremony() {
+  const g = el('g', { style: 'display:none' }, $('props'));
+  cer.g = g;
+  // 講台
+  const pod = clay(g, {}, 'clayS');
+  el('path', { d: 'M744 540 L776 540 L772 506 L748 506Z', fill: '#6a3a2a' }, pod);
+  el('rect', { x: 744, y: 502, width: 32, height: 7, rx: 2, fill: '#8a5a3a' }, pod);
+  frag(pod, `<path d="${starPath(760, 523, 7)}" style="fill:var(--brass)"/>`);
+  el('path', { d: 'M768 502 L774 490', stroke: '#2a2a34', 'stroke-width': 1.6 }, pod);
+  el('circle', { cx: 774, cy: 489, r: 2.4, fill: '#2a2a34' }, pod);
+  // 紅絨布蓋著的新星星
+  cer.cloth = el('g', {}, g);
+  const cl = clay(cer.cloth, {}, 'clayS');
+  el('path', { d: `M${CER_X - 34} 576 Q${CER_X - 30} 552 ${CER_X - 6} 548 Q${CER_X + 10} 546 ${CER_X + 30} 552 Q${CER_X + 38} 566 ${CER_X + 34} 578 Q${CER_X} 584 ${CER_X - 34} 576Z`, style: 'fill:var(--velvet)' }, cl);
+  el('path', { d: `M${CER_X - 20} 560 Q${CER_X} 570 ${CER_X + 22} 558`, stroke: '#e8404e', 'stroke-width': 1.4, fill: 'none', opacity: .7 }, cl);
+  el('path', { d: `M${CER_X + 30} 556 Q${CER_X + 40} 566 ${CER_X + 36} 578`, style: 'stroke:var(--stanchion)', 'stroke-width': 1.6, fill: 'none' }, cl);
+  el('circle', { cx: CER_X + 36, cy: 579, r: 2.6, style: 'fill:var(--stanchion)' }, cl);
+  // 兩邊的彩帶炮筒
+  [790, 900].forEach(x => frag(g, `<g filter="url(#clayS)"><rect x="${x - 4}" y="510" width="8" height="18" rx="2" fill="#2a2a34" transform="rotate(${x < CER_X ? -12 : 12} ${x} 528)"/><path d="M${x - 5} 528 L${x + 5} 528 L${x + 3} 534 L${x - 3} 534Z" style="fill:var(--brass)"/></g>`));
+  // 主持人、主角（原創人物）
+  cer.host = Object.assign(makeFigure({ skin: 'var(--skin-2)', hair: 'var(--hair-4)', hs: 2, coat: 'var(--coat-5)', dress: true, acc: 'card', shades: false }), { x: 730, y: 534, s: .68, dir: 1 });
+  cer.hero = Object.assign(makeFigure({ skin: 'var(--skin-1)', hair: 'var(--hair-5)', hs: 3, coat: 'var(--coat-9)', pants: 'var(--coat-9)', tux: true, tie: '#ffd23a', shades: true }), { x: 1010, y: 548, s: .7, dir: -1 });
+  [cer.host, cer.hero].forEach(a => { addActor(a); a.g.style.display = 'none'; });
+  onAct(cer.host.g, () => { sfx(t => tok(t, 600)); say(730, 440, '揭幕之後，這顆星星就永遠留在大道上囉', 2); });
+  onAct(cer.hero.g, () => { flashAt(cer.hero.x, 500, 1); sfx(t => shutter(t)); say(cer.hero.x, 440, '能在星光大道留下一顆星，好像在做夢！', 2); });
+  // 圍觀的人（後排）與蹲在前排的攝影師
+  [[672, 1], [700, 1], [952, -1], [980, -1]].forEach(([x, dir]) => {
+    const o = randomLook(); o.acc = srand() < .5 ? 'phone' : o.acc;
+    const a = Object.assign(makeFigure(o), { x, y: 534, s: .66, dir });
+    addActor(a); a.g.style.display = 'none'; cer.extras.push(a);
+    onAct(a.g, () => { sfx(t => cheer(t, .4)); say(x, 440, pick(['恭喜！', '太感動了', '我要拍下來！']), 1.4); });
+  });
+  [[808, 'camera'], [880, 'crouch']].forEach(([x, kind]) => {
+    const o = { skin: spick(SK), hair: spick(HR), coat: 'var(--coat-7)', pants: spick(PT), hat: 'cap', hatC: '#2a2a34', vest: true };
+    const gg = el('g', { class: 'clickable' });
+    const inner = el('g', {}, gg); inner.innerHTML = backPersonSVG(o, kind);
+    const a = { g: gg, x, y: 600, s: .74, back: true };
+    addActor(a); gg.style.display = 'none'; cer.extras.push(a); cer.pressX.push(x);
+    onAct(gg, () => { flashAt(x, 540, 1); sfx(t => shutter(t)); });
+  });
+}
+function stepCeremony(dt) {
+  const on = show.on === 'star';
+  const t = show.t;
+  const vis = on ? clamp(Math.min(t / .8, (show.dur - t) / 1.2), 0, 1) : 0;
+  // 定格動畫式的「冒出來」：前幾格尺寸跳動
+  const pop = vis < 1 ? (frame % 2 ? .96 : 1.02) : 1;
+  [cer.host, cer.hero, ...cer.extras].forEach(a => { a.g.style.display = on ? '' : 'none'; a.g.setAttribute('opacity', f1(vis)); });
+  cer.g.setAttribute('opacity', f1(vis));
+  if (!on) return;
+  // 主持人
+  if (t > 1.5 && t < 4 || t > 5 && t < 7 || t > 7.6 && t < 9.5) poseLimbs(cer.host, 1, frame % 6 < 3 ? 'hold' : '');
+  else poseLimbs(cer.host, 1, t > 10 && t < 16 ? 'clap' : '');
+  place(cer.host, cer.host.x, cer.host.y, cer.host.s * pop, 1);
+  // 主角：從右邊走進來，停在星星旁邊；揭幕後揮手、擺姿勢
+  const H = cer.hero;
+  const hx = t < 5 ? 1010 : t < 7.5 ? 1010 - (t - 5) / 2.5 * 106 : 904;
+  const moving = t > 5 && t < 7.5;
+  if (moving) H.ph = (H.ph || 0) + dt * 3.2;
+  H.x = hx;
+  poseLimbs(H, moving ? Math.floor(H.ph) % 4 : 1, t > 10 && t < 13 ? 'wave' : t >= 13 ? 'pose' : '');
+  H.g.style.display = t > 4.8 ? '' : 'none';
+  place(H, H.x, H.y, H.s, -1);
+  // 圍觀的人：揭幕後拍手
+  cer.extras.forEach((a, i) => {
+    if (a.back) { place(a, a.x, a.y, a.s * pop); return; }
+    poseLimbs(a, 1, t > 10 && t < 16 ? 'clap' : '');
+    place(a, a.x, a.y - (t > 10 && t < 12 && (frame + i) % 4 < 2 ? 3 : 0), a.s * pop, a.dir);
+  });
+  // 紅絨布被掀起來
+  if (cer.clothUp > 0) {
+    const k = cer.clothUp;
+    cer.cloth.setAttribute('transform', `translate(${f1(k * 40)} ${f1(-k * 60)}) rotate(${f1(k * 30)} ${CER_X} 566)`);
+    cer.cloth.setAttribute('opacity', f1(1 - k));
+  }
+}
+
+/* ---------------- ④ 動畫：探照燈（平常緩慢擺動；滑鼠移到天空就跟著轉；首映時交叉快速掃動） ---------------- */
+function stepSearchlights(dt) {
+  const prem = show.on === 'premiere';
+  const vis = clamp(Math.max(nOn, dusk * .45, prem ? .9 : 0), 0, 1) * (1 - wx.rain * .35);
+  searchlights.forEach((s, i) => {
+    let target = s.base + Math.sin(frame / FPS * .35 + s.ph) * 26;
+    if (prem) target = (i ? -1 : 1) * Math.sin(show.t * 1.3) * 42 + (i ? 10 : -10);
+    if (mouse.in && mouse.y < 300 && !prem) target = clamp(Math.atan2(mouse.x - s.x, s.y - mouse.y) * 57.3, -70, 70);
+    if (s.spin > 0) { s.spin = Math.max(0, s.spin - dt * .6); target += Math.sin(s.spin * Math.PI * 4) * 50; }
+    s.a += (target - s.a) * Math.min(1, dt * (mouse.in && mouse.y < 300 ? 5 : 2.4));
+    s.g.setAttribute('transform', `translate(${s.x} ${s.y}) rotate(${f1(s.a)})`);
+    s.drum.setAttribute('transform', `translate(${s.x} ${s.y + 20}) rotate(${f1(s.a)})`);
+    s.g.setAttribute('opacity', f1(vis * (reduced ? .8 : .78 + Math.random() * .08)));
+    // 海霧時光柱打在雲底，形成一團光斑
+    const cos = Math.max(.35, Math.cos(s.a / 57.3)), L = (s.y - 205) / cos;
+    s.spot.setAttribute('cx', f1(s.x + Math.sin(s.a / 57.3) * L));
+    s.spot.setAttribute('opacity', f1(vis * smooth(.3, .9, wx.fog)));
+  });
+}
+
+/* ---------------- ④ 動畫：逐格主迴圈 ----------------
+   requestAnimationFrame 照常跑，但畫面只在每 1/12 秒「拍一格」，做出定格動畫的頓感。 */
+const mouse = { x: 800, y: 300, in: false, dx: 0 };
+let frame = 0, last = performance.now(), acc = 0, rafId = 0, chase = 0, marqFast = 0, bladeSeq = -1, neonFlick = {};
+function loop(now) {
+  const real = Math.min(.25, (now - last) / 1000); last = now; acc += real;
+  if (acc >= 1 / FPS) { const dt = Math.min(acc, .25); acc = 0; step(dt); }
+  rafId = requestAnimationFrame(loop);
+}
+function step(dt) {
+  frame++;
+  const mv = reduced ? 0 : 1;
+  // 時間
+  if (show.on) showStep(dt);
+  if (T.target != null) {
+    let d = T.target - T.t; if (d > .5) d -= 1; if (d < -.5) d += 1;
+    if (Math.abs(d) < .004) { T.t = T.target; T.target = null; } else T.t = (T.t + Math.sign(d) * Math.min(Math.abs(d), dt * .12) + 1) % 1;
+  } else if (T.auto && !T.dragging) T.t = (T.t + dt / DAY_SEC) % 1;
+  applyTime();
+  // 天氣
+  const key = WX_LIST[wxI][0];
+  ['fog', 'rain', 'wind'].forEach(k => { const tg = key === k ? 1 : 0; wx[k] += (tg - wx[k]) * Math.min(1, dt * 1.1); if (Math.abs(tg - wx[k]) < .003) wx[k] = tg; });
+  wx.cloud = Math.max(wx.fog, wx.rain);
+  const grey = Math.max(wx.fog * .75, wx.rain);
+  $('skyGrey').setAttribute('opacity', f1(grey * .5 * (1 - night * .6)));
+  $('skyHaze').setAttribute('opacity', f1(wx.wind * .22 * (1 - night * .7)));
+  $('sun').setAttribute('opacity', f1(1 - grey * .7));
+  $('stars').setAttribute('opacity', f1(smooth(.6, 1, night) * (1 - grey * .9)));
+  if (mv) stars.forEach((s, i) => { if ((frame + i) % 6 === 0) s.el.setAttribute('opacity', f1(.5 + .5 * Math.sin(frame * .3 + s.ph))); });
+  $('rain').setAttribute('opacity', f1(wx.rain));
+  if (wx.rain > .02) rainDrops.forEach(r => {
+    r.y += r.sp * dt; r.x -= r.sp * .12 * dt;
+    if (r.y > 600) { r.y = rand(-40, 0); r.x = rand(-100, 1700); }
+    r.el.setAttribute('x1', f1(r.x)); r.el.setAttribute('y1', f1(r.y)); r.el.setAttribute('x2', f1(r.x - 3)); r.el.setAttribute('y2', f1(r.y + 16));
+  });
+  $('wetRoad').setAttribute('opacity', f1(wx.rain * .14));
+  $('dust').setAttribute('opacity', f1(wx.wind));
+  if (wx.wind > .02) dustMotes.forEach(d => {
+    d.x -= d.sp * dt * (d.big ? .8 : 1); d.y += Math.sin(frame * .3 + d.ph) * 20 * dt;
+    if (d.x < -30) { d.x = 1630; d.y = rand(60, 590); }
+    d.el.setAttribute('transform', `translate(${f1(d.x)} ${f1(d.y)})${d.big ? ` rotate(${(frame * 25 + d.ph * 50) % 360})` : ''}`);
+  });
+  ambience();
+  // 吊線雲朵晃動；海霧／雨天時一排低雲降下來蓋住山頭
+  clouds.forEach(c => {
+    c.sw *= .92;
+    const a = mv * (Math.sin(frame / FPS * .8 + c.ph) * 1.5 + Math.sin(frame / FPS * 7) * c.sw * 10);
+    c.x += mv * c.sp * dt * (1 + wx.wind * 3); if (c.x > 1700) c.x = -100;
+    c.el.setAttribute('transform', `translate(${f1(c.x - mouse.dx * .4)} ${f1(c.y)}) rotate(${f1(a)} 0 ${-c.y})`);
+  });
+  const cover = Math.max(wx.fog, wx.rain * .8);
+  $('fogVeil').setAttribute('opacity', f1(wx.fog * .55 + wx.rain * .2));
+  overcastClouds.forEach(c => c.el.setAttribute('transform', `translate(${f1(c.x)} ${f1(c.y - (1 - cover) * 320 + Math.sin(frame / FPS + c.ph) * 2 * mv)})`));
+  // 視差
+  $('farPx').setAttribute('transform', `translate(${f1(-mouse.dx * .6)} 0)`);
+  // 風：棕櫚樹擺動（聖塔安娜風從右邊吹來，整撮葉子往左倒）
+  gust = Math.max(0, gust - dt * .5);
+  wind = .25 + wx.wind * 1.3 + wx.rain * .3 + gust;
+  palms.forEach(p => {
+    p.shake = Math.max(0, p.shake - dt * .8);
+    const a = mv * (Math.sin(frame * .35 + p.ph) * (2 + wind * 5) + Math.sin(frame * 1.4) * p.shake * 14) - wx.wind * 12;
+    p.crown.setAttribute('transform', `rotate(${f1(a)} ${p.x} ${p.y + 20})`);
+  });
+  // 探照燈
+  stepSearchlights(dt);
+  // 角色
+  stepWalkers(dt); stepCrowd(dt); stepCeleb(dt); stepStatics(dt); stepCeremony(dt); stepVehicles(dt); stepFlyers(dt);
+  sortActors(actorsF, $('frontActors')); sortActors(actorsB, $('backActors'));
+  stepFx(dt);
+  // 燈光：夜色、窗、霓虹、跑馬燈、街燈
+  const prem = show.on === 'premiere';
+  premDim += ((prem ? .2 : 0) - premDim) * Math.min(1, dt);
+  $('veil').setAttribute('opacity', f1(clamp(night * .3 + grey * .06 + premDim * (1 - night), 0, .6)));
+  const lightOn = clamp(Math.max(nOn, prem ? .8 : 0, grey * .35), 0, 1);
+  winGlows.forEach(w => w.el.setAttribute('opacity', f1(lightOn * w.k)));
+  lampGlows.forEach((l, i) => l.setAttribute('opacity', f1(lightOn * (i % 2 ? 1 : .85))));
+  neons.forEach(n => {
+    let o = lightOn * n.k;
+    if (n.id && neonFlick[n.id] > 0) { neonFlick[n.id] -= dt; o = frame % 3 ? Math.max(.6, o) : .1; }
+    else if (n.id === 'hotel' && mv && Math.random() < .01) o *= .3;   // 老招牌偶爾閃一下
+    n.el.setAttribute('opacity', f1(o));
+  });
+  // 跑馬燈燈泡：一圈一圈追逐
+  if (marqFast > 0) marqFast -= dt;
+  const fast = marqFast > 0 || prem;
+  if (mv) chase += fast ? 1 : .5;
+  const bOn = Math.max(.55, lightOn);
+  marqueeBulbs.forEach(b => b.el.setAttribute('opacity', f1((Math.floor(b.i + chase) % 3 === 0 ? .15 : 1) * bOn)));
+  // 直立招牌：夜裡字亮起；點擊或首映時一個字一個字亮
+  if (bladeSeq >= 0) { bladeSeq += dt * 9; if (bladeSeq > 14) bladeSeq = -1; }
+  bladeLetters.forEach((l, i) => {
+    let o = lightOn;
+    if (bladeSeq >= 0) o = i <= bladeSeq ? 1 : .08;
+    else if (prem) o = (Math.floor(frame / 2) % 12) >= i ? 1 : .2;
+    l.setAttribute('opacity', f1(o));
+  });
+  // 星光大道的星星：點擊後閃亮
+  walkStars.forEach(s => {
+    if (s.shine > 0) s.shine = Math.max(0, s.shine - dt * .7);
+    let o = s.shine;
+    if (s === ceremonyStar && show.on === 'star' && cer.clothUp > 0) o = Math.max(o, .7 + .3 * Math.sin(frame * .6));
+    s.sh.setAttribute('opacity', f1(o));
+  });
+  obsDome.setAttribute('opacity', obsOpen > 0 ? 1 : 0); if (obsOpen > 0) obsOpen -= dt;
+  // 對話泡泡
+  bubbles.forEach(b => { b.t -= dt; if (b.t <= 0) b.g.remove(); else b.g.setAttribute('opacity', f1(Math.min(1, b.t / .3))); });
+  for (let i = bubbles.length - 1; i >= 0; i--) if (bubbles[i].t <= 0) bubbles.splice(i, 1);
+}
+let obsOpen = 0;
+
+/* ---------------- ⑤ 互動：對話泡泡 ---------------- */
+const bubbles = [];
+function say(x, y, text, dur = 1.6) {
+  const g = el('g', { class: 'bubble' }, $('bubbles'));
+  const w = Math.min(560, [...text].reduce((s, ch) => s + (ch.charCodeAt(0) > 255 ? 15 : 8.4), 0) + 30);
+  x = clamp(x, w / 2 + 16, 1600 - w / 2 - 16); y = clamp(y, 30, 560);
+  const b = clay(g, {}, 'clayS');
+  el('rect', { x: -w / 2, y: -18, width: w, height: 36, rx: 18, fill: '#fffaf0' }, b);
+  el('path', { d: 'M-8 16 L0 28 L8 16Z', fill: '#fffaf0' }, b);
+  const t = el('text', { x: 0, y: 0 }, g); t.textContent = text;
+  g.setAttribute('transform', `translate(${f1(x)} ${f1(y)})`);
+  bubbles.push({ g, t: reduced ? dur + 1 : dur });
+  if (reduced) setTimeout(() => g.remove(), (dur + 1) * 1000);
+}
+
+/* ---------------- 開始：依序畫出場景、角色 ---------------- */
+function onAct(node, fn) {
+  node.addEventListener('click', e => { e.stopPropagation(); userGesture = true; ensureAudio(); fn(e); if (reduced) step(1 / FPS); });
+  node.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); userGesture = true; ensureAudio(); fn(e); if (reduced) step(1 / FPS); } });
+}
+makeThumbprints();
+drawSky();
+drawHills();
+drawBuildings();
+drawTheater();
+drawForecourt();
+drawRoadAndWalk();
+drawPalms();
+buildStatics();
+buildCrowd();
+buildCeleb();
+buildCeremony();
+buildTraffic();
+buildWeather();
+[[0, 60], [0, 420], [0, 800], [0, 1150], [0, 1520], [1, 200], [1, 560], [1, 930], [1, 1290], [1, 1640]].forEach(([l, x]) => addWalker(l, x));
+
+/* ---------------- ⑤ 互動：點擊 ---------------- */
+function svgPoint(e) { const p = svg.createSVGPoint(); p.x = e.clientX; p.y = e.clientY; return p.matrixTransform(svg.getScreenCTM().inverse()); }
+svg.addEventListener('pointerdown', () => { userGesture = true; ensureAudio(); document.body.classList.remove('kbd'); });
+window.addEventListener('keydown', e => { if (e.key === 'Tab') document.body.classList.add('kbd'); });
+svg.addEventListener('pointermove', e => {
+  const p = svgPoint(e);
+  mouse.x = p.x; mouse.y = p.y; mouse.in = true; mouse.dx = (p.x - 800) / 800 * 12;
+});
+svg.addEventListener('pointerleave', () => { mouse.in = false; });
+onAct($('sun'), () => { T.auto = false; syncAuto(); goTo(21 / 24); });
+onAct($('moon'), () => { T.auto = false; syncAuto(); goTo(11 / 24); });
+onAct($('observatory'), () => { obsOpen = 3; sfx(t => clunk(t)); say(230, 150, '格里斐斯天文台：免費參觀，還能俯瞰整個洛杉磯', 2.2); });
+onAct($('bigSign'), () => { hawk(); sfx(t => { const o = osc('sine', 2600, t, .9, gainEnv(t, .05, .8, .05)); o.frequency.linearRampToValueAtTime(1500, t + .9); }); say(1310, 196, '山坡上的白色大字，每個字大約 14 公尺高', 2.2); });
+onAct($('marquee'), () => { marqFast = 3; marqueeTitleI = (marqueeTitleI + 1) % TITLES.length; marqueeTitle.textContent = TITLES[marqueeTitleI]; sfx(t => chime(t)); say(790, 250, pick(['今晚首映：' + TITLES[marqueeTitleI], '跑馬燈的燈泡一圈一圈追著跑']), 1.6); });
+onAct($('blade'), () => { bladeSeq = 0; sfx(t => { for (let i = 0; i < 9; i++) noise(t + i * .11, .04, 1200 + i * 120, .06, 'bandpass', 4); }); });
+onAct($('billboard'), () => { billboard.posters[billboard.i].setAttribute('display', 'none'); billboard.i = (billboard.i + 1) % billboard.posters.length; billboard.posters[billboard.i].setAttribute('display', ''); sfx(t => rustle(t)); });
+onAct($('diner'), () => { neonFlick.diner = 1.2; sfx(t => tok(t, 900)); say(470, 200, pick(['來杯咖啡配鬆餅？', '老派餐館的霓虹招牌', '咖啡續杯！']), 1.6); });
+onAct($('hotel'), () => { neonFlick.hotel = 1.2; sfx(t => tok(t, 640)); say(1310, 180, pick(['老旅館的霓虹招牌閃一閃', '從房間窗戶就看得到山上的大字']), 1.6); });
+onAct($('gift'), () => { sfx(t => chime(t)); say(80, 250, pick(['明信片、T 恤、星星鑰匙圈', '紀念品店：帶一顆星星回家']), 1.6); });
+onAct($('carpet'), () => { sfx(t => tok(t, 500)); say(800, 360, pick(['紅毯從路邊一路鋪到戲院大門', '首映夜才鋪得出這麼長的紅毯']), 1.6); });
+onAct($('backdrop'), () => { flashAt(688, 366, 1); sfx(t => shutter(t)); say(688, 300, '在背板前拍照，是首映的傳統', 1.6); });
+$('skyHit').addEventListener('click', e => {
+  userGesture = true; ensureAudio();
+  if (night > .5) helicopter(); else plane();
+});
+
+/* ---------------- ⑤ 互動：控制列 ---------------- */
+function syncAuto() { $('btnAuto').setAttribute('aria-pressed', String(T.auto)); $('btnAuto').textContent = T.auto ? '自動播放中' : '自動播放'; }
+function goTo(t) { if (reduced) { T.t = t; applyTime(true); step(1 / FPS); } else T.target = t; }
+const tap = fn => () => { userGesture = true; ensureAudio(); setTimeout(() => { fn(); if (reduced) step(1 / FPS); }, actx && actx.state !== 'running' ? 120 : 0); };
+$('btnPremiere').addEventListener('click', tap(() => startPremiere(false)));
+$('btnStar').addEventListener('click', tap(() => startCeremony(false)));
+$('btnWeather').addEventListener('click', () => {
+  userGesture = true; ensureAudio();
+  wxI = (wxI + 1) % WX_LIST.length;
+  $('btnWeather').textContent = '天氣：' + WX_LIST[wxI][0 + 1];
+  if (reduced) { ['fog', 'rain', 'wind'].forEach(k => { wx[k] = WX_LIST[wxI][0] === k ? 1 : 0; }); step(1 / FPS); }
+});
+$('btnSound').addEventListener('click', () => {
+  soundOn = !soundOn; userGesture = true;
+  $('btnSound').setAttribute('aria-pressed', String(soundOn)); $('btnSound').textContent = soundOn ? '🔊 聲音：開' : '🔇 聲音：關';
+  if (ensureAudio()) {
+    master.gain.cancelScheduledValues(actx.currentTime);
+    master.gain.setValueAtTime(soundOn ? .5 : 0, actx.currentTime);
+    if (!soundOn) { [musNode, sfxNode].forEach(n => { if (n) try { n.disconnect(); } catch (e) {} }); musNode = sfxNode = null; }
+  }
+  if (!soundOn) { try { window.sceneMusic && window.sceneMusic.stop(); } catch (e) {} }
+});
+$('btnDay').addEventListener('click', () => { T.auto = false; syncAuto(); goTo(11 / 24); });
+$('btnNight').addEventListener('click', () => { T.auto = false; syncAuto(); goTo(21 / 24); });
+$('btnAuto').addEventListener('click', () => { T.auto = !T.auto; T.target = null; syncAuto(); });
+$('timeRange').addEventListener('input', e => {
+  T.t = e.target.value / 1000; T.target = null; T.dragging = true; applyTime(true); T.dragging = false;
+  if (reduced) step(1 / FPS);
+});
+function start() {
+  cancelAnimationFrame(rafId);
+  if (reduced) { T.auto = false; syncAuto(); applyTime(true); for (let i = 0; i < 12; i++) step(1 / FPS); }
+  else { last = performance.now(); rafId = requestAnimationFrame(loop); }
+}
+mq.addEventListener?.('change', e => { reduced = e.matches; if (!reduced) { T.auto = true; syncAuto(); } start(); });
+
+// 網站「作者精選」播放區：預設輪播「星星揭幕典禮」（使用者指定）；白天開場，不會自己出聲，打開配樂後每一輪都配上典禮音樂
+if (inPicks) T.t = 11 / 24;
+applyTime(true);
+syncAuto();
+step(1 / FPS);
+start();
+if (inPicks) {
+  let idle = 0;
+  setTimeout(() => startCeremony(true), 800);
+  setInterval(() => { if (!show.on) { idle += 1; if (idle >= 4) { idle = 0; startCeremony(true); } } else idle = 0; }, 1000);
+  window.sceneMusic = {
+    playing: false,
+    start(c) {
+      if (this.playing) return; this.playing = true; pickAudio = true; userGesture = true;
+      if (c && c !== actx) useCtx(c); else ensureAudio();
+      if (actx && actx.state !== 'running') actx.resume();
+      if (show.on === 'star' && show.t < 3 && actx) setTimeout(() => { if (audioOK()) ceremonyMusic(actx.currentTime + .05); }, 60);
+    },
+    stop() {
+      this.playing = false; pickAudio = false;
+      [musNode, sfxNode].forEach(n => { if (n) try { n.disconnect(); } catch (e) {} }); musNode = sfxNode = null;
+      [rainGain, windGain, murmurGain].forEach(g => { if (g) g.gain.value = 0; });
+    },
+    duck() {}
+  };
+}
+/* ShowStop：再按一下優雅停止表演（共用模組在上方 <script id="showstop">） */
+ShowStop.init({
+  on: () => show.on,
+  btn: { premiere: 'btnPremiere', star: 'btnStar' },
+  ff: () => { show.cheered = true; show.t = show.dur - .02; },   // 跳到結尾：禮車開走、典禮收起來
+  save: () => ({ ...T }),
+  stop: () => endShow(),
+  restore: s => { Object.assign(T, s); syncAuto(); applyTime(true); }
+});
+/* /ShowStop */
+})();
+</script>
+</body>
+</html>

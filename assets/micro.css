@@ -1,0 +1,140 @@
+/* =========================================================
+   微互動（micro-interactions）
+   參考「The ABC of UI」：開關、滑動標籤、複製打勾、下載進度、播放音量條、
+   搜尋展開、漣漪點擊、骨架載入。全部尊重 prefers-reduced-motion。
+   ========================================================= */
+:root{--ok:#16a36a;--ok-bg:#e7f7ef;--sky:#8ccdf5;--sun:#ffc93c;--nightsky:#1c2347;--moon:#e9ecff}
+:root[data-theme="dark"]{--ok:#3fd08e;--ok-bg:#12301f}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--ok:#3fd08e;--ok-bg:#12301f}}
+
+/* ---------- 漣漪點擊 Ripple Tap ---------- */
+.btn,.chips button,.seg button{position:relative;overflow:hidden;isolation:isolate}
+.rip{position:absolute;border-radius:50%;pointer-events:none;background:currentColor;opacity:.22;transform:scale(0);
+  animation:rip .55s cubic-bezier(.2,.7,.3,1) forwards;z-index:-1}
+@keyframes rip{to{transform:scale(1);opacity:0}}
+.btn:active{transform:scale(.97)}
+.btn{transition:background-color .18s,border-color .18s,color .18s,transform .12s}
+
+/* ---------- 日夜開關 Day / Night ---------- */
+.seg{position:relative;border-radius:999px;padding:3px;overflow:hidden;
+  background:linear-gradient(90deg,#d8efff,#eef6ff);border-color:#bfdcf3;transition:background .45s,border-color .45s}
+.seg:has(#tNight[aria-pressed="true"]){background:linear-gradient(90deg,#141a36,var(--nightsky));border-color:#2b3466}
+.seg::before{content:"";position:absolute;top:3px;bottom:3px;left:3px;width:calc(50% - 3px);border-radius:999px;
+  background:#fff;box-shadow:0 2px 8px rgba(30,60,120,.18);transition:transform .45s cubic-bezier(.65,0,.25,1.25),background .45s}
+.seg:has(#tNight[aria-pressed="true"])::before{transform:translateX(100%);background:#2d3768;box-shadow:0 0 0 1px rgba(255,255,255,.06),0 2px 10px rgba(0,0,0,.4)}
+.seg::after{content:"";position:absolute;inset:0;pointer-events:none;opacity:0;transition:opacity .45s;
+  background:radial-gradient(1.2px 1.2px at 14% 30%,#fff 60%,transparent),radial-gradient(1px 1px at 30% 70%,#fff 60%,transparent),
+  radial-gradient(1.3px 1.3px at 8% 62%,#fff 60%,transparent),radial-gradient(1px 1px at 40% 25%,#fff 60%,transparent)}
+.seg:has(#tNight[aria-pressed="true"])::after{opacity:.8}
+.seg button{position:relative;z-index:1;flex:1 1 0;justify-content:center;border-radius:999px;background:transparent!important;
+  color:#5d7a96;min-width:78px}
+.seg button[aria-pressed="true"]{color:#14161c}
+#tDay[aria-pressed="true"] svg{color:#f0a400;animation:sunspin .6s cubic-bezier(.3,1.4,.5,1)}
+.seg:has(#tNight[aria-pressed="true"]) #tDay{color:#8d97c4}
+#tNight[aria-pressed="true"]{color:var(--moon)!important}
+#tNight[aria-pressed="true"] svg{color:#ffd970;animation:moonrock .7s cubic-bezier(.3,1.4,.5,1)}
+@keyframes sunspin{from{transform:rotate(-120deg) scale(.4)}to{transform:none}}
+@keyframes moonrock{0%{transform:rotate(40deg) scale(.4)}60%{transform:rotate(-12deg) scale(1.1)}100%{transform:none}}
+
+/* ---------- 風格標籤：滑動底塊 Tab Switch ---------- */
+.chips{position:relative}
+.chips .ink{position:absolute;left:0;top:2px;height:34px;border-radius:999px;background:var(--ink);pointer-events:none;z-index:0;
+  transition:transform .42s cubic-bezier(.65,0,.25,1.15),width .42s cubic-bezier(.65,0,.25,1.15),background-color .3s}
+.chips .ink.pick{background:var(--star)}
+.chips .ink.still{transition:none}
+.chips button{position:relative;z-index:1;transition:border-color .18s,color .3s}
+.chips.has-ink button[data-style][aria-pressed="true"]{background:transparent!important;border-color:transparent!important}
+.chips button[aria-pressed="true"] em{animation:countpop .4s cubic-bezier(.3,1.6,.5,1)}
+@keyframes countpop{0%{transform:scale(.4)}100%{transform:none}}
+/* 作者精選：星星爆開 Like Burst */
+.chips .pick-chip svg{transition:transform .2s}
+.chips .pick-chip.burst svg{animation:starpop .55s cubic-bezier(.3,1.6,.5,1)}
+@keyframes starpop{0%{transform:scale(.3) rotate(-60deg)}60%{transform:scale(1.5) rotate(10deg)}100%{transform:none}}
+.spark{position:absolute;width:5px;height:5px;border-radius:50%;background:var(--star);pointer-events:none;z-index:3;
+  animation:spark .6s ease-out forwards}
+@keyframes spark{from{transform:translate(0,0) scale(1);opacity:1}to{transform:translate(var(--dx),var(--dy)) scale(.2);opacity:0}}
+
+/* ---------- 複製 → 已複製 Copy ---------- */
+.btn.done{background:var(--ok-bg);border-color:var(--ok);color:var(--ok)}
+.btn.primary.done{background:var(--ok);border-color:var(--ok);color:#fff}
+.btn .ck{animation:ckpop .45s cubic-bezier(.3,1.6,.5,1)}
+.btn .ck path,.dl-go .ck2 path,.send-btn .ck path{stroke-dasharray:22;stroke-dashoffset:22;animation:draw .35s .08s ease-out forwards}
+.btn .ck,.dl-go svg,.send-btn svg{fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+@keyframes ckpop{0%{transform:scale(.3)}100%{transform:none}}
+@keyframes draw{to{stroke-dashoffset:0}}
+
+/* ---------- 下載：箭頭落下 → 進度圈 → 打勾 ---------- */
+.dl-go{min-width:112px}
+.dl-go b{font-weight:500}
+.dl-ico{position:relative;width:18px;height:18px;display:inline-block;font-style:normal}
+.dl-ico svg{position:absolute;inset:0;width:18px;height:18px}
+.dl-go .ring,.dl-go .ck2{opacity:0}
+.dl-go:hover .arr{animation:nudge .7s ease-in-out infinite}
+@keyframes nudge{50%{transform:translateY(2px)}}
+.dl-go.busy .arr{animation:drop .35s ease-in forwards}
+@keyframes drop{to{transform:translateY(10px);opacity:0}}
+.dl-go.busy .ring{opacity:1;transform:rotate(-90deg)}
+.dl-go.busy .ring circle{stroke-dasharray:57;stroke-dashoffset:57;animation:fill .62s .1s cubic-bezier(.5,0,.3,1) forwards}
+@keyframes fill{to{stroke-dashoffset:0}}
+.dl-go.ok{background:var(--ok)!important;border-color:var(--ok)!important;color:#fff!important}
+.dl-go.ok .arr{opacity:0}
+.dl-go.ok .ck2{opacity:1;animation:ckpop .4s cubic-bezier(.3,1.6,.5,1)}
+.dl-go.busy .dl-txt::after{content:"中…"}
+.dl-go.ok .dl-txt::after{content:"好了"}
+.dl-go:disabled{cursor:default}
+
+/* ---------- 精選配樂：播放中跳動音量條 Equalizer ---------- */
+.btn.music .eq{display:none;gap:2px;align-items:flex-end;height:16px;width:18px;justify-content:center}
+.btn.music .eq b{display:block;width:3px;border-radius:2px;background:currentColor;height:30%;animation:eq .9s ease-in-out infinite}
+.btn.music .eq b:nth-child(2){animation-delay:-.3s}.btn.music .eq b:nth-child(3){animation-delay:-.6s}.btn.music .eq b:nth-child(4){animation-delay:-.15s}
+@keyframes eq{0%,100%{height:25%}50%{height:100%}}
+.btn.music[aria-pressed="true"] svg{display:none}
+.btn.music[aria-pressed="true"] .eq{display:inline-flex}
+
+/* ---------- 搜尋展開 Search Expand ---------- */
+.search{transition:flex-basis .4s cubic-bezier(.65,0,.25,1)}
+.search:focus-within{flex-basis:380px}
+.search input{transition:border-color .2s,box-shadow .25s}
+.search input:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 4px color-mix(in srgb,var(--accent) 18%,transparent)}
+.search svg{transition:transform .35s cubic-bezier(.3,1.6,.5,1),color .2s}
+.search:focus-within svg{color:var(--accent);transform:scale(1.15) rotate(-12deg)}
+.search .q-key{transition:opacity .2s,transform .2s}
+.search:focus-within .q-key{opacity:0;transform:scale(.6)}
+
+/* ---------- 下載視窗：滑動開關 Toggle、圓點 Radio ---------- */
+.opt input[type="checkbox"]{appearance:none;-webkit-appearance:none;width:38px;height:22px;border-radius:999px;background:var(--line);
+  position:relative;cursor:pointer;transition:background-color .3s;margin-top:1px}
+.opt input[type="checkbox"]::before{content:"";position:absolute;top:3px;left:3px;width:16px;height:16px;border-radius:50%;background:#fff;
+  box-shadow:0 1px 3px rgba(0,0,0,.25);transition:transform .35s cubic-bezier(.3,1.5,.5,1)}
+.opt input[type="checkbox"]:checked{background:var(--accent)}
+.opt input[type="checkbox"]:checked::before{transform:translateX(16px)}
+.opt input[type="radio"]{appearance:none;-webkit-appearance:none;width:20px;height:20px;border-radius:50%;border:2px solid var(--line);
+  display:grid;place-content:center;cursor:pointer;transition:border-color .2s}
+.opt input[type="radio"]::before{content:"";width:10px;height:10px;border-radius:50%;background:var(--accent);transform:scale(0);transition:transform .3s cubic-bezier(.3,1.7,.5,1)}
+.opt input[type="radio"]:checked{border-color:var(--accent)}
+.opt input[type="radio"]:checked::before{transform:scale(1)}
+.opt{transition:border-color .2s,background-color .2s,transform .15s}
+.opt:active{transform:scale(.99)}
+.opt:has(input:checked){border-color:var(--accent);background:color-mix(in srgb,var(--accent) 5%,var(--surface))}
+
+/* ---------- 送出 → 已送出 Send ---------- */
+.send-btn b{font-weight:500}
+.send-btn .ck,.send-btn .s2{display:none}
+.send-btn.sent{background:var(--ok)!important;border-color:var(--ok)!important;color:#fff!important}
+.send-btn.sent .ck{display:block}
+.send-btn.sent .s1{display:none}
+.send-btn.sent .s2{display:inline;animation:ckpop .4s cubic-bezier(.3,1.6,.5,1)}
+
+/* ---------- 縮圖骨架 Skeleton ---------- */
+.plate:not(.loaded){background:linear-gradient(100deg,var(--plate) 30%,color-mix(in srgb,var(--plate) 55%,#fff) 50%,var(--plate) 70%) 0 0/300% 100%;
+  animation:shimmer 1.3s linear infinite}
+@keyframes shimmer{to{background-position:-150% 0}}
+.plate img{transition:opacity .4s}
+.plate:not(.loaded) img:not(.night){opacity:0}
+
+@media (prefers-reduced-motion:reduce){
+  .rip,.spark{display:none}
+  .seg::before,.chips .ink,.search,.plate img{transition:none!important}
+  .seg *,.chips *,.btn *,.plate{animation:none!important}
+  .btn .ck path,.dl-go .ck2 path,.send-btn .ck path{stroke-dashoffset:0}
+}

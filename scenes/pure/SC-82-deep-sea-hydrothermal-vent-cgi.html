@@ -1,0 +1,1887 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>深海熱泉的發光生物</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<style>
+/* =========================================================
+   SC-82 深海熱泉的發光生物｜CGI 電影質感
+   地點：海面下約 1,500 公尺的深海熱泉區（陽光完全照不到的「午夜帶」）。
+   視角：鏡頭跟在一艘深海潛水器旁邊，潛水器的探照燈照向右方的熱泉噴口。
+         背景：深不見底的黑藍海水、遠方的海底山脊、零星閃爍的發光生物。
+         中景：黑煙囪熱泉（礦物堆成的煙囪，噴出黑色熱水煙柱）、
+               根部的管蟲叢（白色的管子、紅色的鰓冠）、貽貝床、白色的熱泉螃蟹、成群的熱泉蝦；
+               海床上慢慢走的海豬（深海海參）、大王具足蟲；
+               水層裡的冠水母、櫛水母、長長一串的管水母、小飛象章魚、燈籠魚群；
+               左邊懸停的深海潛水器（兩名駕駛在前方的觀察窗裡）。
+         前景：左下角的玄武岩枕狀熔岩，岩石前埋伏著一條深海鮟鱇魚，頭上的餌球發著藍光。
+   真實元素：深海鮟鱇魚頭上的釣竿（餌球裡住著發光細菌）；
+         冠水母被攻擊時，鐘體周圍會一圈圈閃出藍光（「防盜警報」），還有一條特別長的觸手；
+         櫛水母身上的八排櫛板被光照到會折射出彩虹；
+         管水母是由許多小個體連成一長串的群體；
+         黑煙囪噴出的熱水可超過 300°C，管蟲沒有嘴巴，靠體內的細菌製造養分；
+         燈籠魚的「日夜垂直遷移」：白天待在深海，晚上游到上層覓食；
+         海雪：從上層慢慢飄落的有機碎屑；
+         抹香鯨用喀喀聲（回聲定位）在深海找大王魷魚，鯨魚皮膚上常留著魷魚吸盤的圓形疤痕。
+   日夜循環：深海沒有日夜，這裡用「海面時間」表示。白天燈籠魚群在這一層，入夜後牠們往上游走。
+   風格重點：CGI 動畫電影的寬銀幕畫面——四周幾乎全黑，只有潛水器的探照燈照出一道有體積感的光束，
+            光束裡看得到飄落的海雪；發光生物自己會亮；暗角、底片顆粒；
+            滑鼠移動帶動多層視差，探照燈跟著滑鼠轉；表演時上下出現寬銀幕黑邊、鏡頭緩緩推近。
+   效能：不對大圖層做模糊；光暈一律用放射漸層；黑暗用一張遮罩（mask）挖出光照的地方。
+   版面：單一寬版 SVG 舞台（1600×600）＋下方控制列
+   ---------------------------------------------------------
+   【色票 token】所有顏色集中在這裡，改這裡就能換色。
+   成對的色票寫成 --d-名稱（海面白天）／--n-名稱（海面夜晚），JS 依時間內插，輸出成 --名稱。
+   其餘色票不隨時間變化，直接使用。
+   ========================================================= */
+:root{
+  color-scheme: dark;
+
+  /* —— 海水（白天、夜晚只差一點點：深海幾乎沒有陽光） —— */
+  --d-water-top:#0b3550;  --n-water-top:#061a2c;
+  --d-water-mid:#06263a;  --n-water-mid:#041624;
+  --d-water-deep:#03121e; --n-water-deep:#020b14;
+  --d-far-glow:#1a5a7a;   --n-far-glow:#0e3048;
+  --abyss:#010409;          /* 黑暗本身的顏色（遮罩外面） */
+  --ridge:#0a1a26; --ridge2:#0c2230;
+
+  /* —— 海床、岩石、熱泉煙囪 —— */
+  --floor:#3a3e44; --floor-dk:#1c1f24; --floor-hi:#5c6066;
+  --sediment:#6a6458;
+  --basalt:#2a2d34; --basalt-hi:#4a505a; --basalt-dk:#121418;
+  --chim:#4a3a30; --chim-hi:#7a6450; --chim-dk:#1e1612; --chim-rust:#8a4a26; --chim-sulf:#b8a04a;
+  --bact:#d8d4c4;           /* 白色細菌墊 */
+  --plume:#4a4038; --plume-hi:#8a7a6c;
+  --shimmer:#9ab8c8;
+
+  /* —— 熱泉生物 —— */
+  --tube:#e8e4da; --tube-dk:#a8a294;
+  --plume-red:#d8203a; --plume-red-dk:#8a0e22;
+  --mussel:#2a2620; --mussel-hi:#8a7a5a;
+  --crab:#ece6da; --crab-dk:#b4aa98;
+  --shrimp:#e8c8b0;
+  --seapig:#e8b8b0; --seapig-dk:#b87a78;
+  --isopod:#b8aab0; --isopod-dk:#7a6a76;
+
+  /* —— 水層生物 —— */
+  --angler:#2a2224; --angler-hi:#5a4a46; --angler-dk:#0e0a0c; --tooth:#f4f0e6; --angler-eye:#c8d8e0;
+  --atolla:#9a1a24; --atolla-dk:#4a060e; --atolla-hi:#d24a4a;
+  --comb:#cfe8f0; --comb-dk:#7aa8b8;
+  --siph:#d8e8f0; --siph-dk:#8aa8c0; --siph-red:#e06a5a;
+  --dumbo:#f0a880; --dumbo-dk:#c0705a; --dumbo-hi:#ffd0b0;
+  --lantern:#5a6a7a; --lantern-hi:#b8c8d4;
+  --whale:#4a4644; --whale-dk:#262422; --whale-hi:#7a746e; --whale-scar:#a8a098;
+  --squid:#b4483a; --squid-dk:#6a2018; --squid-hi:#e0806a; --squid-eye:#1a1a22;
+  --ink:#140a0c;
+
+  /* —— 深海潛水器（原創設計） —— */
+  --sub-hull:#eef0ee; --sub-hull-hi:#ffffff; --sub-hull-dk:#9aa2a6;
+  --sub-orange:#f08a1a; --sub-orange-dk:#b05a0e;
+  --sub-frame:#3a4048; --sub-metal:#8a949c; --sub-glass:#16384a;
+  --pilot1:#2a3a5a; --pilot2:#5a2a3a; --skin1:#e8b898; --skin2:#a8704c; --hair:#1e1612;
+
+  /* —— 光（不隨時間變化） —— */
+  --beam:#d8f4ff; --lamp:#ffffff; --lamp-warm:#fff2d0;
+  --bio-blue:#3ab8ff; --bio-cyan:#4af0e8; --bio-green:#7affb8; --lure:#8af6ff;
+  --spark:#9adfff; --strobe:#f4fbff; --screen-glow:#5ab8ff; --beacon:#ffffff; --nav-red:#ff4a3a;
+  --snow:#e8f0f0;
+  --cine-shade:#000000; --cine-light:#fff1d6;
+
+  /* —— 頁面介面（電影院般的深色） —— */
+  --page-bg:#05080c; --page-fg:#e8f2f6; --page-muted:#8a9aa6;
+  --ui-surface:#0c141a; --ui-line:#22323e; --ui-accent:#3ab8e8; --ui-hot:#f08a1a; --ui-hot2:#3a6ae8;
+
+  --font-ui:"Noto Sans TC","PingFang TC","Microsoft JhengHei",system-ui,sans-serif;
+}
+
+/* ---------- 頁面版面 ---------- */
+html,body{background:var(--page-bg);color:var(--page-fg);margin:0}
+body{font-family:var(--font-ui)}
+.wrap{max-width:1600px;margin:0 auto;padding-block:20px 32px;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));
+  display:flex;flex-direction:column;gap:14px}
+.stage{margin:0;border-radius:6px;overflow:hidden;background:#000;line-height:0;box-shadow:0 18px 50px rgba(0,0,0,.55)}
+#scene{display:block;width:100%;height:auto;touch-action:manipulation;user-select:none;-webkit-user-select:none}
+.panel{display:flex;flex-wrap:wrap;align-items:center;gap:10px;background:var(--ui-surface);
+  border:1px solid var(--ui-line);border-radius:6px;padding:10px 14px}
+.panel button{font:700 14px/1 var(--font-ui);color:var(--page-fg);background:transparent;border:1px solid var(--ui-line);
+  border-radius:4px;padding:9px 14px;cursor:pointer;letter-spacing:.04em}
+.panel button:hover{border-color:var(--ui-accent)}
+.panel button[aria-pressed="true"]{background:var(--ui-accent);border-color:var(--ui-accent);color:#03141c}
+.panel button.big{border-color:var(--ui-hot);color:#1a0c04;background:var(--ui-hot)}
+.panel button.big2{border-color:var(--ui-hot2);color:#fff;background:var(--ui-hot2)}
+.panel button:disabled{opacity:.45;cursor:default}
+.panel button:focus-visible,.panel input:focus-visible{outline:2px solid var(--ui-accent);outline-offset:3px}
+#scene [tabindex]:focus{outline:none}
+body.kbd #scene [tabindex]:focus{outline:2px solid #d8fbff;outline-offset:3px}
+.timebox{display:flex;align-items:center;gap:10px;margin-left:auto;font-size:14px;color:var(--page-muted)}
+.timebox input{width:min(220px,40vw);accent-color:var(--ui-accent)}
+.clock{font:700 15px/1 ui-monospace,Menlo,Consolas,monospace;color:var(--page-fg);min-width:3.2em}
+.hint{margin:0;padding:0;list-style:none;color:var(--page-muted);font-size:14px;line-height:1.8;display:flex;flex-wrap:wrap;gap:4px 22px}
+
+/* ---------- SVG 內的樣式 ---------- */
+#scene .clickable{cursor:pointer}
+#scene .noHit{pointer-events:none}
+#scene .bubble path{fill:rgba(4,14,22,.86);stroke:rgba(150,220,255,.5);stroke-width:1}
+#scene .bubble text{fill:#eaf8ff;font:700 15px var(--font-ui);text-anchor:middle;dominant-baseline:central}
+#scene .screen{mix-blend-mode:screen}
+</style>
+<style id="pure-art">
+/* =========================================================
+   純插畫版：只顯示場景畫面，隱藏控制列與說明文字。
+   想恢復完整版，刪掉這整段 <style id="pure-art"> 即可。
+   ========================================================= */
+html,body{height:100%;margin:0!important;overflow:hidden}
+body{display:flex!important;align-items:center;justify-content:center;padding:0!important}
+body>.wrap{width:100%!important;max-width:min(100vw,calc(100vh * 8 / 3))!important;
+  margin:0!important;padding:0!important;gap:0!important;display:block!important}
+body>.wrap>:not(.stage){display:none!important}
+body>.wrap>.stage{width:100%!important;max-width:100%!important;margin:0!important;
+  border:0!important;border-radius:0!important;box-shadow:none!important}
+</style>
+</head>
+<body>
+<main class="wrap">
+
+  <figure class="stage">
+  <!-- =====================================================
+       【場景】SVG 舞台。圖層由遠到近：
+       海水背景（遠方山脊、遠處的發光點）
+       → 中景（海床、熱泉煙囪與煙柱、管蟲、貽貝、螃蟹、蝦、海豬、具足蟲、
+               水母、管水母、章魚、燈籠魚、潛水器、表演用的抹香鯨與大王魷魚、海雪）
+       → 前景（枕狀熔岩、鮟鱇魚）
+       → 黑暗（一整片深色，用遮罩挖出探照燈照到的地方）
+       → 發光層（生物自己發的光、潛水器的燈）→ 探照燈光束 → 特效
+       → 鏡頭效果（暗角、顆粒、寬銀幕黑邊）
+       大部分的物件由下方 JS 產生，這裡只放骨架與漸層。
+       ===================================================== -->
+  <svg id="scene" viewBox="0 0 1600 600" role="img" aria-label="深海熱泉：一艘深海潛水器的探照燈照亮黑煙囪熱泉、紅色管蟲叢與白色螃蟹，四周漂著會發光的水母、管水母和燈籠魚，前景有一條頭上掛著發光餌球的鮟鱇魚">
+    <defs>
+      <!-- 海水 -->
+      <linearGradient id="waterG" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" style="stop-color:var(--water-top)"/><stop offset=".55" style="stop-color:var(--water-mid)"/><stop offset="1" style="stop-color:var(--water-deep)"/>
+      </linearGradient>
+      <radialGradient id="farGlowG"><stop offset="0" style="stop-color:var(--far-glow)" stop-opacity=".55"/><stop offset="1" style="stop-color:var(--far-glow)" stop-opacity="0"/></radialGradient>
+      <!-- 黑暗遮罩用：白色＝黑暗、黑色＝被照亮 -->
+      <radialGradient id="coneMG" gradientUnits="userSpaceOnUse" cx="0" cy="0" r="980">
+        <stop offset="0" stop-color="#000"/><stop offset=".35" stop-color="#1a1a1a"/><stop offset=".7" stop-color="#7a7a7a"/><stop offset="1" stop-color="#fff"/>
+      </radialGradient>
+      <radialGradient id="haloMG"><stop offset="0" stop-color="#000"/><stop offset=".45" stop-color="#555"/><stop offset="1" stop-color="#fff"/></radialGradient>
+      <!-- 看得見的光束（水中的散射光） -->
+      <radialGradient id="beamG" gradientUnits="userSpaceOnUse" cx="0" cy="0" r="980">
+        <stop offset="0" style="stop-color:var(--beam)" stop-opacity=".5"/><stop offset=".12" style="stop-color:var(--beam)" stop-opacity=".2"/>
+        <stop offset=".5" style="stop-color:var(--beam)" stop-opacity=".07"/><stop offset="1" style="stop-color:var(--beam)" stop-opacity="0"/>
+      </radialGradient>
+      <radialGradient id="flareG"><stop offset="0" style="stop-color:var(--lamp)" stop-opacity="1"/><stop offset=".25" style="stop-color:var(--beam)" stop-opacity=".55"/><stop offset="1" style="stop-color:var(--beam)" stop-opacity="0"/></radialGradient>
+      <!-- 發光 -->
+      <radialGradient id="glowBlue"><stop offset="0" style="stop-color:var(--bio-blue)" stop-opacity=".95"/><stop offset=".35" style="stop-color:var(--bio-blue)" stop-opacity=".35"/><stop offset="1" style="stop-color:var(--bio-blue)" stop-opacity="0"/></radialGradient>
+      <radialGradient id="glowCyan"><stop offset="0" stop-color="#ffffff"/><stop offset=".18" style="stop-color:var(--lure)" stop-opacity=".9"/><stop offset=".5" style="stop-color:var(--lure)" stop-opacity=".22"/><stop offset="1" style="stop-color:var(--lure)" stop-opacity="0"/></radialGradient>
+      <radialGradient id="glowGreen"><stop offset="0" style="stop-color:var(--bio-green)" stop-opacity=".9"/><stop offset=".4" style="stop-color:var(--bio-green)" stop-opacity=".25"/><stop offset="1" style="stop-color:var(--bio-green)" stop-opacity="0"/></radialGradient>
+      <radialGradient id="glowWhite"><stop offset="0" stop-color="#fff" stop-opacity="1"/><stop offset=".3" stop-color="#e8f8ff" stop-opacity=".45"/><stop offset="1" stop-color="#e8f8ff" stop-opacity="0"/></radialGradient>
+      <radialGradient id="glowRed"><stop offset="0" style="stop-color:var(--nav-red)" stop-opacity="1"/><stop offset="1" style="stop-color:var(--nav-red)" stop-opacity="0"/></radialGradient>
+      <!-- 煙柱、墨汁 -->
+      <radialGradient id="plumeG"><stop offset="0" style="stop-color:var(--plume-hi)" stop-opacity=".9"/><stop offset=".55" style="stop-color:var(--plume)" stop-opacity=".55"/><stop offset="1" style="stop-color:var(--plume)" stop-opacity="0"/></radialGradient>
+      <radialGradient id="inkG"><stop offset="0" style="stop-color:var(--ink)" stop-opacity=".95"/><stop offset=".6" style="stop-color:var(--ink)" stop-opacity=".6"/><stop offset="1" style="stop-color:var(--ink)" stop-opacity="0"/></radialGradient>
+      <radialGradient id="silG"><stop offset="0" stop-color="#d8c8b0" stop-opacity=".5"/><stop offset="1" stop-color="#d8c8b0" stop-opacity="0"/></radialGradient>
+      <!-- 物件材質 -->
+      <linearGradient id="floorG" x1="0" y1="0" x2="0" y2="1"><stop offset="0" style="stop-color:var(--floor-hi)"/><stop offset=".25" style="stop-color:var(--floor)"/><stop offset="1" style="stop-color:var(--floor-dk)"/></linearGradient>
+      <linearGradient id="basaltG" x1="0" y1="0" x2="0" y2="1"><stop offset="0" style="stop-color:var(--basalt-hi)"/><stop offset=".4" style="stop-color:var(--basalt)"/><stop offset="1" style="stop-color:var(--basalt-dk)"/></linearGradient>
+      <linearGradient id="chimG" x1="0" y1="0" x2="1" y2="0"><stop offset="0" style="stop-color:var(--chim-dk)"/><stop offset=".28" style="stop-color:var(--chim-hi)"/><stop offset=".55" style="stop-color:var(--chim)"/><stop offset="1" style="stop-color:var(--chim-dk)"/></linearGradient>
+      <linearGradient id="tubeG" x1="0" y1="0" x2="1" y2="0"><stop offset="0" style="stop-color:var(--tube-dk)"/><stop offset=".4" style="stop-color:var(--tube)"/><stop offset="1" style="stop-color:var(--tube-dk)"/></linearGradient>
+      <linearGradient id="hullG" x1="0" y1="0" x2="0" y2="1"><stop offset="0" style="stop-color:var(--sub-hull-hi)"/><stop offset=".45" style="stop-color:var(--sub-hull)"/><stop offset="1" style="stop-color:var(--sub-hull-dk)"/></linearGradient>
+      <linearGradient id="sailG" x1="0" y1="0" x2="0" y2="1"><stop offset="0" style="stop-color:var(--sub-orange)"/><stop offset="1" style="stop-color:var(--sub-orange-dk)"/></linearGradient>
+      <radialGradient id="domeG" cx=".35" cy=".35" r=".75"><stop offset="0" stop-color="#9ad8f0" stop-opacity=".55"/><stop offset=".5" style="stop-color:var(--sub-glass)" stop-opacity=".85"/><stop offset="1" style="stop-color:var(--sub-glass)"/></radialGradient>
+      <linearGradient id="angG" x1="0" y1="0" x2="0" y2="1"><stop offset="0" style="stop-color:var(--angler-hi)"/><stop offset=".5" style="stop-color:var(--angler)"/><stop offset="1" style="stop-color:var(--angler-dk)"/></linearGradient>
+      <radialGradient id="atollaG" cx=".5" cy=".3" r=".75"><stop offset="0" style="stop-color:var(--atolla-hi)"/><stop offset=".6" style="stop-color:var(--atolla)"/><stop offset="1" style="stop-color:var(--atolla-dk)"/></radialGradient>
+      <radialGradient id="combG" cx=".45" cy=".4" r=".7"><stop offset="0" style="stop-color:var(--comb)" stop-opacity=".18"/><stop offset=".8" style="stop-color:var(--comb)" stop-opacity=".35"/><stop offset="1" style="stop-color:var(--comb-dk)" stop-opacity=".7"/></radialGradient>
+      <radialGradient id="bellG" cx=".5" cy=".35" r=".7"><stop offset="0" style="stop-color:var(--siph)" stop-opacity=".25"/><stop offset="1" style="stop-color:var(--siph-dk)" stop-opacity=".75"/></radialGradient>
+      <linearGradient id="dumboG" x1="0" y1="0" x2="0" y2="1"><stop offset="0" style="stop-color:var(--dumbo-hi)"/><stop offset=".5" style="stop-color:var(--dumbo)"/><stop offset="1" style="stop-color:var(--dumbo-dk)"/></linearGradient>
+      <linearGradient id="whaleG" x1="0" y1="0" x2="0" y2="1"><stop offset="0" style="stop-color:var(--whale-hi)"/><stop offset=".4" style="stop-color:var(--whale)"/><stop offset="1" style="stop-color:var(--whale-dk)"/></linearGradient>
+      <linearGradient id="squidG" x1="0" y1="0" x2="0" y2="1"><stop offset="0" style="stop-color:var(--squid-hi)"/><stop offset=".5" style="stop-color:var(--squid)"/><stop offset="1" style="stop-color:var(--squid-dk)"/></linearGradient>
+      <linearGradient id="seapigG" x1="0" y1="0" x2="0" y2="1"><stop offset="0" style="stop-color:var(--seapig)" stop-opacity=".85"/><stop offset="1" style="stop-color:var(--seapig-dk)" stop-opacity=".95"/></linearGradient>
+      <linearGradient id="isoG" x1="0" y1="0" x2="0" y2="1"><stop offset="0" style="stop-color:var(--isopod)"/><stop offset="1" style="stop-color:var(--isopod-dk)"/></linearGradient>
+      <!-- 櫛水母的彩虹：JS 會讓它慢慢流動 -->
+      <linearGradient id="rainbowG" gradientUnits="userSpaceOnUse" x1="-30" y1="0" x2="30" y2="0" spreadMethod="repeat">
+        <stop offset="0" stop-color="#ff4a6a"/><stop offset=".17" stop-color="#ffb43a"/><stop offset=".34" stop-color="#e8ff4a"/>
+        <stop offset=".5" stop-color="#4aff9a"/><stop offset=".67" stop-color="#3ac8ff"/><stop offset=".84" stop-color="#8a5aff"/><stop offset="1" stop-color="#ff4a6a"/>
+      </linearGradient>
+      <!-- 黑暗遮罩：一整片白色（黑暗），探照燈、燈光、餌球挖出黑色（亮處） -->
+      <mask id="darkM" maskUnits="userSpaceOnUse" x="-400" y="-400" width="2400" height="1400">
+        <rect x="-400" y="-400" width="2400" height="1400" fill="#fff"/>
+        <g id="mMid"></g>
+        <g id="mFore"></g>
+      </mask>
+      <!-- 鏡頭：暗角、顆粒 -->
+      <radialGradient id="vignG" cx=".5" cy=".5" r=".75"><stop offset=".5" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".75"/></radialGradient>
+      <filter id="grainF" x="0" y="0" width="100%" height="100%">
+        <feTurbulence type="fractalNoise" baseFrequency=".9" numOctaves="2" seed="82" result="n"/>
+        <feColorMatrix type="matrix" values="0 0 0 0 .5  0 0 0 0 .55  0 0 0 0 .6  0 0 0 1.6 -.55"/>
+      </filter>
+    </defs>
+
+    <g id="world">
+      <g id="Lbg">
+        <rect id="waterBg" x="-300" y="-300" width="2200" height="1200" fill="url(#waterG)"/>
+      </g>
+      <g id="Lmid"></g>
+      <g id="Lfore"></g>
+      <!-- 黑暗：用遮罩挖出被照亮的地方 -->
+      <rect id="dark" class="noHit" x="-400" y="-400" width="2400" height="1400" style="fill:var(--abyss)" mask="url(#darkM)" opacity=".9"/>
+      <g id="LglowMid" class="noHit"></g>
+      <g id="LglowFore" class="noHit"></g>
+      <g id="Lbeam" class="noHit screen"></g>
+      <g id="Lfx" class="noHit"></g>
+    </g>
+
+    <!-- 鏡頭效果（不跟著鏡頭推近） -->
+    <rect id="vign" class="noHit" x="0" y="0" width="1600" height="600" fill="url(#vignG)"/>
+    <rect id="flash" class="noHit" x="0" y="0" width="1600" height="600" style="fill:var(--strobe)" opacity="0"/>
+    <rect id="grain" class="noHit" x="0" y="0" width="1600" height="600" filter="url(#grainF)" opacity=".07"/>
+    <g id="say" class="noHit"></g>
+    <!-- 表演氛圍（取代寬銀幕黑邊）：表演時四周輕微變暗＋中央微微提亮，緩緩淡入淡出 -->
+    <g id="cineFx" class="noHit" opacity="0" pointer-events="none">
+      <defs>
+        <radialGradient id="cineShadeG" cx=".5" cy=".5" r=".72"><stop offset=".52" style="stop-color:var(--cine-shade);stop-opacity:0"/><stop offset="1" style="stop-color:var(--cine-shade);stop-opacity:.4"/></radialGradient>
+        <radialGradient id="cineLightG" cx=".5" cy=".45" r=".5"><stop offset="0" style="stop-color:var(--cine-light);stop-opacity:.08"/><stop offset="1" style="stop-color:var(--cine-light);stop-opacity:0"/></radialGradient>
+      </defs>
+      <rect x="0" y="0" width="1600" height="600" fill="url(#cineShadeG)"/>
+      <rect id="cineLight" x="0" y="0" width="1600" height="600" fill="url(#cineLightG)"/>
+    </g>
+  </svg>
+  </figure>
+
+  <!-- =====================================================
+       【互動】控制列（畫面中物件自己可以點的動作，這裡不再重複做按鈕）
+       ===================================================== -->
+  <div class="panel">
+    <button id="btnWhale" class="big" type="button">🐋 抹香鯨獵大王魷魚</button>
+    <button id="btnBio" class="big2" type="button">✨ 深海光之舞</button>
+    <button id="btnSea" type="button">海況：平靜</button>
+    <button id="btnSound" type="button" aria-pressed="true">🔊 聲音：開</button>
+    <button id="btnDay" type="button">☀ 海面白天</button>
+    <button id="btnNight" type="button">☾ 海面夜晚</button>
+    <button id="btnAuto" type="button" aria-pressed="true">自動播放</button>
+    <label class="timebox" for="timeRange">
+      <span>海面時間</span>
+      <input id="timeRange" type="range" min="0" max="1000" value="417">
+      <span class="clock" id="clock">10:00</span>
+    </label>
+  </div>
+  <ul class="hint">
+    <li>🐋 抹香鯨獵大王魷魚：鯨魚喀喀聲定位，深潛纏鬥</li>
+    <li>✨ 深海光之舞：潛水器關燈，發光生物一起亮起來</li>
+    <li>🔦 移動滑鼠，探照燈就照向那裡</li>
+    <li>🦑 潛水器、鮟鱇魚、水母、管蟲、熱泉、章魚都能點</li>
+    <li>🌊 四種海況；白天燈籠魚在這裡，夜晚游上去覓食</li>
+  </ul>
+</main>
+<script id="showstop">
+/* =========================================================
+   ShowStop｜表演「再按一下優雅停止」共用模組（2026-11-24）
+   用法：放在場景主程式 <script> 之前；主程式最後呼叫
+     ShowStop.init({
+       on:      () => show.on,                  // 表演中回傳真值（多種表演時回傳種類）
+       ff:      () => { show.t = show.dur - .02; },  // （選用）快轉到結尾，讓場景下一幀自己收尾
+       btn:     'btnShow' 或 { fire: 'btnFire', stars: 'btnStars' },
+       save:    () => ({ ... }),                // 表演開始前記下使用者設定（日夜、天氣…）
+       restore: s => { ... },                   // 停止時還原
+       stop:    () => { endShow(); ... },       // 立刻結束表演、清掉秀中物件（有 ff 時：快轉後仍未結束才呼叫）
+       after:   () => { ... },                  // （選用）最後再補的清理
+     });
+   停止時：畫面凍結成一張「殘影」疊在上面 1.8 秒淡出（底下已回到原狀），
+           還沒響的表演音符取消、正在響的長音淡出，表演排程的計時器取消，
+           #cineFx 燈光歸零。播放中按鈕顯示「■ 停止」。
+   ========================================================= */
+(function () {
+  'use strict';
+  const W = window;
+  const FADE = 1.8;                      // 殘影淡出秒數
+  let cfg = null, saved = null, epoch = 0, zone = 0, quiet = null;
+  const reducedQ = W.matchMedia ? W.matchMedia('(prefers-reduced-motion: reduce)') : { matches: false };
+  const isOn = () => { try { return cfg ? cfg.on() : false; } catch (e) { return false; } };
+
+  /* ---------- ① 計時器：記下「表演開始時排程」的 setTimeout / setInterval ---------- */
+  const _st = W.setTimeout, _ct = W.clearTimeout, _si = W.setInterval, _ci = W.clearInterval;
+  const zt = new Map();                  // id → { iv, keep }
+  // 音訊收尾、泡泡移除這類「善後」計時器保留，其餘（放煙火、下一段劇情）停止時取消
+  const KEEP = /\.remove\(\)|disconnect|duck|level\(|\.gain\b|removeChild|classList\.remove/;
+  function wrapFn(fn, ep) {
+    if (typeof fn !== 'function') return fn;
+    return function () {
+      if (ep !== epoch) return;          // 已被停止
+      zone++; try { return fn.apply(this, arguments); } finally { zone--; }
+    };
+  }
+  // 表演進行中排程的「台詞」（say／bubble／narr）也算表演的，停止時一起取消
+  const LINE = /\b(say|bubble|narr)\(/;
+  W.setTimeout = function (fn, ms, ...a) {
+    if (!zone && !(cfg && typeof fn === 'function' && ms > 0 && LINE.test(String(fn)) && isOn())) return _st(fn, ms, ...a);
+    let id; const keep = typeof fn === 'function' && KEEP.test(String(fn)) && String(fn).length < 400;
+    const g = keep ? fn : wrapFn(fn, epoch);
+    id = _st(function () { zt.delete(id); return g.apply(this, arguments); }, ms, ...a);
+    zt.set(id, { iv: false, keep }); return id;
+  };
+  W.clearTimeout = function (id) { zt.delete(id); return _ct(id); };
+  W.setInterval = function (fn, ms, ...a) {
+    if (!zone) return _si(fn, ms, ...a);
+    const id = _si(wrapFn(fn, epoch), ms, ...a); zt.set(id, { iv: true, keep: false }); return id;
+  };
+  W.clearInterval = function (id) { zt.delete(id); return _ci(id); };
+
+  /* ---------- ② 聲音：記下表演期間排程的音符；停止時取消未響的、淡掉長音 ---------- */
+  const srcs = new Set(); const outs = new WeakMap();
+  const SN = W.AudioScheduledSourceNode && W.AudioScheduledSourceNode.prototype;
+  if (SN) {
+    const _start = SN.start, _stop = SN.stop;
+    SN.start = function (when, ...a) {
+      const c = this.context, now = c.currentTime;
+      if (quiet) quiet.push(this);       // 停止過程中（快轉到結尾）冒出的聲音，稍後直接靜音
+      this.__ss = { at: Math.max(now, when || 0), end: Infinity, show: !!(zone || isOn()) };
+      if (this.__ss.show) { srcs.add(this); this.addEventListener('ended', () => srcs.delete(this)); }
+      return _start.call(this, when, ...a);
+    };
+    SN.stop = function (when, ...a) {
+      if (this.__ss) this.__ss.end = Math.max(this.context.currentTime, when || 0);
+      return _stop.call(this, when, ...a);
+    };
+  }
+  const AN = W.AudioNode && W.AudioNode.prototype;
+  if (AN) {   // 所有接到喇叭的線都先經過一顆總音量，停止時可以短暫壓低長音
+    const _conn = AN.connect;
+    AN.connect = function (dest, ...a) {
+      if (dest && dest === this.context.destination && !this.__ssOut) {
+        let g = outs.get(this.context);
+        if (!g) { g = this.context.createGain(); g.__ssOut = true; _conn.call(g, this.context.destination); outs.set(this.context, g); }
+        return _conn.call(this, g, ...a);
+      }
+      return _conn.call(this, dest, ...a);
+    };
+  }
+  function stopAudio() {
+    let longs = [], ctx = null;
+    for (const s of srcs) {
+      const c = s.context, now = c.currentTime, m = s.__ss; ctx = c;
+      if (!m || !m.show) continue;
+      if (m.at > now + .02) { try { s.stop(); } catch (e) {} srcs.delete(s); }      // 還沒響：直接取消
+      else if (isFinite(m.end) && m.end > now + 1.2) longs.push(s);                                     // 長音：淡掉再停
+    }
+    if (longs.length && ctx) {
+      const g = outs.get(ctx), now = ctx.currentTime;
+      if (g) {
+        g.gain.cancelScheduledValues(now); g.gain.setValueAtTime(g.gain.value, now);
+        g.gain.linearRampToValueAtTime(0, now + 1.1); g.gain.setValueAtTime(0, now + 1.2);
+        g.gain.linearRampToValueAtTime(1, now + 1.9);
+      }
+      longs.forEach(s => { try { s.stop(now + 1.15); } catch (e) {} srcs.delete(s); });
+    }
+    srcs.clear();
+  }
+
+  /* ---------- ③ 殘影：把目前畫面凍結複製一份疊上去再淡出 ---------- */
+  let ghostCss = false;
+  function ghost(svg) {
+    if (!svg || reducedQ.matches) return;
+    if (!ghostCss) {
+      ghostCss = true;
+      const st = document.createElement('style');
+      st.textContent = '.ss-ghost,.ss-ghost *{animation-play-state:paused!important;pointer-events:none!important}.ss-ghost{position:absolute!important;margin:0!important;will-change:opacity;transition:opacity ' + FADE + 's cubic-bezier(.4,0,.2,1)}';
+      document.head.appendChild(st);
+    }
+    const cl = svg.cloneNode(true);
+    cl.classList.add('ss-ghost'); cl.removeAttribute('tabindex'); cl.setAttribute('aria-hidden', 'true');
+    // 凍結色票：把目前的 CSS 變數抄到殘影上，底下換色不影響殘影
+    const cs = getComputedStyle(svg);
+    const names = new Set();
+    for (let i = 0; i < cs.length; i++) if (cs[i].startsWith('--')) names.add(cs[i]);
+    try { for (const sh of document.styleSheets) for (const r of sh.cssRules) if (r.style) for (const p of r.style) if (p.startsWith('--')) names.add(p); } catch (e) {}
+    for (const p of document.documentElement.style) if (p.startsWith('--')) names.add(p);
+    names.forEach(p => { const v = cs.getPropertyValue(p); if (v) cl.style.setProperty(p, v); });
+    // 漸層、濾鏡等定義改名，殘影只用自己那份（凍結）
+    const map = {};
+    cl.querySelectorAll('[id]').forEach(e => { const n = e.id + '__ss'; map[e.id] = n; e.id = n; });
+    cl.id = svg.id; delete map[svg.id];
+    const fix = v => v.replace(/url\(\s*['"]?#([^'")\s]+)['"]?\s*\)/g, (m, id) => map[id] ? 'url(#' + map[id] + ')' : m);
+    const all = cl.querySelectorAll('*'), orig = svg.querySelectorAll('*');
+    let needCs = false;
+    try { for (const sh of document.styleSheets) for (const r of sh.cssRules) if (r.cssText.includes('url(#') || r.cssText.includes('url("#')) { needCs = true; break; } } catch (e) {}
+    for (let i = 0; i < all.length; i++) {
+      const e = all[i];
+      for (const a of e.attributes) {
+        if (a.value.includes('url(')) e.setAttribute(a.name, fix(a.value));
+        else if ((a.name === 'href' || a.name === 'xlink:href') && a.value[0] === '#' && map[a.value.slice(1)]) e.setAttribute(a.name, '#' + map[a.value.slice(1)]);
+      }
+      if (needCs && orig[i]) {
+        const o = getComputedStyle(orig[i]);
+        for (const p of ['fill', 'stroke', 'filter', 'clip-path', 'mask']) { const v = o.getPropertyValue(p); if (v && v.includes('url(')) e.style.setProperty(p, fix(v.replace(/url\("?[^#")]*#/g, 'url(#').replace(/"\)/g, ')'))); }
+      }
+    }
+    const par = svg.parentElement;
+    if (getComputedStyle(par).position === 'static') par.style.position = 'relative';
+    const r = svg.getBoundingClientRect(), pr = par.getBoundingClientRect();
+    Object.assign(cl.style, { left: (r.left - pr.left + par.scrollLeft - par.clientLeft) + 'px', top: (r.top - pr.top + par.scrollTop - par.clientTop) + 'px', width: r.width + 'px', height: r.height + 'px', opacity: 1 });
+    svg.after(cl);
+    try { cl.pauseAnimations && cl.pauseAnimations(); } catch (e) {}
+    requestAnimationFrame(() => requestAnimationFrame(() => { cl.style.opacity = 0; }));
+    _st(() => cl.remove(), FADE * 1000 + 300);
+  }
+
+  /* ---------- ④ 秀中冒出的說話泡泡：停止時一起收掉 ---------- */
+  let added = [];
+  const mo = W.MutationObserver ? new MutationObserver(ms => { if (!isOn()) return; for (const m of ms) for (const n of m.addedNodes) if (n.nodeType === 1) added.push(n); }) : null;
+  const BUB = /bubble|say|speech|talk|tip/i;
+  function clearBubbles() {
+    if (mo) for (const m of mo.takeRecords()) for (const n of m.addedNodes) if (n.nodeType === 1) added.push(n);
+    added.forEach(n => {
+      if (!n.isConnected || n.closest('.ss-ghost')) return;
+      const p = n.parentElement;
+      if (BUB.test(n.getAttribute('class') || '') || (p && BUB.test((p.id || '') + ' ' + (p.getAttribute('class') || '')))) n.remove();
+    });
+    added = [];
+  }
+
+  /* ---------- ⑤ 停止 ---------- */
+  let stopping = false;
+  function cancel() {
+    if (stopping) return; stopping = true;
+    const svg = cfg.svg ? document.querySelector(cfg.svg) : (document.getElementById('scene') || document.querySelector('svg'));
+    try { ghost(svg); } catch (e) {}
+    epoch++;
+    for (const [id, z] of zt) if (!z.keep) { z.iv ? _ci(id) : _ct(id); zt.delete(id); }
+    try { stopAudio(); } catch (e) {}
+    quiet = [];
+    zone++;   // 收尾過程中（快轉那幾幀、stop、restore）排出的計時器，例如散場後的鳴笛、煙火，最後一起取消
+    // ff：把表演時間快轉到結尾，讓場景自己的收尾邏輯跑完一幀（殘影蓋著看不到），再補 stop
+    if (cfg.ff) {
+      try { cfg.ff(); } catch (e) { console.warn('ShowStop ff', e); }
+      let n = 0; const wait = () => { if (isOn() && n++ < 8) requestAnimationFrame(wait); else finish(); };
+      requestAnimationFrame(wait);
+    } else finish();
+  }
+  function finish() {
+    try { if (isOn() || !cfg.ff) cfg.stop && cfg.stop(); } catch (e) { console.warn('ShowStop stop', e); }
+    try { if (typeof W.setCine === 'function') W.setCine(0); } catch (e) {}
+    try { if (cfg.cine) cfg.cine(); } catch (e) {}
+    if (saved && cfg.restore) { try { cfg.restore(saved); } catch (e) { console.warn('ShowStop restore', e); } }
+    saved = null;
+    clearBubbles();
+    (quiet || []).forEach(s => { try { s.stop(); } catch (e) {} }); quiet = null;
+    zone = Math.max(0, zone - 1);
+    for (const [id, z] of zt) if (!z.keep) { z.iv ? _ci(id) : _ct(id); zt.delete(id); }
+    try { cfg.after && cfg.after(); } catch (e) {}
+    // 背景配樂（scene-bgm）表演時被壓小聲：停止後很快恢復
+    try { if (W.sceneMusic && W.sceneMusic.playing) W.sceneMusic.duck(.3); } catch (e) {}
+    stopping = false;
+    sync();
+  }
+
+  /* ---------- ⑥ 按鈕：開始時記下設定；表演中再按＝停止；文字顯示「■ 停止」 ---------- */
+  const btns = [];
+  function btnFor(kind) {
+    if (!kind) return null;
+    if (typeof cfg.btn === 'string') return document.getElementById(cfg.btn);
+    const id = cfg.btn[kind] || cfg.btn['*']; return id ? document.getElementById(id) : null;
+  }
+  function sync() {
+    const k = isOn(), act = btnFor(k);
+    btns.forEach(b => {
+      const st = b === act, txt = cfg.label || '■ 停止';
+      if (st && b.disabled) b.disabled = false;   // 有些作品表演中會把按鈕停用，這裡讓它能按「停止」
+      // 作品自己改了按鈕文字（例如收場時換成下一個特效名稱）就記下來，結束時還原成它
+      if (b.classList.contains('ss-stop') && b.textContent !== txt) { b.__ssLabel = b.innerHTML; if (st) b.textContent = txt; }
+      if (st && !b.classList.contains('ss-stop')) {
+        b.__ssLabel = b.innerHTML; b.classList.add('ss-stop');
+        b.textContent = cfg.label || '■ 停止'; b.title = '再按一下停止表演';
+      } else if (!st && b.classList.contains('ss-stop')) {
+        b.classList.remove('ss-stop'); b.innerHTML = b.__ssLabel; b.removeAttribute('title');
+      }
+    });
+  }
+  function loop() { sync(); requestAnimationFrame(loop); }
+
+  W.ShowStop = {
+    init(c) {
+      cfg = c;
+      const ids = typeof c.btn === 'string' ? [c.btn] : Object.values(c.btn);
+      [...new Set(ids)].forEach(id => {
+        const b = document.getElementById(id); if (!b) return;
+        b.__ssLabel = b.innerHTML; btns.push(b);
+        b.addEventListener('click', e => {
+          const k = isOn();
+          if (k && btnFor(k) === b) {
+            e.stopImmediatePropagation(); e.preventDefault();
+            if (e.isTrusted || c.allowSynthetic) cancel();
+            return;
+          }
+          if (!k) {
+            if (c.save) { try { saved = c.save(); } catch (er) { saved = null; } }
+            epoch++; zone++; added = [];
+            // 這次點擊同步排出的計時器都算表演的（點擊處理完就關掉）
+            let done = false; const off = () => { if (!done) { done = true; zone = Math.max(0, zone - 1); W.removeEventListener('click', off); } };
+            W.addEventListener('click', off); _st(off, 0);
+          }
+        }, true);
+      });
+      if (mo) { const s = c.svg ? document.querySelector(c.svg) : (document.getElementById('scene') || document.querySelector('svg')); if (s) mo.observe(s, { childList: true, subtree: true }); }
+      requestAnimationFrame(loop);
+    },
+    cancel: () => { if (isOn()) cancel(); },
+    get saved() { return saved; }
+  };
+})();
+</script>
+<script>
+/* ---- 表演氛圍（取代寬銀幕黑邊）：k = 0~1，四周輕微暗角＋中央微亮；fx/fy 可讓亮處偏向表演焦點 ---- */
+let cineK = 0, cineW = 0;
+function setCine(k, fx, fy) {
+  cineK = k = Math.max(0, Math.min(1, k));
+  if (k === cineW || (Math.abs(k - cineW) < .004 && k > 0 && k < 1)) return;   // 變化太小就先不重畫
+  cineW = k;
+  const g = document.getElementById('cineFx'); if (!g) return;
+  g.setAttribute('opacity', k.toFixed(3));
+  if (fx != null) { const G = document.getElementById('cineLightG'); G.setAttribute('cx', (fx / 1600).toFixed(3)); G.setAttribute('cy', (fy / 600).toFixed(3)); }
+}
+
+/* =========================================================
+   SC-82 深海熱泉的發光生物｜程式區
+   區塊：①工具與色票
+         ②場景（海水與遠方山脊、海床、熱泉煙囪、貽貝與管蟲、前景岩石）
+         ③角色（潛水器、鮟鱇魚、冠水母、櫛水母、管水母、小飛象章魚、燈籠魚、
+                 熱泉螃蟹、熱泉蝦、海豬、大王具足蟲、抹香鯨、大王魷魚）
+         ④動畫（主迴圈、海面時間、探照燈與黑暗遮罩、煙柱、海雪、海況、兩場表演）
+         ⑤互動（點擊、滑鼠、聲音、控制列）
+   ========================================================= */
+(() => {
+'use strict';
+
+/* ---------------- ① 工具 ---------------- */
+const NS = 'http://www.w3.org/2000/svg';
+const $ = id => document.getElementById(id);
+const root = document.documentElement;
+const svg = $('scene');
+const rand = (a, b) => a + Math.random() * (b - a);
+const pick = a => a[Math.floor(Math.random() * a.length)];
+const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+const lerp = (a, b, t) => a + (b - a) * t;
+const smooth = (a, b, x) => { const t = clamp((x - a) / (b - a), 0, 1); return t * t * (3 - 2 * t); };
+const win = (a, b, c, d, x) => smooth(a, b, x) * (1 - smooth(c, d, x));      // 先淡入再淡出的時間窗
+let seed = 20261182;        // 固定亂數：每次開啟構圖都一樣
+const srand = (a = 0, b = 1) => { seed = (seed * 16807) % 2147483647; return a + (seed / 2147483647) * (b - a); };
+const f1 = n => (+n).toFixed(1);
+const f2 = n => (+n).toFixed(2);
+const RAD = Math.PI / 180;
+function el(tag, attrs = {}, parent) {
+  const n = document.createElementNS(NS, tag);
+  for (const k in attrs) n.setAttribute(k, attrs[k]);
+  if (parent) parent.appendChild(n);
+  return n;
+}
+const F = n => `fill:var(--${n})`;                 // 用色票填色
+const S = (n, w) => `fill:none;stroke:var(--${n});stroke-width:${w}`;   // 用色票描邊
+function cr(pts, closed) {
+  const n = pts.length; if (n < 2) return '';
+  let d = `M${f1(pts[0][0])} ${f1(pts[0][1])}`;
+  const g = i => closed ? pts[(i + n) % n] : pts[clamp(i, 0, n - 1)];
+  for (let i = 0; i < (closed ? n : n - 1); i++) {
+    const p0 = g(i - 1), p1 = g(i), p2 = g(i + 1), p3 = g(i + 2);
+    d += `C${f1(p1[0] + (p2[0] - p0[0]) / 6)} ${f1(p1[1] + (p2[1] - p0[1]) / 6)} ${f1(p2[0] - (p3[0] - p1[0]) / 6)} ${f1(p2[1] - (p3[1] - p1[1]) / 6)} ${f1(p2[0])} ${f1(p2[1])}`;
+  }
+  return closed ? d + 'Z' : d;
+}
+function clickable(g, label) { g.classList.add('clickable'); g.setAttribute('tabindex', 0); g.setAttribute('role', 'button'); g.setAttribute('aria-label', label); return g; }
+// 朝向：身體畫成朝右（+x），依速度決定左右翻面與傾斜角度，讓頭永遠朝著前進方向
+function headingTf(x, y, vx, vy, s, faceVar) {
+  const sx = faceVar;                                   // -1～1 之間平滑變化（轉身）
+  const sgn = sx < 0 ? -1 : 1;
+  const a = Math.atan2(vy, Math.abs(vx) < .001 ? .001 : Math.abs(vx)) / RAD;
+  const fx = Math.abs(sx) < .12 ? .12 * sgn : sx;
+  return `translate(${f1(x)} ${f1(y)}) scale(${f2(fx * s)} ${f2(s)}) rotate(${f1(a)})`;
+}
+
+/* ---------------- ① 色票：讀取、配對、海面晝夜內插 ---------------- */
+const css = n => getComputedStyle(root).getPropertyValue(n).trim();
+const hex = h => { h = h.replace('#', ''); const n = parseInt(h.slice(0, 6), 16); return [n >> 16 & 255, n >> 8 & 255, n & 255, 1]; };
+const mix = (a, b, t) => a.map((v, i) => v + (b[i] - v) * t);
+const rgba = c => `rgba(${Math.round(c[0])},${Math.round(c[1])},${Math.round(c[2])},${(c[3] ?? 1).toFixed(3)})`;
+const PAIRS = {};
+(() => {
+  for (const sheet of document.styleSheets) {
+    try { for (const r of sheet.cssRules) if (r.selectorText === ':root') for (const p of r.style) if (p.startsWith('--d-')) { const k = p.slice(4); PAIRS[k] = { d: hex(css('--d-' + k)), n: hex(css('--n-' + k)) }; } } catch (e) {}
+  }
+})();
+const mq = window.matchMedia('(prefers-reduced-motion: reduce)');
+let reduced = mq.matches;
+
+/* ---------------- ② 版面常數與圖層 ---------------- */
+const LY = {}; ['world', 'Lbg', 'Lmid', 'Lfore', 'LglowMid', 'LglowFore', 'Lbeam', 'Lfx'].forEach(k => LY[k] = $(k));
+const PX = { Lbg: 4, Lmid: 10, Lfore: 22 };                 // 滑鼠視差（越近動越多）
+// 海床高度：中間熱泉區有一座礦物堆積的小丘
+const FLOOR = x => 522 + 8 * Math.sin(x * .0058 + .7) + 5 * Math.sin(x * .021 + 1.9) - 26 * Math.exp(-Math.pow((x - 1060) / 140, 2));
+const G = {};
+// 遠景的發光點放在黑暗之上，跟著背景視差
+G.glowBg = el('g', { class: 'noHit' }); LY.world.insertBefore(G.glowBg, LY.LglowMid);
+G.ridge = el('g', { class: 'noHit' }, LY.Lbg);
+['floor', 'chim', 'plume', 'mussel', 'worm', 'crit', 'swim', 'show', 'sub', 'snow'].forEach(k => G[k] = el('g', {}, LY.Lmid));
+G.snow.classList.add('noHit'); G.plume.classList.add('noHit');
+G.rock = el('g', {}, LY.Lfore); G.ang = el('g', {}, LY.Lfore);
+G.gSwim = el('g', {}, LY.LglowMid); G.gSub = el('g', {}, LY.LglowMid);
+G.fxMid = LY.Lfx;
+const M = { mid: $('mMid'), fore: $('mFore') };
+
+const T = { t: 10 / 24, auto: true, dragging: false };
+const DAY_SEC = 100;
+let time = 0, night = 0, hourNow = 10, lastColor = -1;
+const tweens = [];
+function tween(dur, fn, done) { tweens.push({ t: 0, dur, fn, done }); }
+const onActLater = [];
+
+/* =========================================================
+   ② 場景：遠方山脊、海床、岩石
+   ========================================================= */
+const farSpecks = [];
+function drawBackground() {
+  // 遠方的海底山脊（只有在燈光掃過時才隱約看得到）
+  [[430, 'ridge', 60, .004], [470, 'ridge2', 40, .007]].forEach(([y0, c, amp, fq], k) => {
+    const pts = [[-300, 700]];
+    for (let x = -300; x <= 1900; x += 40) pts.push([x, y0 + amp * Math.sin(x * fq + k * 2) + amp * .4 * Math.sin(x * fq * 3.1 + 1) - (k ? 0 : 50 * Math.exp(-Math.pow((x - 400) / 220, 2)))]);
+    pts.push([1900, 700]);
+    el('path', { d: 'M' + pts.map(p => f1(p[0]) + ' ' + f1(p[1])).join('L') + 'Z', style: F(c) }, G.ridge);
+  });
+  // 遠處零星的發光生物（藍綠色的小點，一閃一閃）
+  for (let i = 0; i < 26; i++) {
+    const x = srand(-60, 1660), y = srand(20, 430), r = srand(1, 2.4);
+    const n = el('circle', { cx: f1(x), cy: f1(y), r: f1(r * 3), fill: srand() < .7 ? 'url(#glowBlue)' : 'url(#glowGreen)', opacity: 0 }, G.glowBg);
+    farSpecks.push({ n, ph: srand(0, 30), per: srand(5, 13), dur: srand(.6, 1.6) });
+  }
+}
+function drawFloor() {
+  const pts = [];
+  for (let x = -300; x <= 1900; x += 20) pts.push([x, FLOOR(x)]);
+  el('path', { d: 'M-300 700L' + pts.map(p => f1(p[0]) + ' ' + f1(p[1])).join('L') + 'L1900 700Z', fill: 'url(#floorG)' }, G.floor);
+  // 沉積物的細紋與小石
+  for (let i = 0; i < 90; i++) {
+    const x = srand(-200, 1800), y = FLOOR(x) + srand(4, 70);
+    el('ellipse', { cx: f1(x), cy: f1(y), rx: f1(srand(3, 14)), ry: f1(srand(1, 2.5)), style: F(srand() < .5 ? 'sediment' : 'floor-dk'), opacity: f2(srand(.25, .55)) }, G.floor);
+  }
+  // 熱泉小丘：礦物堆積（鐵鏽色、硫磺黃）
+  el('path', { d: cr([[860, 540], [930, 505], [1000, 492], [1060, 486], [1130, 492], [1210, 505], [1270, 540], [1060, 560]], true), style: F('chim-dk'), opacity: .85 }, G.floor);
+  for (let i = 0; i < 26; i++) {
+    const x = srand(880, 1250), y = FLOOR(x) + srand(-2, 14);
+    el('ellipse', { cx: f1(x), cy: f1(y), rx: f1(srand(4, 12)), ry: f1(srand(2, 4)), style: F(pick(['chim-rust', 'chim-sulf', 'chim-hi', 'bact'])), opacity: f2(srand(.3, .7)) }, G.floor);
+  }
+  // 枕狀熔岩（玄武岩）
+  const rocks = [[80, 0, 70, 26], [230, 0, 46, 18], [420, 0, 60, 22], [560, 0, 34, 14], [700, 0, 52, 20], [1360, 0, 64, 24], [1500, 0, 44, 18], [1640, 0, 70, 26], [-60, 0, 60, 24]];
+  rocks.forEach(([x, , w, h]) => pillow(G.floor, x, FLOOR(x) + 6, w, h));
+}
+function pillow(g, x, y, w, h) {
+  el('ellipse', { cx: f1(x), cy: f1(y), rx: f1(w), ry: f1(h), fill: 'url(#basaltG)' }, g);
+  el('ellipse', { cx: f1(x - w * .2), cy: f1(y - h * .45), rx: f1(w * .5), ry: f1(h * .25), style: F('basalt-hi'), opacity: .35 }, g);
+  el('path', { d: `M${f1(x - w * .7)} ${f1(y)}Q${f1(x)} ${f1(y + h * .4)} ${f1(x + w * .7)} ${f1(y - h * .1)}`, style: S('basalt-dk', 1.2), opacity: .6 }, g);
+}
+function drawForeRocks() {
+  [[60, 590, 150, 64], [230, 600, 130, 50], [-40, 540, 120, 80], [380, 610, 120, 40], [1480, 612, 150, 44], [1620, 590, 110, 60], [880, 630, 200, 40]].forEach(([x, y, w, h]) => pillow(G.rock, x, y, w, h));
+}
+
+/* =========================================================
+   ② 熱泉煙囪（黑煙囪）
+   ========================================================= */
+const VENTS = [];
+function chimney(x, top, w, tw, rate, so) {
+  const base = FLOOR(x) + 8, n = 10, L = [], R = [];
+  for (let i = 0; i <= n; i++) {
+    const t = i / n, y = lerp(base, top, t);
+    const half = lerp(w / 2, tw / 2, Math.pow(t, .75)) * (1 + .16 * Math.sin(i * 2.3 + so));
+    const cx = x + 5 * Math.sin(t * 3 + so);
+    L.push([cx - half + srand(-2.5, 2.5), y]); R.push([cx + half + srand(-2.5, 2.5), y]);
+  }
+  const g = el('g', {}, G.chim);
+  el('path', { d: cr(L.concat(R.slice().reverse()), true), fill: 'url(#chimG)' }, g);
+  // 礦物的縱向紋路
+  for (let k = 0; k < 7; k++) {
+    const f = srand(.15, .85), pts = L.map((p, i) => [lerp(p[0], R[i][0], f) + srand(-1.5, 1.5), p[1]]);
+    el('path', { d: cr(pts.slice(0, Math.floor(srand(5, 11)))), style: S('chim-dk', srand(.8, 2)), opacity: f2(srand(.3, .6)) }, g);
+  }
+  // 側面的凸出薄板（flange），下面積著礦物
+  for (let k = 0; k < 2 + Math.floor(srand(0, 2)); k++) {
+    const i = Math.floor(srand(3, n - 2)), side = srand() < .5 ? -1 : 1, p = side < 0 ? L[i] : R[i], len = srand(10, 22);
+    el('path', { d: `M${f1(p[0])} ${f1(p[1])}l${f1(side * len)} ${f1(srand(-2, 2))}l${f1(-side * 2)} 5l${f1(-side * (len - 2))} 2z`, style: F('chim-hi') }, g);
+  }
+  // 鐵鏽、硫磺、白色細菌墊
+  for (let k = 0; k < 9; k++) {
+    const i = Math.floor(srand(0, n)), f = srand(.1, .9), p = [lerp(L[i][0], R[i][0], f), lerp(L[i][1], L[i + 1][1], srand())];
+    el('ellipse', { cx: f1(p[0]), cy: f1(p[1]), rx: f1(srand(2, 6)), ry: f1(srand(2, 7)), style: F(pick(['chim-rust', 'chim-sulf', 'bact', 'chim-rust'])), opacity: f2(srand(.35, .7)) }, g);
+  }
+  // 噴口
+  const tp = [(L[n][0] + R[n][0]) / 2, top];
+  el('ellipse', { cx: f1(tp[0]), cy: f1(top), rx: f1(tw / 2 + 1), ry: 3.5, style: F('chim-dk') }, g);
+  const V = { g, x: tp[0], y: top, base, rate, L, R, puff: 0, acc: 0 };
+  VENTS.push(V);
+  return V;
+}
+function drawVents() {
+  chimney(1185, 382, 52, 17, 4, 1.3);
+  chimney(925, 408, 44, 14, 3, 2.1);
+  chimney(1108, 468, 28, 13, 0, .4);          // 矮矮的「蜂巢」擴散口，只冒熱水的閃光
+  chimney(1050, 282, 80, 22, 8, .8);          // 主煙囪
+}
+// 煙柱粒子
+const plumeP = [];
+function drawPlume() { for (let i = 0; i < 70; i++) plumeP.push({ n: el('circle', { cx: -999, cy: 0, r: 1, fill: 'url(#plumeG)', opacity: 0 }, G.plume), on: false }); }
+
+/* =========================================================
+   ② 貽貝床與管蟲叢
+   ========================================================= */
+const wormClusters = [];
+function drawMussels() {
+  [[985, 34], [1100, 44], [1210, 28], [905, 22], [1045, 30]].forEach(([cx, sp]) => {
+    for (let i = 0; i < 16; i++) {
+      const x = cx + srand(-sp, sp), y = FLOOR(x) + srand(2, 9);
+      el('ellipse', { cx: f1(x), cy: f1(y), rx: f1(srand(4, 7)), ry: f1(srand(2.2, 3.4)), transform: `rotate(${f1(srand(-30, 30))} ${f1(x)} ${f1(y)})`, style: F('mussel') + ';stroke:var(--mussel-hi);stroke-width:.7' }, G.mussel);
+    }
+  });
+}
+function drawWorms() {
+  [[985, 10, 40], [1102, 14, 50], [1212, 8, 30], [903, 6, 24]].forEach(([cx, n, sp], ci) => {
+    const g = el('g', {}, G.worm), C = { g, x: cx, y: FLOOR(cx), worms: [], r: 0, rt: 0, hold: 0 };
+    const list = [];
+    for (let i = 0; i < n; i++) {
+      const x = cx + srand(-sp, sp), off = (x - cx) / sp;
+      list.push({ x, y: FLOOR(x) + srand(3, 9), lean: off * 18 + srand(-8, 8), L: srand(42, 96) * (1 - Math.abs(off) * .4), w: srand(5, 7.5), ph: srand(0, 6) });
+    }
+    list.sort((a, b) => a.y - b.y).forEach(W => {
+      W.g = el('g', {}, g);
+      const b = srand(-6, 6);
+      el('path', { d: `M0 0Q${f1(b)} ${f1(-W.L / 2)} 0 ${f1(-W.L)}`, style: S('tube-dk', W.w + 1.6) + ';stroke-linecap:round' }, W.g);
+      el('path', { d: `M-.8 0Q${f1(b - .8)} ${f1(-W.L / 2)} -.8 ${f1(-W.L)}`, style: S('tube', W.w - 1.4) + ';stroke-linecap:round' }, W.g);
+      for (let k = 1; k < 5; k++) { const yy = -W.L * k / 5; el('path', { d: `M${f1(-W.w / 2 + b * k / 10)} ${f1(yy)}h${f1(W.w)}`, style: S('tube-dk', .7), opacity: .55 }, W.g); }
+      // 紅色的鰓冠（含血紅素，所以是紅的）
+      W.p = el('g', {}, W.g);
+      const w = W.w;
+      el('path', { d: `M${f1(-w / 2)} 0C${f1(-w * 1.5)} -7 ${f1(-w * 1.1)} -19 0 -21C${f1(w * 1.1)} -19 ${f1(w * 1.5)} -7 ${f1(w / 2)} 0Z`, style: F('plume-red') }, W.p);
+      for (let k = -2; k <= 2; k++) el('path', { d: `M${f1(k * w * .18)} -1Q${f1(k * w * .4)} -10 ${f1(k * w * .22)} -18`, style: S('plume-red-dk', .8) }, W.p);
+      W.b = b;
+      C.worms.push(W);
+    });
+    clickable(g, '管蟲叢');
+    wormClusters.push(C);
+  });
+}
+
+/* =========================================================
+   ③ 角色：熱泉螃蟹、熱泉蝦、海豬、大王具足蟲
+   ========================================================= */
+const crabs = [], shrimps = [], seapigs = [];
+let isopod = null;
+function makeCrab(x, a, b) {
+  const g = el('g', {}, G.crit), legs = [];
+  for (let s = -1; s <= 1; s += 2) for (let i = 0; i < 4; i++) {
+    const p = el('path', { d: '', style: S('crab-dk', 1.6) + ';stroke-linecap:round;stroke-linejoin:round' }, g); legs.push({ p, s, i });
+  }
+  el('ellipse', { cx: 0, cy: -6, rx: 10, ry: 6, style: F('crab') }, g);
+  el('ellipse', { cx: -2, cy: -8, rx: 6, ry: 2.4, fill: '#fff', opacity: .5 }, g);
+  [-1, 1].forEach(s => {
+    el('path', { d: `M${s * 8} -6Q${s * 14} -14 ${s * 12} -17`, style: S('crab-dk', 2) }, g);
+    el('path', { d: `M${s * 12} -17q${s * 5} -2 ${s * 6} 2q${-s * 3} 1 ${-s * 6} -2z`, style: F('crab') + ';stroke:var(--crab-dk);stroke-width:.8' }, g);
+  });
+  el('circle', { cx: -3, cy: -11, r: 1, fill: '#222' }, g); el('circle', { cx: 3, cy: -11, r: 1, fill: '#222' }, g);
+  const C = { g, legs, x, y: FLOOR(x), a, b, vx: 0, tx: x, wait: srand(1, 5), ph: srand(0, 6), fast: 0 };
+  clickable(g, '熱泉螃蟹');
+  crabs.push(C);
+}
+function drawCrabs() { [[960, 930, 1010], [1075, 1040, 1125], [1135, 1100, 1180], [1230, 1195, 1260], [890, 865, 925], [1010, 985, 1060]].forEach(([x, a, b]) => makeCrab(x, a, b)); }
+function drawShrimp() {
+  const V = VENTS[VENTS.length - 1];
+  for (let i = 0; i < 24; i++) {
+    const k = Math.floor(srand(1, 7)), side = srand() < .5 ? 0 : 1, p = side ? V.R[k] : V.L[k];
+    const g = el('g', { class: 'noHit' }, G.crit);
+    el('path', { d: 'M5 0C3 -2.2 -3 -2.4 -5 -.6L-8 -2L-7 0L-8 2L-5 .6C-3 2.2 3 2.2 5 0Z', style: F('shrimp') }, g);
+    el('path', { d: 'M5 -.5L10 -2M5 0L10 1', style: S('shrimp', .5) }, g);
+    shrimps.push({ g, ax: p[0] + (side ? -3 : 3), ay: p[1] + srand(-6, 6), x: p[0], y: p[1], vx: 0, vy: 0, face: 1, ph: srand(0, 6), s: srand(.8, 1.15) });
+  }
+}
+function makeSeapig(x, a, b, s) {
+  const g = el('g', {}, G.crit), body = el('g', {}, g), legs = [];
+  for (let i = 0; i < 5; i++) legs.push(el('path', { d: '', style: S('seapig-dk', 3.2) + ';stroke-linecap:round' }, body));
+  el('path', { d: 'M-26 -6C-26 -18 -10 -22 6 -20C20 -18 28 -12 28 -4C28 2 20 4 0 4C-18 4 -26 2 -26 -6Z', fill: 'url(#seapigG)' }, body);
+  // 背上像觸角的乳突
+  const pap = [];
+  [[10, -19, -30], [16, -16, -16], [4, -20, -40]].forEach(([px, py, a2]) => pap.push(el('path', { d: '', style: S('seapig', 2.4) + ';stroke-linecap:round', 'data-x': px, 'data-y': py, 'data-a': a2 }, body)));
+  // 前端的口觸手
+  el('path', { d: 'M26 -2q5 2 6 5M24 0q3 4 2 7', style: S('seapig-dk', 1.4) }, body);
+  el('ellipse', { cx: -6, cy: -14, rx: 12, ry: 3, fill: '#fff', opacity: .22 }, body);
+  const P = { g, body, legs, pap, x, y: FLOOR(x), a, b, s, dir: 1, face: 1, vx: 0, wait: srand(0, 4), ph: srand(0, 6), talk: 0 };
+  clickable(g, '海豬（深海海參）');
+  seapigs.push(P);
+}
+function drawSeapigs() { makeSeapig(330, 270, 480, .9); makeSeapig(620, 560, 760, 1); makeSeapig(1420, 1340, 1520, .8); }
+function drawIsopod() {
+  const g = el('g', {}, G.crit), body = el('g', {}, g), legs = [];
+  for (let i = 0; i < 7; i++) legs.push(el('path', { d: '', style: S('isopod-dk', 1.6) + ';stroke-linecap:round' }, body));
+  el('path', { d: 'M-34 -2C-36 -14 -22 -22 0 -22C20 -22 32 -14 34 -4L34 0L-34 0Z', fill: 'url(#isoG)' }, body);
+  for (let k = -3; k <= 3; k++) el('path', { d: `M${k * 8} -21Q${k * 8 + 2} -10 ${k * 8} 0`, style: S('isopod-dk', 1), opacity: .7 }, body);
+  el('path', { d: 'M-34 -2Q-42 -4 -42 2L-34 2Z', style: F('isopod-dk') }, body);
+  el('ellipse', { cx: 28, cy: -10, rx: 4, ry: 3, fill: '#121014' }, body);
+  el('path', { d: 'M33 -10Q48 -22 58 -12M33 -8Q46 -10 54 -2', style: S('isopod-dk', 1.2) }, body);
+  isopod = { g, body, legs, x: 800, y: FLOOR(800), a: 740, b: 870, dir: 1, face: 1, vx: 0, wait: 2, ph: 0, curl: 0, s: .9 };
+  clickable(g, '大王具足蟲');
+}
+
+/* =========================================================
+   ③ 角色：深海潛水器（原創設計）
+   ========================================================= */
+const sub = { x: 560, y: 236, by: 236, s: 1.08, arm: 0, armT: 0, act: 0, pitch: 0 };
+function drawSub() {
+  const g = el('g', {}, G.sub), body = el('g', {}, g);
+  sub.g = g; sub.body = body;
+  // 後方的導管推進器
+  el('rect', { x: -132, y: -16, width: 26, height: 32, rx: 6, style: F('sub-frame') }, body);
+  sub.prop = el('ellipse', { cx: -132, cy: 0, rx: 3, ry: 14, style: F('sub-metal'), opacity: .6 }, body);
+  // 底下的滑橇骨架
+  el('path', { d: 'M-96 46H64M-80 34V46M-20 34V46M40 34V46', style: S('sub-frame', 3.2) + ';stroke-linecap:round' }, body);
+  // 採樣籃
+  el('rect', { x: 14, y: 36, width: 38, height: 13, rx: 2, style: F('sub-frame') }, body);
+  for (let i = 0; i < 6; i++) el('path', { d: `M${18 + i * 6} 37v11`, style: S('sub-metal', 1) }, body);
+  [[22, 30], [30, 28], [38, 31]].forEach(([x, y]) => el('rect', { x, y, width: 4, height: 9, rx: 1.5, fill: '#cfe6ee', opacity: .8 }, body));
+  // 主艙體
+  el('path', { d: 'M-104 -30C-116 -30 -118 34 -104 36L54 36C80 36 96 20 96 3C96 -15 80 -30 54 -30Z', fill: 'url(#hullG)' }, body);
+  el('path', { d: 'M-108 14H92', style: S('sub-orange', 4), opacity: .9 }, body);
+  el('path', { d: 'M-70 -30V36M-10 -30V36', style: S('sub-hull-dk', 1), opacity: .6 }, body);
+  // 側推進器
+  el('circle', { cx: -56, cy: -6, r: 9, style: F('sub-frame') }, body);
+  el('circle', { cx: -56, cy: -6, r: 5.5, style: F('sub-metal'), opacity: .7 }, body);
+  // 上方的橘色整流罩與艙口
+  el('path', { d: 'M-76 -30L-64 -60H20C34 -60 42 -48 46 -30Z', fill: 'url(#sailG)' }, body);
+  el('ellipse', { cx: -18, cy: -61, rx: 18, ry: 4, style: F('sub-hull-dk') }, body);
+  el('path', { d: 'M-52 -60V-84', style: S('sub-frame', 2) }, body);
+  el('circle', { cx: -52, cy: -85, r: 2.4, style: F('sub-metal') }, body);
+  el('rect', { x: 2, y: -66, width: 6, height: 6, rx: 1, style: F('sub-hull') }, body);    // 頂上的閃光信標
+  // 觀察窗：裡面坐著兩名駕駛，被儀表板照成藍色
+  el('circle', { cx: 80, cy: 4, r: 27, fill: '#081620' }, body);
+  el('rect', { x: 60, y: 14, width: 40, height: 12, rx: 2, fill: '#0e2a3a' }, body);
+  sub.screen = el('rect', { x: 64, y: 16, width: 30, height: 6, rx: 1, style: F('screen-glow'), opacity: .8 }, body);
+  [[72, -2, 'pilot1', 'skin1'], [88, 6, 'pilot2', 'skin2']].forEach(([x, y, suit, skin]) => {
+    el('path', { d: `M${x - 9} ${y + 16}Q${x} ${y + 4} ${x + 9} ${y + 16}Z`, style: F(suit) }, body);
+    el('circle', { cx: x, cy: y, r: 6, style: F(skin) }, body);
+    el('path', { d: `M${x - 6} ${y - 1}Q${x} ${y - 9} ${x + 6} ${y - 1}`, style: F('hair') }, body);
+  });
+  el('circle', { cx: 80, cy: 4, r: 27, fill: 'url(#domeG)', style: 'stroke:var(--sub-frame);stroke-width:4' }, body);
+  el('path', { d: 'M64 -12Q72 -20 84 -21', style: S('sub-hull-hi', 2.4) + ';stroke-linecap:round', opacity: .7 }, body);
+  // 燈臂：上方主燈會跟著滑鼠轉動
+  el('path', { d: 'M54 -30L104 -36', style: S('sub-frame', 4) }, body);
+  sub.lampG = el('g', { transform: 'translate(104 -36)' }, body);
+  el('rect', { x: -7, y: -7, width: 16, height: 14, rx: 3, style: F('sub-metal') }, sub.lampG);
+  el('rect', { x: 8, y: -6, width: 3, height: 12, style: F('lamp') }, sub.lampG);
+  el('path', { d: 'M86 34L100 44', style: S('sub-frame', 4) }, body);
+  el('g', { transform: 'translate(100 44) rotate(55)' }, body).append(
+    el('rect', { x: -6, y: -6, width: 13, height: 12, rx: 3, style: F('sub-metal') }),
+    el('rect', { x: 7, y: -5, width: 3, height: 10, style: F('lamp') }));
+  // 機械手臂（肩、肘、夾爪）
+  sub.armG = el('g', { transform: 'translate(62 34)' }, body);
+  sub.upper = el('g', {}, sub.armG);
+  el('rect', { x: 0, y: -3.5, width: 36, height: 7, rx: 3.5, style: F('sub-metal') }, sub.upper);
+  sub.fore = el('g', { transform: 'translate(36 0)' }, sub.upper);
+  el('circle', { cx: 0, cy: 0, r: 4.5, style: F('sub-frame') }, sub.fore);
+  el('rect', { x: 0, y: -3, width: 30, height: 6, rx: 3, style: F('sub-metal') }, sub.fore);
+  sub.claw = el('path', { d: '', style: S('sub-frame', 2.4) + ';stroke-linecap:round' }, sub.fore);
+  el('circle', { cx: 0, cy: 0, r: 5, style: F('sub-frame') }, sub.armG);
+  // 發光層：閃光信標、導航燈、儀表螢光
+  sub.glow = el('g', {}, G.gSub);
+  sub.beacon = el('circle', { cx: 5, cy: -63, r: 26, fill: 'url(#glowWhite)', opacity: 0 }, sub.glow);
+  sub.red = el('circle', { cx: -130, cy: -14, r: 10, fill: 'url(#glowRed)', opacity: .7 }, sub.glow);
+  sub.dome = el('ellipse', { cx: 80, cy: 6, rx: 30, ry: 26, fill: 'url(#glowBlue)', opacity: .25 }, sub.glow);
+  clickable(g, '深海潛水器');
+}
+
+/* =========================================================
+   ③ 角色：深海鮟鱇魚（前景，埋伏在岩石前）
+   ========================================================= */
+const ang = { x: 228, y: 468, s: 1.35, jaw: 0, snap: 0, lure: 1, flash: 0 };
+function drawAngler() {
+  const g = el('g', {}, G.ang); ang.g = g;
+  ang.tail = el('path', { d: 'M-42 -6C-56 -22 -70 -30 -78 -26C-74 -12 -74 4 -78 20C-70 22 -56 14 -42 6Z', fill: 'url(#angG)' }, g);
+  for (let k = 0; k < 5; k++) el('path', { d: `M-44 0L${-76 + k} ${-22 + k * 10}`, style: S('angler-dk', .8), opacity: .7 }, g);
+  el('path', { d: 'M-30 -26C-24 -40 -12 -44 -6 -40C-12 -36 -20 -30 -22 -24Z', style: F('angler-dk') }, g);   // 背鰭
+  // 嘴巴內部（張嘴時看得到）
+  el('path', { d: 'M18 4L56 -6L62 2C56 18 34 24 22 14Z', fill: '#050304' }, g);
+  // 身體
+  el('path', { d: 'M-44 -4C-36 -36 6 -48 36 -32C50 -24 57 -14 55 -6L20 4C22 18 2 30 -20 24C-36 18 -44 8 -44 -4Z', fill: 'url(#angG)' }, g);
+  // 上顎的牙齒
+  for (let k = 0; k < 7; k++) { const t = k / 6, x = lerp(52, 22, t), y = lerp(-5, 3, t), h = 6 - t * 2.5; el('path', { d: `M${f1(x - 1.4)} ${f1(y)}L${f1(x)} ${f1(y + h)}L${f1(x + 1.4)} ${f1(y)}Z`, style: F('tooth') }, g); }
+  // 下顎（可以張開）
+  ang.jawG = el('g', {}, g);
+  el('path', { d: 'M20 4L62 -5C64 4 58 16 42 22C32 26 22 20 20 4Z', fill: 'url(#angG)' }, ang.jawG);
+  for (let k = 0; k < 7; k++) { const t = k / 6, x = lerp(60, 24, t), y = lerp(-4, 5, t), h = 7 - t * 3; el('path', { d: `M${f1(x - 1.5)} ${f1(y)}L${f1(x)} ${f1(y - h)}L${f1(x + 1.5)} ${f1(y)}Z`, style: F('tooth') }, ang.jawG); }
+  // 胸鰭、皮膚紋理、小眼睛
+  ang.fin = el('ellipse', { cx: -8, cy: 8, rx: 10, ry: 5, style: F('angler-dk'), transform: 'rotate(30 -8 8)' }, g);
+  for (let k = 0; k < 14; k++) el('circle', { cx: f1(srand(-34, 30)), cy: f1(srand(-30, 16)), r: f1(srand(.6, 1.4)), style: F('angler-hi'), opacity: .5 }, g);
+  el('circle', { cx: 36, cy: -17, r: 3.2, style: F('angler-eye') }, g);
+  el('circle', { cx: 36.6, cy: -17.4, r: 1.6, fill: '#05080a' }, g);
+  // 頭上的釣竿（背鰭第一根鰭棘變成的）與餌球
+  ang.rod = el('path', { d: 'M30 -38Q50 -84 80 -58', style: S('angler-hi', 2) + ';stroke-linecap:round' }, g);
+  ang.esca = el('circle', { cx: 80, cy: -56, r: 4.5, fill: '#cfeef0' }, g);
+  // 發光層與遮罩：餌球的藍光照亮自己的臉
+  ang.glow = el('g', {}, LY.LglowFore);
+  ang.glowBig = el('circle', { cx: 80, cy: -56, r: 40, fill: 'url(#glowCyan)' }, ang.glow);
+  ang.glowCore = el('circle', { cx: 80, cy: -56, r: 3, fill: '#ffffff' }, ang.glow);
+  ang.mask = el('g', {}, M.fore);
+  ang.hole = el('circle', { cx: 74, cy: -46, r: 85, fill: 'url(#haloMG)', opacity: .5 }, ang.mask);
+  clickable(g, '深海鮟鱇魚');
+}
+
+/* =========================================================
+   ③ 角色：冠水母、櫛水母、管水母、小飛象章魚
+   ========================================================= */
+const atollas = [], bodies = [];
+function makeAtolla(x, y, s, box) {
+  const g = el('g', {}, G.swim), body = el('g', {}, g);
+  const ten = [];
+  for (let i = 0; i < 18; i++) ten.push(el('path', { d: '', style: S('atolla', 1.2), opacity: .85 }, body));
+  const longT = el('path', { d: '', style: S('atolla-hi', 1.4), opacity: .8 }, body);    // 冠水母特有的一條長觸手
+  el('path', { d: 'M-32 0C-32 -26 32 -26 32 0Z', fill: 'url(#atollaG)' }, body);
+  el('ellipse', { cx: 0, cy: -7, rx: 26, ry: 4, style: S('atolla-dk', 1.6), opacity: .8 }, body);       // 冠溝
+  for (let i = 0; i < 12; i++) el('circle', { cx: f1(-29 + i * 5.3), cy: 1.5, r: 3, style: F('atolla-dk') }, body);
+  el('ellipse', { cx: 0, cy: -14, rx: 12, ry: 6, style: F('atolla-dk'), opacity: .6 }, body);
+  // 發光層：鐘緣一圈藍光點（防盜警報）
+  const gl = el('g', {}, G.gSwim), dots = [];
+  for (let i = 0; i < 16; i++) { const a = i / 16 * Math.PI * 2; dots.push({ n: el('circle', { cx: f1(Math.cos(a) * 27), cy: f1(-5 + Math.sin(a) * 5), r: 9, fill: 'url(#glowBlue)', opacity: 0 }, gl), a }); }
+  const A = { g, body, gl, dots, ten, longT, x, y, s, box, vx: 0, vy: 0, tx: x, ty: y, wt: 0, r: 60 * s, rot: 0, ph: srand(0, 6), alarm: 0, base: .08 };
+  clickable(g, '冠水母');
+  atollas.push(A); bodies.push(A);
+}
+const comb = { x: 1300, y: 330, s: 1.05, vx: 0, vy: 0, tx: 1300, ty: 330, wt: 0, r: 50, rot: 0, ph: 0, flash: 0, lit: 0, box: [1160, 240, 1500, 380] };
+function drawComb() {
+  const g = el('g', {}, G.swim), body = el('g', {}, g); comb.g = g; comb.body = body;
+  comb.ten = [el('path', { d: '', style: S('comb-dk', 1), opacity: .6 }, body), el('path', { d: '', style: S('comb-dk', 1), opacity: .6 }, body)];
+  el('ellipse', { cx: 0, cy: 0, rx: 17, ry: 27, fill: 'url(#combG)', style: 'stroke:var(--comb-dk);stroke-width:.8;stroke-opacity:.6' }, body);
+  el('ellipse', { cx: 0, cy: 4, rx: 5, ry: 13, style: F('comb-dk'), opacity: .3 }, body);
+  const rowsD = [-14, -7, 0, 7, 14].map(k => `M${k * .45} -25Q${k * 1.25} 0 ${k * .45} 25`);
+  rowsD.forEach(d => el('path', { d, style: S('comb-dk', 1.2), opacity: .5 }, body));
+  // 發光層：櫛板的彩虹（被光照到才看得到）與藍綠色的生物光
+  comb.gl = el('g', {}, G.gSwim);
+  comb.bio = el('ellipse', { cx: 0, cy: 0, rx: 34, ry: 44, fill: 'url(#glowGreen)', opacity: 0 }, comb.gl);
+  comb.rows = rowsD.map(d => el('path', { d, fill: 'none', stroke: 'url(#rainbowG)', 'stroke-width': 2.4, 'stroke-dasharray': '2 2.5', opacity: 0 }, comb.gl));
+  clickable(g, '櫛水母');
+  bodies.push(comb);
+}
+const siph = { pts: [], n: 44, seg: 9, x: 420, y: 80, vx: 0, vy: 0, tx: 600, ty: 110, wt: 0, r: 40, wave: -1, glowK: .15, box: [120, 40, 470, 115] };
+function drawSiph() {
+  for (let i = 0; i < siph.n; i++) siph.pts.push([siph.x - i * siph.seg, siph.y + i * .3]);
+  const g = el('g', {}, G.swim); siph.g = g;
+  siph.corm = [];
+  for (let i = 3; i < siph.n; i += 3) {
+    const c = el('g', {}, g);
+    const t1 = el('path', { d: '', style: S('siph-red', .9), opacity: .7 }, c), t2 = el('path', { d: '', style: S('siph-dk', .7), opacity: .6 }, c);
+    el('ellipse', { cx: 0, cy: 3, rx: 4.5, ry: 3, fill: 'url(#bellG)' }, c);
+    siph.corm.push({ c, t1, t2, i, ph: srand(0, 6), L: srand(18, 34) });
+  }
+  siph.stem = el('path', { d: '', style: S('siph', 1.6), opacity: .8 }, g);
+  siph.head = el('g', {}, g);
+  el('ellipse', { cx: 12, cy: 0, rx: 5, ry: 3.4, style: F('siph-red'), opacity: .85 }, siph.head);    // 浮囊
+  for (let k = 0; k < 6; k++) { const x = 4 - k * 6, y = (k % 2 ? 5 : -5); el('path', { d: `M${x - 5} ${y}C${x - 5} ${y - 7} ${x + 5} ${y - 7} ${x + 5} ${y}C${x + 5} ${y + 7} ${x - 5} ${y + 7} ${x - 5} ${y}Z`, fill: 'url(#bellG)', style: 'stroke:var(--siph);stroke-width:.6;stroke-opacity:.6' }, siph.head); }
+  siph.hit = el('path', { d: '', style: 'fill:none;stroke:transparent;stroke-width:26;pointer-events:stroke' }, g);
+  // 發光層：沿著主幹的藍光點
+  siph.gl = el('g', {}, G.gSwim);
+  siph.dots = [];
+  for (let i = 0; i < siph.n; i += 2) siph.dots.push({ n: el('circle', { cx: 0, cy: 0, r: 6, fill: 'url(#glowBlue)', opacity: 0 }, siph.gl), i });
+  clickable(g, '管水母');
+  bodies.push(siph);
+}
+const dumbo = { x: 1440, y: 440, s: 1, vx: 0, vy: 0, tx: 1440, ty: 440, wt: 0, r: 46, rot: 0, ph: 0, boost: 0, box: [1250, 330, 1560, 470] };
+function drawDumbo() {
+  const g = el('g', {}, G.swim), body = el('g', {}, g); dumbo.g = g; dumbo.body = body;
+  // 有蹼相連的八隻腕（像一件小裙子）
+  dumbo.skirt = el('path', { d: '', fill: 'url(#dumboG)', opacity: .95 }, body);
+  dumbo.earL = el('ellipse', { cx: -17, cy: -20, rx: 10, ry: 5, style: F('dumbo-dk') }, body);
+  dumbo.earR = el('ellipse', { cx: 17, cy: -20, rx: 10, ry: 5, style: F('dumbo-dk') }, body);
+  el('path', { d: 'M-17 -4C-20 -34 20 -34 17 -4Z', fill: 'url(#dumboG)' }, body);
+  el('ellipse', { cx: -5, cy: -24, rx: 6, ry: 3, style: F('dumbo-hi'), opacity: .6 }, body);
+  el('circle', { cx: -7, cy: -8, r: 3.2, fill: '#1a0e0a' }, body); el('circle', { cx: 7, cy: -8, r: 3.2, fill: '#1a0e0a' }, body);
+  el('circle', { cx: -6.2, cy: -9, r: 1, fill: '#fff', opacity: .7 }, body); el('circle', { cx: 7.8, cy: -9, r: 1, fill: '#fff', opacity: .7 }, body);
+  clickable(g, '小飛象章魚');
+  bodies.push(dumbo);
+}
+
+/* =========================================================
+   ③ 角色：燈籠魚群（白天在這一層，入夜後往上游）
+   ========================================================= */
+const lantern = [], school = { x: 700, y: 300, vx: 0, vy: 0, tx: 700, ty: 300, wt: 0, scatter: 0, sx: 0, sy: 0 };
+function drawLantern() {
+  for (let i = 0; i < 30; i++) {
+    const g = el('g', {}, G.swim), gl = el('g', {}, G.gSwim);
+    el('path', { d: 'M9 0C7 -3.4 -4 -3.6 -8 -1.2L-12 -4L-11 0L-12 4L-8 1.2C-4 3.4 7 3.2 9 0Z', style: F('lantern') }, g);
+    el('path', { d: 'M8 -.5C4 -2.4 -3 -2.4 -7 -.8', style: S('lantern-hi', .9), opacity: .7 }, g);
+    el('circle', { cx: 5.5, cy: -.6, r: 1.9, fill: '#0a0c10' }, g);
+    el('circle', { cx: 5.9, cy: -1, r: .6, fill: '#fff', opacity: .8 }, g);
+    [-4, -1, 2].forEach(x => el('circle', { cx: x, cy: 2.2, r: 2.6, fill: 'url(#glowBlue)' }, gl));
+    const a = srand(0, Math.PI * 2), rr = srand(20, 90);
+    lantern.push({ g, gl, x: 700 + Math.cos(a) * rr, y: 300 + Math.sin(a) * rr * .5, vx: srand(-20, 20), vy: 0, face: 1, ox: Math.cos(a) * rr, oy: Math.sin(a) * rr * .45, s: srand(1, 1.35), ph: srand(0, 6), glow: srand(.2, .5), tw: 0 });
+  }
+}
+
+/* =========================================================
+   ③ 角色：抹香鯨與大王魷魚（只在表演時出現）
+   ========================================================= */
+const whale = { x: -400, y: -100, vx: 1, vy: 0, face: 1, on: false, s: .9, ang: 0, roll: 0, r: 150 };
+const squid = { x: 1900, y: 380, vx: -1, vy: 0, face: -1, on: false, s: 1, op: 1, r: 90, writhe: 0 };
+function drawWhale() {
+  const g = el('g', { opacity: 0 }, G.show); whale.g = g;
+  whale.fl = el('path', { d: '', fill: 'url(#whaleG)' }, g);
+  el('path', { d: 'M226 -18C228 -50 204 -64 150 -66C80 -68 0 -52 -80 -36C-130 -26 -170 -12 -198 -4L-200 4C-168 10 -120 24 -60 36C20 48 100 46 150 38C190 32 220 20 226 -18Z', fill: 'url(#whaleG)' }, g);
+  // 背上的駝峰與「指節」
+  el('path', { d: 'M-60 -38q10 -12 22 -4M-100 -28q6 -7 12 -2M-122 -22q5 -5 10 -1M-140 -17q4 -4 8 0', style: S('whale-dk', 3) }, g);
+  // 皺皺的皮膚
+  for (let k = 0; k < 16; k++) { const x = srand(-150, 60), y = srand(-28, 26); el('path', { d: `M${f1(x)} ${f1(y)}q6 ${f1(srand(-3, 3))} 12 0q6 ${f1(srand(-3, 3))} 12 0`, style: S('whale-dk', 1.2), opacity: .5 }, g); }
+  // 頭上的魷魚吸盤疤痕
+  for (let k = 0; k < 14; k++) el('circle', { cx: f1(srand(110, 210)), cy: f1(srand(-50, 10)), r: f1(srand(2, 4.5)), style: S('whale-scar', 1), opacity: .55 }, g);
+  // 窄窄的下顎（顏色較淺）與牙齒
+  el('path', { d: 'M40 34C90 40 160 34 196 20L194 27C150 42 90 50 40 42Z', style: F('whale-scar') }, g);
+  for (let k = 0; k < 8; k++) el('path', { d: `M${70 + k * 15} 36l2 -5l2 5z`, fill: '#f4f0e6' }, g);
+  el('ellipse', { cx: 52, cy: 12, rx: 3, ry: 2.4, fill: '#0a0808' }, g);
+  whale.flip = el('path', { d: 'M18 30C10 44 4 56 -4 60C6 58 22 48 30 34Z', style: F('whale-dk') }, g);
+  clickable(g, '抹香鯨');
+}
+function drawSquid() {
+  const g = el('g', { opacity: 0 }, G.show); squid.g = g;
+  squid.arms = [];
+  for (let i = 0; i < 10; i++) squid.arms.push({ p: el('path', { d: '', fill: 'url(#squidG)' }, g), i, long: i >= 8, ph: srand(0, 6), off: (i - 4.5) * 3.2 });
+  // 外套膜（身體）與尾端的鰭
+  el('path', { d: 'M-210 -4C-230 -20 -250 -18 -258 -6C-250 0 -250 4 -258 10C-248 20 -228 18 -210 4Z', fill: 'url(#squidG)' }, g);
+  el('path', { d: 'M-224 0C-180 -24 -90 -28 -40 -20C-20 -16 -8 -10 -6 0C-8 10 -20 16 -40 20C-90 28 -180 22 -224 0Z', fill: 'url(#squidG)' }, g);
+  for (let k = 0; k < 18; k++) el('circle', { cx: f1(srand(-200, -40)), cy: f1(srand(-16, 16)), r: f1(srand(1, 2.4)), style: F('squid-dk'), opacity: .5 }, g);
+  // 頭與大眼睛（大王魷魚的眼睛像餐盤一樣大）
+  el('ellipse', { cx: -4, cy: 0, rx: 20, ry: 16, style: F('squid') }, g);
+  el('circle', { cx: -6, cy: -2, r: 10, fill: '#e8e0d0' }, g);
+  el('circle', { cx: -5, cy: -2, r: 7, style: F('squid-eye') }, g);
+  el('circle', { cx: -3, cy: -4, r: 2, fill: '#fff', opacity: .8 }, g);
+  clickable(g, '大王魷魚');
+}
+// 魷魚的腕：沿著一條會扭動的曲線，算出兩側輪廓，做成越來越細的形狀
+function squidArms(t) {
+  squid.arms.forEach(A => {
+    const L = A.long ? 250 : 120, n = 12, base = A.off, wr = squid.writhe;
+    const left = [], right = [];
+    for (let k = 0; k <= n; k++) {
+      const u = k / n, x = 10 + u * L;
+      const y = base * (1 + u * 1.6) + Math.sin(t * (2.4 + wr * 2) + A.ph + u * 4) * (6 + wr * 16) * u + (A.long ? Math.sin(t * 1.3 + A.ph) * 14 * u : 0);
+      const w = (A.long ? 3.2 : 5.5) * (1 - u * .85) + (A.long && u > .85 ? 3 : 0);   // 長觸手末端有一個觸手棒
+      left.push([x, y - w]); right.push([x, y + w]);
+    }
+    A.p.setAttribute('d', cr(left.concat(right.reverse()), true));
+  });
+}
+
+/* =========================================================
+   ③ 海雪（從上層慢慢飄落的有機碎屑，只有在燈光裡看得到）
+   ========================================================= */
+const snow = [];
+function drawSnow() {
+  for (let i = 0; i < 280; i++) {
+    const r = srand(.6, 2.1);
+    snow.push({ n: el('circle', { cx: 0, cy: 0, r: f1(r), style: F('snow'), opacity: f2(srand(.35, .95)) }, G.snow), x: srand(-100, 1700), y: srand(-20, 600), vy: srand(5, 13) * (r > 1.5 ? 1.2 : 1), ph: srand(0, 6), k: i / 280 });
+  }
+}
+
+/* =========================================================
+   ④ 探照燈與黑暗遮罩
+   ========================================================= */
+const beam = { ang: 22, on: 1, onT: 1, lx: 0, ly: 0, l2x: 0, l2y: 0 };
+const coneD = (h, L) => { const t = Math.tan(h * RAD) * L; return `M0 -3L${f1(L)} ${f1(-t)}Q${f1(L * 1.1)} 0 ${f1(L)} ${f1(t)}L0 3Z`; };
+function drawBeam() {
+  const defs = svg.querySelector('defs');
+  // 下方小燈用的短漸層
+  const g1 = el('radialGradient', { id: 'coneMG2', gradientUnits: 'userSpaceOnUse', cx: 0, cy: 0, r: 360 }, defs);
+  [[0, '#000'], [.5, '#444'], [1, '#fff']].forEach(([o, c]) => el('stop', { offset: o, 'stop-color': c }, g1));
+  const g2 = el('radialGradient', { id: 'beamG2', gradientUnits: 'userSpaceOnUse', cx: 0, cy: 0, r: 360 }, defs);
+  [[0, .4], [.4, .12], [1, 0]].forEach(([o, a]) => el('stop', { offset: o, style: 'stop-color:var(--beam)', 'stop-opacity': a }, g2));
+  // 遮罩裡挖出來的亮處
+  beam.halo = el('circle', { cx: 0, cy: 0, r: 210, fill: 'url(#haloMG)', opacity: .55 }, M.mid);
+  beam.m = el('g', {}, M.mid);
+  [[18, .22], [15, .28], [12, .32], [9, .36], [6, .4], [3.5, .4]].forEach(([h, o]) => el('path', { d: coneD(h, 980), fill: 'url(#coneMG)', opacity: o }, beam.m));
+  beam.m2 = el('g', {}, M.mid);
+  [[24, .2], [17, .25], [10, .3]].forEach(([h, o]) => el('path', { d: coneD(h, 320), fill: 'url(#coneMG2)', opacity: o }, beam.m2));
+  // 看得見的光束（水中散射）
+  beam.v = el('g', {}, LY.Lbeam);
+  [[16, .28], [12.5, .34], [9, .4], [5.5, .45], [2.5, .4]].forEach(([h, o]) => el('path', { d: coneD(h, 980), fill: 'url(#beamG)', opacity: o }, beam.v));
+  beam.v2 = el('g', {}, LY.Lbeam);
+  [[20, .25], [13, .3], [6, .3]].forEach(([h, o]) => el('path', { d: coneD(h, 320), fill: 'url(#beamG2)', opacity: o }, beam.v2));
+  beam.flare = el('circle', { cx: 0, cy: 0, r: 46, fill: 'url(#flareG)' }, LY.Lbeam);
+  beam.flare2 = el('circle', { cx: 0, cy: 0, r: 28, fill: 'url(#flareG)' }, LY.Lbeam);
+}
+// 某一點有沒有被探照燈照到（0～1）
+function inBeam(x, y) {
+  const dx = x - beam.lx, dy = y - beam.ly, d = Math.hypot(dx, dy);
+  let da = Math.abs(Math.atan2(dy, dx) / RAD - beam.ang); if (da > 180) da = 360 - da;
+  return Math.max(beam.on * (1 - smooth(8, 16, da)) * (1 - smooth(650, 980, d)), strobeK);
+}
+
+/* =========================================================
+   ④ 海面時間（深海沒有日夜，這裡只影響燈籠魚與海水色調）
+   ========================================================= */
+function applyColors(force) {
+  const key = Math.round(T.t * 1440);
+  if (!force && key === lastColor) return;
+  lastColor = key;
+  const h = hourNow = T.t * 24;
+  night = clamp(1 - smooth(5.5, 6.8, h) + smooth(17.8, 19.2, h), 0, 1);
+  for (const k in PAIRS) root.style.setProperty('--' + k, rgba(mix(PAIRS[k].d, PAIRS[k].n, night)));
+  $('clock').textContent = clockText();
+  if (!T.dragging) $('timeRange').value = Math.round(T.t * 1000);
+}
+function clockText() { const m = Math.floor(T.t * 1440) % 1440; return String(Math.floor(m / 60)).padStart(2, '0') + ':' + String(m % 60).padStart(2, '0'); }
+function setTime(h) { if (show.on) return; T.t = h / 24; T.auto = false; $('btnAuto').setAttribute('aria-pressed', 'false'); applyColors(true); }
+
+/* ---- 海況：平靜、海雪紛飛、強勁海流、熱泉旺盛 ---- */
+const WX = [
+  { name: '平靜', snow: .45, cur: .12, vent: 1 },
+  { name: '海雪紛飛', snow: 1, cur: .3, vent: 1 },
+  { name: '強勁海流', snow: .6, cur: 1, vent: 1 },
+  { name: '熱泉旺盛', snow: .4, cur: .15, vent: 2.3 }
+];
+let wxIdx = 0;
+const wx = { snow: .45, cur: .12, vent: 1 }, wxT = { snow: .45, cur: .12, vent: 1 };
+function setWeather(i) { wxIdx = i; Object.assign(wxT, { snow: WX[i].snow, cur: WX[i].cur, vent: WX[i].vent }); $('btnSea').textContent = '海況：' + WX[i].name; }
+
+/* ---- 小工具：說話泡泡、發光點、聲納波 ---- */
+const camS = () => cam.s;
+function toScreen(x, y, layer = 'Lmid') {
+  x += parallaxX(PX[layer] * mvK());
+  if (cam.s > 1.001) { x = (x - cam.fx) * cam.s + cam.fx; y = (y - cam.fy) * cam.s + cam.fy; }
+  return { x, y };
+}
+function say(x, y, text, dur = 2, layer) {
+  const p = toScreen(x, y, layer);
+  const w = text.length * 15 + 28, g = el('g', { class: 'bubble', transform: `translate(${f1(clamp(p.x, w / 2 + 6, 1594 - w / 2))} ${f1(clamp(p.y, 60, 560))})` }, $('say'));
+  el('path', { d: `M${-w / 2} -32h${w}a6 6 0 0 1 6 6v20a6 6 0 0 1 -6 6h${-w / 2 + 8}l-8 8l-8 -8h${-w / 2 + 8}a6 6 0 0 1 -6 -6v-20a6 6 0 0 1 6 -6z` }, g);
+  el('text', { x: 0, y: -16 }, g).textContent = text;
+  tween(dur, k => g.setAttribute('opacity', f2(1 - smooth(.8, 1, k))), () => g.remove());
+}
+function spark(x, y, size = 6, kind) {
+  const n = el('circle', { cx: f1(x), cy: f1(y), r: f1(size * 3), fill: kind || (Math.random() < .75 ? 'url(#glowBlue)' : 'url(#glowGreen)'), opacity: 0 }, G.fxMid);
+  const life = rand(.7, 1.6), dx = rand(-8, 8), dy = rand(-10, 4);
+  tween(life, k => { n.setAttribute('opacity', f2(Math.sin(k * Math.PI) * (.6 + .4 * Math.sin(k * 30)))); n.setAttribute('cx', f1(x + dx * k)); n.setAttribute('cy', f1(y + dy * k)); }, () => n.remove());
+}
+function burstSparks(x, y, n = 14, r = 40) { for (let i = 0; i < n; i++) { const a = rand(0, 6.28), d = rand(0, r); setTimeout(() => spark(x + Math.cos(a) * d, y + Math.sin(a) * d * .7, rand(3, 7)), i * 30); } }
+function sonarArc(x, y, ang, spread = 34, maxR = 260, life = 1.3, w = 2) {
+  const n = el('path', { d: '', fill: 'none', stroke: '#d8f4ff', 'stroke-width': w, 'stroke-linecap': 'round' }, G.fxMid);
+  tween(life, k => {
+    const r = 12 + k * maxR, a0 = (ang - spread) * RAD, a1 = (ang + spread) * RAD;
+    const big = spread * 2 > 180 ? 1 : 0;
+    n.setAttribute('d', spread >= 179 ? `M${f1(x + r)} ${f1(y)}A${f1(r)} ${f1(r)} 0 1 1 ${f1(x - r)} ${f1(y)}A${f1(r)} ${f1(r)} 0 1 1 ${f1(x + r)} ${f1(y)}` : `M${f1(x + Math.cos(a0) * r)} ${f1(y + Math.sin(a0) * r)}A${f1(r)} ${f1(r)} 0 ${big} 1 ${f1(x + Math.cos(a1) * r)} ${f1(y + Math.sin(a1) * r)}`);
+    n.setAttribute('opacity', f2(.55 * (1 - k)));
+  }, () => n.remove());
+}
+const inks = [];
+function inkBurst(x, y) {
+  for (let i = 0; i < 26; i++) {
+    const n = el('circle', { cx: f1(x), cy: f1(y), r: 4, fill: 'url(#inkG)', opacity: 0 }, G.show);
+    const a = rand(0, 6.28), sp = rand(20, 90), life = rand(4, 6.5), r0 = rand(10, 26);
+    tween(life, k => {
+      const e = 1 - Math.pow(1 - k, 2.5);
+      n.setAttribute('cx', f1(x + Math.cos(a) * sp * e + wx.cur * 50 * k)); n.setAttribute('cy', f1(y + Math.sin(a) * sp * e * .7 - 10 * k));
+      n.setAttribute('r', f1(r0 + e * 60)); n.setAttribute('opacity', f2(Math.min(1, k * 10) * (1 - k) * .95));
+    }, () => n.remove());
+  }
+}
+
+/* =========================================================
+   ④ 表演：抹香鯨獵大王魷魚、深海光之舞
+   ========================================================= */
+const show = { on: false, kind: null, t: 0, dur: 20, silent: false, cues: {} };
+const cam = { s: 1, fx: 800, fy: 300 };
+let prevAuto = true, dkShow = -1, bioK = 0, strobeK = 0, shake = 0;
+function startShow(kind, silent) {
+  if (show.on) return;
+  show.on = true; show.kind = kind; show.t = 0; show.silent = !!silent; show.dur = 20; show.cues = {};
+  prevAuto = T.auto; T.auto = false; $('btnAuto').setAttribute('aria-pressed', 'false');
+  $('btnWhale').disabled = $('btnBio').disabled = true;
+  if (kind === 'whale') {
+    whale.on = true; whale.ang = 75; squid.on = false; squid.face = -1; squid.writhe = 0; squid.op = 1;
+    if (!silent) playWhaleMusic();
+  } else {
+    if (!silent) playBioMusic();
+  }
+}
+function endShow() {
+  show.on = false;
+  $('btnWhale').disabled = $('btnBio').disabled = false;
+  whale.on = squid.on = false; whale.g.setAttribute('opacity', 0); squid.g.setAttribute('opacity', 0);
+  beam.onT = 1;
+  T.auto = prevAuto; $('btnAuto').setAttribute('aria-pressed', T.auto ? 'true' : 'false');
+}
+function cue(name, at, fn) { if (show.t >= at && !show.cues[name]) { show.cues[name] = 1; fn(); } }
+function updateShow(dt) {
+  bioK = lerp(bioK, show.on && show.kind === 'bio' ? win(1.5, 3, 17.5, 19.5, show.t) : 0, Math.min(1, dt * 3));
+  if (!show.on) { cam.s = lerp(cam.s, 1, Math.min(1, dt * 2)); dkShow = -1; if (cineK > 0) setCine(cineK - dt * .6); return; }
+  show.t += dt;
+  const t = show.t, d = show.dur;
+  setCine(smooth(0, 2.6, t) * (1 - smooth(d - 2.8, d, t)), cam.fx, cam.fy);   // 表演氛圍：緩緩淡入淡出（不用寬銀幕黑邊）
+  const zoom = reduced ? 0 : smooth(.5, 7, t) * (1 - smooth(d - 3, d, t));
+  if (show.kind === 'whale') { cam.fx = 960; cam.fy = 260; cam.s = 1 + .035 * zoom; updateWhaleShow(t, dt); }
+  else { cam.fx = 800; cam.fy = 280; cam.s = 1 + .025 * zoom; updateBioShow(t, dt); }
+  if (t >= d) endShow();
+}
+/* 抹香鯨的路線（時間, x, y）：從左上方深潛下來、和魷魚纏鬥、再往右上方浮上去換氣 */
+// 抹香鯨幾乎是垂直潛下來、再垂直浮上去換氣，所以路線很陡
+const WK = [[0, 720, -380], [2.5, 770, -160], [5, 830, 30], [7.2, 920, 185], [10, 950, 200], [12.8, 985, 195], [15, 1080, 70], [17.5, 1170, -140], [20, 1240, -440]];
+const SK = [[4, 1840, 320], [5.8, 1420, 250], [7.2, 1150, 215]];
+function keyAt(K, t) {
+  if (t <= K[0][0]) return [K[0][1], K[0][2]];
+  let i = 0; while (i < K.length - 2 && t > K[i + 1][0]) i++;
+  const u = clamp((t - K[i][0]) / (K[i + 1][0] - K[i][0]), 0, 1);
+  const p0 = K[Math.max(0, i - 1)], p1 = K[i], p2 = K[i + 1], p3 = K[Math.min(K.length - 1, i + 2)];
+  const c = (a, b, c2, d2) => .5 * (2 * b + (-a + c2) * u + (2 * a - 5 * b + 4 * c2 - d2) * u * u + (-a + 3 * b - 3 * c2 + d2) * u * u * u);
+  return [c(p0[1], p1[1], p2[1], p3[1]), c(p0[2], p1[2], p2[2], p3[2])];
+}
+const CLK = [1.2, 1.8, 2.4, 3.0, 3.5, 4.0, 4.4, 4.8, 5.1, 5.4, 5.65, 5.9, 6.1, 6.3, 6.45, 6.6, 6.75, 6.9];
+const whaleHead = () => { const a = (whale.ang + whale.roll) * RAD; return [whale.x + Math.cos(a) * 225 * whale.s, whale.y + Math.sin(a) * 225 * whale.s - 10]; };
+function updateWhaleShow(t, dt) {
+  dkShow = .74;
+  // 鯨魚：照路線前進，頭朝前進方向
+  const p = keyAt(WK, t), q = keyAt(WK, t + .08);
+  whale.vx = (q[0] - p[0]) / .08; whale.vy = (q[1] - p[1]) / .08;
+  whale.x = p[0]; whale.y = p[1];
+  const target = Math.atan2(whale.vy, Math.max(1, whale.vx)) / RAD;
+  whale.ang = lerp(whale.ang, clamp(target, -85, 85), Math.min(1, dt * 2.5));
+  whale.roll = t > 7.2 && t < 12.8 ? Math.sin(t * 2.6) * 9 : lerp(whale.roll, 0, Math.min(1, dt * 2));
+  whale.g.setAttribute('opacity', f2(smooth(0, .8, t) * (1 - smooth(19, 20, t))));
+  // 喀喀聲（回聲定位）：越接近獵物越密集
+  CLK.forEach((at, i) => cue('clk' + i, at, () => { const h = whaleHead(); sonarArc(h[0], h[1], whale.ang, 30, 300, 1.4, 1.6); }));
+  cue('say1', 2.6, () => say(sub.x + 40, sub.y - 90, '是抹香鯨！', 1.8));
+  cue('scat', 4.3, () => { school.scatter = 3; school.sx = whale.x + 150; school.sy = whale.y; });
+  // 魷魚：從右邊黑暗中出現，靠近鯨魚的頭，纏住，噴墨逃走
+  if (t >= 4 && !squid.on) squid.on = true;
+  if (squid.on) {
+    let x, y;
+    if (t < 7.2) { [x, y] = keyAt(SK, t); const h = whaleHead(), u = smooth(6, 7.2, t); x = lerp(x, h[0] + 70, u); y = lerp(y, h[1] + 16, u); squid.writhe = .2; }
+    else if (t < 12.8) { const h = whaleHead(); x = h[0] + 70 + Math.sin(t * 3.1) * 8; y = h[1] + 16 + Math.cos(t * 2.4) * 10; squid.writhe = 1; }
+    else { const u = smooth(12.8, 17, t); x = lerp(squid.ex ?? (squid.ex = squid.x), 1780, u); y = lerp(squid.ey ?? (squid.ey = squid.y), 330, u); squid.writhe = .35; }
+    if (t < 12.8) squid.ex = squid.ey = undefined;
+    squid.vx = (x - squid.x) / Math.max(dt, .001); squid.vy = (y - squid.y) / Math.max(dt, .001);
+    squid.x = x; squid.y = y;
+    const want = t < 12.8 ? -1 : 1;                       // 靠近時朝左（面向鯨魚），逃走時朝右
+    squid.face = lerp(squid.face, want, Math.min(1, dt * 3));
+    const a = t < 7.2 || t >= 12.8 ? clamp(Math.atan2(squid.vy, Math.abs(squid.vx) + 1) / RAD, -35, 35) : -8;
+    squid.a = lerp(squid.a || 0, a, Math.min(1, dt * 3));
+    squid.op = (smooth(4, 5.5, t)) * (1 - smooth(15, 17, t));
+    squid.g.setAttribute('opacity', f2(squid.op));
+    squid.g.setAttribute('transform', `translate(${f1(x)} ${f1(y)}) scale(${f2(Math.abs(squid.face) < .1 ? .1 * Math.sign(squid.face || 1) : squid.face)} 1) rotate(${f1(squid.a)})`);
+    squidArms(time);
+  }
+  cue('say2', 6.2, () => say(squid.x - 40, squid.y - 60, '大王魷魚！', 1.8));
+  [7.3, 8.6, 10, 11.4].forEach((at, i) => cue('hit' + i, at, () => { shake = .5; for (let k = 0; k < 4; k++) spark(squid.x + rand(-40, 40), squid.y + rand(-30, 30), 5); }));
+  cue('ink', 12.8, () => { inkBurst(squid.x + 20, squid.y); sfxShow('ink'); });
+  cue('say3', 13.4, () => say(900, 150, '牠噴出墨汁逃走了', 1.8));
+  // 探照燈追著鯨魚
+  const h = whaleHead();
+  beam.aimX = t < 7 ? h[0] : (h[0] + squid.x) / 2; beam.aimY = t < 7 ? h[1] : (h[1] + squid.y) / 2;
+  if (t > 13) { beam.aimX = whale.x + 100; beam.aimY = whale.y; }
+  whale.g.setAttribute('transform', `translate(${f1(whale.x)} ${f1(whale.y)}) rotate(${f1(whale.ang + whale.roll)}) scale(${whale.s})`);
+  whale.fl.setAttribute('transform', `rotate(${f1(Math.sin(time * (t > 15 ? 3.2 : 2) ) * 12)} -198 0)`);
+}
+/* 深海光之舞：潛水器關燈，生物光一波一波亮起 */
+function updateBioShow(t, dt) {
+  dkShow = .975;
+  beam.onT = t < 1.2 || t > 18.6 ? 1 : 0;
+  if (t > 1.2 && t < 18.6) beam.onT = 0;
+  cue('say1', .6, () => say(sub.x + 40, sub.y - 90, '關燈，看看深海的光', 1.8));
+  // 一道藍色光點的波浪，從左掃到右（被擾動的發光浮游生物）
+  if (t > 3 && t < 7.5) { const fx = lerp(-50, 1650, (t - 3) / 4.5); for (let i = 0; i < 3; i++) if (Math.random() < .8) spark(fx + rand(-30, 30), rand(30, 520), rand(3, 6.5)); }
+  [5, 9.5, 13.5].forEach((at, i) => cue('siph' + i, at, () => { siph.wave = 0; }));
+  [7, 7.5, 12, 15.2].forEach((at, i) => cue('at' + i, at, () => { atollas[i % 2].alarm = 2.6; }));
+  [9, 14.6].forEach((at, i) => cue('comb' + i, at, () => { comb.flash = 3; }));
+  [11, 16.2].forEach((at, i) => cue('ang' + i, at, () => { ang.flash = 2.6; }));
+  if (t > 3 && t < 17.5) for (let k = 0; k < 2; k++) if (Math.random() < .6) spark(rand(0, 1600), rand(20, 540), rand(2.5, 5.5));
+  if (t > 12 && t < 16.5 && Math.random() < .5) { const a = t * 2.2, r = 120 + (t - 12) * 60; spark(sub.x + Math.cos(a) * r, sub.y + Math.sin(a) * r * .55, rand(3, 6)); }
+  cue('fin', 16.5, () => { for (let k = 0; k < 10; k++) setTimeout(() => burstSparks(rand(150, 1450), rand(80, 460), 16, 80), k * 120); atollas.forEach(A => A.alarm = 2.4); comb.flash = 2.4; siph.wave = 0; });
+  cue('say2', 18.8, () => say(sub.x + 40, sub.y - 90, '開燈！', 1.4));
+}
+
+/* =========================================================
+   ⑤ 聲音（Web Audio 原創音效與配樂，不用任何音檔）
+   規則：分「音樂軌」與「音效軌」，同一軌的新聲音會把舊的淡出；
+   音樂播放時音效自動轉小聲；按「聲音：關」立刻全部停止。
+   畫面不會自己發出聲音：所有聲音都要先點過畫面或按鈕才會響。
+   ========================================================= */
+let actx = null, master = null, soundOn = true, userGesture = false, noiseBuf = null, verb = null;
+function ensureAudio() {
+  if (!actx) {
+    const AC = window.__SceneAudioContext || window.AudioContext || window.webkitAudioContext;
+    if (!AC) return null;
+    useCtx(new AC());
+  }
+  if (actx.state === 'suspended' && userGesture) actx.resume();
+  return actx;
+}
+function useCtx(c) {
+  actx = c; noiseBuf = null; busNow.music = busNow.sfx = null; musicUntil = 0;
+  master = actx.createGain(); master.gain.value = soundOn ? .55 : 0;
+  const comp = actx.createDynamicsCompressor(); comp.threshold.value = -16; comp.ratio.value = 3;
+  master.connect(comp); comp.connect(actx.destination);
+  // 深海的空間感：較長的回音
+  const d1 = actx.createDelay(1), fb = actx.createGain(), lp = actx.createBiquadFilter();
+  d1.delayTime.value = .33; fb.gain.value = .38; lp.type = 'lowpass'; lp.frequency.value = 1600;
+  d1.connect(lp); lp.connect(fb); fb.connect(d1); lp.connect(master);
+  verb = d1;
+}
+const ok = () => soundOn && ensureAudio() && (actx.state === 'running' || userGesture);
+function noise() {
+  if (!noiseBuf) { noiseBuf = actx.createBuffer(1, actx.sampleRate * 2, actx.sampleRate); const d = noiseBuf.getChannelData(0); for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1; }
+  const s = actx.createBufferSource(); s.buffer = noiseBuf; s.loop = true; return s;
+}
+let OUT = null; const busNow = { music: null, sfx: null }; let musicUntil = 0;
+function bus2(kind, len = 3) {
+  const now = actx.currentTime, old = busNow[kind];
+  if (old) { old.gain.cancelScheduledValues(now); old.gain.setValueAtTime(old.gain.value, now); old.gain.linearRampToValueAtTime(.0001, now + .15); setTimeout(() => old.disconnect(), 400); }
+  const g = actx.createGain(); g.connect(master);
+  const send = actx.createGain(); send.gain.value = kind === 'sfx' ? .35 : .25; g.connect(send); send.connect(verb);
+  g.gain.setValueAtTime(kind === 'sfx' && now < musicUntil ? .35 : (kind === 'music' ? .64 : 1) /* 音樂軌 ×0.64（2026-11-24 兩次各調降 20%） */, now);
+  busNow[kind] = g;
+  if (kind === 'music') { musicUntil = now + len; try { window.sceneMusic && window.sceneMusic.duck && window.sceneMusic.duck(len); } catch (e) {} }
+  OUT = g; return g;
+}
+function stopAll() {
+  if (!actx) return;
+  ['music', 'sfx'].forEach(k => { const g = busNow[k]; if (g) { const now = actx.currentTime; g.gain.cancelScheduledValues(now); g.gain.setValueAtTime(.0001, now); setTimeout(() => g.disconnect(), 100); busNow[k] = null; } });
+  musicUntil = 0;
+}
+function envG(t, a, d, v, dest = OUT) { const g = actx.createGain(); g.gain.setValueAtTime(.0001, t); g.gain.linearRampToValueAtTime(v, t + a); g.gain.exponentialRampToValueAtTime(.0001, t + a + d); g.connect(dest); return g; }
+function osc(type, f, t, dur, dest) { const o = actx.createOscillator(); o.type = type; o.frequency.value = f; o.connect(dest); o.start(t); o.stop(t + dur + .05); return o; }
+function nz(t, dur, freq, vol, type = 'bandpass', q = 1, dest = OUT) {
+  const s = noise(), f = actx.createBiquadFilter(); f.type = type; f.frequency.value = freq; f.Q.value = q;
+  s.connect(f); f.connect(envG(t, .004, dur, vol, dest)); s.start(t, Math.random()); s.stop(t + dur + .1); return f;
+}
+function hold(t, a, dur, r, v, dest) { const g = actx.createGain(); g.gain.setValueAtTime(.0001, t); g.gain.linearRampToValueAtTime(v, t + a); g.gain.setValueAtTime(v, t + Math.max(a, dur - r)); g.gain.linearRampToValueAtTime(.0001, t + dur); g.connect(dest); return g; }
+const HZN = n => { const m = /^([A-G])([#b]?)(-?\d)$/.exec(n); const st = { C: 0, D: 2, E: 4, F: 5, G: 7, A: 9, B: 11 }[m[1]] + (m[2] === '#' ? 1 : m[2] === 'b' ? -1 : 0); return 440 * Math.pow(2, (st + (+m[3] + 1) * 12 - 69) / 12); };
+/* 樂器：定音鼓、弦樂鋪底、大提琴、低音銅管、鋼片琴、豎琴、鈸、海水湧動、鯨魚的喀喀聲 */
+function timp(t, v, dest, f = 98) { const o = osc('sine', f, t, .9, envG(t, .004, .85, v, dest)); o.frequency.exponentialRampToValueAtTime(f * .78, t + .5); nz(t, .06, 300, v * .3, 'lowpass', 1, dest); }
+function pad(f, t, dur, v, dest, bright = 1300) { const lp = actx.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = bright; lp.connect(hold(t, Math.min(1.2, dur * .4), dur, Math.min(1.2, dur * .4), v, dest)); osc('sawtooth', f, t, dur, lp); osc('sawtooth', f * 1.006, t, dur, lp); }
+function cello(f, t, dur, v, dest) { const lp = actx.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 700; lp.connect(hold(t, .15, dur, .3, v, dest)); osc('sawtooth', f, t, dur, lp); }
+function brass(f, t, dur, v, dest) { const lp = actx.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.setValueAtTime(500, t); lp.frequency.linearRampToValueAtTime(1700, t + .08); lp.frequency.linearRampToValueAtTime(1000, t + dur); lp.connect(hold(t, .05, dur, .12, v, dest)); osc('sawtooth', f, t, dur, lp); osc('sawtooth', f * 1.004, t, dur, lp); }
+function celesta(f, t, v, dest) { osc('sine', f, t, 1.4, envG(t, .002, 1.3, v, dest)); osc('sine', f * 2, t, .6, envG(t, .002, .5, v * .4, dest)); }
+function harp(f, t, v, dest) { osc('triangle', f, t, 1.8, envG(t, .002, 1.7, v, dest)); osc('sine', f * 2, t, .8, envG(t, .002, .7, v * .3, dest)); }
+function glass(f, t, dur, v, dest) { const g = hold(t, dur * .4, dur, dur * .45, v, dest); osc('sine', f, t, dur, g); osc('sine', f * 2.01, t, dur, hold(t, dur * .4, dur, dur * .45, v * .3, dest)); }
+function cymbal(t, dur, v, dest) { return nz(t, dur, 7000, v, 'highpass', .7, dest); }
+function swell(t, dur, v, dest) { const s = noise(), f = actx.createBiquadFilter(); f.type = 'lowpass'; f.frequency.setValueAtTime(200, t); f.frequency.linearRampToValueAtTime(700, t + dur * .5); f.frequency.linearRampToValueAtTime(200, t + dur); s.connect(f); f.connect(hold(t, dur * .4, dur, dur * .5, v, dest)); s.start(t, Math.random()); s.stop(t + dur + .1); }
+function whaleClick(t, v, dest) { nz(t, .012, 3200, v, 'bandpass', .6, dest); const o = osc('sine', 420, t, .05, envG(t, .001, .04, v * .5, dest)); o.frequency.exponentialRampToValueAtTime(140, t + .04); }
+
+/* 配樂一：抹香鯨獵大王魷魚（原創，D 小調，約 20 秒）
+   開頭是很低的弦樂鋪底與大提琴的固定低音，鯨魚的喀喀聲當作節拍，越來越密，
+   最後變成一串「嗡」的連續聲（鯨魚鎖定獵物）；
+   纏鬥時定音鼓與低音銅管奏出 D–F–A–G–F–E–D 的主題，和弦 Dm–B♭–C–A 一下一下打下去；
+   魷魚噴墨時鈸聲湧起，鯨魚往上游時轉成 D 大和弦，豎琴往上爬，像游回有光的地方。 */
+function playWhaleMusic() {
+  if (!ok()) return;
+  const dry = bus2('music', 20.5), t0 = actx.currentTime + .05;
+  pad(HZN('D2'), t0, 7.4, .05, dry, 450); pad(HZN('A2'), t0 + .6, 6.8, .03, dry, 520);
+  swell(t0, 7, .05, dry);
+  [['D2', 0], ['F2', 1.5], ['E2', 3], ['A1', 4.5], ['D2', 6]].forEach(([n, at]) => cello(HZN(n), t0 + at, 1.4, .08, dry));
+  CLK.forEach(at => whaleClick(t0 + at, .16, dry));
+  for (let k = 0; k < 22; k++) whaleClick(t0 + 6.4 + k * .032, .08, dry);
+  // 纏鬥：定音鼓八分音符
+  for (let k = 0; k < 19; k++) { const tt = 7.2 + k * .3; timp(t0 + tt, k % 4 === 0 ? .4 : .2, dry, k % 4 === 0 ? 73 : 98); }
+  const CH = [['D3', 'F3', 'A3'], ['Bb2', 'D3', 'F3'], ['C3', 'E3', 'G3'], ['A2', 'C#3', 'E3']];
+  [7.2, 8.6, 10, 11.4].forEach((at, i) => { CH[i].forEach(n => pad(HZN(n), t0 + at, 1.2, .045, dry, 1900)); cello(HZN(CH[i][0]) / 2, t0 + at, 1.3, .08, dry); });
+  [[7.5, 'D4', .5], [8, 'F4', .5], [8.5, 'A4', .9], [9.6, 'G4', .4], [10, 'F4', .4], [10.4, 'E4', .4], [10.8, 'D4', .5], [11.4, 'C#4', .5], [11.9, 'E4', .4], [12.3, 'A4', .5]].forEach(([at, n, d]) => brass(HZN(n), t0 + at, d, .05, dry));
+  // 噴墨
+  swell(t0 + 11.2, 1.8, .08, dry); timp(t0 + 12.8, .5, dry, 65); cymbal(t0 + 12.8, 2.6, .07, dry);
+  // 往上游：D 大和弦、豎琴上行
+  ['D3', 'F#3', 'A3', 'D4'].forEach(n => pad(HZN(n), t0 + 13.6, 6.2, .03, dry, 1500));
+  cello(HZN('D2'), t0 + 13.6, 6, .06, dry);
+  ['D4', 'E4', 'F#4', 'A4', 'B4', 'D5', 'E5', 'F#5', 'A5', 'D6'].forEach((n, k) => harp(HZN(n), t0 + 14.4 + k * .32, .055, dry));
+  ['A5', 'D6', 'F#6', 'A6'].forEach((n, k) => celesta(HZN(n), t0 + 18 + k * .22, .04, dry));
+}
+/* 配樂二：深海光之舞（原創，A 利底亞調式，約 20 秒）
+   開頭只有很輕的玻璃聲鋪底，像潛水器關燈後的寂靜；
+   鋼片琴的琶音像一顆顆亮起的光點（A–B–C#–D#–E），每當一種生物亮起，就有一聲明亮的鐘聲；
+   豎琴在中段加入，和弦 A–F#m–D–E 緩緩流動；最後 16.5 秒全部生物一起發光，豎琴滑奏收在 A 大和弦。 */
+function playBioMusic() {
+  if (!ok()) return;
+  const dry = bus2('music', 20.5), t0 = actx.currentTime + .05;
+  glass(HZN('A3'), t0, 6, .03, dry); glass(HZN('E4'), t0 + 1, 6, .02, dry);
+  const ARP = ['A4', 'B4', 'C#5', 'D#5', 'E5', 'G#5', 'A5', 'E5', 'D#5', 'C#5', 'B4', 'E5'];
+  for (let k = 0; k < 56; k++) { const tt = 2.2 + k * .26; if (tt > 16.3) break; celesta(HZN(ARP[k % ARP.length]), t0 + tt, .028 + .012 * (k % 4 === 0), dry); }
+  [3, 5, 7, 9, 11].forEach((at, i) => ['A5', 'C#6', 'E6'].forEach((n, j) => celesta(HZN(n) * [1, 1.122, 1.26, 1.335, 1.5][i], t0 + at + j * .05, .04, dry)));
+  const CH = [['A2', 'E3', 'A3', 'C#4'], ['F#2', 'C#3', 'F#3', 'A3'], ['D2', 'A2', 'D3', 'F#3'], ['E2', 'B2', 'E3', 'G#3']];
+  CH.forEach((c, i) => { const tb = t0 + 6 + i * 2.6; c.forEach(n => pad(HZN(n), tb, 2.8, .02, dry, 1000)); c.concat(c.slice(1).reverse()).forEach((n, j) => harp(HZN(n) * 2, tb + j * .3, .04, dry)); });
+  swell(t0 + 4, 8, .03, dry);
+  ['A3', 'B3', 'C#4', 'D#4', 'E4', 'F#4', 'G#4', 'A4', 'B4', 'C#5', 'D#5', 'E5', 'G#5', 'A5'].forEach((n, k) => harp(HZN(n), t0 + 16.4 + k * .06, .045, dry));
+  ['A2', 'E3', 'A3', 'C#4', 'B4', 'E4'].forEach(n => pad(HZN(n), t0 + 16.6, 3.6, .022, dry, 1500));
+  ['E6', 'A6', 'B6', 'C#7'].forEach((n, k) => celesta(HZN(n), t0 + 17.4 + k * .3, .035, dry));
+}
+const SFX = {
+  strobe(t) { const o = osc('sine', 1800, t, .45, envG(t, .3, .15, .025)); o.frequency.linearRampToValueAtTime(5200, t + .42); nz(t + .45, .05, 2500, .2, 'bandpass', .8); nz(t + .47, .3, 6000, .05, 'highpass', .7); },
+  sonar(t) { [0, .55, 1.1].forEach((d, i) => { const g = envG(t + d, .004, 1.3 - i * .3, .09 / (i * 1.6 + 1)); osc('sine', 1480, t + d, 1.4, g); osc('sine', 2960, t + d, .3, envG(t + d, .002, .25, .015)); }); },
+  servo(t) { const lp = actx.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 900; lp.connect(hold(t, .08, 1.1, .2, .05, OUT)); const o = osc('sawtooth', 150, t, 1.1, lp); o.frequency.linearRampToValueAtTime(230, t + .5); o.frequency.linearRampToValueAtTime(170, t + 1.1); nz(t + 1.1, .05, 2000, .1, 'bandpass', 2); },
+  hiss(t) { nz(t, 1.6, 3000, .1, 'highpass', .6); const s = noise(), f = actx.createBiquadFilter(); f.type = 'lowpass'; f.frequency.value = 110; s.connect(f); f.connect(hold(t, .3, 2.2, 1.2, .35, OUT)); s.start(t); s.stop(t + 2.3); },
+  pop(t) { for (let i = 0; i < 4; i++) { const tt = t + i * .06; const o = osc('sine', 300 + i * 40, tt, .1, envG(tt, .002, .09, .07)); o.frequency.exponentialRampToValueAtTime(900, tt + .08); } },
+  scuttle(t) { for (let i = 0; i < 12; i++) nz(t + i * .045 + rand(0, .015), .015, rand(3000, 5000), .08, 'bandpass', 4); },
+  alarm(t) { ['C#6', 'E6', 'G#6', 'B6', 'C#7', 'B6', 'G#6', 'E6'].forEach((n, i) => celesta(HZN(n), t + i * .07, .04, OUT)); },
+  chime(t) { ['E5', 'B5', 'E6'].forEach((n, i) => harp(HZN(n), t + i * .12, .06, OUT)); },
+  snap(t) { nz(t, .04, 1800, .2, 'bandpass', 1.2); const o = osc('sine', 160, t, .2, envG(t, .002, .18, .18)); o.frequency.exponentialRampToValueAtTime(60, t + .15); celesta(HZN('A6'), t + .1, .03, OUT); },
+  lure(t) { glass(HZN('E6'), t, .9, .04, OUT); celesta(HZN('B6'), t + .05, .03, OUT); },
+  flap(t) { [0, .35, .7].forEach(d => { const f = nz(t + d, .3, 400, .09, 'lowpass', 1); f.frequency.linearRampToValueAtTime(900, t + d + .15); }); },
+  sparkle(t) { ['B6', 'E7', 'G#7', 'D#7'].forEach((n, i) => celesta(HZN(n), t + i * .06, .03, OUT)); },
+  squish(t) { const o = osc('sine', 210, t, .5, envG(t, .03, .45, .09)); o.frequency.linearRampToValueAtTime(140, t + .45); const l = osc('sine', 9, t, .5, actx.createGain()); const lg = actx.createGain(); lg.gain.value = 18; l.disconnect(); l.connect(lg); lg.connect(o.frequency); },
+  thud(t) { [0, .18].forEach(d => { const o = osc('sine', 140, t + d, .15, envG(t + d, .002, .13, .14)); o.frequency.exponentialRampToValueAtTime(70, t + d + .12); nz(t + d, .03, 1200, .06, 'bandpass', 2); }); },
+  clicks(t) { for (let i = 0; i < 8; i++) whaleClick(t + i * .14, .14, OUT); },
+  whoosh(t) { const f = nz(t, 1, 300, .12, 'bandpass', .8); f.frequency.linearRampToValueAtTime(900, t + .5); f.frequency.linearRampToValueAtTime(250, t + 1); },
+  ink(t) { swell(t, 1.6, .12, OUT); nz(t, .5, 500, .1, 'lowpass', 1); }
+};
+function sfx(name, arg) { if (!ok()) return; bus2('sfx'); SFX[name](actx.currentTime + .02, arg); }
+function sfxShow(name) {
+  // 表演中的音效直接混進音樂軌（不會把配樂切掉）
+  if (show.silent) return; if (!ok() || !userGesture) return;
+  const keep = OUT; OUT = busNow.music || busNow.sfx || bus2('sfx'); SFX[name](actx.currentTime + .02); OUT = keep;
+}
+
+/* =========================================================
+   ⑤ 互動：點擊
+   ========================================================= */
+function svgPt(e) { const p = svg.createSVGPoint(); p.x = e.clientX; p.y = e.clientY; const m = svg.getScreenCTM(); return m ? p.matrixTransform(m.inverse()) : { x: 800, y: 300 }; }
+function onAct(node, fn) {
+  node.addEventListener('click', e => { e.stopPropagation(); userGesture = true; ensureAudio(); fn(e); });
+  node.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); e.stopPropagation(); userGesture = true; ensureAudio(); const b = node.getBBox(); fn({ clientX: 0, clientY: 0, synth: { x: b.x + b.width / 2, y: b.y + b.height / 2 } }); } });
+}
+const mouse = { x: 1100, y: 420, nx: 800, ny: 300, idle: 99, lx: 0, ly: 0 };
+const mvK = () => reduced ? 0 : 1;
+const parallaxX = f => -(mouse.nx - 800) / 800 * f;
+// 螢幕座標換算成某個視差圖層裡的座標（扣掉視差位移與鏡頭推近）
+function toLayer(x, y, layer) {
+  if (cam.s > 1.001) { x = (x - cam.fx) / cam.s + cam.fx; y = (y - cam.fy) / cam.s + cam.fy; }
+  return { x: x - parallaxX(PX[layer] * mvK()), y };
+}
+function layerPt(e, layer) { if (e.synth) return e.synth; const p = svgPt(e); return toLayer(p.x, p.y, layer); }
+const FACTS = ['這裡大約在海面下 1,500 公尺', '深海生物大多會自己發光', '海雪是從上層飄下來的有機碎屑', '陽光到了 1,000 公尺以下就完全消失', '黑煙囪噴出的熱水超過 300°C', '燈籠魚白天在深海，晚上游上去覓食'];
+let factI = 0, waterClicks = 0;
+const SUB_ACTS = ['strobe', 'sonar', 'arm'];
+function bindAll() {
+  onActLater.forEach(([n, label, fn]) => { if (label) clickable(n, label); onAct(n, fn); });
+  // 海水：點一下就有藍色的發光浮游生物閃爍；燈籠魚群會散開
+  onAct($('waterBg'), e => {
+    const p = layerPt(e, 'Lmid');
+    burstSparks(p.x, p.y, 12, 36); sfx('sparkle');
+    if (Math.hypot(p.x - school.x, p.y - school.y) < 200) { school.scatter = 2.2; school.sx = p.x; school.sy = p.y; }
+    if (++waterClicks % 3 === 0) say(p.x, p.y - 30, FACTS[factI++ % FACTS.length], 2.4);
+  });
+  // 潛水器：輪流拍照閃光、聲納、機械手臂採樣
+  onAct(sub.g, () => {
+    const a = SUB_ACTS[sub.act++ % 3];
+    if (a === 'strobe') { strobeK = 1; $('flash').setAttribute('opacity', .35); sfx('strobe'); say(sub.x + 40, sub.y - 90, '拍照！', 1.2); }
+    else if (a === 'sonar') { for (let k = 0; k < 3; k++) setTimeout(() => sonarArc(sub.x, sub.y, 0, 180, 420, 2, 2), k * 550); sfx('sonar'); say(sub.x + 40, sub.y - 90, '深度 1,512 公尺', 1.8); }
+    else { sub.armT = 3.2; sfx('servo'); say(sub.x + 40, sub.y - 90, '機械手臂採集樣本', 1.8); }
+  });
+  onAct(ang.g, () => { ang.snap = 1; ang.flash = 1.6; sfx('snap'); say(ang.x + 60, ang.y - 110, factI % 2 ? '鮟鱇魚用發光的餌引誘獵物' : '餌球裡住著發光細菌', 2); factI++; });
+  atollas.forEach(A => onAct(A.g, () => { A.alarm = 2.6; sfx('alarm'); say(A.x, A.y - 60 * A.s, '冠水母的「防盜警報」', 1.8); }));
+  onAct(comb.g, () => { comb.flash = 2.6; sfx('sparkle'); say(comb.x, comb.y - 60, '櫛板折射出彩虹', 1.6); });
+  onAct(siph.g, () => { siph.wave = 0; sfx('chime'); say(siph.x, siph.y - 30, '管水母是一長串小個體連成的', 2); });
+  onAct(dumbo.g, () => { dumbo.boost = 2.2; dumbo.tx = rand(dumbo.box[0], dumbo.box[2]); dumbo.ty = rand(dumbo.box[1], dumbo.box[3]); dumbo.wt = 6; sfx('flap'); say(dumbo.x, dumbo.y - 50, '小飛象章魚拍動耳朵般的鰭', 1.8); });
+  wormClusters.forEach((C, i) => onAct(C.g, () => { C.rt = 1; C.hold = 2.6; sfx('pop'); say(C.x, C.y - 110, i % 2 ? '管蟲沒有嘴巴，靠體內細菌製造養分' : '管蟲嚇得縮回管子裡', 2); }));
+  VENTS.forEach(V => { clickable(V.g, '黑煙囪熱泉'); onAct(V.g, () => { V.puff = 1.8; shrimps.forEach(Sh => { Sh.vx += rand(-50, 50); Sh.vy += rand(-50, 30); }); sfx('hiss'); say(V.x, V.y - 40, '噴出超過 300°C 的熱水', 1.8); }); });
+  crabs.forEach(C => onAct(C.g, () => { C.fast = 2; C.tx = C.x < (C.a + C.b) / 2 ? C.b : C.a; C.wait = 0; sfx('scuttle'); }));
+  seapigs.forEach(P => onAct(P.g, () => { P.wait = 0; P.dir *= -1; P.boost = 3; sfx('squish'); say(P.x, P.y - 50, '海豬：會走路的深海海參', 1.8); }));
+  onAct(isopod.g, () => { isopod.curl = 1; sfx('thud'); say(isopod.x, isopod.y - 50, '大王具足蟲', 1.4); });
+  onAct(whale.g, () => { sfx('clicks'); say(whale.x, whale.y - 80, '抹香鯨能潛到 2,000 公尺深', 1.8); });
+  onAct(squid.g, () => { sfx('whoosh'); say(squid.x, squid.y - 60, '牠的眼睛像餐盤一樣大', 1.8); });
+  // 滑鼠：探照燈跟著轉；快速劃過海水時，發光浮游生物被擾動而閃光
+  svg.addEventListener('pointermove', e => {
+    const p = svgPt(e), sp = Math.hypot(p.x - mouse.lx, p.y - mouse.ly);
+    mouse.x = p.x; mouse.y = p.y; mouse.idle = 0; mouse.lx = p.x; mouse.ly = p.y;
+    if (!reduced && sp > 22 && Math.random() < .3) { const q = toLayer(p.x, p.y, 'Lmid'); spark(q.x, q.y, rand(2.5, 4.5)); }
+  });
+  svg.addEventListener('pointerleave', () => { mouse.idle = 99; });
+  // 控制列
+  $('btnWhale').addEventListener('click', () => { userGesture = true; ensureAudio(); startShow('whale'); });
+  $('btnBio').addEventListener('click', () => { userGesture = true; ensureAudio(); startShow('bio'); });
+  $('btnSea').addEventListener('click', () => { userGesture = true; setWeather((wxIdx + 1) % WX.length); if (ensureAudio()) sfx(wxIdx === 3 ? 'hiss' : 'whoosh'); });
+  $('btnSound').addEventListener('click', () => {
+    soundOn = !soundOn; userGesture = true;
+    $('btnSound').setAttribute('aria-pressed', soundOn ? 'true' : 'false'); $('btnSound').textContent = soundOn ? '🔊 聲音：開' : '🔇 聲音：關';
+    if (ensureAudio()) { master.gain.cancelScheduledValues(actx.currentTime); master.gain.setValueAtTime(soundOn ? .55 : 0, actx.currentTime); if (!soundOn) stopAll(); }
+  });
+  $('btnDay').addEventListener('click', () => setTime(10));
+  $('btnNight').addEventListener('click', () => setTime(22));
+  $('btnAuto').addEventListener('click', () => { if (show.on) return; T.auto = !T.auto; $('btnAuto').setAttribute('aria-pressed', T.auto ? 'true' : 'false'); });
+  const tr = $('timeRange');
+  tr.addEventListener('input', () => { T.dragging = true; setTime(tr.value / 1000 * 24); });
+  tr.addEventListener('change', () => { T.dragging = false; });
+  document.addEventListener('keydown', e => { if (e.key === 'Tab') document.body.classList.add('kbd'); });
+  document.addEventListener('pointerdown', () => document.body.classList.remove('kbd'));
+  mq.addEventListener && mq.addEventListener('change', e => { reduced = e.matches; });
+  // 給網站預覽用：可以從外部直接開始表演（不出聲）
+  window.sceneShow = k => startShow(k === 'bio' ? 'bio' : 'whale', true);
+}
+
+/* =========================================================
+   ④ 動畫：主迴圈
+   ========================================================= */
+let last = performance.now(), colorAcc = 0;
+function loop(now) { const dt = Math.min(.1, (now - last) / 1000); last = now; step(dt); requestAnimationFrame(loop); }
+function step(dt) {
+  time += dt;
+  const mv = mvK(), adt = dt * mv;
+  if (T.auto && !T.dragging && !reduced && !show.on) T.t = (T.t + dt / DAY_SEC) % 1;
+  const wk = Math.min(1, dt * .6);
+  for (const k in wx) wx[k] = lerp(wx[k], wxT[k], wk);
+  colorAcc += dt; if (colorAcc > .12) { colorAcc = 0; applyColors(); }
+  updateShow(dt);
+  // 鏡頭：滑鼠視差＋表演時推近＋撞擊時晃動
+  mouse.nx = lerp(mouse.nx, mouse.x, Math.min(1, dt * 2.5)); mouse.ny = lerp(mouse.ny, mouse.y, Math.min(1, dt * 2.5));
+  mouse.idle += dt;
+  const pm = `translate(${f1(parallaxX(PX.Lmid * mv))} 0)`, pf = `translate(${f1(parallaxX(PX.Lfore * mv))} 0)`, pb = `translate(${f1(parallaxX(PX.Lbg * mv))} 0)`;
+  LY.Lbg.setAttribute('transform', pb); G.glowBg.setAttribute('transform', pb);
+  [LY.Lmid, LY.LglowMid, LY.Lbeam, LY.Lfx, M.mid].forEach(n => n.setAttribute('transform', pm));
+  [LY.Lfore, LY.LglowFore, M.fore].forEach(n => n.setAttribute('transform', pf));
+  shake = Math.max(0, shake - dt);
+  const sh = shake > 0 && !reduced ? shake * 4 : 0;
+  LY.world.setAttribute('transform', (cam.s > 1.001 ? `translate(${cam.fx} ${cam.fy}) scale(${cam.s.toFixed(4)}) translate(${-cam.fx} ${-cam.fy})` : '') + (sh ? ` translate(${f1(rand(-1, 1) * sh)} ${f1(rand(-1, 1) * sh)})` : ''));
+  // 黑暗程度
+  strobeK = Math.max(0, strobeK - dt * 1.6);
+  const fl = +$('flash').getAttribute('opacity'); if (fl > 0) $('flash').setAttribute('opacity', f2(Math.max(0, fl - dt * 1.2)));
+  const dk = dkShow >= 0 ? dkShow : .88;
+  $('dark').setAttribute('opacity', f2(dk * (1 - strobeK * .85)));
+  updateSub(dt, adt);
+  updateBeam(dt);
+  updateAngler(dt, adt);
+  updateJellies(dt, adt);
+  updateSiph(dt, adt);
+  updateDumbo(dt, adt);
+  updateLantern(dt, adt);
+  updateFloorLife(dt, adt);
+  updatePlume(dt, adt);
+  updateSnow(dt, adt);
+  updateFar(dt);
+  for (let i = tweens.length - 1; i >= 0; i--) { const tw = tweens[i]; tw.t += dt; const k = Math.min(1, tw.t / tw.dur); tw.fn(k); if (k >= 1) { tweens.splice(i, 1); tw.done && tw.done(); } }
+}
+
+/* ---- 潛水器：懸停、推進器、機械手臂、信標 ---- */
+function updateSub(dt, adt) {
+  sub.y = sub.by + Math.sin(time * .6) * 6 * mvK();
+  sub.pitch = Math.sin(time * .45) * 1.4 * mvK();
+  sub.g.setAttribute('transform', `translate(${f1(sub.x)} ${f1(sub.y)}) rotate(${f2(sub.pitch)}) scale(${sub.s})`);
+  sub.glow.setAttribute('transform', sub.g.getAttribute('transform'));
+  sub.prop.setAttribute('ry', f1(6 + Math.abs(Math.sin(time * 22)) * 9));
+  // 手臂：伸出去夾一下再收回
+  sub.armT = Math.max(0, sub.armT - dt);
+  const ext = sub.armT > 0 ? win(0, .6, 2.4, 3.2, 3.2 - sub.armT) : 0;
+  sub.arm = lerp(sub.arm, ext, Math.min(1, dt * 6));
+  sub.upper.setAttribute('transform', `rotate(${f1(lerp(160, 40, sub.arm))})`);
+  sub.fore.setAttribute('transform', `translate(36 0) rotate(${f1(lerp(-150, -10, sub.arm))})`);
+  const grip = sub.armT > 0 && sub.armT < 1.6 ? 2 : 6;
+  sub.claw.setAttribute('d', `M30 0l8 ${-grip}l6 ${grip * .4}M30 0l8 ${grip}l6 ${-grip * .4}`);
+  // 頂上的閃光信標（每兩秒閃一次）與儀表螢光
+  const bp = (time % 2) < .12 ? 1 : 0;
+  sub.beacon.setAttribute('opacity', f2(bp * .9));
+  sub.screen.setAttribute('opacity', f2(.6 + .2 * Math.sin(time * 3)));
+  sub.dome.setAttribute('opacity', f2(.18 + .06 * Math.sin(time * 2)));
+}
+/* ---- 探照燈：跟著滑鼠，閒置時自己慢慢掃 ---- */
+function updateBeam(dt) {
+  const a = sub.pitch * RAD, c = Math.cos(a), s = Math.sin(a);
+  const lx0 = 104 * sub.s, ly0 = -36 * sub.s;
+  beam.lx = sub.x + lx0 * c - ly0 * s; beam.ly = sub.y + lx0 * s + ly0 * c;
+  const l2x = 100 * sub.s, l2y = 44 * sub.s;
+  beam.l2x = sub.x + l2x * c - l2y * s; beam.l2y = sub.y + l2x * s + l2y * c;
+  let target;
+  if (show.on && show.kind === 'whale' && beam.aimX !== undefined) target = Math.atan2(beam.aimY - beam.ly, beam.aimX - beam.lx) / RAD;
+  else if (mouse.idle < 4) { const q = toLayer(mouse.x, mouse.y, 'Lmid'); target = Math.atan2(q.y - beam.ly, q.x - beam.lx) / RAD; }
+  else target = 20 + 12 * Math.sin(time * .22) + 6 * Math.sin(time * .53);
+  if (target > 90) target = 76; else if (target < -90) target = -58;
+  target = clamp(target, -58, 76);
+  beam.ang = lerp(beam.ang, target, Math.min(1, dt * (reduced ? 20 : 4)));
+  beam.on = lerp(beam.on, beam.onT, Math.min(1, dt * 3));
+  const tf = `translate(${f1(beam.lx)} ${f1(beam.ly)}) rotate(${f1(beam.ang)})`, tf2 = `translate(${f1(beam.l2x)} ${f1(beam.l2y)}) rotate(${f1(55 + sub.pitch)})`;
+  beam.m.setAttribute('transform', tf); beam.v.setAttribute('transform', tf);
+  beam.m2.setAttribute('transform', tf2); beam.v2.setAttribute('transform', tf2);
+  beam.m.setAttribute('opacity', f2(beam.on)); beam.v.setAttribute('opacity', f2(beam.on * (.85 + .15 * wx.snow)));
+  beam.m2.setAttribute('opacity', f2(beam.on)); beam.v2.setAttribute('opacity', f2(beam.on));
+  beam.halo.setAttribute('cx', f1(sub.x + 20)); beam.halo.setAttribute('cy', f1(sub.y)); beam.halo.setAttribute('opacity', f2(.06 + .5 * beam.on));
+  beam.flare.setAttribute('cx', f1(beam.lx)); beam.flare.setAttribute('cy', f1(beam.ly)); beam.flare.setAttribute('opacity', f2(beam.on));
+  beam.flare2.setAttribute('cx', f1(beam.l2x)); beam.flare2.setAttribute('cy', f1(beam.l2y)); beam.flare2.setAttribute('opacity', f2(beam.on * .8));
+  sub.lampG.setAttribute('transform', `translate(104 -36) rotate(${f1(beam.ang - sub.pitch)})`);
+}
+/* ---- 鮟鱇魚：懸停、尾巴擺動、餌球閃爍、張嘴 ---- */
+function updateAngler(dt, adt) {
+  ang.snap = Math.max(0, ang.snap - dt * 1.6);
+  ang.flash = Math.max(0, ang.flash - dt);
+  const open = ang.snap > 0 ? Math.sin((1 - ang.snap) * Math.PI) : .12 + .08 * Math.sin(time * .7);
+  ang.jawG.setAttribute('transform', `rotate(${f1(open * 34)} 20 4)`);
+  const y = ang.y + Math.sin(time * .5) * 4 * mvK();
+  const tf = `translate(${f1(ang.x)} ${f1(y)}) scale(${ang.s})`;
+  ang.g.setAttribute('transform', tf); ang.glow.setAttribute('transform', tf); ang.mask.setAttribute('transform', tf);
+  ang.tail.setAttribute('transform', `rotate(${f1(Math.sin(time * 1.3) * 6 * mvK())} -42 0)`);
+  ang.fin.setAttribute('transform', `rotate(${f1(30 + Math.sin(time * 2.2) * 14 * mvK())} -8 8)`);
+  // 釣竿輕輕晃，餌球跟著移動
+  const ex = 80 + Math.sin(time * .9) * 4 * mvK(), ey = -56 + Math.cos(time * 1.1) * 3 * mvK();
+  ang.rod.setAttribute('d', `M30 -38Q${f1(50 + (ex - 80) * .4)} -84 ${f1(ex)} ${f1(ey - 2)}`);
+  ang.esca.setAttribute('cx', f1(ex)); ang.esca.setAttribute('cy', f1(ey));
+  const k = (.75 + .25 * Math.sin(time * 2.4)) * (1 + ang.flash * .8) + bioK * .4 * Math.max(0, Math.sin(time * 3));
+  ang.glowBig.setAttribute('cx', f1(ex)); ang.glowBig.setAttribute('cy', f1(ey)); ang.glowBig.setAttribute('r', f1(34 * (.8 + .35 * k)));
+  ang.glowCore.setAttribute('cx', f1(ex)); ang.glowCore.setAttribute('cy', f1(ey));
+  ang.glowBig.setAttribute('opacity', f2(clamp(k, 0, 1.6) * .7));
+  ang.hole.setAttribute('cx', f1(ex - 6)); ang.hole.setAttribute('cy', f1(ey + 10)); ang.hole.setAttribute('opacity', f2(clamp(.35 + k * .25, 0, .9)));
+}
+/* ---- 自由游動的生物：朝目標慢慢游、互相避讓、會被海流帶著走 ---- */
+// 表演中的大型動物：鯨魚身體很長，沿著身體放三個圓
+function threats() {
+  const L = [];
+  if (whale.on) { const a = (whale.ang + whale.roll) * RAD; [-150, 0, 150].forEach(o => L.push({ x: whale.x + Math.cos(a) * o, y: whale.y + Math.sin(a) * o, r: 95, threat: 1 })); }
+  if (squid.on && squid.op > .1) L.push({ x: squid.x, y: squid.y, r: 120, threat: 1 });
+  return L;
+}
+function wander(A, dt, speed, drift = 1) {
+  A.wt -= dt;
+  if (A.wt <= 0 || Math.hypot(A.tx - A.x, A.ty - A.y) < 14) { A.tx = rand(A.box[0], A.box[2]); A.ty = rand(A.box[1], A.box[3]); A.wt = rand(7, 15); }
+  const dx = A.tx - A.x, dy = A.ty - A.y, d = Math.hypot(dx, dy) || 1;
+  let ax = dx / d * speed, ay = dy / d * speed;
+  const others = bodies.concat([{ x: sub.x, y: sub.y - 10, r: 115 }], threats());
+  for (const B of others) {
+    if (B === A) continue;
+    const ex = A.x - B.x, ey = A.y - B.y, e = Math.hypot(ex, ey) || 1, R = A.r + B.r;
+    // 被鯨魚、魷魚靠近時會加速逃開
+    if (e < R) { const p = (1 - e / R) * speed * (B.threat ? 14 : 3); ax += ex / e * p; ay += ey / e * p; }
+  }
+  A.vx = lerp(A.vx, ax, Math.min(1, dt * .9)); A.vy = lerp(A.vy, ay, Math.min(1, dt * .9));
+  A.x += (A.vx + wx.cur * 26 * drift) * dt; A.y += A.vy * dt;
+  // 硬性避讓：絕對不會鑽進潛水器或鯨魚、魷魚的身體裡
+  for (const B of [{ x: sub.x, y: sub.y - 10, r: 115 }, ...threats()]) {
+    const ex = A.x - B.x, ey = A.y - B.y, e = Math.hypot(ex, ey) || 1, R = (A.r + B.r) * .85;
+    if (e < R) { A.x = B.x + ex / e * R; A.y = B.y + ey / e * R; }
+  }
+  // 被海流帶出畫面太遠就從另一邊慢慢回來
+  if (A.x > A.box[2] + 140) A.tx = A.box[0];
+}
+function updateJellies(dt, adt) {
+  atollas.forEach(A => {
+    if (adt) wander(A, adt, 9 * A.s, .45);
+    const sp = Math.hypot(A.vx, A.vy), tr = sp > 3 ? clamp(Math.atan2(A.vx, -A.vy) / RAD, -40, 40) : 0;
+    A.rot = lerp(A.rot, tr, Math.min(1, dt * 1.2));
+    const c = (Math.sin(time * 1.7 + A.ph) + 1) / 2 * mvK();
+    const tf = `translate(${f1(A.x)} ${f1(A.y)}) rotate(${f1(A.rot)}) scale(${f2(A.s * (1 - .07 * c))} ${f2(A.s * (1 + .05 * c))})`;
+    A.g.setAttribute('transform', tf); A.gl.setAttribute('transform', tf);
+    A.ten.forEach((n, i) => { const x = -28 + i * 3.3, sw = Math.sin(time * 1.3 + i * .5 + A.ph) * 4 - wx.cur * 8; n.setAttribute('d', `M${f1(x)} 2q${f1(sw * .5)} 12 ${f1(sw + x * .1)} ${f1(22 + c * 3)}`); });
+    const lp = []; for (let k = 0; k <= 10; k++) lp.push([8 + Math.sin(time * .9 + k * .6 + A.ph) * (3 + k * 1.2) - wx.cur * k * 5, 2 + k * 15]);
+    A.longT.setAttribute('d', cr(lp));
+    A.alarm = Math.max(0, A.alarm - dt);
+    const ph = time * 8;
+    A.dots.forEach(D => { const v = Math.pow(Math.max(0, Math.cos(D.a - ph)), 6) * Math.min(1, A.alarm) + bioK * .1 + .03; D.n.setAttribute('opacity', f2(v)); });
+  });
+  // 櫛水母：櫛板一波波划動，被燈照到就折射出彩虹
+  if (adt) wander(comb, adt, 7);
+  const sp = Math.hypot(comb.vx, comb.vy), tr = sp > 3 ? clamp(Math.atan2(comb.vx, -comb.vy) / RAD, -45, 45) : 0;
+  comb.rot = lerp(comb.rot, tr, Math.min(1, dt * 1.2));
+  const tf = `translate(${f1(comb.x)} ${f1(comb.y)}) rotate(${f1(comb.rot)}) scale(${comb.s})`;
+  comb.g.setAttribute('transform', tf); comb.gl.setAttribute('transform', tf);
+  comb.ten.forEach((n, i) => { const s = i ? 1 : -1, pts = []; for (let k = 0; k <= 8; k++) pts.push([s * (6 + k * 2) + Math.sin(time * 1.4 + k * .7 + i) * k * 1.4 - wx.cur * k * 4, 22 + k * 12]); n.setAttribute('d', cr(pts)); });
+  comb.flash = Math.max(0, comb.flash - dt);
+  comb.lit = lerp(comb.lit, inBeam(comb.x, comb.y), Math.min(1, dt * 5));
+  $('rainbowG').setAttribute('gradientTransform', `translate(${f1((time * 26) % 60)} 0)`);
+  const ro = clamp(comb.lit * .95 + Math.min(1, comb.flash) * .7, 0, 1);
+  comb.rows.forEach(n => { n.setAttribute('opacity', f2(ro)); n.setAttribute('stroke-dashoffset', f1(-time * 14 * mvK())); });
+  comb.bio.setAttribute('opacity', f2(Math.min(1, comb.flash) * .55 + bioK * .3 * (.5 + .5 * Math.sin(time * 2.3))));
+}
+function updateSiph(dt, adt) {
+  if (adt) wander(siph, adt, 15);
+  const P = siph.pts, blockers = [{ x: sub.x - 10, y: sub.y - 10, r: 125 }, { x: sub.x + 80, y: sub.y, r: 70 }, ...threats()];
+  P[0][0] = siph.x; P[0][1] = siph.y;
+  for (let i = 1; i < P.length; i++) {
+    P[i][0] += wx.cur * 20 * adt * (i / P.length); P[i][1] += 1.5 * adt;               // 被海流推、因重量微微下垂
+    const dx = P[i][0] - P[i - 1][0], dy = P[i][1] - P[i - 1][1], d = Math.hypot(dx, dy) || 1;
+    P[i][0] = P[i - 1][0] + dx / d * siph.seg; P[i][1] = P[i - 1][1] + dy / d * siph.seg;
+    for (const B of blockers) { const ex = P[i][0] - B.x, ey = P[i][1] - B.y, e = Math.hypot(ex, ey) || 1; if (e < B.r) { P[i][0] += ex / e * (B.r - e); P[i][1] += ey / e * (B.r - e); } }
+  }
+  const d = cr(P);
+  siph.stem.setAttribute('d', d); siph.hit.setAttribute('d', d);
+  const hd = Math.atan2(P[0][1] - P[1][1], P[0][0] - P[1][0]) / RAD;
+  siph.head.setAttribute('transform', `translate(${f1(P[0][0])} ${f1(P[0][1])}) rotate(${f1(hd)})`);
+  siph.corm.forEach(C => {
+    const p = P[C.i]; C.c.setAttribute('transform', `translate(${f1(p[0])} ${f1(p[1])})`);
+    const sw = Math.sin(time * 1.1 + C.ph) * 5 * mvK() - wx.cur * 10;
+    C.t1.setAttribute('d', `M0 4Q${f1(sw * .6)} ${f1(C.L * .5)} ${f1(sw)} ${f1(C.L)}`);
+    C.t2.setAttribute('d', `M2 4Q${f1(sw * .3 + 3)} ${f1(C.L * .4)} ${f1(sw * .7 + 4)} ${f1(C.L * .75)}`);
+  });
+  if (siph.wave >= 0) { siph.wave += dt * 26; if (siph.wave > P.length + 8) siph.wave = -1; }
+  siph.dots.forEach(D => {
+    const p = P[D.i]; D.n.setAttribute('cx', f1(p[0])); D.n.setAttribute('cy', f1(p[1]));
+    const w = siph.wave >= 0 ? Math.exp(-Math.pow((D.i - siph.wave) / 3, 2)) : 0;
+    D.n.setAttribute('opacity', f2(.2 + bioK * .45 * (.6 + .4 * Math.sin(time * 3 + D.i * .4)) + w * .95));
+  });
+}
+function updateDumbo(dt, adt) {
+  dumbo.boost = Math.max(0, dumbo.boost - dt);
+  if (adt) wander(dumbo, adt, 10 + dumbo.boost * 16, .5);
+  const tr = Math.hypot(dumbo.vx, dumbo.vy) > 3 ? clamp(Math.atan2(dumbo.vx, -dumbo.vy) / RAD, -35, 35) : 0;
+  dumbo.rot = lerp(dumbo.rot, tr, Math.min(1, dt * 1.5));
+  const fl = Math.sin(time * (2.2 + dumbo.boost * 2)) * mvK();
+  dumbo.g.setAttribute('transform', `translate(${f1(dumbo.x)} ${f1(dumbo.y)}) rotate(${f1(dumbo.rot)}) scale(${dumbo.s})`);
+  dumbo.earL.setAttribute('transform', `rotate(${f1(-20 - fl * 28)} -12 -18)`); dumbo.earR.setAttribute('transform', `rotate(${f1(20 + fl * 28)} 12 -18)`);
+  const a = Math.sin(time * 1.6) * 3 * mvK(), b = Math.cos(time * 1.6) * 3 * mvK();
+  dumbo.skirt.setAttribute('d', `M-17 -6C-27 4 -27 14 -21 ${f1(21 + a)}Q-15 14 -10 ${f1(25 + b)}Q-5 16 0 ${f1(27 + a)}Q5 16 10 ${f1(25 + b)}Q15 14 21 ${f1(21 + a)}C27 14 27 4 17 -6Z`);
+}
+/* ---- 燈籠魚群：白天在這一層成群游，入夜往上游走（日夜垂直遷移） ---- */
+function updateLantern(dt, adt) {
+  const away = night > .5;
+  school.wt -= adt;
+  if (school.wt <= 0) { school.tx = rand(250, 1400); school.ty = rand(140, 380); school.wt = rand(6, 12); }
+  const tx = away ? school.tx : school.tx, ty = away ? -260 : school.ty;
+  const dx = tx - school.x, dy = ty - school.y, d = Math.hypot(dx, dy) || 1;
+  school.vx = lerp(school.vx, dx / d * 34, Math.min(1, adt * .8)); school.vy = lerp(school.vy, dy / d * (away ? 40 : 22), Math.min(1, adt * .8));
+  // 白天回來時從上方游下來
+  if (!away && school.y < -100) { school.y = -100; }
+  school.x += school.vx * adt; school.y += school.vy * adt;
+  school.scatter = Math.max(0, school.scatter - dt);
+  const rot = time * .25, cR = Math.cos(rot), sR = Math.sin(rot);
+  lantern.forEach((Fh, i) => {
+    const ox = Fh.ox * cR - Fh.oy * sR * 2, oy = Fh.ox * sR * .4 + Fh.oy * cR;
+    let ax = (school.x + ox - Fh.x) * 1.1 + school.vx, ay = (school.y + oy - Fh.y) * 1.1 + school.vy;
+    for (let j = 0; j < lantern.length; j++) { if (j === i) continue; const o = lantern[j], ex = Fh.x - o.x, ey = Fh.y - o.y, e = ex * ex + ey * ey; if (e < 196 && e > .01) { const k = (14 - Math.sqrt(e)) * 6; ax += ex * k / Math.sqrt(e); ay += ey * k / Math.sqrt(e); } }
+    // 避開潛水器、水母、鯨魚
+    [{ x: sub.x, y: sub.y, r: 120 }, ...atollas, comb, dumbo, whale.on ? { x: whale.x, y: whale.y, r: 220 } : null].forEach(B => { if (!B) return; const ex = Fh.x - B.x, ey = Fh.y - B.y, e = Math.hypot(ex, ey) || 1, R = (B.r || 50) + 10; if (e < R) { ax += ex / e * (R - e) * 5; ay += ey / e * (R - e) * 5; } });
+    if (school.scatter > 0) { const ex = Fh.x - school.sx, ey = Fh.y - school.sy, e = Math.hypot(ex, ey) || 1; if (e < 260) { ax += ex / e * 220 * school.scatter; ay += ey / e * 160 * school.scatter; } }
+    const vmax = school.scatter > 0 ? 170 : 75;
+    Fh.vx = lerp(Fh.vx, ax, Math.min(1, adt * 1.6)); Fh.vy = lerp(Fh.vy, ay, Math.min(1, adt * 1.6));
+    const v = Math.hypot(Fh.vx, Fh.vy); if (v > vmax) { Fh.vx *= vmax / v; Fh.vy *= vmax / v; }
+    Fh.x += Fh.vx * adt; Fh.y += Fh.vy * adt;
+    if (Math.abs(Fh.vx) > 4) Fh.face = lerp(Fh.face, Fh.vx > 0 ? 1 : -1, Math.min(1, dt * 4));
+    const tf = headingTf(Fh.x, Fh.y, Fh.vx, clamp(Fh.vy, -Math.abs(Fh.vx) * 3 - 20, Math.abs(Fh.vx) * 3 + 20), Fh.s, Fh.face);
+    Fh.g.setAttribute('transform', tf); Fh.gl.setAttribute('transform', tf);
+    const tw = .5 + .5 * Math.sin(time * 2 + Fh.ph);
+    Fh.gl.setAttribute('opacity', f2(Fh.glow * (.5 + tw * .5) + bioK * .7 * tw + (school.scatter > 0 ? .5 : 0)));
+  });
+}
+/* ---- 海床上的生物：螃蟹、蝦、海豬、具足蟲、管蟲 ---- */
+function updateFloorLife(dt, adt) {
+  crabs.forEach(C => {
+    C.fast = Math.max(0, C.fast - dt);
+    let moving = false;
+    if (C.wait > 0) C.wait -= adt;
+    else {
+      const sp = (C.fast > 0 ? 70 : 16) * (wx.vent > 1.5 ? 1.4 : 1), d = C.tx - C.x;
+      if (Math.abs(d) < 1) { C.tx = rand(C.a, C.b); C.wait = rand(1, 4.5); }
+      else { C.x += Math.sign(d) * Math.min(Math.abs(d), sp * adt); moving = adt > 0; }
+    }
+    C.g.setAttribute('transform', `translate(${f1(C.x)} ${f1(FLOOR(C.x) + 6)})`);
+    C.legs.forEach(L => {
+      const lift = moving ? Math.max(0, Math.sin(time * 18 + L.i * 1.7 + L.s)) * 3 : 0;
+      L.p.setAttribute('d', `M${L.s * 7} ${-5 + L.i * 1.2}L${L.s * (13 + L.i * 1.5)} ${f1(-10 + L.i * 1.6 - lift)}L${L.s * (17 + L.i * 2)} ${f1(-lift * .4)}`);
+    });
+  });
+  shrimps.forEach(Sh => {
+    const k = wx.vent > 1.5 ? 1.6 : 1;
+    const tx = Sh.ax + Math.sin(time * .8 * k + Sh.ph) * 7, ty = Sh.ay + Math.cos(time * .6 * k + Sh.ph * 1.3) * 8;
+    Sh.vx = lerp(Sh.vx, (tx - Sh.x) * 2, Math.min(1, adt * 2)); Sh.vy = lerp(Sh.vy, (ty - Sh.y) * 2, Math.min(1, adt * 2));
+    Sh.x += Sh.vx * adt; Sh.y += Sh.vy * adt;
+    if (Math.abs(Sh.vx) > 1.5) Sh.face = lerp(Sh.face, Sh.vx > 0 ? 1 : -1, Math.min(1, dt * 5));
+    Sh.g.setAttribute('transform', headingTf(Sh.x, Sh.y, Sh.vx, Sh.vy, Sh.s, Sh.face));
+  });
+  seapigs.forEach(P => {
+    P.boost = Math.max(0, (P.boost || 0) - dt);
+    let moving = false;
+    if (P.wait > 0) P.wait -= adt;
+    else { P.x += P.dir * (5 + P.boost * 6) * adt; moving = adt > 0; if (P.x > P.b) { P.dir = -1; P.wait = rand(2, 5); } if (P.x < P.a) { P.dir = 1; P.wait = rand(2, 5); } }
+    P.face = lerp(P.face, P.dir, Math.min(1, dt * 2));
+    const f = Math.abs(P.face) < .1 ? .1 * Math.sign(P.face || 1) : P.face;
+    P.g.setAttribute('transform', `translate(${f1(P.x)} ${f1(FLOOR(P.x) + 2)}) scale(${f2(f * P.s)} ${f2(P.s)})`);
+    P.legs.forEach((L, i) => { const sw = moving ? Math.sin(time * 4 + i * 1.3) * 3 : 0; L.setAttribute('d', `M${-18 + i * 9} 1L${f1(-18 + i * 9 + sw)} 7`); });
+    P.pap.forEach((n, i) => { const x = +n.dataset.x, y = +n.dataset.y, a = (+n.dataset.a + Math.sin(time * 1.2 + i) * 8 * mvK()) * RAD; n.setAttribute('d', `M${x} ${y}Q${f1(x + Math.sin(a) * 6)} ${f1(y - 8)} ${f1(x + Math.sin(a) * 12)} ${f1(y - Math.cos(a) * 14)}`); });
+  });
+  const I = isopod;
+  I.curl = Math.max(0, I.curl - dt * .5);
+  let moving = false;
+  if (I.curl <= 0) {
+    if (I.wait > 0) I.wait -= adt;
+    else { I.x += I.dir * 7 * adt; moving = adt > 0; if (I.x > I.b) { I.dir = -1; I.wait = rand(2, 5); } if (I.x < I.a) { I.dir = 1; I.wait = rand(2, 5); } }
+  }
+  I.face = lerp(I.face, I.dir, Math.min(1, dt * 2));
+  const fI = Math.abs(I.face) < .1 ? .1 * Math.sign(I.face || 1) : I.face, cu = Math.sin(Math.min(1, I.curl) * Math.PI / 2);
+  I.g.setAttribute('transform', `translate(${f1(I.x)} ${f1(FLOOR(I.x) + 3)}) scale(${f2(fI * I.s)} ${f2(I.s)})`);
+  I.body.setAttribute('transform', `translate(0 ${f1(-cu * 3)}) scale(${f2(1 - cu * .25)} ${f2(1 + cu * .3)})`);
+  I.legs.forEach((L, i) => { const sw = moving ? Math.sin(time * 9 + i * 1.1) * 3 : 0, x = -24 + i * 8; L.setAttribute('d', `M${x} -1L${f1(x + 3 + sw)} ${f1(6 - cu * 5)}`); });
+  wormClusters.forEach(C => {
+    if (C.hold > 0) C.hold -= dt; else C.rt = 0;
+    C.r = lerp(C.r, C.rt, Math.min(1, dt * (C.rt ? 10 : 1.2)));
+    C.worms.forEach(W => {
+      const sw = Math.sin(time * .9 + W.ph) * 2.5 * mvK() + wx.cur * 9;
+      W.g.setAttribute('transform', `translate(${f1(W.x)} ${f1(W.y)}) rotate(${f1(W.lean + sw)})`);
+      W.p.setAttribute('transform', `translate(0 ${f1(-W.L + C.r * 18)}) rotate(${f1(Math.sin(time * 1.4 + W.ph) * 6 * mvK())}) scale(${f2(1 - C.r * .88)})`);
+    });
+  });
+}
+/* ---- 黑煙囪的煙柱 ---- */
+function updatePlume(dt, adt) {
+  VENTS.forEach(V => {
+    V.puff = Math.max(0, V.puff - dt * .6);
+    if (!V.rate) return;
+    V.acc += V.rate * wx.vent * (1 + V.puff * 3) * (adt || dt * .3);
+    while (V.acc > 1) {
+      V.acc--;
+      const P = plumeP.find(p => !p.on); if (!P) break;
+      Object.assign(P, { on: true, x: V.x + rand(-3, 3), y: V.y, vx: rand(-5, 5), vy: -rand(48, 70) * (1 + V.puff * .3), age: 0, life: rand(5, 7.5), big: V.rate > 5 ? 1.2 : .8 });
+    }
+  });
+  plumeP.forEach(P => {
+    if (!P.on) return;
+    const a = adt || dt * .3;
+    P.age += a; P.x += (P.vx + wx.cur * 40 * Math.min(1, P.age * .6) + Math.sin(P.age * 1.6 + P.life) * 6) * a; P.y += P.vy * a; P.vy *= (1 - .1 * a);
+    if (P.age > P.life || P.y < -140) { P.on = false; P.n.setAttribute('opacity', 0); return; }
+    P.n.setAttribute('cx', f1(P.x)); P.n.setAttribute('cy', f1(P.y)); P.n.setAttribute('r', f1((5 + P.age * 11) * P.big));
+    P.n.setAttribute('opacity', f2(Math.min(1, P.age * 4) * (1 - P.age / P.life) * .9));
+  });
+}
+/* ---- 海雪 ---- */
+function updateSnow(dt, adt) {
+  const n = snow.length;
+  snow.forEach((p, i) => {
+    const on = p.k < wx.snow;
+    if (!on) { if (p.vis !== false) { p.n.setAttribute('cy', -50); p.vis = false; } return; }
+    p.vis = true;
+    p.y += p.vy * adt * (1 + wx.snow * .3); p.x += (wx.cur * 34 + Math.sin(time * .5 + p.ph) * 3) * adt;
+    if (p.y > 610) { p.y = -10; p.x = rand(-100, 1700); }
+    if (p.x > 1720) p.x = -110; if (p.x < -120) p.x = 1710;
+    p.n.setAttribute('cx', f1(p.x)); p.n.setAttribute('cy', f1(p.y));
+  });
+}
+function updateFar(dt) {
+  farSpecks.forEach(S => {
+    const u = ((time + S.ph) % S.per);
+    S.n.setAttribute('opacity', f2((u < S.dur ? Math.sin(u / S.dur * Math.PI) * .8 : 0) + bioK * .35));
+  });
+}
+
+/* ---------------- 初始化 ---------------- */
+function init() {
+  drawBackground();
+  drawFloor();
+  drawVents(); drawPlume();
+  drawMussels(); drawWorms();
+  drawCrabs(); drawShrimp(); drawSeapigs(); drawIsopod();
+  makeAtolla(260, 230, .9, [150, 170, 330, 290]); makeAtolla(1450, 190, .8, [1300, 90, 1560, 260]);
+  drawComb(); drawSiph(); drawDumbo(); drawLantern();
+  drawWhale(); drawSquid();
+  whale.fl.setAttribute('d', 'M-196 -2C-214 -26 -246 -34 -262 -24C-246 -10 -232 -2 -200 0C-232 2 -246 12 -262 24C-246 32 -214 26 -196 2Z');
+  drawSub();
+  drawSnow();
+  drawForeRocks(); drawAngler();
+  drawBeam();
+  bindAll();
+  if (reduced) { T.auto = false; $('btnAuto').setAttribute('aria-pressed', 'false'); }
+  setWeather(0);
+  applyColors(true);
+  step(1 / 60);
+  requestAnimationFrame(loop);
+}
+init();
+/* ShowStop：再按一下優雅停止表演（共用模組在上方 <script id="showstop">） */
+ShowStop.init({
+  on: () => show.on && show.kind,
+  btn: { whale: 'btnWhale', bio: 'btnBio' },
+  ff: () => { show.cues = new Proxy({}, { get: () => 1 }); show.t = show.dur - .02; },
+  save: () => ({ t: T.t, auto: T.auto }),
+  stop: () => endShow(),
+  restore: s => { T.t = s.t; T.auto = s.auto; $('btnAuto') && $('btnAuto').setAttribute('aria-pressed', String(T.auto)); applyColors(true); }
+});
+/* /ShowStop */
+})();
+</script>
+</body>
+</html>

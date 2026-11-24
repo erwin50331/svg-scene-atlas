@@ -1,0 +1,1652 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>廟口夜市</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&display=swap">
+<style>
+/* =========================================================
+   SC-08 廟口夜市｜極簡幾何風格
+   【色票 token】所有顏色集中在這裡。
+   - 場景色成對出現：--名稱-day / --名稱-night，
+     JS 會依「日夜比例」自動混色，輸出成 --名稱 給 SVG 使用，
+     並自動產生 .f-名稱（填色）、.s-名稱（描邊）兩種 class。
+   - 「常亮色」不參與混色（燈泡、霓虹、煙火、太陽月亮）。
+   換色時只需改這個區塊。
+   風格重點：只用圓、矩形、三角形與半圓組成畫面；不描邊、平塗色塊、
+   有限色票（珊瑚紅、芥末黃、青綠、靛藍、米白），以格線與重複節奏取代細節線條。
+   ========================================================= */
+:root{
+  color-scheme:dark;
+
+  /* ---- 頁面外框（單一深色主題） ---- */
+  --page-bg:#14162a;
+  --page-panel:#1f2240;
+  --page-fg:#f4ecd8;
+  --page-dim:#a3a3bd;
+  --page-line:#30345a;
+  --page-accent:#ef6f5a;
+  --font-display:"Noto Sans TC","PingFang TC","Microsoft JhengHei",sans-serif;
+  --font-body:"Noto Sans TC","PingFang TC","Microsoft JhengHei",sans-serif;
+
+  /* ---- 天空、雲、遠景 ---- */
+  --sky-top-day:#bfe0e6;   --sky-top-night:#0d1331;
+  --sky-mid-day:#d6ebe7;   --sky-mid-night:#18204a;
+  --sky-bot-day:#f4ecd8;   --sky-bot-night:#2b2b63;
+  --cloud-day:#ffffff;     --cloud-night:#2a3168;
+  --hill-day:#a2cdc2;      --hill-night:#151f47;
+  --far-day:#aac3cf;       --far-night:#1c2652;
+  --far2-day:#8fb1c1;      --far2-night:#161f46;
+  --tower-day:#7898ad;     --tower-night:#121a3d;
+  --win-off-day:#cfe0e6;   --win-off-night:#242d5c;
+  --tree-day:#4f9a7f;      --tree-night:#11303a;
+  --tree2-day:#6fb796;     --tree2-night:#183f42;
+  --trunk-day:#7a5a46;     --trunk-night:#22192c;
+
+  /* ---- 廟宇與牌樓 ---- */
+  --roof-day:#2f7d6d;      --roof-night:#113632;   /* 綠釉瓦 */
+  --roof-lt-day:#4aa08c;   --roof-lt-night:#1a4a44;
+  --temple-day:#c8443a;    --temple-night:#4a1c2e;
+  --trim-day:#f0b541;      --trim-night:#6e5428;
+  --arch-day:#e2553f;      --arch-night:#57223a;
+  --plate-day:#1f2a44;     --plate-night:#0a0f24;
+
+  /* ---- 地面、道路 ---- */
+  --ground-day:#ece2cc;    --ground-night:#2b2848;
+  --tile-day:#ddd1b6;      --tile-night:#232041;
+  --curb-day:#c9bba0;      --curb-night:#1e1b37;
+  --road-day:#5d6373;      --road-night:#17182c;
+  --road-ln-day:#f2e8d0;   --road-ln-night:#55536f;
+
+  /* ---- 攤位 ---- */
+  --coral-day:#ef6f5a;     --coral-night:#80344a;
+  --cream-day:#f6eedc;     --cream-night:#4c4868;
+  --teal-day:#2fa39a;      --teal-night:#1a4c58;
+  --mustard-day:#f1b740;   --mustard-night:#7c632f;
+  --blue-day:#3d6fb6;      --blue-night:#1f3066;
+  --pink-day:#f19bb3;      --pink-night:#6f3a5d;
+  --green-day:#6bb36a;     --green-night:#2b4c3b;
+  --sign-day:#1f2a44;      --sign-night:#0c1128;   /* 招牌底 */
+  --sign-txt-day:#f6eedc;  --sign-txt-night:#ffe08a;
+  --inside-day:#3b4058;    --inside-night:#2a2443; /* 攤位內牆 */
+  --top-day:#e3dbc6;       --top-night:#3a3656;    /* 檯面 */
+  --metal-day:#4a5266;     --metal-night:#191c33;
+  --shutter-day:#bcc3cd;   --shutter-night:#3c405f;
+  --shutter-ln-day:#a1a8b5;--shutter-ln-night:#2d3150;
+  --grill-day:#2c2f3d;     --grill-night:#0f1020;
+
+  /* ---- 人物、車輛 ---- */
+  --skin-day:#f2c9a5;      --skin-night:#a88a86;
+  --skin2-day:#c99572;     --skin2-night:#7c6166;
+  --hair-day:#2a2230;      --hair-night:#0c0a14;
+  --hair2-day:#7a5442;     --hair2-night:#2c2026;
+  --hair3-day:#d9d4cc;     --hair3-night:#6d6a80;  /* 白髮 */
+  --c1-day:#ef6f5a;        --c1-night:#7a3347;
+  --c2-day:#2fa39a;        --c2-night:#1a4a55;
+  --c3-day:#f1b740;        --c3-night:#7a612f;
+  --c4-day:#3d6fb6;        --c4-night:#1e2f63;
+  --c5-day:#f6eedc;        --c5-night:#55516f;
+  --c6-day:#2e3550;        --c6-night:#121528;
+  --c7-day:#f19bb3;        --c7-night:#6a3858;
+  --truck-day:#f2c230;     --truck-night:#7d6629;
+  --wheel-day:#232634;     --wheel-night:#0a0b15;
+  --smoke-day:#f3efe6;     --smoke-night:#8a8fb5;
+  --water-day:#6fc3d1;     --water-night:#24527a;
+  --ink-day:#232838;       --ink-night:#0a0c18;
+
+  /* ---- 常亮色（不隨日夜混色） ---- */
+  --bulb:#ffd86b;       /* 燈泡 */
+  --glow:#ffb347;       /* 燈泡光暈、地面光 */
+  --lit:#ffcf80;        /* 攤位內暖光、窗光 */
+  --neon-a:#ff5fa2;     /* 霓虹粉 */
+  --neon-b:#4fe0ff;     /* 霓虹青 */
+  --sun:#ff7a4d;
+  --moon:#fff2c4;
+  --star:#fff6d8;
+  --beacon:#ff3b4f;     /* 高塔航空燈 */
+  --fire:#ff8a3d;       /* 炭火 */
+  --fish:#ff7a30;       /* 金魚 */
+  --fish2:#ffffff;
+  --tea:#c99b6d;        /* 奶茶 */
+  --boba:#3b2416;       /* 珍珠 */
+  --candy:#ff9ec7;      /* 棉花糖 */
+  --candy2:#bfe6ff;
+  --fw1:#ffd86b; --fw2:#ff5fa2; --fw3:#4fe0ff; --fw4:#9dff8a; --fw5:#ffffff;
+}
+
+/* ===== 頁面版面 ===== */
+html,body{margin:0;background:var(--page-bg);color:var(--page-fg)}
+body{font-family:var(--font-body);line-height:1.6}
+.wrap{max-width:1680px;margin:0 auto;padding-block:20px 32px;
+  padding-left:max(16px,env(safe-area-inset-left,0px));
+  padding-right:max(16px,env(safe-area-inset-right,0px));
+  display:grid;gap:16px}
+header{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 18px}
+h1{font-family:var(--font-display);font-weight:900;font-size:clamp(1.4rem,2.6vw,2rem);margin:0;letter-spacing:.06em;text-wrap:balance}
+h1 small{font-size:.55em;font-weight:700;color:var(--page-accent);letter-spacing:.12em;margin-right:.6em}
+.meta{color:var(--page-dim);font-size:.9rem;margin:0}
+.stage{position:relative;border-radius:10px;overflow:hidden;background:#000;
+  box-shadow:0 0 0 1px var(--page-line),0 18px 40px -18px #000}
+.stage svg{display:block;width:100%;height:auto;max-width:100%;touch-action:manipulation;user-select:none;-webkit-user-select:none}
+.controls{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.controls button{font:500 .95rem/1 var(--font-body);color:var(--page-fg);background:var(--page-panel);
+  border:1px solid var(--page-line);border-radius:999px;padding:10px 18px;cursor:pointer;
+  transition:transform .12s,background .2s}
+.controls button:hover{background:#2a2e55}
+.controls button:active{transform:translateY(2px)}
+.controls button:focus-visible{outline:2px solid var(--page-accent);outline-offset:2px}
+.controls button[aria-pressed="true"]{border-color:var(--page-accent);color:#fff}
+.clock{margin-left:auto;font-family:var(--font-display);font-weight:500;font-size:1rem;color:var(--page-dim);font-variant-numeric:tabular-nums}
+.hint{margin:0;padding:0;list-style:none;display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:6px 20px;color:var(--page-dim);font-size:.88rem}
+.hint b{color:var(--page-fg);font-weight:500;margin-right:.4em}
+
+/* ===== SVG 內樣式 ===== */
+.sans{font-family:var(--font-display);font-weight:900}
+.signTxt{fill:var(--sign-txt);font-family:var(--font-display);font-weight:900;letter-spacing:2px}
+.walker,.vehicle,.stallHit,#tub,#burner,#cat,#bulbs,#cart,#balloonWall .bl{cursor:pointer}
+.bubble text{font-family:var(--font-display);font-weight:900;font-size:16px;fill:#232838}
+.bubble{animation:pop 1.8s ease-out forwards;pointer-events:none}
+@keyframes pop{0%{opacity:0;transform:translateY(6px)}12%{opacity:1;transform:translateY(0)}75%{opacity:1}100%{opacity:0;transform:translateY(-10px)}}
+.twinkle{animation:tw 2.6s ease-in-out infinite}
+@keyframes tw{0%,100%{opacity:.25}50%{opacity:1}}
+#beacon{animation:blink 1.6s steps(1) infinite}
+@keyframes blink{0%{opacity:1}50%{opacity:.15}}
+.neonFlick{animation:flick 7s linear infinite}
+@keyframes flick{0%,41%,44%,47%,100%{opacity:1}42%,46%{opacity:.25}}
+
+/* ===== 減少動態：關閉 CSS 動畫（JS 端另行停住行人、車、煙） ===== */
+@media (prefers-reduced-motion: reduce){
+  .twinkle,#beacon,.neonFlick{animation:none}
+  .bubble{animation:none}
+  .controls button{transition:none}
+}
+</style>
+<style id="pure-art">
+/* =========================================================
+   純插畫版：只顯示場景畫面，隱藏控制列與說明文字。
+   想恢復完整版，刪掉這整段 <style id="pure-art"> 即可。
+   ========================================================= */
+html,body{height:100%;margin:0!important;overflow:hidden}
+body{display:flex!important;align-items:center;justify-content:center;padding:0!important}
+body>.wrap{width:100%!important;max-width:min(100vw,calc(100vh * 8 / 3))!important;
+  margin:0!important;padding:0!important;gap:0!important;display:block!important}
+body>.wrap>:not(.stage){display:none!important}
+body>.wrap>.stage{width:100%!important;max-width:100%!important;margin:0!important;
+  border:0!important;border-radius:0!important;box-shadow:none!important}
+</style>
+</head>
+<body>
+<main class="wrap">
+
+  <div class="stage">
+  <!-- =====================================================
+       【場景】SVG 主舞台 viewBox 1600×600
+       圖層由後到前：天空 → 星星日月 → 雲 → 煙火 → 遠山、天際線、高塔 → 榕樹
+       → 廟宇 → 半圓牌樓 → 地面 → 攤位 → 燈泡串 → 光暈 → 廟埕香爐、撈金魚盆、用餐區
+       → 後排行人 → 道路、車輛 → 前排行人 → 前景小物 → 煙霧蒸氣 → 對話泡泡
+       ===================================================== -->
+  <svg id="scene" viewBox="0 0 1600 600" preserveAspectRatio="xMidYMid meet" role="img" aria-label="極簡幾何風格的台灣夜市動畫場景，可切換日夜並點擊攤位互動">
+    <defs>
+      <!-- 鐵捲門橫紋 -->
+      <pattern id="shutterPat" width="8" height="7" patternUnits="userSpaceOnUse">
+        <rect width="8" height="7" class="f-shutter"/>
+        <rect y="5" width="8" height="2" class="f-shutter-ln"/>
+      </pattern>
+      <!-- 屋瓦直紋 -->
+      <pattern id="tilePat" width="10" height="10" patternUnits="userSpaceOnUse">
+        <rect width="10" height="10" class="f-roof"/>
+        <rect width="4" height="10" class="f-roof-lt"/>
+      </pattern>
+      <!-- 光暈 -->
+      <radialGradient id="glowGrad">
+        <stop offset="0" stop-color="var(--glow)" stop-opacity=".55"/>
+        <stop offset="1" stop-color="var(--glow)" stop-opacity="0"/>
+      </radialGradient>
+      <radialGradient id="bulbGlow">
+        <stop offset="0" stop-color="var(--bulb)" stop-opacity=".8"/>
+        <stop offset="1" stop-color="var(--bulb)" stop-opacity="0"/>
+      </radialGradient>
+      <radialGradient id="headGlow">
+        <stop offset="0" stop-color="#fff3c8" stop-opacity=".5"/>
+        <stop offset="1" stop-color="#fff3c8" stop-opacity="0"/>
+      </radialGradient>
+      <!-- 撈金魚盆裁切 -->
+      <clipPath id="tubClip"><rect x="934" y="482" width="132" height="22" rx="11"/></clipPath>
+    </defs>
+
+    <!-- ===== 【場景】天空：三段平塗色帶 ===== -->
+    <rect width="1600" height="600" class="f-sky-bot"/>
+    <rect width="1600" height="260" class="f-sky-mid"/>
+    <rect width="1600" height="150" class="f-sky-top"/>
+    <g id="stars"></g>
+
+    <!-- 太陽與月亮（JS 依時間沿圓弧移動） -->
+    <g id="sun"><circle r="64" style="fill:var(--sun)" opacity=".18"/><circle r="44" style="fill:var(--sun)"/></g>
+    <g id="moon">
+      <circle r="58" style="fill:var(--moon)" opacity=".12"/>
+      <!-- 弦月：兩段圓弧組成 -->
+      <path d="M0,-34 A34,34 0 1 0 0,34 A22,34 0 1 1 0,-34 Z" style="fill:var(--moon)" transform="rotate(-25)"/>
+    </g>
+
+    <!-- 雲：膠囊形，JS 讓它隨風飄 -->
+    <g id="clouds"></g>
+    <!-- 煙火、鳥群（點天空產生） -->
+    <g id="sky-fx"></g>
+
+    <!-- ===== 【場景】遠景：三角形山、方塊天際線、高塔 ===== -->
+    <g id="hills">
+      <polygon points="-40,330 160,190 360,330" class="f-hill"/>
+      <polygon points="200,330 330,230 470,330" class="f-hill" opacity=".8"/>
+      <polygon points="1100,330 1260,210 1440,330" class="f-hill" opacity=".8"/>
+    </g>
+    <g id="skyline"></g>
+    <g id="backLights"></g>
+    <!-- 高塔：階梯狀矩形，塔頂紅色航空燈 -->
+    <g id="tower">
+      <rect x="1392" y="128" width="56" height="210" class="f-tower"/>
+      <rect x="1400" y="100" width="40" height="30" class="f-tower"/>
+      <rect x="1408" y="78" width="24" height="24" class="f-tower"/>
+      <rect x="1418" y="44" width="4" height="36" class="f-tower"/>
+      <g id="towerWins"></g>
+      <circle id="beacon" cx="1420" cy="42" r="4" style="fill:var(--beacon)"/>
+    </g>
+
+    <!-- 榕樹：圓形樹冠堆疊（廟口大榕樹） -->
+    <g id="trees">
+      <rect x="1166" y="226" width="20" height="110" class="f-trunk"/>
+      <rect x="1150" y="250" width="3" height="60" class="f-trunk" opacity=".7"/>
+      <rect x="1200" y="246" width="3" height="54" class="f-trunk" opacity=".7"/>
+      <circle cx="1128" cy="214" r="48" class="f-tree"/>
+      <circle cx="1236" cy="222" r="44" class="f-tree"/>
+      <circle cx="1182" cy="186" r="60" class="f-tree2"/>
+      <circle cx="1160" cy="240" r="34" class="f-tree2"/>
+      <rect x="452" y="232" width="12" height="100" class="f-trunk"/>
+      <circle cx="430" cy="238" r="36" class="f-tree"/>
+      <circle cx="470" cy="216" r="44" class="f-tree2"/>
+    </g>
+
+    <!-- ===== 【場景】廟宇：綠瓦、紅牆、燕尾脊 ===== -->
+    <g id="temple">
+      <rect x="682" y="250" width="236" height="220" class="f-temple"/>
+      <!-- 屋身與屋瓦 -->
+      <polygon points="652,254 948,254 904,214 696,214" fill="url(#tilePat)"/>
+      <rect x="640" y="250" width="320" height="8" class="f-roof"/>
+      <rect x="692" y="206" width="216" height="9" class="f-trim"/>
+      <!-- 燕尾：兩端上翹的細三角 -->
+      <polygon points="694,215 694,206 654,184" class="f-trim"/>
+      <polygon points="906,215 906,206 946,184" class="f-trim"/>
+      <!-- 脊上寶珠與火焰三角 -->
+      <circle cx="800" cy="194" r="8" class="f-trim"/>
+      <polygon points="800,172 794,186 806,186" class="f-coral"/>
+      <polygon points="780,206 772,196 788,200" class="f-trim"/>
+      <polygon points="820,206 828,196 812,200" class="f-trim"/>
+      <!-- 屋簷下橫樑 -->
+      <rect x="682" y="258" width="236" height="6" class="f-trim"/>
+      <!-- 廟名匾額（虛構廟名） -->
+      <rect x="760" y="262" width="80" height="30" rx="3" class="f-plate"/>
+      <rect x="764" y="266" width="72" height="22" rx="2" fill="none" stroke-width="1.5" class="s-trim"/>
+      <text x="800" y="283" text-anchor="middle" class="sans" font-size="16" style="fill:var(--trim)">福安宮</text>
+      <!-- 紅燈籠（JS 依風搖擺） -->
+      <g id="lanterns"></g>
+    </g>
+
+    <!-- ===== 【場景】廟口牌樓：半圓拱與招牌 ===== -->
+    <g id="arch">
+      <path d="M548,330 A252,252 0 0 1 1052,330 L1034,330 A234,234 0 0 0 566,330 Z" class="f-arch"/>
+      <g id="archBulbs"></g>
+      <rect x="704" y="52" width="192" height="46" rx="23" class="f-plate"/>
+      <circle cx="728" cy="75" r="9" style="fill:var(--neon-a)" class="neonFlick"/>
+      <circle cx="872" cy="75" r="9" style="fill:var(--neon-b)"/>
+      <text x="800" y="85" text-anchor="middle" class="signTxt" font-size="26">廟口夜市</text>
+    </g>
+
+    <!-- ===== 【場景】地面：步道磚格 ===== -->
+    <rect y="468" width="1600" height="132" class="f-ground"/>
+    <g id="tiles"></g>
+
+    <!-- ===== 【場景】攤位（JS 依 STALLS 資料生成） ===== -->
+    <g id="stalls"></g>
+
+    <!-- 燈泡串：跨越整排攤位，點擊會切換派對閃爍 -->
+    <g id="bulbs"></g>
+
+    <!-- 夜間地面光暈 -->
+    <g id="pools" pointer-events="none"></g>
+
+    <!-- ===== 【角色】爆滿人潮的背景人海（只有「人潮：爆滿」時出現） ===== -->
+    <g id="crowdSea" opacity="0" pointer-events="none"></g>
+
+    <!-- ===== 【場景】廟埕天公爐：廟就在夜市旁，香客整晚不斷 ===== -->
+    <g id="burner">
+      <rect x="770" y="526" width="60" height="8" rx="2" class="f-curb"/>           <!-- 石座 -->
+      <rect x="778" y="510" width="6" height="18" class="f-ink"/>                  <!-- 爐腳 -->
+      <rect x="816" y="510" width="6" height="18" class="f-ink"/>
+      <path d="M770,486 H830 L824,514 H776 Z" class="f-trim"/>                     <!-- 爐身 -->
+      <rect x="766" y="480" width="68" height="8" rx="3" class="f-trim"/>          <!-- 爐口 -->
+      <rect x="760" y="476" width="10" height="16" rx="4" class="f-trim"/>         <!-- 爐耳 -->
+      <rect x="830" y="476" width="10" height="16" rx="4" class="f-trim"/>
+      <circle cx="800" cy="500" r="7" class="f-temple"/>
+      <rect x="786" y="460" width="2" height="20" class="f-trunk"/>                <!-- 插著的香 -->
+      <rect x="798" y="456" width="2" height="24" class="f-trunk"/>
+      <rect x="810" y="462" width="2" height="18" class="f-trunk"/>
+      <circle cx="787" cy="460" r="1.8" style="fill:var(--fire)"/>
+      <circle cx="799" cy="456" r="1.8" style="fill:var(--fire)"/>
+      <circle cx="811" cy="462" r="1.8" style="fill:var(--fire)"/>
+    </g>
+
+    <!-- ===== 【場景】撈金魚盆、用餐區、棉花糖推車 ===== -->
+    <g id="walkwayProps"></g>
+
+    <!-- ===== 【角色】後排行人 ===== -->
+    <g id="walkersBack"></g>
+
+    <!-- ===== 【場景】道路 ===== -->
+    <rect y="536" width="1600" height="6" class="f-curb"/>
+    <rect y="542" width="1600" height="38" class="f-road"/>
+    <g id="roadLines"></g>
+    <!-- ===== 【角色】擠到馬路上的人潮（爆滿時） ===== -->
+    <g id="walkersRoad"></g>
+    <rect y="580" width="1600" height="20" class="f-ground"/>
+
+    <!-- ===== 【角色】機車、垃圾車 ===== -->
+    <g id="vehicles"></g>
+    <!-- 垃圾車音符 -->
+    <g id="notes" pointer-events="none"></g>
+
+    <!-- ===== 【場景】前景小物：資源回收桶、貓 ===== -->
+    <g id="frontProps"></g>
+
+    <!-- ===== 【角色】前排行人 ===== -->
+    <g id="walkersFront"></g>
+
+    <!-- ===== 【動畫】煙霧與蒸氣 ===== -->
+    <g id="smoke" pointer-events="none"></g>
+    <!-- 互動特效（氣球爆開、漣漪） -->
+    <g id="fx" pointer-events="none"></g>
+    <!-- 對話泡泡 -->
+    <g id="bubbles"></g>
+  </svg>
+  </div>
+
+  <!-- 【互動】控制列 -->
+  <div class="controls">
+    <button id="btnDayNight" type="button">切換日夜</button>
+    <button id="btnAuto" type="button" aria-pressed="true">自動循環：開</button>
+    <button id="btnCrowd" type="button" aria-pressed="false">人潮：一般</button>
+    <span class="clock" id="clock">傍晚</span>
+  </div>
+  <ul class="hint">
+    <li><b>滑鼠左右移動</b>改變風向，煙、雲、燈籠、燈泡串跟著飄</li>
+    <li><b>點射氣球攤的氣球</b>一顆顆射破，過一會兒老闆會補上</li>
+    <li><b>點撈金魚盆</b>水面起漣漪，魚兒四散</li>
+    <li><b>點各個攤位</b>香腸冒火、雞排起鍋、奶茶搖一杯</li>
+    <li><b>點燈泡串</b>切換彩色派對閃爍</li>
+    <li><b>點垃圾車</b>播放收垃圾的經典旋律（有聲音）</li>
+    <li><b>點廟埕的天公爐</b>香煙裊裊，許個願</li>
+    <li><b>點行人、機車、貓、棉花糖推車</b>各有小反應</li>
+    <li><b>點天空</b>夜晚放煙火，白天飛過鳥群</li>
+    <li><b>人潮鈕</b>切換一般與週末爆滿的人潮</li>
+  </ul>
+</main>
+
+<script>
+(() => {
+"use strict";
+/* =========================================================
+   基本工具
+   ========================================================= */
+const NS = "http://www.w3.org/2000/svg";
+const $ = id => document.getElementById(id);
+const svg = $("scene");
+const root = document.documentElement;
+function el(tag, attrs, parent) {
+  const e = document.createElementNS(NS, tag);
+  for (const k in attrs) e.setAttribute(k, attrs[k]);
+  if (parent) parent.appendChild(e);
+  return e;
+}
+// 固定亂數種子，讓每次載入的背景長一樣
+function rng(seed) {
+  return () => {
+    seed |= 0; seed = seed + 0x6D2B79F5 | 0;
+    let t = Math.imul(seed ^ seed >>> 15, 1 | seed);
+    t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t;
+    return ((t ^ t >>> 14) >>> 0) / 4294967296;
+  };
+}
+const R = rng(20261121);
+const rand = (a, b) => a + Math.random() * (b - a);
+const pick = arr => arr[Math.floor(Math.random() * arr.length)];
+const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+const smooth = x => { x = clamp(x, 0, 1); return x * x * (3 - 2 * x); };
+const RM_QUERY = window.matchMedia("(prefers-reduced-motion: reduce)");
+let reduced = RM_QUERY.matches;
+
+/* =========================================================
+   【色票】日夜混色引擎
+   讀取 --名稱-day / --名稱-night，依 night(0~1) 混色寫回 --名稱。
+   ========================================================= */
+const MIX = ["sky-top","sky-mid","sky-bot","cloud","hill","far","far2","tower","win-off","tree","tree2","trunk",
+  "roof","roof-lt","temple","trim","arch","plate",
+  "ground","tile","curb","road","road-ln",
+  "coral","cream","teal","mustard","blue","pink","green","sign","sign-txt","inside","top","metal","shutter","shutter-ln","grill",
+  "skin","skin2","hair","hair2","hair3","c1","c2","c3","c4","c5","c6","c7","truck","wheel","smoke","water","ink"];
+(function injectClasses() {
+  const css = MIX.map(n => `.f-${n}{fill:var(--${n})}.s-${n}{stroke:var(--${n})}`).join("");
+  const st = document.createElement("style"); st.textContent = css; document.head.appendChild(st);
+})();
+const cs = getComputedStyle(root);
+const hex = s => { s = s.trim().replace("#",""); if (s.length === 3) s = s.split("").map(c => c + c).join(""); const n = parseInt(s,16); return [n>>16&255, n>>8&255, n&255]; };
+const PAIRS = MIX.map(n => [n, hex(cs.getPropertyValue(`--${n}-day`)), hex(cs.getPropertyValue(`--${n}-night`))]);
+let lastApplied = -1;
+function applyNight(nt, force) {
+  if (!force && Math.abs(nt - lastApplied) < 0.004) return;
+  lastApplied = nt;
+  for (const [n, a, b] of PAIRS) {
+    const c = a.map((v, i) => Math.round(v + (b[i] - v) * nt));
+    root.style.setProperty(`--${n}`, `rgb(${c[0]},${c[1]},${c[2]})`);
+  }
+  $("stars").style.opacity = Math.max(0, nt * 1.6 - .6).toFixed(3);
+  $("backLights").style.opacity = Math.max(0, nt * 1.4 - .4).toFixed(3);
+  $("towerWins").style.opacity = Math.max(0, nt * 1.4 - .4).toFixed(3);
+  document.querySelectorAll(".nightOnly").forEach(e => e.style.opacity = nt.toFixed(3));
+}
+
+/* =========================================================
+   【場景】星星、雲、天際線、地磚、道路標線
+   ========================================================= */
+(function buildStars() {
+  const g = $("stars");
+  for (let i = 0; i < 70; i++) {
+    const s = R() < .15 ? 3.4 : 1.6 + R() * 1.2;
+    const x = R() * 1600, y = R() * 230;
+    // 菱形星星（旋轉 45° 的小正方形）
+    el("rect", { x: -s / 2, y: -s / 2, width: s, height: s, transform: `translate(${x.toFixed(0)},${y.toFixed(0)}) rotate(45)`,
+      style: "fill:var(--star)", class: R() < .35 ? "twinkle" : "", "style": `fill:var(--star);animation-delay:${(R()*2.6).toFixed(2)}s` }, g);
+  }
+})();
+const clouds = [];
+(function buildClouds() {
+  const g = $("clouds");
+  [[180,96,1],[600,140,.7],[1000,70,.9],[1320,150,.65],[-200,60,.8]].forEach(([x, y, s]) => {
+    const c = el("g", {}, g);
+    el("rect", { x: -90 * s, y: -12 * s, width: 180 * s, height: 24 * s, rx: 12 * s, class: "f-cloud" }, c);
+    el("rect", { x: -40 * s, y: -30 * s, width: 90 * s, height: 30 * s, rx: 15 * s, class: "f-cloud" }, c);
+    el("circle", { cx: 60 * s, cy: -6 * s, r: 16 * s, class: "f-cloud" }, c);
+    clouds.push({ g: c, x, y, sp: 5 + R() * 6, s });
+  });
+})();
+(function buildSkyline() {
+  const g = $("skyline"), L = $("backLights");
+  let x = -10;
+  while (x < 1610) {
+    const w = 46 + R() * 70;
+    // 牌樓內留出天空：中間的樓矮一些
+    const inArch = x > 520 && x < 1060;
+    const top = inArch ? 280 + R() * 30 : 196 + R() * 90;
+    const cls = R() < .5 ? "f-far" : "f-far2";
+    el("rect", { x, y: top, width: w, height: 340 - top, class: cls }, g);
+    if (R() < .3) el("rect", { x: x + w * .3, y: top - 14, width: w * .4, height: 14, class: cls }, g);  // 頂樓水塔
+    if (R() < .35) el("rect", { x: x + w * .5, y: top - 30, width: 3, height: 30, class: cls }, g);      // 天線
+    for (let yy = top + 12; yy < 326; yy += 20)
+      for (let xx = x + 8; xx < x + w - 12; xx += 16) {
+        el("rect", { x: xx, y: yy, width: 7, height: 9, class: "f-win-off" }, g);
+        if (R() < .42) el("rect", { x: xx, y: yy, width: 7, height: 9, style: "fill:var(--lit)" }, L);
+      }
+    x += w + 4 + R() * 10;
+  }
+  const T = $("towerWins");
+  for (let yy = 140; yy < 330; yy += 14)
+    for (let xx = 1398; xx < 1442; xx += 12)
+      if (R() < .6) el("rect", { x: xx, y: yy, width: 6, height: 6, style: "fill:var(--lit)" }, T);
+})();
+(function buildTiles() {
+  const g = $("tiles");
+  for (let x = 0; x < 1600; x += 40) el("rect", { x, y: 468, width: 2, height: 68, class: "f-tile" }, g);
+  for (let y = 490; y < 536; y += 22) el("rect", { x: 0, y, width: 1600, height: 2, class: "f-tile" }, g);
+  const r = $("roadLines");
+  for (let x = 10; x < 1600; x += 70) el("rect", { x, y: 559, width: 34, height: 4, class: "f-road-ln" }, r);
+})();
+(function buildArchBulbs() {
+  const g = $("archBulbs");
+  for (let i = 0; i <= 24; i++) {
+    const a = Math.PI - i / 24 * Math.PI;
+    el("circle", { cx: (800 + 243 * Math.cos(a)).toFixed(1), cy: (330 - 243 * Math.sin(a)).toFixed(1), r: 4, class: "archBulb", style: "fill:var(--bulb)" }, g);
+  }
+})();
+const lanterns = [];
+(function buildLanterns() {
+  const g = $("lanterns");
+  [708, 744, 856, 892].forEach((x, i) => {
+    const L = el("g", {}, g);
+    el("rect", { x: -1, y: 0, width: 2, height: 8, class: "f-ink" }, L);
+    el("rect", { x: -9, y: 8, width: 18, height: 3, class: "f-ink" }, L);
+    el("ellipse", { cx: 0, cy: 20, rx: 11, ry: 10, style: "fill:#e83f36" }, L);
+    el("ellipse", { cx: 0, cy: 20, rx: 11, ry: 10, style: "fill:var(--lit)", class: "lanternGlow", opacity: 0 }, L);
+    el("rect", { x: -9, y: 29, width: 18, height: 3, class: "f-ink" }, L);
+    el("rect", { x: -1, y: 32, width: 2, height: 6, style: "fill:#f0b541" }, L);
+    lanterns.push({ g: L, x, ph: i * 1.3 });
+  });
+})();
+
+/* =========================================================
+   【場景】攤位資料：位置、招牌、配色、營業時間（小時，跨午夜用 24+）
+   想新增或換攤位，改這個陣列即可。
+   ========================================================= */
+const STALLS = [
+  { id: "sausage", x: 10,   w: 170, name: "烤香腸",   a: "coral",   b: "cream",   c: "mustard", open: 17,   close: 24.5 },
+  { id: "tea",     x: 186,  w: 160, name: "珍珠奶茶", a: "teal",    b: "cream",   c: "coral",   open: 11,   close: 25 },
+  { id: "balloon", x: 352,  w: 200, name: "射氣球",   a: "blue",    b: "mustard", c: "pink",    open: 17.5, close: 24 },
+  { id: "oyster",  x: 558,  w: 170, name: "蚵仔煎",   a: "mustard", b: "cream",   c: "teal",    open: 16.5, close: 24.5 },
+  { id: "chicken", x: 734,  w: 160, name: "大雞排",   a: "coral",   b: "mustard", c: "blue",    open: 16,   close: 25.5 },
+  { id: "fish",    x: 900,  w: 200, name: "撈金魚",   a: "blue",    b: "cream",   c: "teal",    open: 17.5, close: 23.5 },
+  { id: "tofu",    x: 1106, w: 160, name: "臭豆腐",   a: "green",   b: "cream",   c: "coral",   open: 17,   close: 25 },
+  { id: "bao",     x: 1272, w: 160, name: "刈包",     a: "pink",    b: "cream",   c: "mustard", open: 15,   close: 24.5 }
+];
+const stallMap = {};
+const emitters = [];   // 煙霧、蒸氣的出口
+const vendors = [];    // 攤販（有動作的手臂）
+
+// 幾何小人（攤販用的上半身）
+function vendorFigure(g, x, y, o) {
+  const v = el("g", { transform: `translate(${x},${y})` }, g);
+  el("rect", { x: -13, y: -6, width: 26, height: 40, rx: 10, class: "f-" + o.shirt }, v);
+  if (o.apron) el("rect", { x: -9, y: 6, width: 18, height: 28, rx: 3, class: "f-" + o.apron }, v);
+  el("circle", { cx: 0, cy: -16, r: 10, class: "f-" + (o.skin || "skin") }, v);
+  if (o.hat === "cap") { el("path", { d: "M-11,-18 a11,11 0 0 1 22,0 Z", class: "f-" + o.hatC }, v); el("rect", { x: 6, y: -20, width: 10, height: 3, class: "f-" + o.hatC }, v); }
+  else if (o.hat === "band") { el("path", { d: "M-10,-20 a10,10 0 0 1 20,0 Z", class: "f-hair" }, v); el("rect", { x: -10, y: -22, width: 20, height: 4, class: "f-" + o.hatC }, v); }
+  else if (o.hat === "bun") { el("path", { d: "M-10,-18 a10,10 0 0 1 20,0 Z", class: "f-hair" }, v); el("circle", { cx: 0, cy: -29, r: 5, class: "f-hair" }, v); }
+  else el("path", { d: "M-10,-17 a10,10 0 0 1 20,0 Z", class: "f-" + (o.hairC || "hair") }, v);
+  const arm = el("rect", { x: -3, y: 0, width: 6, height: 22, rx: 3, class: "f-" + o.shirt }, v);
+  const V = { g: v, arm, ax: o.armX || 10, ay: -2, base: o.armBase || -40, amp: o.amp || 20, sp: o.sp || 3, ph: Math.random() * 6, boost: 0 };
+  vendors.push(V);
+  return V;
+}
+
+function buildStall(S) {
+  const g = el("g", { transform: `translate(${S.x},0)`, class: "stallHit", "data-id": S.id }, $("stalls"));
+  const w = S.w;
+  S.g = g;
+  // 骨架、內牆
+  el("rect", { x: 4, y: 326, width: 5, height: 144, class: "f-metal" }, g);
+  el("rect", { x: w - 9, y: 326, width: 5, height: 144, class: "f-metal" }, g);
+  el("rect", { x: 9, y: 356, width: w - 18, height: 76, class: "f-inside" }, g);
+  S.litRect = el("rect", { x: 9, y: 356, width: w - 18, height: 76, style: "fill:var(--lit)", opacity: 0 }, g);
+  // 內容物層（各攤自己的道具）
+  const inner = el("g", {}, g);
+  S.inner = inner;
+  // 檯面與前板
+  el("rect", { x: 0, y: 428, width: w, height: 6, class: "f-top" }, g);
+  el("rect", { x: 2, y: 434, width: w - 4, height: 36, class: "f-" + S.c }, g);
+  // 前板上的幾何裝飾：一排圓點
+  for (let xx = 16; xx < w - 10; xx += 22) el("circle", { cx: xx, cy: 452, r: 4, class: "f-" + S.b, opacity: .7 }, g);
+  S.front = el("g", {}, g);  // 檯面上的商品
+  // 遮陽棚：直條紋＋底部半圓花邊
+  el("rect", { x: -2, y: 326, width: w + 4, height: 26, class: "f-" + S.a }, g);
+  for (let xx = 8; xx < w; xx += 24) el("rect", { x: xx, y: 326, width: 12, height: 26, class: "f-" + S.b }, g);
+  for (let xx = -2, i = 0; xx < w + 2; xx += 20, i++)
+    el("path", { d: `M${xx},352 a10,10 0 0 0 20,0 Z`, class: "f-" + (i % 2 ? S.b : S.a) }, g);
+  // 招牌
+  el("rect", { x: 10, y: 292, width: w - 20, height: 32, rx: 16, class: "f-sign" }, g);
+  el("circle", { cx: 27, cy: 308, r: 8, class: "f-" + S.a }, g);
+  el("circle", { cx: w - 27, cy: 308, r: 8, class: "f-" + S.c }, g);
+  const t = el("text", { x: w / 2, y: 316, "text-anchor": "middle", class: "signTxt", "font-size": 21 }, g);
+  t.textContent = S.name;
+  S.signGlow = el("rect", { x: 10, y: 292, width: w - 20, height: 32, rx: 16, fill: "none", "stroke-width": 2, style: "stroke:var(--neon-" + (S.x % 3 ? "a" : "b") + ")", opacity: 0 }, g);
+  // 鐵捲門（白天拉下）：用裁切框，往上捲
+  const cp = el("clipPath", { id: "clip-" + S.id }, $("stalls"));
+  el("rect", { x: S.x + 9, y: 356, width: w - 18, height: 114 }, cp);
+  const sw = el("g", { "clip-path": `url(#clip-${S.id})` }, $("stalls"));
+  S.shutter = el("g", { transform: `translate(${S.x},0)` }, sw);
+  el("rect", { x: 9, y: 356, width: w - 18, height: 114, fill: "url(#shutterPat)" }, S.shutter);
+  el("circle", { cx: w / 2, cy: 404, r: 22, class: "f-" + S.a }, S.shutter);
+  el("rect", { x: w / 2 - 12, y: 400, width: 24, height: 8, rx: 4, class: "f-" + S.b }, S.shutter);
+  el("rect", { x: w / 2 - 14, y: 462, width: 28, height: 6, rx: 3, class: "f-metal" }, S.shutter);  // 把手
+  // 光暈（地面）
+  S.pool = el("ellipse", { cx: S.x + w / 2, cy: 490, rx: w * .55, ry: 22, fill: "url(#glowGrad)", opacity: 0 }, $("pools"));
+  S.openness = 0;
+  stallMap[S.id] = S;
+}
+
+/* ---- 各攤道具 ---- */
+function propsSausage(S) {
+  const g = S.inner, f = S.front;
+  // 後牆掛著一串串香腸
+  for (let i = 0; i < 5; i++) {
+    const x = 30 + i * 24;
+    el("rect", { x: x, y: 358, width: 2, height: 10, class: "f-ink" }, g);
+    for (let k = 0; k < 3; k++) el("rect", { x: x - 4, y: 368 + k * 13, width: 10, height: 12, rx: 5, class: "f-coral" }, g);
+  }
+  vendorFigure(g, 132, 404, { shirt: "c6", apron: "cream", hat: "cap", hatC: "coral", armX: -10, base: -120, amp: 28, sp: 4 });
+  // 烤架：長方形＋炭火
+  el("rect", { x: 14, y: 414, width: 100, height: 14, class: "f-grill" }, f);
+  S.coals = el("rect", { x: 18, y: 422, width: 92, height: 4, style: "fill:var(--fire)", opacity: .4 }, f);
+  S.sausages = [];
+  for (let i = 0; i < 6; i++) S.sausages.push(el("rect", { x: 20 + i * 15, y: 408, width: 12, height: 7, rx: 3.5, class: "f-coral" }, f));
+  S.flames = el("g", { opacity: 0 }, f);
+  for (let i = 0; i < 7; i++) el("polygon", { points: `${20 + i * 13},414 ${26 + i * 13},392 ${32 + i * 13},414`, style: "fill:var(--fire)" }, S.flames);
+  // 一盤生蒜頭（白色小圓）
+  el("rect", { x: 122, y: 420, width: 34, height: 8, rx: 4, class: "f-cream" }, f);
+  for (let i = 0; i < 4; i++) el("circle", { cx: 128 + i * 7, cy: 418, r: 3.2, style: "fill:#fff" }, f);
+  emitters.push({ x: S.x + 64, y: 404, kind: "smoke", rate: 4, stall: S, spread: 40 });
+}
+function propsTea(S) {
+  const g = S.inner, f = S.front;
+  // 後牆菜單：色塊格
+  const menuCols = ["c3", "c1", "c2", "c5", "c7", "c4"];
+  for (let i = 0; i < 6; i++) {
+    el("rect", { x: 18 + (i % 3) * 24, y: 364 + Math.floor(i / 3) * 22, width: 20, height: 18, rx: 3, class: "f-" + menuCols[i] }, g);
+  }
+  // 封口機
+  el("rect", { x: 104, y: 372, width: 34, height: 56, rx: 4, class: "f-cream" }, g);
+  el("rect", { x: 110, y: 380, width: 22, height: 14, rx: 2, class: "f-ink" }, g);
+  el("circle", { cx: 121, cy: 410, r: 6, class: "f-coral" }, g);
+  S.vendor = vendorFigure(g, 86, 408, { shirt: "teal", hat: "bun", armX: 10, base: -150, amp: 14, sp: 6 });
+  // 搖杯（點擊時會搖）
+  S.shaker = el("g", { transform: "translate(70,392)" }, g);
+  el("rect", { x: -5, y: -10, width: 10, height: 20, rx: 2, style: "fill:#dfe7ea" }, S.shaker);
+  el("rect", { x: -5, y: -14, width: 10, height: 5, rx: 2, class: "f-metal" }, S.shaker);
+  // 檯面上一排做好的珍奶
+  S.cups = el("g", {}, f);
+  for (let i = 0; i < 5; i++) drawTeaCup(S.cups, 20 + i * 24, 428);
+}
+function drawTeaCup(g, x, y) {
+  const c = el("g", { transform: `translate(${x},${y})` }, g);
+  el("rect", { x: -7, y: -22, width: 14, height: 22, rx: 2, style: "fill:#f4f1ea", opacity: .9 }, c);
+  el("rect", { x: -6, y: -18, width: 12, height: 17, style: "fill:var(--tea)" }, c);
+  [[-3,-4],[1,-3],[4,-5],[-1,-7],[3,-8],[-4,-8]].forEach(([dx, dy]) => el("circle", { cx: dx, cy: dy, r: 1.8, style: "fill:var(--boba)" }, c));
+  el("rect", { x: 1, y: -32, width: 3, height: 12, class: "f-coral" }, c);
+  return c;
+}
+const balloons = [];
+function propsBalloon(S) {
+  const g = S.inner, f = S.front;
+  // 後牆氣球格：6×3 顆
+  const cols = ["#ef6f5a", "#f1b740", "#2fa39a", "#f19bb3", "#3d6fb6", "#ffffff"];
+  const wall = el("g", { id: "balloonWall" }, g);
+  el("rect", { x: 14, y: 360, width: 132, height: 64, class: "f-cream", opacity: .9 }, wall);
+  for (let r = 0; r < 3; r++)
+    for (let c = 0; c < 6; c++) {
+      const cx = 26 + c * 22, cy = 372 + r * 20;
+      const b = el("circle", { cx, cy, r: 8.5, fill: cols[(r * 2 + c) % cols.length], class: "bl" }, wall);
+      balloons.push({ e: b, cx: S.x + cx, cy, alive: true, t: 0 });
+    }
+  // 獎品架：幾何小熊
+  for (let i = 0; i < 2; i++) {
+    const bx = 166, by = 372 + i * 30;
+    el("circle", { cx: bx, cy: by + 12, r: 10, class: "f-" + (i ? "pink" : "mustard") }, g);
+    el("circle", { cx: bx, cy: by, r: 7, class: "f-" + (i ? "pink" : "mustard") }, g);
+    el("circle", { cx: bx - 6, cy: by - 6, r: 3, class: "f-" + (i ? "pink" : "mustard") }, g);
+    el("circle", { cx: bx + 6, cy: by - 6, r: 3, class: "f-" + (i ? "pink" : "mustard") }, g);
+  }
+  // 檯面：一盒飛鏢
+  el("rect", { x: 20, y: 420, width: 40, height: 8, class: "f-ink" }, f);
+  for (let i = 0; i < 5; i++) el("polygon", { points: `${26 + i * 7},420 ${28 + i * 7},406 ${30 + i * 7},420`, class: "f-" + (i % 2 ? "coral" : "teal") }, f);
+  // 正在射飛鏢的客人（站在攤前、背對我們）
+  S.player = el("g", { transform: "translate(110,470)" }, S.g);
+  el("rect", { x: -4, y: -30, width: 6, height: 30, class: "f-c6" }, S.player);
+  el("rect", { x: 3, y: -30, width: 6, height: 30, class: "f-c6" }, S.player);
+  el("rect", { x: -9, y: -64, width: 22, height: 36, rx: 8, class: "f-c3" }, S.player);
+  el("circle", { cx: 2, cy: -74, r: 10, class: "f-hair" }, S.player);
+  S.playerArm = el("rect", { x: -3, y: 0, width: 6, height: 24, rx: 3, class: "f-c3", transform: "translate(10,-60) rotate(-150)" }, S.player);
+}
+function propsOyster(S) {
+  const g = S.inner, f = S.front;
+  // 調味瓶與碗盤
+  for (let i = 0; i < 4; i++) el("rect", { x: 18 + i * 12, y: 380, width: 8, height: 22, rx: 3, class: "f-" + ["coral", "ink", "mustard", "green"][i] }, g);
+  for (let i = 0; i < 3; i++) el("rect", { x: 18, y: 408 + i * 6, width: 44, height: 5, rx: 2.5, style: "fill:#fff", opacity: .9 }, g);
+  vendorFigure(g, 112, 404, { shirt: "c2", apron: "cream", hat: "band", hatC: "mustard", armX: -10, base: -100, amp: 30, sp: 2.5 });
+  // 大鐵板與四份蚵仔煎（圓形）
+  el("rect", { x: 66, y: 418, width: 98, height: 10, class: "f-grill" }, f);
+  S.omelets = [];
+  for (let i = 0; i < 4; i++) S.omelets.push(el("ellipse", { cx: 80 + i * 23, cy: 417, rx: 10, ry: 4, style: "fill:#f2d79a" }, f));
+  for (let i = 0; i < 4; i++) el("ellipse", { cx: 80 + i * 23, cy: 416, rx: 4, ry: 1.6, class: "f-coral" }, f);  // 甜辣醬
+  emitters.push({ x: S.x + 114, y: 412, kind: "steam", rate: 2.5, stall: S, spread: 70 });
+}
+function propsChicken(S) {
+  const g = S.inner, f = S.front;
+  // 炸鍋
+  el("rect", { x: 20, y: 386, width: 54, height: 42, rx: 4, class: "f-metal" }, g);
+  el("rect", { x: 24, y: 384, width: 46, height: 6, style: "fill:#d9a54a" }, g);
+  S.oil = el("g", {}, g);
+  vendorFigure(g, 108, 404, { shirt: "c5", apron: "coral", hat: "cap", hatC: "blue", armX: -10, base: -130, amp: 18, sp: 2 });
+  // 展示盤：大片雞排（旋轉的圓角矩形）
+  el("rect", { x: 80, y: 422, width: 72, height: 6, rx: 3, class: "f-cream" }, f);
+  [[96, -8], [118, 6], [138, -4]].forEach(([x, r]) => el("rect", { x: x - 11, y: 404, width: 22, height: 18, rx: 7, transform: `rotate(${r} ${x} 413)`, style: "fill:#c9853a" }, f));
+  // 紙袋
+  for (let i = 0; i < 3; i++) el("rect", { x: 14 + i * 16, y: 410, width: 13, height: 18, class: "f-cream" }, f);
+  emitters.push({ x: S.x + 47, y: 384, kind: "steam", rate: 3, stall: S, spread: 30 });
+}
+const fish = [];
+function propsFish(S) {
+  const g = S.inner, f = S.front;
+  // 後牆：掛著一袋袋金魚（水滴形）
+  for (let i = 0; i < 6; i++) {
+    const x = 26 + i * 26, y = 380;
+    el("rect", { x: x - 1, y: 358, width: 2, height: 10, class: "f-ink" }, g);
+    el("path", { d: `M${x},${y - 12} Q${x + 12},${y + 8} ${x},${y + 14} Q${x - 12},${y + 8} ${x},${y - 12} Z`, class: "f-water", opacity: .85 }, g);
+    el("circle", { cx: x, cy: y + 4, r: 3, style: "fill:var(--fish)" }, g);
+  }
+  vendorFigure(g, 160, 410, { shirt: "c4", hat: "none", hairC: "hair3", armX: -10, base: -20, amp: 8, sp: 1.2 });
+  // 檯面：紙網、小碗
+  for (let i = 0; i < 4; i++) { el("circle", { cx: 24 + i * 16, cy: 420, r: 6, fill: "none", "stroke-width": 2, class: "s-ink" }, f); el("rect", { x: 22 + i * 16, y: 425, width: 3, height: 3, class: "f-ink" }, f); }
+  for (let i = 0; i < 3; i++) el("rect", { x: 100 + i * 20, y: 418, width: 16, height: 10, rx: 4, style: "fill:#ffffff", opacity: .85 }, f);
+}
+function propsTofu(S) {
+  const g = S.inner, f = S.front;
+  // 泡菜罐（圓）
+  for (let i = 0; i < 3; i++) { el("rect", { x: 20 + i * 22, y: 392, width: 18, height: 36, rx: 6, style: "fill:#e9f2f0", opacity: .9 }, g); el("rect", { x: 22 + i * 22, y: 404, width: 14, height: 22, rx: 4, style: "fill:#d6e5a8" }, g); }
+  vendorFigure(g, 116, 404, { shirt: "c1", apron: "cream", hat: "band", hatC: "green", armX: -10, base: -60, amp: 12, sp: 1.5 });
+  // 炸鍋與方塊豆腐
+  el("rect", { x: 86, y: 414, width: 60, height: 14, class: "f-metal" }, f);
+  for (let i = 0; i < 5; i++) el("rect", { x: 92 + i * 10, y: 406, width: 8, height: 8, style: "fill:#d8a24a" }, f);
+  emitters.push({ x: S.x + 116, y: 404, kind: "steam", rate: 2.8, stall: S, spread: 40 });
+}
+function propsBao(S) {
+  const g = S.inner, f = S.front;
+  vendorFigure(g, 40, 404, { shirt: "c3", apron: "cream", hat: "bun", armX: 10, base: -150, amp: 16, sp: 1.8 });
+  // 蒸籠：疊三層的扁長圓角矩形
+  for (let i = 0; i < 3; i++) {
+    el("rect", { x: 72, y: 404 - i * 14, width: 70, height: 13, rx: 6, style: "fill:#d9b47a" }, f);
+    el("rect", { x: 72, y: 409 - i * 14, width: 70, height: 2, style: "fill:#b98f55" }, f);
+  }
+  el("rect", { x: 76, y: 366, width: 62, height: 8, rx: 4, style: "fill:#c99f62" }, f);
+  // 刈包（半圓）
+  for (let i = 0; i < 3; i++) { el("path", { d: `M${16 + i * 18},428 a8,8 0 0 1 16,0 Z`, style: "fill:#f8f3e8" }, f); el("rect", { x: 18 + i * 18, y: 424, width: 12, height: 3, class: "f-green" }, f); }
+  emitters.push({ x: S.x + 107, y: 364, kind: "steam", rate: 4, stall: S, spread: 50 });
+}
+(function buildStalls() {
+  STALLS.forEach(buildStall);
+  propsSausage(stallMap.sausage); propsTea(stallMap.tea); propsBalloon(stallMap.balloon); propsOyster(stallMap.oyster);
+  propsChicken(stallMap.chicken); propsFish(stallMap.fish); propsTofu(stallMap.tofu); propsBao(stallMap.bao);
+})();
+
+/* =========================================================
+   【場景】燈泡串（兩條懸垂的弧線）
+   ========================================================= */
+const bulbStrings = [];
+(function buildBulbs() {
+  const g = $("bulbs");
+  el("rect", { x: 0, y: 262, width: 1600, height: 40, fill: "transparent" }, g);  // 擴大點擊範圍
+  const glowG = el("g", { id: "bulbGlows" }, g);
+  [[0, 400, 276], [400, 752, 270], [848, 1200, 270], [1200, 1600, 276]]  /* 中間留空，不擋廟名匾額 */.forEach(([x0, x1, y]) => {
+    const line = el("path", { fill: "none", "stroke-width": 1.5, class: "s-ink" }, g);
+    const bs = [];
+    const n = Math.round((x1 - x0) / 28);
+    for (let i = 1; i < n; i++) {
+      const glow = el("circle", { r: 12, fill: "url(#bulbGlow)", opacity: 0 }, glowG);
+      const off = el("circle", { r: 4.5, class: "f-cream" }, g);
+      const on = el("circle", { r: 4.5, style: "fill:var(--bulb)", opacity: 0 }, g);
+      bs.push({ glow, off, on, k: i / n, f: Math.random() * 6 });
+    }
+    bulbStrings.push({ x0, x1, y, sag: 22, line, bs });
+  });
+})();
+
+/* =========================================================
+   【場景】走道小物：撈金魚盆、用餐桌、棉花糖推車
+   ========================================================= */
+(function buildWalkway() {
+  const g = $("walkwayProps");
+  // 用餐區：圓桌、紅色塑膠椅、兩位客人（蚵仔煎攤前）
+  const eat = el("g", { id: "eatArea" }, g);
+  stallMap.oyster.eat = eat;
+  el("rect", { x: 620, y: 494, width: 4, height: 18, class: "f-ink" }, eat);
+  el("rect", { x: 592, y: 488, width: 60, height: 7, rx: 3.5, class: "f-cream" }, eat);
+  [[574, "c1"], [670, "c4"]].forEach(([x, c], i) => {
+    el("rect", { x: x - 9, y: 500, width: 18, height: 12, rx: 2, style: "fill:#e0453a" }, eat);     // 塑膠椅
+    el("rect", { x: x - 10, y: 466, width: 20, height: 34, rx: 8, class: "f-" + c }, eat);
+    el("circle", { cx: x, cy: 456, r: 9, class: "f-" + (i ? "skin2" : "skin") }, eat);
+    el("path", { d: `M${x - 9},455 a9,9 0 0 1 18,0 Z`, class: "f-" + (i ? "hair2" : "hair") }, eat);
+  });
+  el("ellipse", { cx: 610, cy: 486, rx: 9, ry: 3, style: "fill:#f2d79a" }, eat);
+  el("ellipse", { cx: 634, cy: 486, rx: 9, ry: 3, style: "fill:#f2d79a" }, eat);
+  el("rect", { x: 620, y: 478, width: 6, height: 8, style: "fill:var(--tea)" }, eat);
+
+  // 撈金魚盆：膠囊形水盆，魚在裡面游
+  const tub = el("g", { id: "tub" }, g);
+  stallMap.fish.tub = tub;
+  el("rect", { x: 928, y: 478, width: 144, height: 30, rx: 15, class: "f-blue" }, tub);
+  el("rect", { x: 934, y: 482, width: 132, height: 22, rx: 11, class: "f-water" }, tub);
+  const fg = el("g", { "clip-path": "url(#tubClip)" }, tub);
+  for (let i = 0; i < 9; i++) {
+    const e = el("g", {}, fg);
+    const col = i % 4 === 0 ? "var(--fish2)" : "var(--fish)";
+    el("ellipse", { cx: 0, cy: 0, rx: 5, ry: 2.6, style: `fill:${col}` }, e);
+    el("polygon", { points: "-4,0 -9,-3 -9,3", style: `fill:${col}` }, e);
+    fish.push({ e, x: rand(944, 1056), y: rand(486, 500), a: rand(0, 6.28), sp: rand(10, 18), panic: 0 });
+  }
+  // 蹲著撈魚的兩個小孩
+  [[948, "c7", "hair"], [1050, "c3", "hair2"]].forEach(([x, c, h], i) => {
+    const k = el("g", { transform: `translate(${x},${i ? 476 : 476})` }, tub);
+    el("rect", { x: -9, y: -22, width: 18, height: 22, rx: 7, class: "f-" + c }, k);
+    el("circle", { cx: 0, cy: -29, r: 8, class: "f-skin" }, k);
+    el("path", { d: "M-8,-30 a8,8 0 0 1 16,0 Z", class: "f-" + h }, k);
+    el("rect", { x: i ? -16 : 4, y: -12, width: 12, height: 3, class: "f-ink", transform: `rotate(${i ? -30 : 30})` }, k);
+    el("circle", { cx: i ? -18 : 18, cy: i ? -4 : -4, r: 4, fill: "none", "stroke-width": 1.5, class: "s-ink" }, k);
+  });
+
+  // 棉花糖推車（最右邊）
+  const cart = el("g", { id: "cart", transform: "translate(1515,0)" }, g);
+  el("path", { d: "M-54,330 a54,30 0 0 1 108,0 Z", class: "f-pink" }, cart);       // 半圓遮陽傘
+  el("path", { d: "M-18,330 a18,30 0 0 1 36,0 Z", class: "f-cream" }, cart);
+  el("rect", { x: -2, y: 330, width: 4, height: 90, class: "f-metal" }, cart);
+  el("rect", { x: -48, y: 420, width: 96, height: 46, rx: 6, class: "f-teal" }, cart);
+  el("circle", { cx: 0, cy: 420, r: 22, style: "fill:#f4f1ea", opacity: .95 }, cart); // 機器碗
+  el("circle", { cx: -30, cy: 474, r: 10, class: "f-wheel" }, cart);
+  el("circle", { cx: 30, cy: 474, r: 10, class: "f-wheel" }, cart);
+  for (let i = 0; i < 4; i++) {
+    const x = -40 + i * 26;
+    el("rect", { x: x - 1, y: 372, width: 2, height: 48, style: "fill:#f4f1ea" }, cart);
+    el("circle", { cx: x, cy: 368, r: 12, style: `fill:var(--${i % 2 ? "candy2" : "candy"})` }, cart);
+  }
+  const big = el("g", { transform: "translate(0,396)" }, cart);
+  el("rect", { x: -1, y: 0, width: 2, height: 24, style: "fill:#f4f1ea" }, big);
+  const bigC = el("circle", { cx: 0, cy: -4, r: 6, style: "fill:var(--candy)" }, big);
+  stallMap.cart = { candy: bigC, grow: 6, target: 6, g: cart, open: 18, close: 23.5, openness: 0 };
+  vendorFigure(cart, 58, 438, { shirt: "c2", hat: "cap", hatC: "c7", armX: -10, base: -110, amp: 22, sp: 3 });
+})();
+
+/* =========================================================
+   【場景】前景：資源回收桶、睡在椅子上的貓
+   ========================================================= */
+(function buildFront() {
+  const g = $("frontProps");
+  [["c3", "一般"], ["c4", "紙類"], ["c2", "回收"]].forEach(([c, t], i) => {
+    const x = 26 + i * 34;
+    el("rect", { x, y: 548, width: 30, height: 50, rx: 4, class: "f-" + c }, g);
+    el("rect", { x: x - 2, y: 544, width: 34, height: 7, rx: 3, class: "f-" + c }, g);
+    el("rect", { x: x + 5, y: 556, width: 20, height: 3, style: "fill:#fff", opacity: .7 }, g);
+    const tx = el("text", { x: x + 15, y: 578, "text-anchor": "middle", class: "sans", "font-size": 9, style: "fill:#fff" }, g); tx.textContent = t;
+  });
+  // 貓：坐在廟前石階（香腸攤與奶茶攤之間的走道邊）
+  const cat = el("g", { id: "cat", transform: "translate(1470,534)" }, g);
+  el("rect", { x: -14, y: -4, width: 28, height: 6, rx: 3, class: "f-curb" }, cat);
+  el("ellipse", { cx: 0, cy: -14, rx: 16, ry: 11, style: "fill:#f2a54a" }, cat);
+  el("circle", { cx: 12, cy: -24, r: 8, style: "fill:#f2a54a" }, cat);
+  el("polygon", { points: "6,-30 8,-38 12,-31", style: "fill:#f2a54a" }, cat);
+  el("polygon", { points: "13,-31 17,-38 18,-29", style: "fill:#f2a54a" }, cat);
+  el("rect", { x: -6, y: -22, width: 4, height: 16, style: "fill:#d98a32" }, cat);
+  el("rect", { x: 2, y: -22, width: 4, height: 16, style: "fill:#d98a32" }, cat);
+  catTail = el("path", { d: "M-15,-10 q-14,-2 -12,-16", fill: "none", "stroke-width": 4, "stroke-linecap": "round", style: "stroke:#f2a54a" }, cat);
+  catEye = el("rect", { x: 13, y: -26, width: 5, height: 1.6, class: "f-ink" }, cat);
+})();
+var catTail, catEye;
+
+/* =========================================================
+   【角色】行人：幾何小人
+   頭＝圓、身體＝圓角矩形、腿與手臂＝長方形；配件：奶茶、氣球、手機、拐杖、書包、小狗。
+   ========================================================= */
+const LANES = {
+  back:  { y: 524, s: .8,  jitter: [-14, 6], layer: $("walkersBack") },   // 攤位前走道
+  road:  { y: 566, s: .95, jitter: [-12, 10], layer: $("walkersRoad") },  // 擠到馬路上（爆滿時）
+  front: { y: 598, s: 1.1, jitter: [0, 0],   layer: $("walkersFront") }   // 最前排
+};
+const LANE_KEYS = ["back", "road", "front"];
+const SHIRTS = ["c1", "c2", "c3", "c4", "c5", "c7", "teal", "coral", "mustard", "blue"];
+const PANTS = ["c6", "c4", "c5", "c6", "ink", "c2"];
+const GREET = ["好香喔！", "要吃什麼？", "先買珍奶！", "排隊排好久", "老闆加辣", "再逛一圈", "吃飽了～", "有夠熱鬧"];
+const walkers = [];
+let crowdMul = 1;
+function makeWalker(laneKey, x, dir) {
+  const lane = LANES[laneKey];
+  const nightish = marketLevel;
+  // 爆滿時走道上下錯開，近大遠小
+  const y = crowdMul > 1 ? lane.y + rand(lane.jitter[0], lane.jitter[1]) : lane.y;
+  const roll = Math.random();
+  let type = "adult";
+  if (roll < .16) type = "kid"; else if (roll < .26) type = "elder"; else if (roll < .32 && nightish > .3) type = "dog";
+  const s = lane.s * (y / lane.y) * (type === "kid" ? rand(.62, .76) : (r => r < .2 ? rand(.84, .92) : r < .8 ? rand(.94, 1.04) : rand(1.06, 1.14))(Math.random()));
+  const g = el("g", { class: "walker" }, lane.layer);
+  // 依腳的位置排前後：腳越低（越靠近畫面）越晚畫
+  g.dataset.y = y;
+  const after = [...lane.layer.children].find(c => +c.dataset.y > y);
+  if (after) lane.layer.insertBefore(g, after);
+  const flip = el("g", {}, g);
+  const shirt = pick(SHIRTS), pant = pick(PANTS);
+  const skin = Math.random() < .35 ? "skin2" : "skin";
+  const hairC = type === "elder" ? "hair3" : (Math.random() < .3 ? "hair2" : "hair");
+  const dress = type !== "elder" && Math.random() < .28;
+  const parts = {};
+  // 後手臂、腿
+  parts.armB = el("rect", { x: -2.5, y: 0, width: 5, height: 24, rx: 2.5, class: "f-" + shirt, opacity: .8 }, flip);
+  parts.legB = el("rect", { x: -3, y: 0, width: 6, height: 30, rx: 2, class: "f-" + pant }, flip);
+  parts.legF = el("rect", { x: -3, y: 0, width: 6, height: 30, rx: 2, class: "f-" + pant }, flip);
+  // 身體
+  if (dress) el("path", { d: "M-10,-62 H10 L15,-26 H-15 Z", class: "f-" + shirt }, flip);
+  else el("rect", { x: -11, y: -62, width: 22, height: 34, rx: 7, class: "f-" + shirt }, flip);
+  if (type === "kid" || (Math.random() < .15 && type === "adult")) el("rect", { x: -16, y: -58, width: 8, height: 22, rx: 3, class: "f-" + pick(["coral", "mustard", "teal", "blue"]) }, flip); // 書包
+  // 頭與頭髮
+  el("circle", { cx: 0, cy: -73, r: 9.5, class: "f-" + skin }, flip);
+  const hs = Math.random();
+  if (hs < .3) el("path", { d: "M-9.5,-74 a9.5,9.5 0 0 1 19,0 Z", class: "f-" + hairC }, flip);
+  else if (hs < .5) { el("path", { d: "M-9.5,-74 a9.5,9.5 0 0 1 19,0 Z", class: "f-" + hairC }, flip); el("rect", { x: -10.5, y: -76, width: 6, height: 18, rx: 3, class: "f-" + hairC }, flip); }  // 長髮
+  else if (hs < .65) { el("path", { d: "M-9.5,-74 a9.5,9.5 0 0 1 19,0 Z", class: "f-" + hairC }, flip); el("circle", { cx: -7, cy: -82, r: 5, class: "f-" + hairC }, flip); } // 包頭
+  else if (hs < .82) { el("path", { d: "M-10,-75 a10,10 0 0 1 20,0 Z", class: "f-" + pick(["coral", "c4", "c6", "mustard"]) }, flip); el("rect", { x: 6, y: -77, width: 9, height: 3, class: "f-" + pick(["coral", "c4", "c6"]) }, flip); } // 棒球帽
+  else el("path", { d: "M-9.5,-75 a9.5,9.5 0 0 1 19,0 Z", class: "f-" + hairC }, flip);
+  // 前手臂
+  parts.armF = el("g", {}, flip);
+  el("rect", { x: -2.5, y: 0, width: 5, height: 24, rx: 2.5, class: "f-" + shirt }, parts.armF);
+  // 配件
+  let prop = "none";
+  if (type === "elder") { prop = "cane"; el("rect", { x: -1, y: 22, width: 2.5, height: 30, class: "f-trunk" }, parts.armF); }
+  else if (type === "dog") prop = "dog";
+  else {
+    const pr = Math.random();
+    if (pr < .3 * (.3 + nightish)) { prop = "tea"; const c = el("g", { transform: "translate(0,24)" }, parts.armF); el("rect", { x: -4, y: -2, width: 8, height: 12, rx: 1.5, style: "fill:var(--tea)" }, c); el("rect", { x: 0, y: -8, width: 2, height: 7, class: "f-coral" }, c); }
+    else if (pr < .4 && type === "kid" && nightish > .2) prop = "balloon";
+    else if (pr < .55 && nightish > .2) { prop = "skewer"; el("rect", { x: -1, y: 18, width: 2, height: 18, class: "f-cream" }, parts.armF); el("rect", { x: -3, y: 26, width: 6, height: 12, rx: 3, class: "f-coral" }, parts.armF); }
+    else if (pr < .7) { prop = "phone"; parts.phone = el("rect", { x: -3, y: 20, width: 6, height: 9, rx: 1, style: "fill:#bfe8ff", class: "nightOnly", opacity: 0 }, parts.armF); }
+    else if (pr < .8) { prop = "bag"; el("rect", { x: -6, y: 22, width: 12, height: 12, rx: 2, style: "fill:#ffffff", opacity: .85 }, parts.armF); }
+  }
+  if (prop === "balloon") {
+    parts.bString = el("line", { "stroke-width": 1, class: "s-ink" }, g);
+    parts.balloon = el("circle", { r: 9, fill: pick(["#ef6f5a", "#f1b740", "#2fa39a", "#f19bb3", "#3d6fb6"]) }, g);
+  }
+  if (prop === "dog") {
+    parts.dog = el("g", {}, flip);
+    el("rect", { x: 22, y: -18, width: 26, height: 12, rx: 6, style: "fill:#d9a35e" }, parts.dog);
+    el("circle", { cx: 50, cy: -20, r: 7, style: "fill:#d9a35e" }, parts.dog);
+    el("polygon", { points: "47,-26 52,-32 54,-24", style: "fill:#b9813f" }, parts.dog);
+    parts.dogLegs = [0, 1, 2, 3].map(i => el("rect", { x: 24 + i * 6, y: -8, width: 3, height: 8, style: "fill:#b9813f" }, parts.dog));
+    el("line", { x1: 6, y1: -40, x2: 46, y2: -24, "stroke-width": 1, class: "s-ink" }, flip);
+  }
+  const W = {
+    g, flip, parts, lane: laneKey, s, dir, x, y, type, prop,
+    sp: (type === "elder" ? rand(14, 20) : type === "kid" ? rand(26, 36) : rand(22, 34)) * (lane.s / .8),
+    ph: Math.random() * 6, hop: 0, pause: 0, pauseCD: rand(3, 10)
+  };
+  walkers.push(W);
+  drawWalker(W);
+  return W;
+}
+function drawWalker(W) {
+  const sw = Math.sin(W.ph) * (W.type === "elder" ? 14 : 24);
+  const walking = W.pause <= 0;
+  const a = walking ? sw : 0;
+  const p = W.parts;
+  p.legF.setAttribute("transform", `translate(2,-30) rotate(${a.toFixed(1)})`);
+  p.legB.setAttribute("transform", `translate(-2,-30) rotate(${(-a).toFixed(1)})`);
+  const armA = W.prop === "phone" || W.prop === "tea" || W.prop === "skewer" ? -50 + a * .2 : W.prop === "cane" ? -18 + a * .3 : -a * .9;
+  p.armF.setAttribute("transform", `translate(3,-58) rotate(${armA.toFixed(1)})`);
+  p.armB.setAttribute("transform", `translate(-3,-58) rotate(${(a * .9).toFixed(1)})`);
+  if (p.dogLegs) p.dogLegs.forEach((l, i) => l.setAttribute("transform", `rotate(${(walking ? Math.sin(W.ph * 1.6 + i * 1.5) * 25 : 0).toFixed(0)} ${25 + i * 6} -8)`));
+  const bob = walking ? Math.abs(Math.cos(W.ph)) * 1.6 : 0;
+  const hopY = W.hop > 0 ? -Math.sin(W.hop * Math.PI) * 16 : 0;
+  W.flip.setAttribute("transform", `scale(${W.dir < 0 ? -1 : 1},1)`);
+  W.g.setAttribute("transform", `translate(${W.x.toFixed(1)},${(W.y - bob + hopY).toFixed(1)}) scale(${W.s.toFixed(3)})`);
+  if (p.balloon) {
+    const bx = W.x + (W.dir * 8 - wind * 8) * W.s, by = W.y - 150 * W.s + Math.sin(t * 2 + W.ph * .1) * 3 + hopY * W.s;
+    const hx = W.x + W.dir * 6 * W.s, hy = W.y - 38 * W.s + hopY * W.s;
+    p.balloon.setAttribute("cx", bx.toFixed(1)); p.balloon.setAttribute("cy", by.toFixed(1));
+    p.bString.setAttribute("x1", hx.toFixed(1)); p.bString.setAttribute("y1", hy.toFixed(1));
+    p.bString.setAttribute("x2", bx.toFixed(1)); p.bString.setAttribute("y2", (by + 9).toFixed(1));
+    // 氣球放在 g 內：用反向變換抵銷位移與縮放，讓座標回到全域
+    const inv = 1 / W.s;
+    p.balloon.setAttribute("transform", `scale(${inv.toFixed(3)}) translate(${(-W.x).toFixed(1)},${(-(W.y - bob + hopY)).toFixed(1)})`);
+    p.bString.setAttribute("transform", p.balloon.getAttribute("transform"));
+  }
+}
+// 每條路線的人數：一般時段→高峰；「爆滿」是週末夜市擠到走不動、人潮滿到馬路上
+const COUNTS = {
+  normal: { back: [3, 13], road: [0, 0],  front: [2, 7] },
+  packed: { back: [3, 35], road: [0, 19], front: [2, 16] }   // 使用者要求比 80 人再少 12%
+};
+function targetCount(lane) {
+  const [base, peak] = COUNTS[crowdMul > 1 ? "packed" : "normal"][lane];
+  return Math.round(base + (peak - base) * marketLevel);
+}
+// 背景人海：一排排頭與肩膀（圓＋圓角矩形），擠在攤位前面
+const seaHeads = [];
+(function buildCrowdSea() {
+  const g = $("crowdSea");
+  const skins = ["skin", "skin", "skin2"], hairs = ["hair", "hair", "hair2", "hair3"];
+  for (let row = 0; row < 3; row++) {
+    const y = 474 + row * 9, sc = .62 + row * .05;
+    for (let x = -10 + row * 9; x < 1610; x += rand(17, 25)) {
+      // 天公爐和撈金魚盆前留出空間
+      if (x > 760 && x < 842) continue;
+      if (row === 2 && x > 924 && x < 1076) continue;
+      const p = el("g", {}, g);
+      // 身高不一：矮個、一般、高個混在一起
+      const r = Math.random();
+      const k = r < .2 ? rand(.78, .88) : r < .8 ? rand(.9, 1.06) : rand(1.1, 1.22);
+      el("rect", { x: -11 * sc, y: -34 * sc, width: 22 * sc, height: 30 * sc, rx: 8 * sc, class: "f-" + pick(SHIRTS) }, p);
+      el("circle", { cx: 0, cy: -44 * sc, r: 9.5 * sc, class: "f-" + pick(skins) }, p);
+      el("path", { d: `M${-9.5 * sc},${-45 * sc} a${9.5 * sc},${9.5 * sc} 0 0 1 ${19 * sc},0 Z`, class: "f-" + pick(hairs) }, p);
+      if (Math.random() < .12) el("rect", { x: 8 * sc, y: -56 * sc, width: 6 * sc, height: 10 * sc, rx: 1, style: "fill:#bfe8ff", class: "nightOnly" }, p); // 舉手機
+      if (k > 1 && Math.random() < .15) {  // 爸媽肩上坐著小孩
+        el("rect", { x: -7 * sc, y: -68 * sc, width: 14 * sc, height: 16 * sc, rx: 6 * sc, class: "f-" + pick(SHIRTS) }, p);
+        el("circle", { cx: 0, cy: -75 * sc, r: 7 * sc, class: "f-skin" }, p);
+        el("path", { d: `M${-7 * sc},${-76 * sc} a${7 * sc},${7 * sc} 0 0 1 ${14 * sc},0 Z`, class: "f-hair" }, p);
+      }
+      seaHeads.push({ g: p, x, y, k, ph: Math.random() * 6 });
+    }
+  }
+  seaHeads.forEach(h => h.g.setAttribute("transform", `translate(${h.x.toFixed(1)},${h.y}) scale(${h.k.toFixed(2)})`));
+})();
+const packedNow = () => crowdMul > 1 && marketLevel > .5;
+function spawnWalkers() {
+  for (const k of LANE_KEYS) {
+    const n = targetCount(k);
+    for (let i = 0; i < n; i++) {
+      const dir = Math.random() < .5 ? 1 : -1;
+      makeWalker(k, rand(40, 1560), dir);
+    }
+  }
+}
+
+/* =========================================================
+   【角色】車輛：機車、外送機車、垃圾車
+   ========================================================= */
+const vehicles = [];
+function makeScooter(dir) {
+  const g = el("g", { class: "vehicle" }, $("vehicles"));
+  const inner = el("g", {}, g);
+  const body = pick(["c1", "c4", "c5", "c2", "c3"]);
+  const beam = el("polygon", { points: "30,-22 150,-40 150,6", fill: "url(#headGlow)", class: "nightOnly", opacity: 0 }, inner);
+  el("circle", { cx: -22, cy: -10, r: 10, class: "f-wheel" }, inner);
+  el("circle", { cx: 24, cy: -10, r: 10, class: "f-wheel" }, inner);
+  el("circle", { cx: -22, cy: -10, r: 4, class: "f-shutter" }, inner);
+  el("circle", { cx: 24, cy: -10, r: 4, class: "f-shutter" }, inner);
+  el("path", { d: "M-34,-12 Q-34,-30 -14,-30 H6 L14,-14 H30 L22,-46 H30 L36,-14 Q38,-8 30,-8 H-30 Z", class: "f-" + body }, inner);
+  el("rect", { x: -26, y: -36, width: 26, height: 7, rx: 3.5, class: "f-ink" }, inner);   // 座墊
+  el("circle", { cx: 30, cy: -40, r: 4, style: "fill:var(--bulb)" }, inner);               // 大燈
+  const delivery = Math.random() < .3;
+  if (delivery) el("rect", { x: -40, y: -64, width: 26, height: 26, rx: 3, class: "f-" + pick(["teal", "coral", "mustard"]) }, inner);
+  // 騎士
+  el("rect", { x: -8, y: -50, width: 7, height: 20, rx: 3, class: "f-c6", transform: "rotate(-20 -4 -32)" }, inner);
+  el("rect", { x: -16, y: -78, width: 20, height: 30, rx: 7, class: "f-" + pick(SHIRTS) }, inner);
+  el("rect", { x: -2, y: -72, width: 5, height: 26, rx: 2.5, class: "f-c5", transform: "rotate(-60 0 -72)" }, inner);
+  el("circle", { cx: -6, cy: -88, r: 10, class: "f-" + pick(["c1", "c3", "c5", "c4", "teal"]) }, inner); // 安全帽
+  el("rect", { x: -2, y: -92, width: 9, height: 7, rx: 2, style: "fill:#1c2238", opacity: .8 }, inner);  // 面罩
+  if (Math.random() < .25) { // 後座乘客
+    el("rect", { x: -32, y: -74, width: 18, height: 28, rx: 7, class: "f-" + pick(SHIRTS) }, inner);
+    el("circle", { cx: -24, cy: -84, r: 9, class: "f-" + pick(["c7", "c2", "c3"]) }, inner);
+  }
+  const lane = dir > 0 ? 574 : 562;
+  const V = { g, inner, type: "scooter", dir, x: dir > 0 ? -80 : 1680, y: lane, sp: rand(90, 140), s: dir > 0 ? .78 : .72, honk: 0 };
+  vehicles.push(V);
+  drawVehicle(V);
+  return V;
+}
+let truck = null;
+function makeTruck() {
+  const g = el("g", { class: "vehicle", id: "truck" }, $("vehicles"));
+  const inner = el("g", {}, g);
+  el("polygon", { points: "92,-30 230,-50 230,6", fill: "url(#headGlow)", class: "nightOnly", opacity: 0 }, inner);
+  el("rect", { x: -100, y: -86, width: 140, height: 72, rx: 6, class: "f-truck" }, inner);         // 車斗
+  el("rect", { x: -100, y: -40, width: 140, height: 10, class: "f-c4" }, inner);                   // 色帶
+  el("rect", { x: 44, y: -70, width: 50, height: 56, rx: 8, class: "f-truck" }, inner);           // 車頭
+  el("rect", { x: 56, y: -64, width: 30, height: 20, rx: 4, style: "fill:#bfe0ea" }, inner);       // 車窗
+  el("circle", { cx: 90, cy: -26, r: 4, style: "fill:var(--bulb)" }, inner);
+  el("rect", { x: -98, y: -96, width: 34, height: 10, rx: 3, class: "f-c4" }, inner);              // 喇叭
+  el("circle", { cx: -64, cy: -12, r: 13, class: "f-wheel" }, inner);
+  el("circle", { cx: 12, cy: -12, r: 13, class: "f-wheel" }, inner);
+  el("circle", { cx: 70, cy: -12, r: 13, class: "f-wheel" }, inner);
+  [-64, 12, 70].forEach(x => el("circle", { cx: x, cy: -12, r: 5, class: "f-shutter" }, inner));
+  // 車身上的符號：三個箭頭三角形繞圈（回收意象）
+  [0, 1, 2].forEach(i => el("polygon", { points: "0,-10 8,4 -8,4", transform: `translate(-30,-62) rotate(${i * 120}) translate(0,-8)`, class: "f-c4" }, inner));
+  const V = { g, inner, type: "truck", dir: 1, x: -160, y: 576, sp: 46, s: .82, stop: 0, stopped: false, noteT: 0 };
+  vehicles.push(V); truck = V;
+  drawVehicle(V);
+  return V;
+}
+function drawVehicle(V) {
+  const bump = V.type === "scooter" ? Math.sin(t * 18 + V.x * .05) * .6 : Math.sin(t * 10) * .4;
+  V.inner.setAttribute("transform", `scale(${V.dir})`);
+  V.g.setAttribute("transform", `translate(${V.x.toFixed(1)},${(V.y + bump).toFixed(1)}) scale(${V.s})`);
+}
+let vehCD = 2;
+
+/* =========================================================
+   【動畫】煙霧與蒸氣粒子、特效
+   ========================================================= */
+const puffs = [];
+function puff(x, y, kind, big) {
+  if (puffs.length > 140) return;
+  const e = el("circle", { cx: 0, cy: 0, r: 1, class: "f-smoke", opacity: 0 }, $("smoke"));
+  puffs.push({ e, x, y, vx: rand(-4, 4), vy: kind === "smoke" ? rand(-26, -18) : rand(-34, -24), r: big ? rand(5, 8) : rand(3, 5), life: 0, max: kind === "smoke" ? rand(2.6, 3.6) : rand(1.6, 2.4), kind });
+}
+function burst(x, y, color) {
+  // 氣球爆開：八條放射短線＋圓環
+  const g = el("g", { transform: `translate(${x},${y})` }, $("fx"));
+  for (let i = 0; i < 8; i++) {
+    const a = i / 8 * Math.PI * 2;
+    el("rect", { x: 8, y: -1.5, width: 8, height: 3, rx: 1.5, fill: color, transform: `rotate(${(a * 180 / Math.PI).toFixed(0)})` }, g);
+  }
+  const ring = el("circle", { r: 6, fill: "none", stroke: color, "stroke-width": 2 }, g);
+  fxs.push({ g, ring, life: 0, max: .45, kind: "burst" });
+}
+function ripple(x, y) {
+  const c = el("ellipse", { cx: x, cy: y, rx: 2, ry: 1, fill: "none", stroke: "#ffffff", "stroke-width": 1.5 }, $("fx"));
+  fxs.push({ e: c, life: 0, max: 1.1, kind: "ripple" });
+}
+const fxs = [];
+function firework(x, y) {
+  const g = el("g", { transform: `translate(${x},${y})` }, $("sky-fx"));
+  const col = pick(["var(--fw1)", "var(--fw2)", "var(--fw3)", "var(--fw4)", "var(--fw5)"]);
+  const col2 = pick(["var(--fw1)", "var(--fw2)", "var(--fw3)", "var(--fw4)"]);
+  const rays = [];
+  const n = 14 + Math.floor(Math.random() * 6);
+  for (let i = 0; i < n; i++) {
+    const a = i / n * 360;
+    rays.push(el("rect", { x: 0, y: -1.5, width: 10, height: 3, rx: 1.5, style: `fill:${col}`, transform: `rotate(${a})` }, g));
+  }
+  const dots = [];
+  for (let i = 0; i < n; i++) dots.push(el("circle", { r: 2.4, style: `fill:${col2}` }, g));
+  const ring = el("circle", { r: 4, fill: "none", "stroke-width": 2, style: `stroke:${col}` }, g);
+  fxs.push({ g, rays, dots, ring, n, life: 0, max: 1.8, kind: "firework" });
+}
+const birds = [];
+function flock(x, y) {
+  for (let i = 0; i < 5; i++) {
+    const e = el("path", { d: "", fill: "none", "stroke-width": 2.4, "stroke-linecap": "round", "stroke-linejoin": "round", class: "s-ink" }, $("sky-fx"));
+    birds.push({ e, x: x - i * 22, y: y + (i % 2) * 12 + i * 3, ph: i, life: 9 });
+  }
+}
+function bubble(x, y, text) {
+  const g = el("g", { class: "bubble" }, $("bubbles"));
+  const w = Math.max(48, text.length * 16 + 20);
+  const bx = clamp(x - w / 2, 6, 1594 - w);
+  el("rect", { x: bx, y: y - 36, width: w, height: 30, rx: 15, fill: "#fffaf0" }, g);
+  el("polygon", { points: `${x - 6},${y - 7} ${x + 6},${y - 7} ${x},${y + 2}`, fill: "#fffaf0" }, g);
+  const tx = el("text", { x: bx + w / 2, y: y - 15, "text-anchor": "middle" }, g); tx.textContent = text;
+  setTimeout(() => g.remove(), 1900);
+}
+function note(x, y) {
+  const e = el("text", { x: 0, y: 0, class: "sans", "font-size": 18, style: `fill:${pick(["var(--fw1)", "var(--fw2)", "var(--fw3)", "#ffffff"])}` }, $("notes"));
+  e.textContent = pick(["♪", "♫", "♩"]);
+  fxs.push({ e, x, y, life: 0, max: 2.4, kind: "note", vx: rand(-10, 10) });
+}
+
+/* =========================================================
+   【互動】垃圾車音樂（Web Audio，只在點擊時播放）
+   旋律取自公有領域古典名曲的開頭。
+   ========================================================= */
+let actx = null;
+function playMelody() {
+  try {
+    actx = actx || new (window.AudioContext || window.webkitAudioContext)();
+    const seq = [[659, .2], [622, .2], [659, .2], [622, .2], [659, .2], [494, .2], [587, .2], [523, .2], [440, .45], [0, .15], [262, .2], [330, .2], [440, .2], [494, .45]];
+    let tt = actx.currentTime + .05;
+    seq.forEach(([f, d]) => {
+      if (f) {
+        const o = actx.createOscillator(), g = actx.createGain();
+        o.type = "triangle"; o.frequency.value = f;
+        g.gain.setValueAtTime(0, tt); g.gain.linearRampToValueAtTime(.0512, tt + .02) /* 音樂音量 ×0.64（2026-11-24 兩次各調降 20%） */; g.gain.exponentialRampToValueAtTime(.001, tt + d * .95);
+        o.connect(g).connect(actx.destination); o.start(tt); o.stop(tt + d);
+      }
+      tt += d;
+    });
+  } catch (e) { /* 不支援音訊就略過 */ }
+}
+
+/* =========================================================
+   【動畫】主迴圈：時間、日夜、營業狀態、風
+   phase：0 = 正午、0.25 = 18 點、0.5 = 深夜、0.75 = 清晨
+   ========================================================= */
+const CYCLE = 90;            // 一整天的秒數
+let phase = 0.29;            // 初始：傍晚 19 點左右，夜市剛熱鬧
+let auto = true, tween = null;
+let wind = 0, windTarget = 0, pointerIn = false;
+let marketLevel = 0;         // 全體攤位平均營業程度 0~1
+let party = false;
+const nightOf = p => .5 - .5 * Math.cos(p * Math.PI * 2);
+const hourOf = p => (12 + p * 24) % 24;
+function openness(h, o, c) {
+  const H = h < 6 ? h + 24 : h;
+  return smooth((H - o) / .6) * (1 - smooth((H - c) / .6));
+}
+function clockLabel(p) {
+  const h = hourOf(p), hh = Math.floor(h), mm = Math.floor((h - hh) * 6) * 10;
+  const name = hh < 5 ? "深夜" : hh < 8 ? "清晨" : hh < 11 ? "上午" : hh < 13 ? "中午" : hh < 16 ? "午後" : hh < 18 ? "傍晚" : hh < 23 ? "夜晚" : "深夜";
+  const st = marketLevel > .7 ? "夜市營業中" : marketLevel > .15 ? (hh >= 12 && hh < 20 ? "陸續開張" : "陸續收攤") : "攤位休息中";
+  return `${name}　${String(hh).padStart(2, "0")}:${String(mm).padStart(2, "0")}　｜　${st}${crowdMul > 1 ? "　｜　週末人潮" : ""}`;
+}
+let last = performance.now(), mixTimer = 0, t = 0, lastHour = hourOf(phase);
+let catWag = 0, catAwake = 0, shakeT = 0, flareT = 0, sizzleT = 0;
+
+function frame(now) {
+  const dt = Math.min(.05, (now - last) / 1000); last = now; t += dt;
+
+  // 時間推進
+  if (tween) {
+    tween.t = Math.min(1, tween.t + dt / 1.8);
+    const e = tween.t < .5 ? 2 * tween.t * tween.t : 1 - Math.pow(-2 * tween.t + 2, 2) / 2;
+    phase = (tween.from + (tween.to - tween.from) * e) % 1;
+    if (tween.t >= 1) tween = null;
+  } else if (auto && !reduced) phase = (phase + dt / CYCLE) % 1;
+  const night = nightOf(phase);
+  const hour = hourOf(phase);
+
+  // 營業狀態：每個攤位依自己的時間開關鐵捲門
+  let sum = 0;
+  STALLS.forEach(S => {
+    const o = openness(hour, S.open, S.close);
+    S.openness = o; sum += o;
+  });
+  const C = stallMap.cart; C.openness = openness(hour, C.open, C.close);
+  marketLevel = sum / STALLS.length;
+
+  mixTimer -= dt;
+  if (mixTimer <= 0 || tween) {
+    applyNight(night);
+    mixTimer = .12;
+    $("clock").textContent = clockLabel(phase);
+    STALLS.forEach(S => {
+      const o = S.openness;
+      S.shutter.setAttribute("transform", `translate(${S.x},${(-o * 112).toFixed(1)})`);
+      S.litRect.setAttribute("opacity", (o * (.12 + .3 * night)).toFixed(3));
+      S.pool.setAttribute("opacity", (o * night).toFixed(3));
+      S.signGlow.setAttribute("opacity", (o * night * .9).toFixed(3));
+    });
+    const oy = stallMap.oyster.openness, fo = stallMap.fish.openness;
+    stallMap.oyster.eat.setAttribute("opacity", smooth(oy * 1.4 - .3).toFixed(2));
+    stallMap.fish.tub.setAttribute("opacity", smooth(fo * 1.4 - .2).toFixed(2));
+    stallMap.balloon.player.setAttribute("opacity", smooth(stallMap.balloon.openness * 1.4 - .3).toFixed(2));
+    // 推車：開張時從右邊推進來，收攤時推走
+    C.g.setAttribute("transform", `translate(${(1515 + (1 - smooth(C.openness)) * 200).toFixed(1)},0)`);
+    $("crowdSea").setAttribute("opacity", (crowdMul > 1 ? smooth(marketLevel * 1.5 - .3) : 0).toFixed(2));
+    document.querySelectorAll(".lanternGlow").forEach(e => e.setAttribute("opacity", (night * .55).toFixed(2)));
+    document.querySelectorAll(".archBulb").forEach((e, i) => e.setAttribute("opacity", (.25 + .75 * marketLevel * (party ? (Math.sin(t * 6 + i) > 0 ? 1 : .3) : 1)).toFixed(2)));
+  }
+
+  // 太陽、月亮：沿大圓弧移動
+  const a = phase * Math.PI * 2;
+  $("sun").setAttribute("transform", `translate(${(800 + 660 * Math.sin(a)).toFixed(1)},${(400 - 330 * Math.cos(a)).toFixed(1)})`);
+  $("moon").setAttribute("transform", `translate(${(800 - 660 * Math.sin(a)).toFixed(1)},${(400 + 330 * Math.cos(a)).toFixed(1)})`);
+
+  // 風：滑鼠控制，沒有滑鼠時緩慢自然變化
+  if (!pointerIn) windTarget = Math.sin(t * .13) * .8 + Math.sin(t * .37) * .3;
+  wind += (windTarget - wind) * Math.min(1, dt * 1.5);
+  const motion = reduced ? 0 : 1;
+
+  // 雲
+  clouds.forEach(c => {
+    c.x += (c.sp + wind * 14) * dt * motion;
+    if (c.x > 1800) c.x = -220; if (c.x < -260) c.x = 1760;
+    c.g.setAttribute("transform", `translate(${c.x.toFixed(1)},${c.y})`);
+  });
+
+  // 燈籠擺動
+  lanterns.forEach(L => {
+    const r = reduced ? 0 : Math.sin(t * 1.6 + L.ph) * (3 + Math.abs(wind) * 4) + wind * 6;
+    L.g.setAttribute("transform", `translate(${L.x},262) rotate(${r.toFixed(1)})`);
+  });
+
+  // 燈泡串：隨風改變下垂弧度，夜晚閃爍
+  const bulbOn = Math.max(marketLevel, 0);
+  bulbStrings.forEach(B => {
+    const sway = reduced ? 0 : wind * 8 + Math.sin(t * 1.3 + B.x0) * 2;
+    const mx = (B.x0 + B.x1) / 2 + sway, my = B.y + B.sag + Math.abs(wind) * 3;
+    B.line.setAttribute("d", `M${B.x0},${B.y} Q${mx.toFixed(1)},${(my * 2 - B.y).toFixed(1)} ${B.x1},${B.y}`);
+    B.bs.forEach((b, i) => {
+      const k = b.k, u = 1 - k;
+      const x = u * u * B.x0 + 2 * u * k * mx + k * k * B.x1;
+      const y = u * u * B.y + 2 * u * k * (my * 2 - B.y) + k * k * B.y + 6;
+      b.off.setAttribute("cx", x.toFixed(1)); b.off.setAttribute("cy", y.toFixed(1));
+      b.on.setAttribute("cx", x.toFixed(1)); b.on.setAttribute("cy", y.toFixed(1));
+      b.glow.setAttribute("cx", x.toFixed(1)); b.glow.setAttribute("cy", y.toFixed(1));
+      let lv = bulbOn;
+      if (!reduced) {
+        if (party) {
+          const c = Math.floor(t * 4 + i) % 3;
+          b.on.style.fill = ["var(--bulb)", "var(--neon-a)", "var(--neon-b)"][c];
+          lv *= (Math.sin(t * 8 + i * 1.1) > -.2 ? 1 : .2);
+        } else {
+          b.on.style.fill = "var(--bulb)";
+          if (Math.sin(t * 13 + b.f * 7) > .985) lv *= .3;   // 偶爾接觸不良閃一下
+        }
+      }
+      b.on.setAttribute("opacity", lv.toFixed(2));
+      b.glow.setAttribute("opacity", (lv * night).toFixed(2));
+    });
+  });
+
+  // 攤販動作
+  vendors.forEach(V => {
+    V.boost = Math.max(0, V.boost - dt);
+    const sp = V.sp * (V.boost > 0 ? 3 : 1);
+    const r = reduced ? V.base : V.base + Math.sin(t * sp + V.ph) * V.amp * (V.boost > 0 ? 1.6 : 1);
+    V.arm.setAttribute("transform", `translate(${V.ax},${V.ay}) rotate(${r.toFixed(1)})`);
+  });
+
+  // 香腸攤：炭火明暗、香腸翻面變色、點擊後冒火
+  const SS = stallMap.sausage;
+  SS.coals.setAttribute("opacity", ((.3 + .5 * night) * SS.openness * (reduced ? 1 : (.8 + .2 * Math.sin(t * 9)))).toFixed(2));
+  if (!reduced) SS.sausages.forEach((s, i) => { if (Math.sin(t * .8 + i * 2.1) > .995) s.setAttribute("class", s.getAttribute("class") === "f-coral" ? "f-c1" : "f-coral"); });
+  flareT = Math.max(0, flareT - dt);
+  SS.flames.setAttribute("opacity", flareT > 0 ? (Math.min(1, flareT * 2) * (reduced ? 1 : .7 + .3 * Math.sin(t * 30))).toFixed(2) : 0);
+  SS.flames.setAttribute("transform", `translate(0,${(reduced ? 0 : Math.sin(t * 22) * 1.5).toFixed(1)})`);
+
+  // 奶茶攤：搖杯
+  const TS = stallMap.tea;
+  shakeT = Math.max(0, shakeT - dt);
+  const sh = shakeT > 0 && !reduced ? Math.sin(t * 40) * 10 : 0;
+  TS.shaker.setAttribute("transform", `translate(${70 + sh * .4},${392 - Math.abs(sh) * .6}) rotate(${sh})`);
+
+  // 雞排攤：油鍋泡泡
+  sizzleT = Math.max(0, sizzleT - dt);
+  const CK = stallMap.chicken;
+  if (!reduced && CK.openness > .5 && Math.random() < (sizzleT > 0 ? .9 : .15)) {
+    const b = el("circle", { cx: CK.x + rand(28, 66), cy: 386, r: rand(1.5, 3), style: "fill:#ffe9a8" }, $("fx"));
+    fxs.push({ e: b, life: 0, max: .5, kind: "oil" });
+  }
+
+  // 蚵仔煎：鐵板上的煎餅輕輕跳動
+  stallMap.oyster.omelets.forEach((o, i) => o.setAttribute("ry", (4 + (reduced ? 0 : Math.max(0, Math.sin(t * 3 + i)) * .8)).toFixed(2)));
+
+  // 棉花糖慢慢變大
+  C.grow += (C.target - C.grow) * Math.min(1, dt * 2);
+  C.candy.setAttribute("r", C.grow.toFixed(1));
+  if (C.target > 6 && C.grow > C.target - .2) C.target = C.target > 20 ? 6 : C.target;
+
+  // 煙霧與蒸氣：依營業程度與風
+  if (!reduced) {
+    emitters.forEach(E => {
+      const lv = E.stall.openness;
+      if (lv > .2 && Math.random() < E.rate * lv * dt * (E.kind === "smoke" && flareT > 0 ? 5 : 1)) puff(E.x + rand(-E.spread / 2, E.spread / 2), E.y, E.kind, flareT > 0 && E.kind === "smoke");
+    });
+    // 廟埕天公爐的香煙（白天也有）
+    if (Math.random() < 2.2 * dt) puff(800 + rand(-12, 12), 456, "smoke", false);
+  }
+  for (let i = puffs.length - 1; i >= 0; i--) {
+    const P = puffs[i];
+    P.life += dt;
+    const k = P.life / P.max;
+    P.x += (P.vx + wind * 22) * dt; P.y += P.vy * dt; P.vy *= (1 - dt * .3);
+    const r = P.r * (1 + k * 2.4);
+    P.e.setAttribute("cx", P.x.toFixed(1)); P.e.setAttribute("cy", P.y.toFixed(1)); P.e.setAttribute("r", r.toFixed(1));
+    P.e.setAttribute("opacity", ((k < .15 ? k / .15 : 1 - (k - .15) / .85) * (P.kind === "smoke" ? .55 : .7)).toFixed(2));
+    if (k >= 1) { P.e.remove(); puffs.splice(i, 1); }
+  }
+
+  // 金魚游動
+  fish.forEach(F => {
+    F.panic = Math.max(0, F.panic - dt);
+    const sp = F.sp * (F.panic > 0 ? 4 : 1) * motion;
+    F.a += (Math.random() - .5) * dt * 3;
+    F.x += Math.cos(F.a) * sp * dt; F.y += Math.sin(F.a) * sp * .35 * dt;
+    if (F.x < 942 || F.x > 1058) { F.a = Math.PI - F.a; F.x = clamp(F.x, 942, 1058); }
+    if (F.y < 486 || F.y > 500) { F.a = -F.a; F.y = clamp(F.y, 486, 500); }
+    F.e.setAttribute("transform", `translate(${F.x.toFixed(1)},${F.y.toFixed(1)}) scale(${Math.cos(F.a) < 0 ? -1 : 1},1)`);
+  });
+
+  // 射氣球：破掉的氣球過一陣子補回來
+  balloons.forEach(B => { if (!B.alive) { B.t -= dt; if (B.t <= 0) { B.alive = true; B.e.setAttribute("opacity", 1); } } });
+  if (!reduced) balloons.forEach((B, i) => B.e.setAttribute("transform", `translate(0,${(Math.sin(t * 2 + i * .7) * 1.2).toFixed(1)})`));
+
+  // 背景人海輕輕晃動
+  if (!reduced && crowdMul > 1 && marketLevel > .2) seaHeads.forEach(h => {
+    h.ph += dt * 3;
+    h.g.setAttribute("transform", `translate(${(h.x + Math.sin(h.ph * .3) * 2).toFixed(1)},${(h.y - Math.abs(Math.sin(h.ph)) * 1.2).toFixed(1)}) scale(${h.k.toFixed(2)})`);
+  });
+
+  // 行人
+  const walkMul = reduced ? 0 : 1;
+  for (let i = walkers.length - 1; i >= 0; i--) {
+    const W = walkers[i];
+    if (W.hop > 0) W.hop = Math.max(0, W.hop - dt * 2.2);
+    // 偶爾停下來看攤位
+    W.pauseCD -= dt;
+    const packed = packedNow();
+    if (W.pauseCD <= 0 && W.pause <= 0 && marketLevel > .4 && Math.random() < (packed ? .6 : .4)) { W.pause = rand(1.2, 3.2); }
+    if (W.pauseCD <= 0) W.pauseCD = packed ? rand(3, 7) : rand(5, 14);
+    if (W.pause > 0) W.pause -= dt;
+    else {
+      // 爆滿時人擠人，只能慢慢挪動
+      const crawl = packed ? .4 : 1;
+      W.x += W.dir * W.sp * crawl * dt * walkMul; W.ph += dt * W.sp * crawl * .2 * walkMul;
+    }
+    drawWalker(W);
+    if (W.x < -60 || W.x > 1660) {
+      W.g.remove(); walkers.splice(i, 1);
+    }
+  }
+  if (!reduced) for (const k of LANE_KEYS) {
+    const n = walkers.filter(w => w.lane === k).length;
+    if (n < targetCount(k) && Math.random() < dt * (crowdMul > 1 ? 4 : 1.2)) {
+      const dir = Math.random() < .5 ? 1 : -1;
+      makeWalker(k, dir > 0 ? -40 : 1640, dir);
+    }
+  }
+
+  // 車輛：機車隨機出現；20:00 垃圾車準時來
+  if (!reduced) {
+    vehCD -= dt;
+    if (vehCD <= 0 && packedNow()) vehCD = 2;   // 人潮滿到馬路上，機車進不來
+    if (vehCD <= 0) { makeScooter(Math.random() < .5 ? 1 : -1); vehCD = rand(2.5, 6) / (marketLevel > .5 ? .8 : 1); }
+    if (lastHour < 20 && hour >= 20 && !truck && !packedNow()) makeTruck();
+  }
+  lastHour = hour;
+  for (let i = vehicles.length - 1; i >= 0; i--) {
+    const V = vehicles[i];
+    if (V.type === "truck") {
+      // 垃圾車在畫面中央停一下，音符飄出
+      if (!V.stopped && V.x > 760) { V.stopped = true; V.stop = 5; }
+      if (V.stop > 0) V.stop -= dt; else V.x += V.sp * dt * walkMul;
+      V.noteT -= dt;
+      if (V.noteT <= 0 && !reduced) { note(V.x - 70, V.y - 90); V.noteT = .45; }
+    } else {
+      V.x += V.dir * V.sp * dt * walkMul;
+      if (V.honk > 0) V.honk -= dt;
+    }
+    drawVehicle(V);
+    if (V.x < -200 || V.x > 1800) { V.g.remove(); vehicles.splice(i, 1); if (V === truck) truck = null; }
+  }
+
+  // 特效更新
+  for (let i = fxs.length - 1; i >= 0; i--) {
+    const F = fxs[i];
+    F.life += dt;
+    const k = Math.min(1, F.life / F.max);
+    if (F.kind === "burst") { F.g.setAttribute("opacity", (1 - k).toFixed(2)); F.ring.setAttribute("r", (6 + k * 14).toFixed(1)); F.g.setAttribute("transform", F.g.getAttribute("transform").split(" scale")[0] + ` scale(${(1 + k * .8).toFixed(2)})`); }
+    else if (F.kind === "ripple") { F.e.setAttribute("rx", (2 + k * 34).toFixed(1)); F.e.setAttribute("ry", (1 + k * 7).toFixed(1)); F.e.setAttribute("opacity", (1 - k).toFixed(2)); }
+    else if (F.kind === "oil") { F.e.setAttribute("opacity", (1 - k).toFixed(2)); F.e.setAttribute("cy", (386 - k * 6).toFixed(1)); }
+    else if (F.kind === "note") { F.x += (F.vx + wind * 10) * dt; F.y -= 28 * dt; F.e.setAttribute("transform", `translate(${F.x.toFixed(1)},${F.y.toFixed(1)})`); F.e.setAttribute("opacity", (1 - k).toFixed(2)); }
+    else if (F.kind === "firework") {
+      const ek = 1 - Math.pow(1 - k, 3);
+      const R0 = 10 + ek * 70;
+      F.rays.forEach((r, j) => { const a = j / F.n * 360; r.setAttribute("transform", `rotate(${a}) translate(${(R0 * .55).toFixed(1)},0)`); r.setAttribute("width", (6 + 16 * (1 - k)).toFixed(1)); });
+      F.dots.forEach((d, j) => { const a = (j + .5) / F.n * Math.PI * 2; d.setAttribute("cx", (Math.cos(a) * R0).toFixed(1)); d.setAttribute("cy", (Math.sin(a) * R0 + k * k * 26).toFixed(1)); });
+      F.ring.setAttribute("r", (R0 * .35).toFixed(1));
+      F.g.setAttribute("opacity", (k < .7 ? 1 : 1 - (k - .7) / .3).toFixed(2));
+      F.ring.setAttribute("opacity", (1 - k).toFixed(2));
+    }
+    if (k >= 1) { (F.g || F.e).remove(); fxs.splice(i, 1); }
+  }
+
+  // 鳥群
+  for (let i = birds.length - 1; i >= 0; i--) {
+    const b = birds[i];
+    b.life -= dt; b.x += (70 + wind * 20) * dt; b.ph += dt * 9;
+    const flap = Math.sin(b.ph);
+    b.e.setAttribute("d", `M-8,${(flap * 4).toFixed(1)} L0,0 L8,${(flap * 4).toFixed(1)}`);
+    b.e.setAttribute("transform", `translate(${b.x.toFixed(1)},${(b.y + Math.sin(b.ph * .2) * 4).toFixed(1)})`);
+    if (b.life <= 0 || b.x > 1700) { b.e.remove(); birds.splice(i, 1); }
+  }
+
+  // 貓：白天睡、晚上醒；點了會搖尾巴
+  catWag = Math.max(0, catWag - dt);
+  catAwake = Math.max(0, catAwake - dt);
+  const tailA = reduced ? 0 : Math.sin(t * (catWag > 0 ? 10 : 1.5)) * (catWag > 0 ? 8 : 3);
+  catTail.setAttribute("d", `M-15,-10 q${(-14 + tailA).toFixed(1)},-2 ${(-12 + tailA * 1.5).toFixed(1)},-16`);
+  const awake = night > .5 || catAwake > 0;
+  catEye.setAttribute("height", awake ? 4 : 1.6);
+  catEye.setAttribute("y", awake ? -27 : -26);
+
+  requestAnimationFrame(frame);
+}
+
+/* =========================================================
+   【互動】
+   ========================================================= */
+function svgPoint(evt) {
+  const p = svg.createSVGPoint(); p.x = evt.clientX; p.y = evt.clientY;
+  return p.matrixTransform(svg.getScreenCTM().inverse());
+}
+// 風向：滑鼠在畫面左右位置
+svg.addEventListener("pointermove", e => { pointerIn = true; windTarget = (svgPoint(e).x / 1600 - .5) * 2.4; });
+svg.addEventListener("pointerleave", () => { pointerIn = false; });
+
+// 射氣球：點氣球 → 爆開、客人出手
+$("balloonWall").addEventListener("click", e => {
+  const b = e.target.closest(".bl");
+  e.stopPropagation();
+  const S = stallMap.balloon;
+  if (S.openness < .5) { bubble(S.x + S.w / 2, 350, "還沒開喔"); return; }
+  let B = b ? balloons.find(x => x.e === b) : null;
+  if (!B || !B.alive) B = balloons.find(x => x.alive);
+  if (!B) { bubble(S.x + S.w / 2, 350, "全破了！"); return; }
+  B.alive = false; B.t = rand(4, 7); B.e.setAttribute("opacity", 0);
+  burst(B.cx, B.cy, B.e.getAttribute("fill"));
+  S.playerArm.setAttribute("transform", "translate(10,-60) rotate(-100)");
+  setTimeout(() => S.playerArm.setAttribute("transform", "translate(10,-60) rotate(-150)"), 220);
+  const left = balloons.filter(x => x.alive).length;
+  if (left % 6 === 0) bubble(S.x + S.w / 2, 350, left === 0 ? "全中！送熊熊" : "好準！");
+});
+
+// 撈金魚：漣漪＋魚四散
+$("tub").addEventListener("click", e => {
+  e.stopPropagation();
+  const p = svgPoint(e);
+  ripple(clamp(p.x, 950, 1050), 493);
+  if (!reduced) setTimeout(() => ripple(clamp(p.x, 950, 1050), 493), 200);
+  fish.forEach(F => { F.panic = 1.4; F.a = Math.atan2(F.y - 493, F.x - p.x) + rand(-.5, .5); });
+  if (Math.random() < .3) bubble(1000, 456, pick(["撈到了！", "紙網破了…", "再一次！"]));
+});
+
+// 點攤位：各攤不同反應
+$("stalls").addEventListener("click", e => {
+  const g = e.target.closest(".stallHit"); if (!g) return;
+  const S = stallMap[g.dataset.id];
+  const bx = S.x + S.w / 2;
+  if (S.openness < .5) { bubble(bx, 350, pick(["下午五點開", "還在備料", "收攤囉"])); return; }
+  vendors.forEach(V => { if (S.g.contains(V.g)) V.boost = 1.6; });
+  switch (S.id) {
+    case "sausage": flareT = 1.2; bubble(bx, 350, pick(["香腸烤好了！", "蒜頭自己拿", "要辣嗎？"])); break;
+    case "tea": {
+      shakeT = 1.1;
+      const cups = S.cups.childNodes;
+      if (cups.length >= 6) cups[0].remove();
+      [...S.cups.childNodes].forEach((c, i) => c.setAttribute("transform", `translate(${20 + i * 24},428)`));
+      drawTeaCup(S.cups, 20 + S.cups.childNodes.length * 24, 428);
+      bubble(bx, 350, pick(["微糖去冰！", "珍珠加量", "一杯好了"])); break;
+    }
+    case "oyster": for (let i = 0; i < 6; i++) puff(S.x + rand(70, 160), 410, "steam", true); bubble(bx, 350, pick(["蚵仔煎一份", "醬多一點", "內用請坐"])); break;
+    case "chicken": sizzleT = 1.4; for (let i = 0; i < 5; i++) puff(S.x + rand(24, 70), 382, "steam", true); bubble(bx, 350, pick(["大雞排來囉！", "切不切？", "胡椒粉多一點"])); break;
+    case "fish": bubble(bx, 350, pick(["一網二十元", "撈到送一隻", "小心紙網"])); break;
+    case "tofu": for (let i = 0; i < 5; i++) puff(S.x + rand(90, 140), 400, "steam", true); bubble(bx, 350, pick(["臭得剛剛好", "泡菜加滿", "外酥內嫩"])); break;
+    case "bao": for (let i = 0; i < 8; i++) puff(S.x + rand(76, 138), 362, "steam", true); bubble(bx, 350, pick(["刈包出籠！", "花生粉多一點", "不要香菜"])); break;
+    default: bubble(bx, 350, pick(["來喔來喔！", "歡迎參觀"]));
+  }
+});
+
+// 燈泡串：派對模式
+$("bulbs").addEventListener("click", e => { e.stopPropagation(); party = !party; bubble(e && svgPoint(e).x || 800, 262, party ? "派對模式！" : "恢復暖光"); });
+
+// 棉花糖推車：棉花糖變大
+$("cart").addEventListener("click", e => {
+  e.stopPropagation();
+  const C = stallMap.cart;
+  C.target = C.target >= 20 ? 6 : C.target + 7;
+  if (reduced) C.grow = C.target;
+  bubble(1515, 356, C.target >= 20 ? "好大一朵！" : "繞～繞～");
+});
+
+// 點天公爐：香煙一陣、許個願
+$("burner").addEventListener("click", e => {
+  e.stopPropagation();
+  for (let i = 0; i < 8; i++) puff(800 + rand(-14, 14), 456, "smoke", true);
+  bubble(800, 446, pick(["拜拜保平安", "求個好籤", "感謝神明", "生意興隆！"]));
+});
+
+// 貓
+$("cat").addEventListener("click", e => { e.stopPropagation(); catWag = 1.4; catAwake = 3; bubble(1482, 492, pick(["喵～", "喵嗚？", "想吃香腸"])); });
+
+// 行人：跳一下打招呼
+["walkersBack", "walkersRoad", "walkersFront"].forEach(id => $(id).addEventListener("click", e => {
+  const g = e.target.closest(".walker"); if (!g) return;
+  e.stopPropagation();
+  const W = walkers.find(w => w.g === g); if (!W) return;
+  W.hop = 1;
+  bubble(W.x, W.y - 96 * W.s, W.type === "dog" && Math.random() < .5 ? "汪！" : pick(GREET));
+}));
+// 車輛：機車按喇叭、垃圾車放音樂
+$("vehicles").addEventListener("click", e => {
+  const g = e.target.closest(".vehicle"); if (!g) return;
+  e.stopPropagation();
+  const V = vehicles.find(v => v.g === g); if (!V) return;
+  if (V.type === "truck") { playMelody(); for (let i = 0; i < 4; i++) note(V.x - 80 + i * 20, V.y - 90); bubble(V.x, 480, "垃圾車來囉！"); }
+  else bubble(V.x, 500, pick(["叭叭！", "借過一下", "外送中～"]));
+});
+// 點天空：夜晚煙火、白天鳥群
+svg.addEventListener("click", e => {
+  const p = svgPoint(e);
+  if (p.y > 240) return;
+  if (nightOf(phase) > .45) firework(p.x, p.y);
+  else flock(p.x, p.y);
+});
+
+// 控制鈕
+$("btnDayNight").addEventListener("click", () => {
+  // 白天 → 跳到 20:00 夜市高峰；夜晚 → 跳到隔天 13:00
+  const h = hourOf(phase);
+  const toHour = (h >= 9 && h < 18) ? 20 : 13;
+  let to = ((toHour - 12 + 24) % 24) / 24;
+  if (to <= phase) to += 1;
+  if (reduced) { phase = to % 1; tween = null; mixTimer = 0; lastApplied = -1; return; }
+  tween = { from: phase, to, t: 0 };
+});
+$("btnAuto").addEventListener("click", () => {
+  auto = !auto;
+  $("btnAuto").setAttribute("aria-pressed", auto);
+  $("btnAuto").textContent = "自動循環：" + (auto ? "開" : "關");
+});
+$("btnCrowd").addEventListener("click", () => {
+  crowdMul = crowdMul > 1 ? 1 : 1.7;
+  $("btnCrowd").setAttribute("aria-pressed", crowdMul > 1);
+  $("btnCrowd").textContent = "人潮：" + (crowdMul > 1 ? "爆滿" : "一般");
+  if (reduced) { walkers.slice().forEach(w => w.g.remove()); walkers.length = 0; spawnWalkers(); }
+  else if (crowdMul > 1) {
+    // 馬路被人潮占滿：路上的機車先離開，避免和行人重疊
+    for (let i = vehicles.length - 1; i >= 0; i--) if (vehicles[i].type === "scooter") { vehicles[i].g.remove(); vehicles.splice(i, 1); }
+    // 一按下就湧進人潮：直接在畫面中補滿
+    for (const k of LANE_KEYS) {
+      const need = targetCount(k) - walkers.filter(w => w.lane === k).length;
+      for (let i = 0; i < need; i++) makeWalker(k, rand(20, 1580), Math.random() < .5 ? 1 : -1);
+    }
+  }
+  $("clock").textContent = clockLabel(phase);
+});
+
+// 減少動態：停住行人、車與煙，只保留切換
+function applyReduced() {
+  reduced = RM_QUERY.matches;
+  if (reduced) { auto = false; $("btnAuto").setAttribute("aria-pressed", "false"); $("btnAuto").textContent = "自動循環：關"; }
+}
+RM_QUERY.addEventListener && RM_QUERY.addEventListener("change", applyReduced);
+applyReduced();
+
+/* =========================================================
+   初始化
+   ========================================================= */
+(function init() {
+  const h = hourOf(phase);
+  let sum = 0; STALLS.forEach(S => sum += openness(h, S.open, S.close));
+  marketLevel = sum / STALLS.length;
+  applyNight(nightOf(phase), true);
+  clouds.forEach(c => c.g.setAttribute("transform", `translate(${c.x},${c.y})`));
+  spawnWalkers();
+  const s1 = makeScooter(1); s1.x = 420; drawVehicle(s1);
+  const s2 = makeScooter(-1); s2.x = 1180; drawVehicle(s2);
+  requestAnimationFrame(frame);
+})();
+})();
+</script>
+</body>
+</html>

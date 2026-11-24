@@ -1,0 +1,1711 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>SC-15 洛磯山雪鎮</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DotGothic16&family=Noto+Sans+TC:wght@400;500&display=swap">
+<style>
+/* =========================================================
+   SC-15 洛磯山雪鎮｜像素風格（加拿大）
+   【色票 token】所有顏色集中在這裡。
+   - 場景色成對出現：--名稱-day / --名稱-night，
+     JS 會自動找出所有成對色，依「日夜比例」混色後輸出 --名稱，
+     並產生 .f-名稱（填色）class 給 SVG 使用。
+   - 「常亮光源」不參與混色（窗光、路燈、車燈、極光、營火、彩燈）。
+   換色時只需改這個區塊。
+   像素格：P = 4px（JS 開頭可改），所有物件都對齊格線。
+   ========================================================= */
+:root{
+  color-scheme:dark;
+
+  /* ---- 頁面外框 ---- */
+  --page-bg:#10162a;
+  --page-panel:#1c2540;
+  --page-fg:#eef2fa;
+  --page-dim:#a3abc4;
+  --page-line:#34416e;
+  --page-accent:#7ef0b8;
+  --font-display:"DotGothic16","Noto Sans TC",monospace;
+  --font-body:"Noto Sans TC","PingFang TC","Microsoft JhengHei",sans-serif;
+
+  /* ---- 天空、雲 ---- */
+  --sky-top-day:#5ea9e8;    --sky-top-night:#050920;
+  --sky-bot-day:#d9f0ff;    --sky-bot-night:#1b2a5e;
+  --cloud-day:#f6f9ff;      --cloud-night:#2a3466;
+  --cloud-sh-day:#c9d8ec;   --cloud-sh-night:#1d2550;
+
+  /* ---- 洛磯山（遠山、中景山、滑雪山） ---- */
+  --rock1-day:#6c7ea8;      --rock1-night:#18203f;
+  --rock1-hi-day:#8ea0c8;   --rock1-hi-night:#232c56;
+  --snow1-day:#f4f8ff;      --snow1-night:#8392c4;
+  --snow1-sh-day:#c2d2ec;   --snow1-sh-night:#55629a;
+  --rock2-day:#55688e;      --rock2-night:#131a38;
+  --rock2-hi-day:#7488ae;   --rock2-hi-night:#1d2550;
+  --snow2-day:#eaf2ff;      --snow2-night:#7685b6;
+  --snow2-sh-day:#b6c6e2;   --snow2-sh-night:#4a568c;
+  --hill-day:#eef5ff;       --hill-night:#7584b4;
+  --hill-sh-day:#bfd1ea;    --hill-sh-night:#4b5788;
+
+  /* ---- 松樹 ---- */
+  --pine1-day:#1e4c3d;      --pine1-night:#07141d;
+  --pine2-day:#2f6b4f;      --pine2-night:#0d2028;
+  --pine-snow-day:#f4f8ff;  --pine-snow-night:#7e8ec0;
+  --trunk-day:#5a3b26;      --trunk-night:#1e1419;
+
+  /* ---- 地面雪、湖冰、道路 ---- */
+  --snow-day:#f7fbff;       --snow-night:#8b99c8;
+  --snow-sh-day:#d2def0;    --snow-sh-night:#5d699c;
+  --snow-dk-day:#a9bad8;    --snow-dk-night:#414c7c;
+  --ice-day:#a8dcf0;        --ice-night:#2c4c84;
+  --ice-hi-day:#e2f6ff;     --ice-hi-night:#5a7ab4;
+  --ice-dk-day:#7cbad6;     --ice-dk-night:#203c6c;
+  --road-day:#8d95a8;       --road-night:#252a45;
+  --road-dk-day:#717a8e;    --road-dk-night:#1a1e36;
+  --road-hi-day:#c3cad8;    --road-hi-night:#3d4466;
+  --line-day:#e8c44a;       --line-night:#5c5230;
+
+  /* ---- 建築 ---- */
+  --log-day:#9a6034;        --log-night:#392321;
+  --log-dk-day:#6c3e20;     --log-dk-night:#25161a;
+  --log-end-day:#d49b5f;    --log-end-night:#59392c;
+  --wall2-day:#3f6f8f;      --wall2-night:#15253b;
+  --wall2-dk-day:#2f566f;   --wall2-dk-night:#0e192b;
+  --wall3-day:#ece0c4;      --wall3-night:#575270;
+  --wall3-dk-day:#cbb998;   --wall3-dk-night:#433f5a;
+  --timber-day:#6a3f2a;     --timber-night:#23151b;
+  --wall4-day:#c85a4a;      --wall4-night:#481f2e;
+  --wall4-dk-day:#9e4234;   --wall4-dk-night:#35151e;
+  --roof-day:#46506a;       --roof-night:#15192d;
+  --roof-dk-day:#30384e;    --roof-dk-night:#0d1021;
+  --roof-red-day:#9a3030;   --roof-red-night:#2f1019;
+  --trim-day:#f4ead6;       --trim-night:#6c6686;
+  --glass-day:#8fc3dc;      --glass-night:#1b274f;
+  --door-day:#7a4a2a;       --door-night:#29191c;
+  --stone-day:#9b9ba8;      --stone-night:#35374f;
+  --stone-dk-day:#74747f;   --stone-dk-night:#23253a;
+  --metal-day:#9aa3ad;      --metal-night:#343a54;
+  --metal-dk-day:#5d6470;   --metal-dk-night:#1d2136;
+  --concrete-day:#c6c8ce;   --concrete-night:#3d3f58;
+  --concrete-dk-day:#9a9ca5;--concrete-dk-night:#2b2d44;
+  --awning-r-day:#d8433b;   --awning-r-night:#581c24;
+  --awning-w-day:#f6f0e4;   --awning-w-night:#69657f;
+  --sign-bg-day:#3a2a20;    --sign-bg-night:#191115;
+  --sign-fg-day:#f6e6c0;    --sign-fg-night:#c9b27a;
+  --mailbox-day:#d6352f;    --mailbox-night:#55161c;
+  --bench-day:#8a5a34;      --bench-night:#32222e;
+  --bread-day:#d9a05a;      --bread-night:#5c4230;
+  --flag-r-day:#e0342c;     --flag-r-night:#6a1c22;
+  --flag-w-day:#ffffff;     --flag-w-night:#8a8aa6;
+  --xing-day:#f2c53d;       --xing-night:#6a5a26;
+
+  /* ---- 人物、動物 ---- */
+  --skin-day:#f2c49b;       --skin-night:#8e7378;
+  --skin2-day:#b07a52;      --skin2-night:#5a4048;
+  --hair-day:#3b2a25;       --hair-night:#130e18;
+  --ink-day:#222034;        --ink-night:#05050f;
+  --coat1-day:#d9443a;      --coat1-night:#591e2a;
+  --coat2-day:#2f9a8a;      --coat2-night:#143c40;
+  --coat3-day:#f2b73a;      --coat3-night:#6a5022;
+  --coat4-day:#7a58b8;      --coat4-night:#2e2350;
+  --coat5-day:#2b4a8a;      --coat5-night:#101c3c;
+  --coat6-day:#3f8a4a;      --coat6-night:#16331e;
+  --hat1-day:#f2f2f2;       --hat1-night:#7a7a94;
+  --hat2-day:#e0623a;       --hat2-night:#5a2a2a;
+  --hat3-day:#4ab0e0;       --hat3-night:#1a405a;
+  --pants-day:#3a4260;      --pants-night:#111427;
+  --boots-day:#5a3a2a;      --boots-night:#1a1117;
+  --mitt-day:#f0d040;       --mitt-night:#6a5a2a;
+  --dog-day:#c48a4a;        --dog-night:#4a3030;
+  --elk-day:#8a5a36;        --elk-night:#32201c;
+  --elk-dk-day:#583820;     --elk-dk-night:#1f140f;
+  --elk-lt-day:#d0a878;     --elk-lt-night:#4a3a30;
+  --antler-day:#e6d3a8;     --antler-night:#6a6050;
+  --goose-day:#4a4440;      --goose-night:#16141c;
+  --goose-lt-day:#d8d0c4;   --goose-lt-night:#5a5868;
+
+  /* ---- 交通工具 ---- */
+  --car1-day:#c8323a;       --car1-night:#4a1820;
+  --car2-day:#2f5fa8;       --car2-night:#142448;
+  --car3-day:#e6e6ec;       --car3-night:#565a74;
+  --bus-day:#3a8a6a;        --bus-night:#163a30;
+  --bus-band-day:#f2efe2;   --bus-band-night:#5a5a70;
+  --plow-day:#f08a24;       --plow-night:#5a3214;
+  --blade-day:#f2c53d;      --blade-night:#6a5a26;
+  --tire-day:#22242e;       --tire-night:#07080f;
+  --cabin-day:#d8433b;      --cabin-night:#5a1c24;
+  --ski1-day:#e0342c;       --ski1-night:#5a1c22;
+  --ski2-day:#3a9ae0;       --ski2-night:#163a5a;
+  --ski3-day:#f2d24a;       --ski3-night:#6a5a26;
+  --smoke-day:#eef2f8;      --smoke-night:#6a7398;
+
+  /* ---- 常亮光源（不隨日夜混色） ---- */
+  --win-on:#ffd27a;      /* 窗光 */
+  --lamp:#ffe08a;        /* 路燈 */
+  --headlight:#fff6c8;   /* 車頭燈 */
+  --beam:#fff2b0;        /* 車燈光束 */
+  --tail:#ff3b3b;        /* 車尾燈 */
+  --beacon:#ffae00;      /* 剷雪車警示燈 */
+  --fire1:#ff5a1a; --fire2:#ffb83a; --fire3:#fff1a8; /* 營火 */
+  --aur1:#46f5a0; --aur2:#c4ffe2; --aur3:#c064ff;    /* 極光 */
+  --bulb1:#ff5a5a; --bulb2:#ffd24a; --bulb3:#5ad1ff; --bulb4:#7cff7a; /* 彩燈 */
+  --star:#ffffff;
+  --dusk:#ff9a6a;        /* 晨昏地平線 */
+  --sun:#fff3b0;  --sun-rim:#ffcf55;
+  --moon:#f2f0dc; --moon-sh:#c9c6b0;
+  --carrot:#ff8a1a;      /* 雪人鼻子 */
+}
+
+/* ===== 頁面版面 ===== */
+html,body{margin:0;background:var(--page-bg);color:var(--page-fg)}
+body{font-family:var(--font-body);line-height:1.6}
+.wrap{max-width:1680px;margin:0 auto;padding-block:20px 32px;
+  padding-left:max(16px,env(safe-area-inset-left,0px));
+  padding-right:max(16px,env(safe-area-inset-right,0px));
+  display:grid;gap:16px}
+header{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 18px}
+h1{font-family:var(--font-display);font-weight:400;font-size:clamp(1.4rem,2.6vw,2rem);margin:0;letter-spacing:.06em;text-wrap:balance}
+h1 small{font-size:.6em;color:var(--page-accent);letter-spacing:.12em;margin-right:.6em}
+.meta{color:var(--page-dim);font-size:.9rem;margin:0}
+.stage{position:relative;overflow:hidden;background:#000;
+  box-shadow:0 0 0 4px var(--page-line),0 0 0 8px #0a0e1c,0 18px 40px -18px #000}
+.stage svg{display:block;width:100%;height:auto;max-width:100%;touch-action:manipulation;image-rendering:pixelated}
+.controls{display:flex;flex-wrap:wrap;gap:12px;align-items:center}
+/* 像素按鈕：用階梯狀陰影做出 8-bit 邊框 */
+.controls button{font:1rem/1 var(--font-display);color:var(--page-fg);background:var(--page-panel);
+  border:0;padding:12px 16px;cursor:pointer;
+  box-shadow:0 -4px 0 0 var(--page-line),0 4px 0 0 var(--page-line),-4px 0 0 0 var(--page-line),4px 0 0 0 var(--page-line),0 8px 0 0 #080b16;
+  margin:4px;transition:transform .08s}
+.controls button:hover{background:#26315a}
+.controls button:active{transform:translateY(4px);box-shadow:0 -4px 0 0 var(--page-line),0 4px 0 0 var(--page-line),-4px 0 0 0 var(--page-line),4px 0 0 0 var(--page-line)}
+.controls button:focus-visible{outline:4px solid var(--page-accent);outline-offset:6px}
+.controls button[aria-pressed="true"]{color:var(--page-accent)}
+.clock{margin-left:auto;font-family:var(--font-display);font-size:1.05rem;color:var(--page-dim);font-variant-numeric:tabular-nums}
+.hint{margin:0;padding:0;list-style:none;display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:6px 20px;color:var(--page-dim);font-size:.88rem}
+.hint b{color:var(--page-fg);font-weight:500;margin-right:.4em}
+
+/* ===== SVG 內樣式 ===== */
+.px-txt{font-family:var(--font-display);fill:var(--sign-fg)}
+.c-win{fill:var(--win-on)} .c-lamp{fill:var(--lamp)} .c-head{fill:var(--headlight)} .c-beam{fill:var(--beam)}
+.c-tail{fill:var(--tail)} .c-beacon{fill:var(--beacon)}
+.c-fire1{fill:var(--fire1)} .c-fire2{fill:var(--fire2)} .c-fire3{fill:var(--fire3)}
+.c-aur1{fill:var(--aur1)} .c-aur2{fill:var(--aur2)} .c-aur3{fill:var(--aur3)}
+.c-bulb1{fill:var(--bulb1)} .c-bulb2{fill:var(--bulb2)} .c-bulb3{fill:var(--bulb3)} .c-bulb4{fill:var(--bulb4)}
+.c-star{fill:var(--star)} .c-dusk{fill:var(--dusk)}
+.c-sun{fill:var(--sun)} .c-sunrim{fill:var(--sun-rim)} .c-moon{fill:var(--moon)} .c-moonsh{fill:var(--moon-sh)}
+.c-carrot{fill:var(--carrot)}
+.lit{fill:var(--win-on);opacity:0}
+.lit.on{opacity:var(--lit,.1)}
+[data-act]{cursor:pointer}
+.deco{pointer-events:none}
+.bubble{pointer-events:none}
+.bubble rect.bg{fill:#fffdf3} .bubble rect.bd{fill:#222034}
+.bubble text{font-family:var(--font-display);font-size:18px;fill:#222034}
+
+/* ===== 減少動態 ===== */
+@media (prefers-reduced-motion: reduce){
+  .controls button{transition:none}
+}
+</style>
+</head>
+<body>
+<main class="wrap">
+
+  <div class="stage">
+  <!-- =====================================================
+       【場景】SVG 主舞台 viewBox 1600×600
+       圖層由後到前：天空 → 晨昏 → 星星 → 極光 → 日月 → 雲 → 遠山
+       → 中景山 → 滑雪山（纜車、滑雪客） → 雁群 → 松林 → 冰湖與溜冰者
+       → 營火 → 建築 → 人行道道具 → 後排行人 → 煙 → 道路與車輛
+       → 剷雪噴雪 → 前景雪堤 → 腳印 → 雪人 → 前排行人與麋鹿
+       → 前景松樹、路燈 → 飄雪 → 對話泡泡
+       ===================================================== -->
+  <svg id="scene" viewBox="0 0 1600 600" preserveAspectRatio="xMidYMid meet" shape-rendering="crispEdges" role="img" aria-label="加拿大洛磯山腳下的雪景小鎮，有木屋咖啡店、旅館、麵包店、纜車與結冰湖面，行人、車輛與麋鹿往來，可切換白天與夜晚，夜晚有極光">
+    <defs></defs>
+
+    <!-- 天空（色帶 + 抖色，JS 生成） -->
+    <g id="sky" class="deco"></g>
+    <g id="dusk" class="deco"></g>
+    <g id="stars" class="deco"></g>
+    <!-- 【動畫】極光 -->
+    <g id="aurora" class="deco"></g>
+    <g id="sun" class="deco"></g>
+    <g id="moon" class="deco"></g>
+    <g id="clouds" class="deco"></g>
+
+    <!-- 遠山、中景山（JS 生成） -->
+    <g id="mtnFar" class="deco"></g>
+    <g id="mtnMid" class="deco"></g>
+    <!-- 滑雪山、纜車、滑雪客 -->
+    <g id="skiHill" class="deco"></g>
+    <g id="skiers" class="deco"></g>
+    <g id="cable" class="deco"></g>
+    <g id="gondolas"></g>
+
+    <!-- 【動畫】雁群、流星 -->
+    <g id="birds" class="deco"></g>
+
+    <!-- 山腳松林 -->
+    <g id="forest" class="deco"></g>
+
+    <!-- 冰湖（點湖面：打冰球）與溜冰者 -->
+    <g id="lake"></g>
+    <g id="skaters"></g>
+    <g id="firepit"></g>
+
+    <!-- 【場景】建築：木屋咖啡、登山用品店、旅館、麵包店、纜車站 -->
+    <g id="buildings"></g>
+    <g id="backProps"></g>
+    <!-- 【角色】後排人行道行人 -->
+    <g id="backPeople"></g>
+    <!-- 【動畫】煙囪煙、呼氣、排氣 -->
+    <g id="smoke" class="deco"></g>
+
+    <!-- 道路與車輛 -->
+    <g id="road" class="deco"></g>
+    <g id="farLane"></g>
+    <g id="nearLane"></g>
+    <g id="spray" class="deco"></g>
+
+    <!-- 前景雪堤、腳印 -->
+    <g id="frontBank" class="deco"></g>
+    <g id="prints" class="deco"></g>
+    <g id="frontProps"></g>
+    <!-- 【角色】前排行人、麋鹿 -->
+    <g id="elkLayer"></g>
+    <g id="frontPeople"></g>
+    <g id="frontTrees"></g>
+
+    <!-- 【動畫】飄雪、松樹抖落的雪、泡泡 -->
+    <g id="snowfall" class="deco"></g>
+    <g id="chunks" class="deco"></g>
+    <g id="fx"></g>
+  </svg>
+  </div>
+
+  <!-- 【互動】控制列 -->
+  <div class="controls">
+    <button id="btnDayNight" type="button">切換日夜</button>
+    <button id="btnAuto" type="button" aria-pressed="true">自動循環：開</button>
+    <button id="btnPlow" type="button">叫剷雪車</button>
+    <button id="btnSnow" type="button">雪量：小雪</button>
+    <span class="clock" id="clock">10:00 上午</span>
+  </div>
+  <ul class="hint">
+    <li><b>滑鼠左右移動</b>改變風向，雪花、炊煙、國旗跟著飄</li>
+    <li><b>點天空</b>白天飛過一群加拿大雁，夜晚極光變強、劃過流星</li>
+    <li><b>點雪人</b>一層層堆起來，堆好再點會重來</li>
+    <li><b>點冰湖</b>小朋友揮桿射門</li>
+    <li><b>點溜冰的人</b>原地轉圈</li>
+    <li><b>點松樹</b>抖落一陣積雪</li>
+    <li><b>點窗戶、路燈</b>開燈或關燈</li>
+    <li><b>點咖啡店門</b>端出熱可可</li>
+    <li><b>點車輛、纜車、行人、麋鹿</b>各有一句話</li>
+  </ul>
+</main>
+
+<script>
+(() => {
+"use strict";
+/* =========================================================
+   基本工具
+   ========================================================= */
+const NS = "http://www.w3.org/2000/svg";
+const $ = id => document.getElementById(id);
+const svg = $("scene");
+const root = document.documentElement;
+const P = 4;                                  // 像素格大小
+const snap = v => Math.round(v / P) * P;      // 對齊像素格
+function el(tag, attrs, parent) {
+  const e = document.createElementNS(NS, tag);
+  for (const k in attrs) e.setAttribute(k, attrs[k]);
+  if (parent) parent.appendChild(e);
+  return e;
+}
+// token 名稱 → class：c- 開頭是常亮色，lit 是窗光，其餘是日夜混色 f-名稱
+const cls = tok => (tok.startsWith("c-") || tok.startsWith("lit")) ? tok : "f-" + tok;
+function rect(x, y, w, h, tok, parent, extra) {
+  return el("rect", { x, y, width: w, height: h, class: cls(tok) + (extra ? " " + extra : "") }, parent);
+}
+// 字串陣列畫像素圖：每個字元是一格，map 對應 token，"." 為透明
+function sprite(rows, map, parent, ox = 0, oy = 0) {
+  const g = el("g", {}, parent);
+  rows.forEach((row, y) => {
+    let x = 0;
+    while (x < row.length) {
+      const ch = row[x];
+      if (ch === "." || !map[ch]) { x++; continue; }
+      let w = 1; while (row[x + w] === ch) w++;
+      rect(ox + x * P, oy + y * P, w * P, P, map[ch], g);
+      x += w;
+    }
+  });
+  return g;
+}
+// 像素直線（Bresenham，以格為單位）
+function pixLine(x0, y0, x1, y1, tok, parent) {
+  let a = Math.round(x0 / P), b = Math.round(y0 / P);
+  const c = Math.round(x1 / P), d = Math.round(y1 / P);
+  const dx = Math.abs(c - a), dy = -Math.abs(d - b), sx = a < c ? 1 : -1, sy = b < d ? 1 : -1;
+  let err = dx + dy;
+  for (;;) {
+    rect(a * P, b * P, P, P, tok, parent);
+    if (a === c && b === d) break;
+    const e2 = 2 * err;
+    if (e2 >= dy) { err += dy; a += sx; }
+    if (e2 <= dx) { err += dx; b += sy; }
+  }
+}
+// 圓盤像素圖（太陽、月亮、雪球、時鐘）
+function discRows(r, rimCh, fillCh) {
+  const rows = [];
+  for (let y = -r; y <= r; y++) {
+    let s = "";
+    for (let x = -r; x <= r; x++) {
+      const d = Math.sqrt(x * x + y * y);
+      s += d <= r + .3 ? (d > r - .9 ? rimCh : fillCh) : ".";
+    }
+    rows.push(s);
+  }
+  return rows;
+}
+function txt(x, y, s, size, parent, anchor = "middle") {
+  const t = el("text", { x, y, "font-size": size, "text-anchor": anchor, class: "px-txt" }, parent);
+  t.textContent = s; return t;
+}
+// 固定亂數種子，讓每次載入的山形、樹林都一樣
+function rng(seed) {
+  return () => {
+    seed |= 0; seed = seed + 0x6D2B79F5 | 0;
+    let t = Math.imul(seed ^ seed >>> 15, 1 | seed);
+    t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t;
+    return ((t ^ t >>> 14) >>> 0) / 4294967296;
+  };
+}
+const R = rng(20261122);
+const rand = (a, b) => a + Math.random() * (b - a);
+const pick = arr => arr[Math.floor(Math.random() * arr.length)];
+const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+const lerp = (a, b, k) => a + (b - a) * k;
+
+/* =========================================================
+   【色票】日夜混色引擎
+   自動掃描 :root 裡所有 --名稱-day / --名稱-night，
+   依 night(0~1) 混色寫回 --名稱，並產生 .f-名稱 class。
+   ========================================================= */
+const cs = getComputedStyle(root);
+const MIX = [];
+for (const sheet of document.styleSheets) {
+  let rules; try { rules = sheet.cssRules; } catch (e) { continue; }
+  for (const r of rules) {
+    if (r.selectorText !== ":root") continue;
+    for (const prop of r.style) if (prop.endsWith("-day")) MIX.push(prop.slice(2, -4));
+  }
+}
+(function injectClasses() {
+  const st = document.createElement("style");
+  st.textContent = MIX.map(n => `.f-${n}{fill:var(--${n})}`).join("");
+  document.head.appendChild(st);
+})();
+const hex = s => { s = s.trim().replace("#", ""); if (s.length === 3) s = s.split("").map(c => c + c).join(""); const n = parseInt(s, 16); return [n >> 16 & 255, n >> 8 & 255, n & 255]; };
+const PAIRS = MIX.map(n => [n, hex(cs.getPropertyValue(`--${n}-day`)), hex(cs.getPropertyValue(`--${n}-night`))]);
+const NOW = {};
+const SKY_N = 10;
+let lastApplied = -1;
+function applyNight(nt, force) {
+  if (!force && Math.abs(nt - lastApplied) < 0.004) return;
+  lastApplied = nt;
+  for (const [n, a, b] of PAIRS) {
+    const c = a.map((v, i) => Math.round(v + (b[i] - v) * nt));
+    NOW[n] = c;
+    root.style.setProperty(`--${n}`, `rgb(${c[0]},${c[1]},${c[2]})`);
+  }
+  for (let i = 0; i < SKY_N; i++) {
+    const k = i / (SKY_N - 1), a = NOW["sky-top"], b = NOW["sky-bot"];
+    root.style.setProperty(`--sk${i}`, `rgb(${a.map((v, j) => Math.round(v + (b[j] - v) * k)).join(",")})`);
+  }
+  root.style.setProperty("--lit", (0.1 + 0.9 * nt).toFixed(3));
+  $("stars").style.opacity = clamp(nt * 1.6 - .6, 0, 1).toFixed(3);
+}
+
+/* =========================================================
+   【場景】天空：10 段色帶，交界處用棋盤格抖色
+   ========================================================= */
+(function buildSky() {
+  const g = $("sky"), defs = svg.querySelector("defs"), H = 40;
+  for (let i = 0; i < SKY_N; i++) el("rect", { x: 0, y: i * H, width: 1600, height: i === SKY_N - 1 ? 600 - i * H : H, style: `fill:var(--sk${i})` }, g);
+  for (let i = 1; i < SKY_N; i++) {
+    const p1 = el("pattern", { id: "dz" + i, width: P * 2, height: P * 2, patternUnits: "userSpaceOnUse" }, defs);
+    el("rect", { x: 0, y: 0, width: P, height: P, style: `fill:var(--sk${i})` }, p1);
+    el("rect", { x: P, y: P, width: P, height: P, style: `fill:var(--sk${i})` }, p1);
+    const p2 = el("pattern", { id: "ds" + i, width: P * 4, height: P * 2, patternUnits: "userSpaceOnUse" }, defs);
+    el("rect", { x: 0, y: 0, width: P, height: P, style: `fill:var(--sk${i})` }, p2);
+    el("rect", { x: P * 2, y: P, width: P, height: P, style: `fill:var(--sk${i})` }, p2);
+    el("rect", { x: 0, y: i * H - P * 2, width: 1600, height: P * 2, fill: `url(#dz${i})` }, g);
+    el("rect", { x: 0, y: i * H - P * 4, width: 1600, height: P * 2, fill: `url(#ds${i})` }, g);
+  }
+  const d = $("dusk");
+  [[200, .12], [240, .22], [280, .34], [320, .46], [360, .58]].forEach(([y, o]) =>
+    el("rect", { x: 0, y, width: 1600, height: 600 - y, class: "c-dusk", opacity: o * .5 }, d));
+})();
+
+// 星星
+const stars = [];
+(function buildStars() {
+  const g = $("stars");
+  for (let i = 0; i < 110; i++) {
+    const x = snap(R() * 1600), y = snap(R() * 280), big = R() < .1;
+    const s = el("g", {}, g);
+    rect(x, y, P, P, "c-star", s);
+    if (big) { rect(x - P, y, P, P, "c-star", s); rect(x + P, y, P, P, "c-star", s); rect(x, y - P, P, P, "c-star", s); rect(x, y + P, P, P, "c-star", s); }
+    s.setAttribute("opacity", (.4 + R() * .6).toFixed(2));
+    stars.push({ s, ph: R() * 6, base: .4 + R() * .6 });
+  }
+})();
+
+// 太陽、月亮
+(function buildSunMoon() {
+  const sun = $("sun"), moon = $("moon");
+  [[13, .1], [10, .16]].forEach(([r, o]) => el("rect", { x: -r * P, y: -r * P, width: r * 2 * P, height: r * 2 * P, class: "c-sun", opacity: o }, sun));
+  sprite(discRows(6, "r", "s"), { r: "c-sunrim", s: "c-sun" }, sun, -6 * P, -6 * P);
+  // 彎月：圓盤挖掉右上
+  const rows = discRows(5, "m", "m").map((row, y) => row.split("").map((ch, x) => {
+    const dx = x - 7.2, dy = y - 3.6;
+    if (ch === "m" && dx * dx + dy * dy < 16) return ".";
+    return ch === "m" && ((x === 3 && y === 5) || (x === 4 && y === 8)) ? "s" : ch;
+  }).join(""));
+  sprite(rows, { m: "c-moon", s: "c-moonsh" }, moon, -5 * P, -5 * P);
+  el("rect", { x: -9 * P, y: -9 * P, width: 18 * P, height: 18 * P, class: "c-moon", opacity: .07 }, moon);
+})();
+
+// 雲（冬天的雲比較扁）
+const CLOUD_A = [
+  ".........xxxxx..............",
+  "....xxxxxxxxxxxx..xxxx......",
+  "..xxxxxxxxxxxxxxxxxxxxxxx...",
+  "xxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+  ".sssssssssssssssssssssssss.."];
+const CLOUD_B = [
+  "....xxxx........",
+  "..xxxxxxxx.xxx..",
+  "xxxxxxxxxxxxxxxx",
+  ".ssssssssssssss."];
+const clouds = [];
+(function buildClouds() {
+  const g = $("clouds");
+  [[40, 54, CLOUD_A, 1], [460, 110, CLOUD_B, .7], [820, 36, CLOUD_A, .9], [1180, 96, CLOUD_B, .8], [1500, 60, CLOUD_A, 1.1]]
+    .forEach(([x, y, shape, sp]) => {
+      const c = el("g", {}, g);
+      sprite(shape, { x: "cloud", s: "cloud-sh" }, c);
+      clouds.push({ g: c, x, y, sp, w: shape[0].length * P });
+    });
+})();
+
+/* =========================================================
+   【動畫】極光：一條條像素直欄，高度與位置隨時間波動
+   ========================================================= */
+const AUR_STEP = 8, aurCols = [];
+(function buildAurora() {
+  const g = $("aurora");
+  for (let x = 0; x < 1600; x += AUR_STEP) {
+    const col = {
+      x, ph: R() * 6,
+      top: rect(x, 0, AUR_STEP, P * 2, "c-aur3", g),
+      body: rect(x, 0, AUR_STEP, 40, "c-aur1", g),
+      core: rect(x, 0, AUR_STEP, P * 2, "c-aur2", g)
+    };
+    col.top.setAttribute("opacity", ".55"); col.body.setAttribute("opacity", ".55"); col.core.setAttribute("opacity", ".8");
+    aurCols.push(col);
+  }
+})();
+let auroraBoost = 0;
+function updateAurora(t, n) {
+  const vis = clamp(n * 1.5 - .5, 0, 1) * (.75 + .25 * Math.min(1, auroraBoost));
+  $("aurora").setAttribute("opacity", vis.toFixed(3));
+  if (vis <= 0.01) return;
+  for (const c of aurCols) {
+    const u = c.x / 1600;
+    // 兩條主波疊加：一條慢、一條快，看起來像布幔在飄
+    const yc = 70 + 34 * Math.sin(u * 5.2 + t * .25) + 16 * Math.sin(u * 13 - t * .6 + 1.3);
+    const h = 30 + 34 * (.5 + .5 * Math.sin(u * 9 + t * .4 + c.ph * .2)) + auroraBoost * 26;
+    const y = snap(yc), hh = snap(h);
+    c.top.setAttribute("y", y - P * 2 - snap(hh * .35));
+    c.top.setAttribute("height", snap(hh * .35) + P * 2);
+    c.body.setAttribute("y", y);
+    c.body.setAttribute("height", hh);
+    c.core.setAttribute("y", y + hh - P * 2);
+    const fade = .35 + .65 * (.5 + .5 * Math.sin(u * 17 + t * .9 + c.ph));
+    c.body.setAttribute("opacity", (.5 * fade).toFixed(2));
+    c.top.setAttribute("opacity", (.32 * fade).toFixed(2));
+    c.core.setAttribute("opacity", (.85 * fade).toFixed(2));
+  }
+}
+
+/* =========================================================
+   【場景】洛磯山：尖峰折線 + 雪線，左側受光、右側陰影
+   ========================================================= */
+function profile(points, step, noise, seed) {
+  const r = rng(seed), ys = [];
+  for (let x = 0; x <= 1600; x += step) {
+    let i = 0; while (i < points.length - 2 && points[i + 1][0] < x) i++;
+    const [x0, y0] = points[i], [x1, y1] = points[i + 1];
+    const k = clamp((x - x0) / (x1 - x0), 0, 1);
+    ys.push(snap(lerp(y0, y1, k) + (r() - .5) * noise));
+  }
+  return ys;
+}
+function stairPath(ys, step, bottom) {
+  let d = `M0 ${bottom}`;
+  ys.forEach((y, i) => { d += `L${i * step} ${y}L${i * step + step} ${y}`; });
+  return d + `L1600 ${bottom}Z`;
+}
+let hillTop;   // 滑雪山稜線（每 8px 一格）
+(function buildMountains() {
+  // 最遠的雪峰
+  const far = profile([[0, 230], [110, 150], [230, 205], [380, 104], [500, 186], [620, 132], [760, 214], [900, 92], [1030, 172], [1150, 124], [1290, 196], [1400, 118], [1520, 170], [1600, 140]], 8, 10, 3);
+  const g1 = $("mtnFar");
+  el("path", { d: stairPath(far, 8, 420), class: "f-rock1" }, g1);
+  far.forEach((y, i) => {
+    const up = (far[Math.min(far.length - 1, i + 3)] - far[Math.max(0, i - 3)]) < -6;   // 往右上升 → 面向左、受光（取前後幾格平滑判斷）
+    const snowLine = snap(250 + Math.sin(i * .7) * 14 + R() * 10);
+    if (up) rect(i * 8, y, 8, 420 - y, "rock1-hi", g1);
+    if (y < snowLine) rect(i * 8, y, 8, snowLine - y, up ? "snow1" : "snow1-sh", g1);
+    if (y < snowLine && R() < .25) rect(i * 8, snowLine, 8, P * 2, up ? "snow1" : "snow1-sh", g1);   // 雪線鋸齒
+  });
+  // 中景山（下半部是針葉林帶）
+  const mid = profile([[0, 300], [180, 262], [330, 296], [540, 244], [720, 300], [920, 258], [1100, 304], [1240, 270], [1600, 330]], 8, 8, 7);
+  const g2 = $("mtnMid");
+  el("path", { d: stairPath(mid, 8, 440), class: "f-rock2" }, g2);
+  mid.forEach((y, i) => {
+    const up = (mid[Math.min(mid.length - 1, i + 3)] - mid[Math.max(0, i - 3)]) < -4;
+    if (up) rect(i * 8, y, 8, 440 - y, "rock2-hi", g2);
+    const sl = snap(292 + R() * 10);
+    if (y < sl) rect(i * 8, y, 8, sl - y, up ? "snow2" : "snow2-sh", g2);
+  });
+  for (let x = 0; x < 1600; x += 9 + R() * 12) {
+    const y = mid[Math.min(mid.length - 1, Math.floor(x / 8))];
+    const by = snap(Math.max(y + 30, 330) + R() * 50);
+    if (by < 420) pineSnow(snap(x), by, 4 + Math.floor(R() * 4), g2, { small: true });
+  }
+  // 山腰的小木屋（夜裡亮燈）
+  [[248, 360], [640, 352], [1060, 356]].forEach(([x, y]) => {
+    rect(x, y, 24, 16, "log", g2); rect(x - 4, y - 8, 32, 8, "snow2", g2);
+    rect(x + 8, y + 4, 8, 8, "glass", g2); rect(x + 8, y + 4, 8, 8, "lit on", g2);
+  });
+  // 滑雪山（右側，纜車終點在山頂）
+  hillTop = profile([[1160, 470], [1260, 400], [1380, 290], [1470, 210], [1548, 138], [1600, 172]], 8, 4, 11);
+  for (let i = 0; i < hillTop.length; i++) if (i * 8 < 1160) hillTop[i] = 470;
+  const g3 = $("skiHill");
+  el("path", { d: stairPath(hillTop, 8, 470), class: "f-hill" }, g3);
+  hillTop.forEach((y, i) => { if (i * 8 > 1548) rect(i * 8, y, 8, 470 - y, "hill-sh", g3); });
+  // 滑雪道兩側的樹叢（避開雪道）
+  for (let i = 0; i < 90; i++) {
+    const x = snap(1200 + R() * 400), top = hillTop[Math.floor(x / 8)];
+    const y = snap(top + 14 + R() * (460 - top));
+    if (y > 466 || y < top + 10) continue;
+    const s = (y - 180) / 250, rx = 1500 - 170 * s;
+    if (Math.abs(x - rx) < 44) continue;
+    pineSnow(x, y, 4 + Math.floor(R() * 3), g3, { small: true });
+  }
+  // 雪道夜燈
+  for (let s = .05; s < 1; s += .1) {
+    const x = snap(1500 - 170 * s + 40), y = snap(180 + 250 * s);
+    rect(x, y - 12, P, 12, "metal-dk", g3);
+    rect(x - P, y - 16, P * 3, P, "c-lamp", g3, "nightOnly").dataset.o = "1";
+  }
+  // 山頂纜車站
+  rect(1524, 128, 48, 20, "concrete", g3); rect(1520, 120, 56, 8, "snow1", g3);
+  rect(1532, 134, 12, 8, "glass", g3); rect(1532, 134, 12, 8, "lit on", g3);
+})();
+
+// 有積雪的松樹：三層塔狀，每層頂端蓋雪，左側亮右側暗
+function pineSnow(x, baseY, h, parent, opts = {}) {
+  const g = el("g", opts.act ? { "data-act": opts.act } : {}, parent);
+  const crown = el("g", {}, g);
+  const tiers = 3, rowsPer = Math.max(2, Math.floor(h / tiers));
+  let y = baseY - P * 2 - rowsPer * tiers * P;
+  const top = y;
+  for (let t = 0; t < tiers; t++) {
+    for (let r = 0; r < rowsPer; r++) {
+      const w = 1 + 2 * (r + t);
+      const left = x - Math.floor(w / 2) * P;
+      if (r === 0 || (r === 1 && !opts.small)) {
+        rect(left, y, w * P, P, r === 0 ? "pine-snow" : "pine1", crown);
+        if (r === 1) rect(left, y, Math.ceil(w / 3) * P, P, "pine-snow", crown);
+      } else {
+        rect(left, y, w * P, P, "pine1", crown);
+        rect(left, y, Math.ceil(w / 2) * P, P, "pine2", crown);
+      }
+      y += P;
+    }
+  }
+  rect(x, y, P, P * 2, "trunk", g);
+  g._obj = { g, crown, x, top, bottom: y, w: (1 + 2 * (rowsPer - 1 + tiers - 1)) * P, shake: 0 };
+  return g;
+}
+
+/* =========================================================
+   【場景】山腳松林
+   ========================================================= */
+(function buildForest() {
+  const g = $("forest");
+  rect(0, 404, 1600, 60, "snow-sh", g);
+  for (let x = 0; x < 1600; x += 10 + R() * 12) pineSnow(snap(x), snap(406 + R() * 8), 6 + Math.floor(R() * 5), g);
+  for (let x = 6; x < 1600; x += 14 + R() * 16) pineSnow(snap(x), snap(414 + R() * 6), 4 + Math.floor(R() * 3), g, { small: true });
+})();
+
+/* =========================================================
+   【角色】像素人物（字元格）
+   p 毛球 H 毛帽 h 頭髮 S 皮膚 e 眼睛 F 圍巾 C 外套 M 手套 L 褲子 B 靴子
+   ========================================================= */
+const PERSON_TOP = [
+  "...p...",
+  "..HHH..",
+  ".HHHHH.",
+  ".hSSeS.",
+  ".hSSSS.",
+  "..FFFF.",
+  ".CCCCCF",
+  ".CCCCC.",
+  ".CCCCC.",
+  ".CMCCC.",
+  ".CCCCC."];
+const LEGS_A = [".L...L.", "BB...BB"];
+const LEGS_B = ["..L.L..", "..BBBB."];
+const KID_TOP = ["..p..", ".HHH.", ".hSe.", ".FFF.", "CCCCC", ".CMC.", ".CCC."];
+const KID_A = [".L.L.", "B...B"], KID_B = ["..L..", ".BB.."];
+const SIT = PERSON_TOP.concat([".LLLL..", "....BB."]);
+// 麋鹿（面向左）
+const ELK_A = [
+  "a.a.a...........",
+  ".aaa............",
+  "..a.a...........",
+  "..hh............",
+  ".hhhh...........",
+  "nhhhhbbbbbbbbb..",
+  "...hhbbbbbbbbbbt",
+  "....bbbbbbbbbbb.",
+  "....bdddddddbb..",
+  "....l.l....l.l..",
+  "....l.l....l.l..",
+  "....k.k....k.k.."];
+const ELK_B = ELK_A.slice(0, 9).concat(["....l..l..l..l..", "...l...l.l...l..", "...k...k.k...k.."]);
+const ELK_MAP = { a: "antler", h: "elk-dk", n: "ink", b: "elk", d: "elk-lt", t: "elk-lt", l: "elk-dk", k: "ink" };
+// 狗（面向右，穿紅毛衣）
+const DOG_A = ["......dd.", "t.....ddn", ".dRRRRdd.", ".dRRRRd..", ".l.l.l.l."];
+const DOG_B = ["......dd.", "t.....ddn", ".dRRRRdd.", ".dRRRRd..", "l...l.l.l"];
+
+const COATS = ["coat1", "coat2", "coat3", "coat4", "coat5", "coat6"];
+const HATS = ["hat1", "hat2", "hat3", "coat1", "coat3"];
+function personMap(o = {}) {
+  const C = o.C || pick(COATS), H = o.H || pick(HATS);
+  return { p: o.p || pick(HATS), H, h: "hair", S: o.S || pick(["skin", "skin", "skin2"]), e: "ink", F: o.F || pick(COATS.filter(c => c !== C)), C, M: o.M || pick(["mitt", "hat1", "coat1"]), L: "pants", B: "boots", R: "coat1", d: "dog", t: "dog", n: "ink", l: "dog" };
+}
+// 建立會走路的人：兩個影格輪流顯示
+function makeFigure(kind, map, parent, extra = {}) {
+  const g = el("g", { "data-act": "walker" }, parent);
+  const inner = el("g", {}, g);
+  const kid = kind === "kid";
+  const top = kid ? KID_TOP : PERSON_TOP, A = kid ? KID_A : LEGS_A, B = kid ? KID_B : LEGS_B;
+  const W = top[0].length, Hh = top.length + 2;
+  const ox = -Math.floor(W / 2) * P, oy = -Hh * P;
+  const body = sprite(top, map, inner, ox, oy);
+  const fA = sprite(A, map, inner, ox, oy + top.length * P);
+  const fB = sprite(B, map, inner, ox, oy + top.length * P);
+  fB.setAttribute("visibility", "hidden");
+  const frames = [fA, fB];
+  if (extra.skis) {   // 肩上扛著雪板
+    const sk = el("g", {}, inner);
+    rect(ox - 4, oy - 12, P, 56, extra.skis, sk); rect(ox, oy - 12, P, 56, extra.skis, sk);
+    rect(ox - 4, oy - 16, P * 2, P, "metal", sk);
+  }
+  if (extra.skates) rect(ox + P, -P, W * P - P * 2, P, "metal", inner);
+  if (extra.stick) { pixLine(ox + W * P - 4, oy + 36, ox + W * P + 12, -4, "log-end", inner); rect(ox + W * P + 8, -P, 12, P, "ink", inner); }
+  let dogFrames = null;
+  if (extra.dog) {
+    const dg = el("g", {}, inner);
+    const dA = sprite(DOG_A, map, dg, 34, -20), dB = sprite(DOG_B, map, dg, 34, -20);
+    dB.setAttribute("visibility", "hidden");
+    pixLine(ox + 12, oy + 36, 56, -16, "coat1", dg);
+    dogFrames = [dA, dB];
+  }
+  return { g, inner, frames, dogFrames, h: Hh * P };
+}
+
+/* =========================================================
+   【場景】冰湖（左側）、冰球門、營火
+   ========================================================= */
+const sparkles = [];
+let puck, hockeyKid, netX = 24;
+(function buildLake() {
+  const g = $("lake");
+  const lakeHit = el("g", { "data-act": "lake" }, g);
+  rect(0, 412, 296, 44, "snow-sh", lakeHit);                  // 湖岸
+  rect(0, 416, 288, 36, "ice", lakeHit);
+  rect(0, 416, 288, P, "ice-dk", lakeHit);                   // 湖岸陰影
+  for (let i = 0; i < 6; i++) rect(288 - i * 4, 416 + i * 6, 4 + i * 4, 6, "snow", lakeHit); // 右岸斜坡
+  // 冰面亮紋與冰刀刮痕
+  for (let i = 0; i < 18; i++) rect(snap(R() * 260), snap(422 + R() * 26), snap(12 + R() * 36), P, R() < .5 ? "ice-hi" : "ice-dk", lakeHit);
+  for (let i = 0; i < 10; i++) { const s = rect(snap(20 + R() * 250), snap(424 + R() * 24), P, P, "c-star", lakeHit, "deco"); sparkles.push({ s, ph: R() * 6 }); }
+  // 冰球門
+  const net = el("g", { class: "deco" }, g);
+  rect(netX - 8, 424, 4, 20, "coat1", net); rect(netX - 8, 424, 16, 4, "coat1", net);
+  for (let y = 428; y < 444; y += 4) for (let x = netX - 4; x < netX + 8; x += 4) if ((x + y) % 8 === 0) rect(x, y, P, P, "hat1", net);
+  puck = { el: rect(0, 0, P * 2, P, "ink", g, "deco"), x: 92, y: 444, tx: 0, ty: 0, t: -1 };
+  // 營火（湖邊空地）
+  const f = $("firepit");
+  f.setAttribute("class", "deco");
+  const glow = el("g", {}, f);
+  [[40, .07], [28, .1], [18, .16]].forEach(([r, o]) => rect(336 - r, 448 - r, r * 2, r, "c-fire2", glow).setAttribute("opacity", o));
+  // 坐在圓木上的兩個人
+  rect(296, 448, 24, 8, "log", f); rect(352, 448, 24, 8, "log", f);
+  sprite(SIT, { p: "hat2", H: "hat2", h: "hair", S: "skin", e: "ink", F: "coat3", C: "coat5", M: "mitt", L: "pants", B: "boots" }, f, 296, 404);
+  const s2 = sprite(SIT, { p: "hat1", H: "hat3", h: "hair", S: "skin2", e: "ink", F: "coat1", C: "coat6", M: "hat1", L: "pants", B: "boots" }, f, 0, 0);
+  s2.setAttribute("transform", "translate(380,404) scale(-1,1)");
+  // 火堆：石頭圈 + 柴 + 火焰
+  rect(324, 452, 24, 4, "stone", f); rect(320, 448, 4, 8, "stone", f); rect(348, 448, 4, 8, "stone", f);
+  rect(328, 448, 16, 4, "log-dk", f);
+  const flames = [0, 1, 2, 3].map(i => rect(328 + i * 4, 440, 4, 8, i % 2 ? "c-fire2" : "c-fire1", f));
+  const core = rect(332, 444, 8, 4, "c-fire3", f);
+  fire = { glow, flames, core };
+})();
+var fire;
+
+/* =========================================================
+   【場景】建築
+   ========================================================= */
+const windows = [], lamps = [], bulbs = [], chimneys = [];
+let clockHands, thermo, flagCols = [], cafeDoor, cafeCup;
+function win(x, y, w, h, parent, on = Math.random() < .55) {
+  const g = el("g", { "data-act": "win" }, parent);
+  rect(x - P, y - P, w + P * 2, h + P * 2, "trim", g);
+  rect(x, y, w, h, "glass", g);
+  rect(x + P, y + P, P, h - P * 2, "trim", g, "deco");
+  const l = rect(x, y, w, h, "lit" + (on ? " on" : ""), g);
+  rect(x + w / 2 - P / 2, y, P, h, "trim", g); rect(x, y + h / 2 - P / 2, w, P, "trim", g);
+  rect(x - P * 2, y + h + P, w + P * 4, P, "snow", g);    // 窗台積雪
+  g._lit = l; windows.push(g);
+  return g;
+}
+// 燈具：燈頭 + 階梯光暈；flick 會偶爾閃爍
+function lamp(x, y, glowParent, bulbParent, opts = {}) {
+  const glow = el("g", { class: "deco" }, glowParent);
+  [[22, .06], [15, .1], [9, .16]].forEach(([r, o]) =>
+    el("rect", { x: x - r * 2, y: y - r * 2 + 4, width: r * 4, height: r * 4, class: "c-lamp", opacity: o }, glow));
+  const bulb = rect(x - P, y, P * 3, P * 2, "c-lamp", bulbParent);
+  const L = { glow, bulb, on: true, flick: !!opts.flick, f: 1 };
+  lamps.push(L);
+  return L;
+}
+// 路燈柱（可點擊開關）
+function streetLamp(x, base, h, parent, glowParent, flick) {
+  const g = el("g", { "data-act": "lamp" }, parent);
+  rect(x, base - h, P, h, "metal-dk", g);
+  rect(x - P, base - P * 2, P * 3, P * 2, "metal-dk", g);
+  rect(x - P * 3, base - h - P * 2, P * 7, P * 2, "metal-dk", g);
+  rect(x - P * 2, base - h - P * 3, P * 5, P, "snow", g);
+  const L = lamp(x - P, base - h, glowParent, g, { flick });
+  rect(x - P * 3, base - h + P * 2, P * 7, P, "metal-dk", g);
+  g._obj = L;
+  return L;
+}
+// 雪屋頂：階梯三角形，左半受光、右半陰影，下緣冰柱
+function snowGable(cx, apexY, rows, step, eaveTok, g) {
+  for (let i = 0; i < rows; i++) {
+    const w = snap(20 + i * step), x = snap(cx - w / 2), y = apexY + i * 8;
+    rect(x, y, w, 8, "snow", g);
+    rect(snap(cx + w / 6), y, snap(w / 2 - w / 6), 8, "snow-sh", g);
+  }
+  const ew = snap(20 + (rows - 1) * step), ex = snap(cx - ew / 2), ey = apexY + rows * 8;
+  rect(ex, ey, ew, P * 2, eaveTok, g);
+  icicles(ex + 8, ey + P * 2, ew - 16, g);
+}
+function icicles(x, y, w, g) {
+  for (let ix = x; ix < x + w; ix += 8 + snap(R() * 8)) rect(snap(ix), y, P, snap(4 + R() * 14), "ice-hi", g);
+}
+function stringLights(x0, x1, y, g, sag = 8) {
+  const toks = ["c-bulb1", "c-bulb2", "c-bulb3", "c-bulb4"];
+  let k = 0;
+  for (let x = x0; x <= x1; x += 12) {
+    const u = (x - x0) / (x1 - x0), yy = snap(y + Math.sin(u * Math.PI) * sag);
+    rect(x, yy - P, P, P, "ink", g, "deco");
+    bulbs.push({ el: rect(x, yy, P, P * 2, toks[k++ % 4], g, "deco"), ph: R() * 6 });
+  }
+}
+
+(function buildBuildings() {
+  const g = $("buildings"), glowG = el("g", { class: "deco" }, g);
+  const B = el("g", {}, g);
+
+  // ---------- 1. 木屋咖啡（原木堆疊） ----------
+  const cafe = el("g", {}, B);
+  rect(532, 262, 20, 56, "stone", cafe); rect(532, 262, 6, 56, "stone-dk", cafe);
+  rect(528, 254, 28, 8, "snow", cafe);
+  chimneys.push({ x: 542, y: 254, rate: 1.4 });
+  for (let y = 340, i = 0; y < 456; y += 12, i++) {
+    rect(392, y, 180, 8, "log", cafe); rect(392, y + 8, 180, 4, "log-dk", cafe);
+    rect(388, y + 2, 8, 8, "log-end", cafe); rect(568, y + 2, 8, 8, "log-end", cafe);
+  }
+  snowGable(482, 268, 9, 23, "roof-dk", cafe);
+  win(412, 372, 36, 28, cafe, true); win(516, 372, 36, 28, cafe, true);
+  // 門廊與門（可點擊）
+  rect(452, 380, 60, 6, "roof-dk", cafe); rect(448, 374, 68, 6, "snow", cafe);
+  rect(456, 386, 4, 70, "timber", cafe); rect(504, 386, 4, 70, "timber", cafe);
+  cafeDoor = el("g", { "data-act": "cafe" }, cafe);
+  rect(464, 396, 36, 60, "trim", cafeDoor);
+  const door = rect(468, 400, 28, 56, "door", cafeDoor);
+  rect(472, 404, 20, 16, "glass", cafeDoor); rect(472, 404, 20, 16, "lit on", cafeDoor);
+  rect(488, 428, P, P, "c-lamp", cafeDoor);
+  cafeDoor._door = door;
+  // 吊掛招牌
+  rect(470, 340, P, 8, "metal-dk", cafe); rect(494, 340, P, 8, "metal-dk", cafe);
+  rect(460, 346, 44, 20, "sign-bg", cafe); txt(482, 361, "CAFÉ", 13, cafe);
+  // 門口柴堆、雪鏟
+  for (let i = 0; i < 3; i++) for (let j = 0; j < 4 - i; j++) rect(376 + j * 8 + i * 4, 448 - i * 8, 8, 8, j % 2 ? "log-end" : "log", cafe);
+  rect(376, 420 + 4, 4, 8, "snow", cafe);
+  stringLights(396, 568, 344, cafe, 6);
+  lamp(452, 392, glowG, cafe, { flick: true });
+
+  // ---------- 2. 登山用品店（平頂假立面） ----------
+  const gear = el("g", {}, B);
+  rect(588, 300, 160, 156, "wall2", gear);
+  for (let x = 596; x < 748; x += 16) rect(x, 300, P, 156, "wall2-dk", gear);
+  rect(584, 296, 168, 8, "trim", gear); rect(584, 288, 168, 8, "snow", gear);
+  for (let x = 588; x < 748; x += 24) rect(x, 284, 12, 4, "snow", gear);
+  rect(604, 310, 128, 24, "sign-bg", gear); txt(668, 328, "GEAR · SKI", 14, gear);
+  win(612, 348, 28, 24, gear); win(696, 348, 28, 24, gear);
+  // 展示櫥窗：裡面立著雪板
+  rect(596, 388, 96, 60, "trim", gear); rect(600, 392, 88, 52, "glass", gear);
+  const disp = rect(600, 392, 88, 52, "lit on", gear);
+  ["ski1", "ski2", "ski3", "ski1", "coat6", "ski2"].forEach((s, i) => { rect(608 + i * 12, 398, 6, 46, s, gear); rect(608 + i * 12, 396, 6, 4, "trim", gear); });
+  rect(600, 440, 88, 4, "wall2-dk", gear);
+  rect(704, 392, 32, 64, "trim", gear); rect(708, 396, 24, 60, "door", gear); rect(726, 424, P, P, "metal", gear);
+  // 門邊靠著的紅雪橇
+  rect(738, 420, 8, 36, "ski1", gear); rect(736, 416, 12, 4, "ski1", gear);
+  lamp(696, 380, glowG, gear);
+
+  // ---------- 3. 山屋旅館（三層，石砌一樓、半木構） ----------
+  const lodge = el("g", {}, B);
+  // 鐘樓
+  rect(864, 160, 40, 64, "wall3", lodge); rect(864, 160, 8, 64, "wall3-dk", lodge);
+  for (let i = 0; i < 4; i++) rect(860 + i * 4, 156 - i * 8, 48 - i * 8, 8, i % 2 ? "snow-sh" : "snow", lodge);
+  rect(884, 104, P, 28, "metal-dk", lodge);       // 旗桿
+  sprite(discRows(4, "t", "w"), { t: "timber", w: "trim" }, lodge, 884 - 16, 184 - 16);
+  clockHands = el("g", {}, lodge);
+  // 國旗（每一直欄可單獨飄動）
+  const FLAG = ["RRRWWWWWWWRRR", "RRRWWWrWWWRRR", "RRRWrWrWrWRRR", "RRRWrrrrrWRRR", "RRRWWrrrWWRRR", "RRRWWWrWWWRRR", "RRRWWWWWWWRRR"];
+  const fg = el("g", {}, lodge);
+  for (let c = 0; c < 13; c++) {
+    const col = el("g", {}, fg);
+    FLAG.forEach((row, r) => rect(888 + c * P, 104 + r * P, P, P, row[c] === "W" ? "flag-w" : "flag-r", col));
+    flagCols.push(col);
+  }
+  // 主體
+  rect(764, 270, 240, 130, "wall3", lodge);
+  rect(764, 270, 240, P, "wall3-dk", lodge);
+  for (let x = 764; x <= 1000; x += 60) rect(x, 270, P, 130, "timber", lodge);
+  rect(764, 334, 240, P, "timber", lodge); rect(764, 396, 240, P, "timber", lodge);
+  for (let x = 764; x < 1004; x += 60) { pixLine(x + 4, 274, x + 28, 330, "timber", lodge); pixLine(x + 56, 274, x + 32, 330, "timber", lodge); }
+  // 屋頂（階梯四坡）+ 老虎窗
+  for (let i = 0; i < 6; i++) {
+    const inset = i * 12, y = 262 - i * 8;
+    rect(756 + inset, y, 256 - inset * 2, 8, "snow", lodge);
+    rect(884, y, 128 - inset, 8, "snow-sh", lodge);
+  }
+  rect(756, 270, 256, P, "roof-dk", lodge);
+  icicles(764, 274, 240, lodge);
+  [800, 948].forEach(x => { rect(x - 4, 236, 28, 26, "wall3", lodge); rect(x - 8, 228, 36, 8, "snow", lodge); win(x + 2, 242, 16, 14, lodge); });
+  // 牌匾
+  rect(848, 280, 72, 20, "sign-bg", lodge); txt(884, 295, "LODGE", 14, lodge);
+  [784, 828, 916, 960].forEach(x => win(x, 288, 24, 32, lodge));
+  [784, 828, 872, 916, 960].forEach(x => win(x, 348, 24, 32, lodge));
+  // 二樓陽台欄杆
+  rect(772, 384, 224, P, "timber", lodge);
+  for (let x = 776; x < 996; x += 8) rect(x, 384, P, 12, "timber", lodge);
+  rect(772, 380, 224, P, "snow", lodge);
+  // 一樓石砌
+  rect(764, 400, 240, 56, "stone", lodge);
+  for (let y = 404; y < 456; y += 10) for (let x = 764 + ((y / 10) % 2) * 10; x < 1000; x += 20) rect(x, y, 16, 6, "stone-dk", lodge);
+  rect(852, 394, 64, 8, "roof-red", lodge); rect(848, 388, 72, 6, "snow", lodge);
+  rect(864, 404, 40, 52, "trim", lodge); rect(868, 408, 15, 48, "glass", lodge); rect(885, 408, 15, 48, "glass", lodge);
+  rect(868, 408, 32, 48, "lit on", lodge);
+  win(784, 412, 32, 28, lodge, true); win(952, 412, 32, 28, lodge, true);
+  lamp(852, 404, glowG, lodge); lamp(912, 404, glowG, lodge);
+  // 溫度計看板
+  rect(924, 416, 20, 24, "sign-bg", lodge);
+  thermo = txt(934, 432, "-8°", 10, lodge);
+  chimneys.push({ x: 990, y: 230, rate: .8 });
+  rect(984, 230, 12, 32, "stone", lodge); rect(980, 226, 20, 6, "snow", lodge);
+
+  // ---------- 4. 麵包店（紅牆、條紋遮陽篷） ----------
+  const bak = el("g", {}, B);
+  rect(1124, 282, 14, 30, "stone", bak); rect(1120, 276, 22, 6, "snow", bak);
+  chimneys.push({ x: 1131, y: 276, rate: 1.1 });
+  rect(1020, 330, 140, 126, "wall4", bak);
+  for (let y = 338; y < 456; y += 12) rect(1020, y, 140, P, "wall4-dk", bak);
+  snowGable(1090, 282, 6, 26, "roof-dk", bak);
+  win(1036, 344, 32, 24, bak, true);
+  rect(1084, 342, 64, 22, "sign-bg", bak); txt(1116, 358, "BAKERY", 12, bak);
+  // 遮陽篷
+  for (let x = 1024; x < 1156; x += 12) { rect(x, 380, 12, 14, ((x - 1024) / 12) % 2 ? "awning-w" : "awning-r", bak); rect(x + 4, 394, 4, 4, ((x - 1024) / 12) % 2 ? "awning-w" : "awning-r", bak); }
+  rect(1022, 376, 136, 4, "snow", bak);
+  rect(1028, 402, 68, 46, "trim", bak); rect(1032, 406, 60, 38, "glass", bak); rect(1032, 406, 60, 38, "lit on", bak);
+  for (let i = 0; i < 5; i++) { rect(1036 + i * 11, 432, 8, 6, "bread", bak); rect(1038 + i * 11, 418, 6, 5, "bread", bak); }
+  rect(1036, 438, 52, P, "timber", bak); rect(1036, 424, 52, P, "timber", bak);
+  rect(1104, 398, 36, 58, "trim", bak); rect(1108, 402, 28, 54, "door", bak); rect(1112, 406, 20, 14, "glass", bak);
+  stringLights(1024, 1156, 398, bak, 4);
+
+  // ---------- 5. 纜車站 ----------
+  const st = el("g", {}, B);
+  rect(1180, 404, 120, 52, "concrete", st);
+  rect(1180, 404, 120, P, "concrete-dk", st);
+  rect(1172, 392, 136, 12, "roof", st); rect(1168, 386, 144, 6, "snow", st);
+  rect(1236, 364, 68, 28, "metal", st); rect(1236, 360, 68, 4, "snow", st);
+  sprite(discRows(3, "k", "m"), { k: "metal-dk", m: "concrete" }, st, 1276, 366);
+  rect(1188, 412, 48, 24, "glass", st); rect(1188, 412, 48, 24, "lit on", st);
+  rect(1244, 412, 48, 8, "sign-bg", st); txt(1268, 419, "GONDOLA", 8, st);
+  rect(1252, 424, 32, 32, "trim", st); rect(1256, 428, 24, 28, "glass", st);
+})();
+
+/* =========================================================
+   【場景】人行道道具（後排）：路燈、信箱、長椅、雪板架
+   ========================================================= */
+(function buildBackProps() {
+  const g = $("backProps"), glowG = el("g", { class: "deco" }, g);
+  rect(0, 456, 1600, 16, "snow-sh", g, "deco");
+  rect(0, 456, 1600, P, "snow", g, "deco");
+  for (let i = 0; i < 40; i++) rect(snap(R() * 1600), snap(460 + R() * 8), P * 2, P, "snow-dk", g, "deco");
+  streetLamp(580, 468, 84, g, glowG); streetLamp(1012, 468, 84, g, glowG, true); streetLamp(1316, 468, 84, g, glowG);
+  // 信箱
+  rect(752, 436, 16, 20, "mailbox", g); rect(750, 432, 20, 4, "snow", g); rect(756, 456, 8, 12, "metal-dk", g); rect(756, 442, 8, 2, "ink", g);
+  // 長椅（積雪）
+  rect(1352, 452, 44, 4, "bench", g); rect(1352, 444, 44, 4, "bench", g); rect(1352, 440, 44, 4, "snow", g);
+  rect(1356, 456, 4, 10, "metal-dk", g); rect(1388, 456, 4, 10, "metal-dk", g);
+  // 雪板架
+  rect(1420, 448, 64, 4, "metal-dk", g); rect(1420, 448, 4, 18, "metal-dk", g); rect(1480, 448, 4, 18, "metal-dk", g);
+  ["ski2", "ski3", "ski1", "coat4", "ski2", "coat6"].forEach((s, i) => rect(1428 + i * 9, 416 + (i % 2) * 4, 5, 48 - (i % 2) * 4, s, g));
+  // 消防栓
+  rect(1520, 444, 12, 20, "coat1", g); rect(1516, 450, 20, 4, "coat1", g); rect(1518, 440, 16, 4, "snow", g);
+})();
+
+/* =========================================================
+   【場景】道路（壓實的雪路）
+   ========================================================= */
+(function buildRoad() {
+  const g = $("road");
+  rect(0, 472, 1600, 4, "snow-dk", g);
+  rect(0, 476, 1600, 56, "road", g);
+  [488, 498, 512, 524].forEach(y => rect(0, y, 1600, P, "road-dk", g));
+  for (let x = 0; x < 1600; x += 48) rect(x, 504, 24, P, "line", g);
+  for (let i = 0; i < 70; i++) rect(snap(R() * 1600), snap(478 + R() * 50), snap(8 + R() * 24), P, "road-hi", g);
+})();
+
+/* =========================================================
+   【場景】前景雪堤、步道、雪人、前景松樹與路燈
+   ========================================================= */
+let snowman, frontPines = [];
+(function buildFront() {
+  const g = $("frontBank");
+  rect(0, 532, 1600, 68, "snow", g);
+  // 剷雪堆起的雪堤（凹凸）
+  for (let x = 0; x < 1600; x += 8) rect(x, snap(526 + Math.sin(x * .05) * 3 + R() * 4), 8, 12, "snow", g);
+  rect(0, 538, 1600, P, "snow-sh", g);
+  rect(0, 568, 1600, 24, "snow-sh", g);      // 踩實的步道
+  rect(0, 568, 1600, P, "snow-dk", g);
+  for (let i = 0; i < 50; i++) rect(snap(R() * 1600), snap(544 + R() * 50), P * 2, P, R() < .5 ? "snow-dk" : "hat1", g);
+
+  const fp = $("frontProps"), glowG = el("g", { class: "deco" }, fp);
+  // 麋鹿出沒告示牌
+  const sign = el("g", { class: "deco" }, fp);
+  rect(1394, 520, P, 46, "metal-dk", sign);
+  for (let i = 0; i < 7; i++) { const w = 4 + i * 8; rect(1396 - w / 2, 488 + i * 4, w, 4, "xing", sign); }
+  for (let i = 0; i < 6; i++) { const w = 44 - i * 8; rect(1396 - w / 2, 516 + i * 4, w, 4, "xing", sign); }
+  sprite(["a.a....", ".a.....", ".hbbbb.", "..b..b."], { a: "ink", h: "ink", b: "ink" }, sign, 1382, 504);
+  // 插在雪裡的鏟子
+  pixLine(448, 548, 460, 520, "log-end", fp); rect(440, 548, 12, 12, "metal", fp);
+  // 雪人
+  snowman = buildSnowman(fp, 392, 572);
+  streetLamp(220, 566, 96, fp, glowG); streetLamp(760, 566, 96, fp, glowG); streetLamp(1260, 566, 96, fp, glowG, true);
+
+  const ft = $("frontTrees");
+  [[44, 600, 30], [128, 604, 20], [1474, 604, 21], [1560, 600, 32]].forEach(([x, y, h]) => {
+    const t = pineSnow(x, y, h, ft, { act: "pine" });
+    frontPines.push(t._obj);
+  });
+})();
+
+// 雪人：分 4 段，點一下長一段
+function buildSnowman(parent, x, base) {
+  const g = el("g", { "data-act": "snowman" }, parent);
+  const parts = [];
+  const ball = (r, cy) => sprite(discRows(r, "o", "w").map((row, y) => row.split("").map((c, i) => c === "w" && i > r + 1 ? "s" : c).join("")), { o: "snow-sh", w: "snow", s: "snow-sh" }, null, x - r * P, cy - r * P);
+  const p1 = el("g", {}, g); p1.appendChild(ball(7, base - 28));
+  const p2 = el("g", {}, g); p2.appendChild(ball(5, base - 72)); [-76, -64].forEach(dy => rect(x - 2, base + dy, P, P, "ink", p2));
+  const p3 = el("g", {}, g); p3.appendChild(ball(4, base - 104));
+  rect(x - 8, base - 110, P, P, "ink", p3); rect(x + 4, base - 110, P, P, "ink", p3);
+  rect(x, base - 104, 12, P, "c-carrot", p3);
+  [-4, 0, 4].forEach(dx => rect(x + dx - 2, base - 96, P, P, "ink", p3));
+  const p4 = el("g", {}, g);
+  rect(x - 16, base - 124, 32, 6, "coat1", p4); rect(x - 12, base - 136, 24, 12, "coat1", p4); rect(x - 4, base - 142, 8, 6, "hat1", p4);   // 毛帽
+  rect(x - 16, base - 90, 32, 8, "coat2", p4); rect(x + 8, base - 82, 8, 16, "coat2", p4);   // 圍巾
+  pixLine(x - 20, base - 70, x - 44, base - 88, "trunk", p4); pixLine(x + 20, base - 70, x + 44, base - 90, "trunk", p4);
+  parts.push(p1, p2, p3, p4);
+  const S = { g, parts, stage: 4, x, base };
+  g._obj = S;
+  return S;
+}
+function setSnowman(stage) {
+  snowman.stage = stage;
+  snowman.parts.forEach((p, i) => p.setAttribute("visibility", i < stage ? "visible" : "hidden"));
+}
+
+/* =========================================================
+   【角色】小朋友（雪人旁、冰湖上）、溜冰者
+   ========================================================= */
+let snowKid;
+(function buildKids() {
+  const k = makeFigure("kid", personMap({ C: "coat3", H: "coat1" }), $("frontProps"));
+  k.g.setAttribute("transform", "translate(344,584)");
+  k.g.dataset.act = "snowkid";
+  snowKid = k;
+  // 冰湖上的冰球小孩
+  const hk = makeFigure("kid", personMap({ C: "coat1", H: "hat3" }), $("skaters"), { skates: true, stick: true });
+  hk.g.dataset.act = "hockey";
+  hockeyKid = { f: hk, x: 76, y: 444 };
+  hk.g.setAttribute("transform", `translate(${hockeyKid.x},${hockeyKid.y})`);
+  hk.inner.setAttribute("transform", "scale(-1,1)");
+})();
+const skaters = [];
+[[0, 24, .45, "coat4"], [2.1, 14, .32, "coat2"], [4, 20, .38, "coat1"]].forEach(([ph, ry, sp, C]) => {
+  const f = makeFigure("adult", personMap({ C }), $("skaters"), { skates: true });
+  f.g.dataset.act = "skater";
+  f.frames[0].setAttribute("visibility", "hidden"); f.frames[1].setAttribute("visibility", "visible");
+  const S = { f, ph, ry, sp, x: 0, y: 0, spin: 0, dir: 1 };
+  f.g._obj = S; skaters.push(S);
+});
+function updateSkaters(dt, moving) {
+  for (const S of skaters) {
+    if (moving) S.ph += S.sp * dt;
+    const nx = 160 + 96 * Math.cos(S.ph), ny = 432 + S.ry * .5 * Math.sin(S.ph) + 8;
+    S.dir = -Math.sin(S.ph) >= 0 ? 1 : -1;
+    S.x = nx; S.y = ny;
+    let sx = S.dir;
+    if (S.spin > 0) { S.spin -= dt; sx = Math.sin(S.spin * 28) >= 0 ? 1 : -1; }
+    S.f.g.setAttribute("transform", `translate(${snap(nx)},${snap(ny)})`);
+    S.f.inner.setAttribute("transform", `scale(${sx},1)`);
+  }
+  // 依 y 排前後
+  skaters.slice().sort((a, b) => a.y - b.y).forEach(S => $("skaters").appendChild(S.f.g));
+}
+
+/* =========================================================
+   【角色】行人：前排步道、後排人行道
+   ========================================================= */
+const walkers = [];
+const SAY = ["好冷喔！", "零下八度耶", "去喝杯熱可可", "今天雪況超讚", "麋鹿剛剛走過去", "要不要去溜冰？", "纜車排隊中…", "楓糖派賣完了嗎？", "手套忘了帶"];
+function addWalker(layer, x, dir, opts = {}) {
+  const front = layer === "front";
+  const kind = opts.kind || (Math.random() < .2 ? "kid" : "adult");
+  const extra = {};
+  if (kind === "adult" && Math.random() < .25) extra.skis = pick(["ski1", "ski2", "ski3"]);
+  if (kind === "adult" && !extra.skis && Math.random() < .25) extra.dog = true;
+  Object.assign(extra, opts.extra || {});
+  const f = makeFigure(kind, personMap(opts.map), front ? $("frontPeople") : $("backPeople"), extra);
+  const W = { f, x, y: front ? 588 - (Math.random() < .5 ? 0 : 8) : 470, dir, speed: (kind === "kid" ? 30 : 26) + rand(-4, 8), stepT: 0, frame: 0, puffT: rand(.5, 2), printT: 0, front, stop: 0 };
+  f.g._obj = W;
+  walkers.push(W);
+  drawWalker(W);
+  return W;
+}
+function drawWalker(W) {
+  W.f.g.setAttribute("transform", `translate(${snap(W.x)},${W.y})`);
+  W.f.inner.setAttribute("transform", `scale(${W.dir},1)`);
+}
+// 腳印：前排行人踩過會留下，慢慢消失
+const prints = [];
+function footprint(x, y) {
+  let p = prints.find(q => q.life <= 0);
+  if (!p) { if (prints.length > 90) return; p = { el: rect(0, 0, P, P, "snow-dk", $("prints")) }; prints.push(p); }
+  p.el.setAttribute("x", snap(x)); p.el.setAttribute("y", y); p.life = 12;
+}
+function updateWalkers(dt) {
+  for (let i = walkers.length - 1; i >= 0; i--) {
+    const W = walkers[i];
+    if (W.stop > 0) { W.stop -= dt; continue; }
+    W.x += W.dir * W.speed * dt;
+    W.stepT += dt;
+    if (W.stepT > .2) {
+      W.stepT = 0; W.frame ^= 1;
+      W.f.frames[0].setAttribute("visibility", W.frame ? "hidden" : "visible");
+      W.f.frames[1].setAttribute("visibility", W.frame ? "visible" : "hidden");
+      if (W.f.dogFrames) { W.f.dogFrames[0].setAttribute("visibility", W.frame ? "hidden" : "visible"); W.f.dogFrames[1].setAttribute("visibility", W.frame ? "visible" : "hidden"); }
+      if (W.front) footprint(W.x + (W.frame ? -4 : 4), W.y - 2);
+    }
+    // 冷空氣中的呼氣
+    W.puffT -= dt;
+    if (W.puffT <= 0) { W.puffT = rand(1.4, 3); puff(W.x + W.dir * 14, W.y - W.f.h + 16, 4, .9, W.dir * 8, -6, .6); }
+    drawWalker(W);
+    if (W.x < -80 || W.x > 1680) { W.f.g.remove(); walkers.splice(i, 1); }
+  }
+}
+
+/* =========================================================
+   【角色】麋鹿：偶爾從右邊走到左邊
+   ========================================================= */
+let elk = null, elkT = 6;
+function spawnElk(x = 1700) {
+  const g = el("g", { "data-act": "elk" }, $("elkLayer"));
+  const inner = el("g", {}, g);
+  const a = sprite(ELK_A, ELK_MAP, inner, -32, -48), b = sprite(ELK_B, ELK_MAP, inner, -32, -48);
+  b.setAttribute("visibility", "hidden");
+  elk = { g, inner, a, b, x, y: 566, dir: -1, speed: 22, frame: 0, stepT: 0, stop: 0, graze: rand(4, 9) };
+  g._obj = elk;
+  g.setAttribute("transform", `translate(${snap(x)},${elk.y})`);
+}
+function updateElk(dt) {
+  if (!elk) { elkT -= dt; if (elkT <= 0) { spawnElk(); } return; }
+  if (elk.stop > 0) { elk.stop -= dt; return; }
+  elk.graze -= dt;
+  if (elk.graze <= 0) { elk.graze = rand(8, 14); elk.stop = rand(2, 4); }
+  elk.x += elk.dir * elk.speed * dt;
+  elk.stepT += dt;
+  if (elk.stepT > .28) { elk.stepT = 0; elk.frame ^= 1; elk.a.setAttribute("visibility", elk.frame ? "hidden" : "visible"); elk.b.setAttribute("visibility", elk.frame ? "visible" : "hidden"); }
+  elk.g.setAttribute("transform", `translate(${snap(elk.x)},${elk.y})`);
+  if (elk.x < -80) { elk.g.remove(); elk = null; elkT = rand(30, 60); }
+}
+
+/* =========================================================
+   【角色】車輛：休旅車（載雪板）、皮卡、接駁巴士、剷雪車
+   車身以中心為原點、面向右繪製；往左開時水平翻轉
+   ========================================================= */
+const vehicles = [];
+const LANES = { far: { y: 500, dir: -1, layer: "farLane" }, near: { y: 530, dir: 1, layer: "nearLane" } };
+function wheel(x, g, r = 20) {
+  rect(x, -12, r, 12, "tire", g); rect(x + 4, -16, r - 8, 4, "tire", g);
+  const hub = rect(x + r / 2 - 4, -8, P * 2, P, "metal", g);
+  return hub;
+}
+function beam(x, y, g) {
+  const b = el("g", { class: "deco" }, g);
+  for (let i = 0; i < 6; i++) rect(x + i * 16, y - i * 2, 16, 6 + i * 4, "c-beam", b);
+  return b;
+}
+function makeVehicle(kind, laneName) {
+  const lane = LANES[laneName];
+  const g = el("g", { "data-act": "veh" }, $(lane.layer));
+  const inner = el("g", { transform: `scale(${lane.dir},1)` }, g);
+  const V = { g, inner, kind, lane, dir: lane.dir, hubs: [], spin: 0, puffT: 0 };
+  let len;
+  if (kind === "suv" || kind === "pickup") {
+    const col = pick(["car1", "car2", "car3", "coat6"]);
+    len = 112; const o = -56;
+    V.beam = beam(56, -28, inner);
+    if (kind === "suv") {
+      rect(o, -30, 112, 18, col, inner);
+      rect(o + 16, -48, 72, 18, col, inner);
+      rect(o + 22, -44, 28, 12, "glass", inner); rect(o + 54, -44, 28, 12, "glass", inner);
+      rect(o + 12, -52, 80, 4, "metal-dk", inner);                       // 車頂架
+      rect(o + 8, -56, 88, 4, pick(["ski1", "ski2", "ski3"]), inner);    // 雪板
+      rect(o + 16, -60, 56, 4, "snow", inner);
+    } else {
+      rect(o, -30, 112, 18, col, inner);
+      rect(o + 52, -48, 44, 18, col, inner);
+      rect(o + 60, -44, 30, 12, "glass", inner);
+      rect(o + 4, -36, 44, 6, "snow", inner); rect(o + 12, -40, 24, 4, "snow", inner);   // 車斗積雪
+      rect(o + 52, -52, 44, 4, "snow", inner);
+    }
+    rect(o + 108, -24, 4, 10, "metal", inner);
+    rect(o + 104, -28, 8, 4, "c-head", inner);
+    rect(o, -28, 4, 6, "c-tail", inner);
+    rect(o, -14, 112, 2, "road-dk", inner);
+    V.hubs.push(wheel(o + 14, inner), wheel(o + 78, inner));
+  } else if (kind === "bus") {
+    len = 176; const o = -88;
+    V.beam = beam(88, -30, inner);
+    rect(o, -64, 176, 52, "bus", inner);
+    rect(o, -36, 176, 8, "bus-band", inner);
+    for (let i = 0; i < 6; i++) rect(o + 10 + i * 24, -56, 18, 14, "glass", inner);
+    for (let i = 0; i < 6; i++) rect(o + 10 + i * 24, -56, 18, 14, "lit on", inner);
+    rect(o + 156, -56, 16, 28, "glass", inner);
+    rect(o + 4, -68, 168, 4, "snow", inner);
+    rect(o + 168, -24, 8, 4, "c-head", inner); rect(o, -24, 4, 8, "c-tail", inner);
+    V.hubs.push(wheel(o + 20, inner), wheel(o + 132, inner));
+  } else {   // 剷雪車
+    len = 172; const o = -80;
+    V.beam = beam(92, -34, inner);
+    rect(o, -48, 72, 30, "metal", inner); rect(o, -48, 72, 4, "snow", inner);   // 撒鹽斗
+    for (let i = 0; i < 4; i++) rect(o + 6 + i * 16, -40, 8, 18, "metal-dk", inner);
+    rect(o + 72, -64, 52, 46, "plow", inner);
+    rect(o + 96, -58, 24, 16, "glass", inner);
+    rect(o + 72, -68, 52, 4, "snow", inner);
+    V.beacon = rect(o + 88, -76, 16, 8, "c-beacon", inner);
+    rect(o, -20, 128, 6, "tire", inner);
+    for (let i = 0; i < 6; i++) rect(o + 128 + i * 4, -38 + i * 2, 4 + (i > 3 ? 4 : 0), 34 - i * 2, "blade", inner);   // 斜鏟
+    rect(o + 120, -30, 8, 8, "metal-dk", inner);
+    rect(o + 120, -34, 6, 4, "c-head", inner);
+    V.hubs.push(wheel(o + 16, inner, 24), wheel(o + 48, inner, 24), wheel(o + 92, inner, 24));
+  }
+  V.len = len;
+  V.x = lane.dir > 0 ? -len : 1600 + len;
+  V.speed = kind === "plow" ? 52 : kind === "bus" ? 70 : rand(84, 120);
+  V.base = V.speed;
+  g._obj = V;
+  vehicles.push(V);
+  drawVehicle(V);
+  return V;
+}
+function drawVehicle(V) { V.g.setAttribute("transform", `translate(${snap(V.x)},${V.lane.y})`); }
+function laneClear(laneName) {
+  const L = LANES[laneName];
+  return !vehicles.some(V => V.lane === L && (L.dir > 0 ? V.x - V.len / 2 < 160 : V.x + V.len / 2 > 1440));
+}
+function spawnVehicle(kind) {
+  const laneName = kind === "plow" ? "near" : pick(["far", "near"]);
+  if (!laneClear(laneName)) return null;
+  return makeVehicle(kind || pick(["suv", "suv", "pickup", "bus"]), laneName);
+}
+let pendingPlow = 0;
+function updateVehicles(dt, n, t) {
+  for (let i = vehicles.length - 1; i >= 0; i--) {
+    const V = vehicles[i];
+    // 跟車：前面有車就放慢
+    let sp = V.base;
+    for (const U of vehicles) {
+      if (U === V || U.lane !== V.lane) continue;
+      const gap = (U.x - V.x) * V.dir;
+      if (gap > 0 && gap < U.len / 2 + V.len / 2 + 50) sp = Math.min(sp, U.speed * .95);
+    }
+    V.speed = sp;
+    V.x += V.dir * V.speed * dt;
+    V.spin += dt * V.speed;
+    if (V.spin > 10) { V.spin = 0; V.hubs.forEach(h => h.setAttribute("y", h.getAttribute("y") === "-8" ? "-12" : "-8")); }
+    V.beam.setAttribute("opacity", (n * .3).toFixed(3));
+    if (V.beacon) V.beacon.setAttribute("class", Math.floor(t * 4) % 2 ? "c-beacon" : "f-metal-dk");
+    // 冷天排氣
+    V.puffT -= dt;
+    if (V.puffT <= 0) { V.puffT = rand(.25, .5); puff(V.x - V.dir * V.len / 2, V.lane.y - 10, 4, 1.1, -V.dir * 20, -10, .5); }
+    // 剷雪車噴雪
+    if (V.kind === "plow" && Math.random() < dt * 30) sprayBit(V.x + V.dir * (V.len / 2 - 4), V.lane.y - 20, V.dir);
+    drawVehicle(V);
+    if (V.x < -V.len - 40 || V.x > 1600 + V.len + 40) { V.g.remove(); vehicles.splice(i, 1); }
+  }
+  if (pendingPlow > 0) { if (spawnVehicle("plow")) pendingPlow = 0; }
+}
+
+/* =========================================================
+   【動畫】煙、呼氣、排氣：方塊煙團由小變大、慢慢淡出
+   ========================================================= */
+const puffs = [];
+function puff(x, y, size, life, vx, vy, op = .7) {
+  let p = puffs.find(q => q.t >= q.life);
+  if (!p) { if (puffs.length > 140) return; p = { el: rect(0, 0, P, P, "smoke", $("smoke")) }; puffs.push(p); }
+  Object.assign(p, { x, y, size, life, vx, vy, op, t: 0 });
+}
+function updatePuffs(dt) {
+  for (const p of puffs) {
+    if (p.t >= p.life) continue;
+    p.t += dt;
+    const k = p.t / p.life;
+    p.x += (p.vx + wind * 30) * dt; p.y += p.vy * dt;
+    const s = snap(p.size * (1 + k * 2.2)) || P;
+    p.el.setAttribute("x", snap(p.x - s / 2)); p.el.setAttribute("y", snap(p.y - s / 2));
+    p.el.setAttribute("width", s); p.el.setAttribute("height", s);
+    p.el.setAttribute("opacity", k >= 1 ? 0 : (p.op * (1 - k)).toFixed(2));
+  }
+}
+
+// 剷雪車噴出的雪、松樹抖落的雪塊
+const bits = [];
+function sprayBit(x, y, dir) {
+  bits.push({ el: rect(0, 0, P * 2, P * 2, "snow", $("spray")), x, y, vx: dir * rand(50, 140), vy: -rand(60, 160), floor: rand(540, 566) });
+}
+function chunk(x, y, floor) {
+  bits.push({ el: rect(0, 0, P * (Math.random() < .4 ? 2 : 1), P, "pine-snow", $("chunks")), x, y, vx: rand(-20, 20), vy: rand(-30, 10), floor });
+}
+function updateBits(dt) {
+  for (let i = bits.length - 1; i >= 0; i--) {
+    const b = bits[i];
+    b.vy += 420 * dt; b.x += (b.vx + wind * 20) * dt; b.y += b.vy * dt;
+    b.el.setAttribute("x", snap(b.x)); b.el.setAttribute("y", snap(b.y));
+    if (b.y > b.floor) { b.el.remove(); bits.splice(i, 1); }
+  }
+}
+
+/* =========================================================
+   【動畫】飄雪：大小兩種雪花，受風向影響
+   ========================================================= */
+const flakes = [];
+const SNOW_LEVELS = [{ name: "小雪", n: 80 }, { name: "大雪", n: 220 }, { name: "停雪", n: 0 }];
+let snowLevel = 0;
+(function buildSnow() {
+  const g = $("snowfall");
+  for (let i = 0; i < 220; i++) {
+    const big = Math.random() < .3;
+    const f = { x: Math.random() * 1600, y: Math.random() * 600, vy: big ? rand(46, 70) : rand(24, 40), ph: Math.random() * 6, big };
+    f.el = rect(0, 0, big ? P * 2 : P, big ? P * 2 : P, "snow", g);
+    f.el.setAttribute("opacity", big ? ".95" : ".75");
+    flakes.push(f);
+  }
+})();
+function updateSnow(dt, t) {
+  const N = SNOW_LEVELS[snowLevel].n;
+  flakes.forEach((f, i) => {
+    if (i >= N) { if (f.vis !== false) { f.el.setAttribute("visibility", "hidden"); f.vis = false; } return; }
+    if (f.vis === false) { f.el.setAttribute("visibility", "visible"); f.vis = true; }
+    f.y += f.vy * dt * (snowLevel === 1 ? 1.3 : 1);
+    f.x += (wind * (f.big ? 70 : 45) + Math.sin(t * 1.3 + f.ph) * 12) * dt;
+    if (f.y > 600) { f.y = -8; f.x = Math.random() * 1600; }
+    if (f.x > 1610) f.x = -8; if (f.x < -10) f.x = 1608;
+    f.el.setAttribute("x", snap(f.x)); f.el.setAttribute("y", snap(f.y));
+  });
+}
+
+/* =========================================================
+   【動畫】纜車與滑雪客
+   ========================================================= */
+const CABLE_A = [1288, 368], CABLE_B = [1548, 132], CABLE_OFF = [10, 8];
+const gondolas = [];
+(function buildCable() {
+  const g = $("cable");
+  pixLine(CABLE_A[0], CABLE_A[1], CABLE_B[0], CABLE_B[1], "metal-dk", g);
+  pixLine(CABLE_A[0] + CABLE_OFF[0], CABLE_A[1] + CABLE_OFF[1], CABLE_B[0] + CABLE_OFF[0], CABLE_B[1] + CABLE_OFF[1], "metal-dk", g);
+  // 支柱
+  [.32, .66].forEach(k => {
+    const x = snap(lerp(CABLE_A[0], CABLE_B[0], k)), y = snap(lerp(CABLE_A[1], CABLE_B[1], k));
+    const ground = hillTop[Math.floor(x / 8)];
+    rect(x + 4, y, P * 2, ground - y + 8, "metal-dk", g); rect(x - 4, y - 4, 24, P, "metal-dk", g);
+  });
+  for (let i = 0; i < 6; i++) {
+    const cg = el("g", { "data-act": "gondola" }, $("gondolas"));
+    sprite(["..m..", "..m..", "CCCCC", "CGGGC", "CGGGC", "CCCCC"], { m: "metal-dk", C: i % 2 ? "cabin" : "car2", G: "glass" }, cg, -10, 0);
+    const l = rect(-6, 12, 12, 8, "lit on", cg);
+    gondolas.push({ g: cg, u: i / 3 });
+  }
+})();
+function updateGondolas(dt, moving) {
+  for (const G of gondolas) {
+    if (moving) G.u = (G.u + dt * .025) % 2;
+    let x, y;
+    if (G.u < 1) { x = lerp(CABLE_A[0], CABLE_B[0], G.u); y = lerp(CABLE_A[1], CABLE_B[1], G.u); }
+    else { const k = 2 - G.u; x = lerp(CABLE_A[0], CABLE_B[0], k) + CABLE_OFF[0]; y = lerp(CABLE_A[1], CABLE_B[1], k) + CABLE_OFF[1]; }
+    G.g.setAttribute("transform", `translate(${snap(x)},${snap(y)})`);
+  }
+}
+const skiers = [];
+(function buildSkiers() {
+  for (let i = 0; i < 4; i++) {
+    const g = el("g", {}, $("skiers"));
+    rect(0, -12, P, P, "skin", g); rect(-P, -8, P * 2, 8, COATS[i], g); rect(-P * 2, 0, P * 4, P, "ink", g);
+    skiers.push({ g, s: i / 4, sp: rand(.05, .08), ph: rand(0, 6) });
+  }
+})();
+function updateSkiers(dt, moving) {
+  for (const S of skiers) {
+    if (moving) { S.s += S.sp * dt; if (S.s > 1) { S.s = 0; S.sp = rand(.05, .08); } }
+    const x = 1500 - 170 * S.s + 26 * Math.sin(S.s * Math.PI * 7 + S.ph), y = 180 + 250 * S.s;
+    S.g.setAttribute("transform", `translate(${snap(x)},${snap(y)})`);
+    S.g.setAttribute("opacity", S.s > .94 ? 0 : 1);
+  }
+}
+
+/* =========================================================
+   【動畫】雁群、流星、對話泡泡
+   ========================================================= */
+const flocks = [], meteors = [];
+const GOOSE_A = ["k...d...", ".ddddddl", "....d..."], GOOSE_B = ["....d...", "kddddddl", "...d...."];
+function spawnFlock(y) {
+  const g = el("g", {}, $("birds"));
+  const birds = [];
+  for (let i = 0; i < 7; i++) {
+    const row = Math.ceil(i / 2), side = i % 2 ? -1 : 1;
+    const bg = el("g", { transform: `translate(${-row * 28},${i === 0 ? 0 : side * row * 14})` }, g);
+    const a = sprite(GOOSE_A, { k: "ink", d: "goose", l: "goose-lt" }, bg, 0, 0), b = sprite(GOOSE_B, { k: "ink", d: "goose", l: "goose-lt" }, bg, 0, 0);
+    b.setAttribute("visibility", "hidden");
+    birds.push({ a, b, ph: i * .3 });
+  }
+  flocks.push({ g, birds, x: -40, y: clamp(y, 40, 260), t: 0 });
+}
+function updateFlocks(dt) {
+  for (let i = flocks.length - 1; i >= 0; i--) {
+    const F = flocks[i]; F.t += dt; F.x += 110 * dt;
+    F.g.setAttribute("transform", `translate(${snap(F.x)},${snap(F.y + Math.sin(F.t) * 6)})`);
+    F.birds.forEach(B => { const up = Math.sin(F.t * 9 + B.ph) > 0; B.a.setAttribute("visibility", up ? "visible" : "hidden"); B.b.setAttribute("visibility", up ? "hidden" : "visible"); });
+    if (F.x > 1800) { F.g.remove(); flocks.splice(i, 1); }
+  }
+}
+function shootingStar(x, y) {
+  const g = el("g", {}, $("birds"));
+  for (let i = 0; i < 9; i++) rect(-i * P * 2, -i * P, P * 2, P, "c-star", g).setAttribute("opacity", (1 - i / 9).toFixed(2));
+  meteors.push({ g, x: x ?? rand(300, 1300), y: y ?? rand(20, 140), t: 0 });
+}
+function updateMeteors(dt) {
+  for (let i = meteors.length - 1; i >= 0; i--) {
+    const M = meteors[i]; M.t += dt; M.x += 520 * dt; M.y += 260 * dt;
+    M.g.setAttribute("transform", `translate(${snap(M.x)},${snap(M.y)})`);
+    M.g.setAttribute("opacity", Math.max(0, 1 - M.t / .9).toFixed(2));
+    if (M.t > .9) { M.g.remove(); meteors.splice(i, 1); }
+  }
+}
+const bubbles = [];
+function bubble(x, y, text) {
+  const g = el("g", { class: "bubble" }, $("fx"));
+  const tw = [...text].reduce((s, c) => s + (c.charCodeAt(0) > 255 ? 18 : 10), 0);
+  const w = snap(tw + 24), h = 32;
+  const bx = clamp(snap(x - w / 2), 8, 1592 - w), by = clamp(snap(y - h - 16), 8, 560);
+  el("rect", { x: bx - P, y: by, width: w + P * 2, height: h, class: "bd" }, g);
+  el("rect", { x: bx, y: by - P, width: w, height: h + P * 2, class: "bd" }, g);
+  el("rect", { x: bx, y: by, width: w, height: h, class: "bg" }, g);
+  const tx = clamp(snap(x), bx + 8, bx + w - 12);
+  el("rect", { x: tx, y: by + h + P, width: P * 2, height: P, class: "bd" }, g);
+  el("rect", { x: tx, y: by + h, width: P * 2, height: P, class: "bg" }, g);
+  const t = el("text", { x: bx + w / 2, y: by + 22, "text-anchor": "middle" }, g); t.textContent = text;
+  bubbles.push({ g, t: 0 });
+}
+function updateBubbles(dt) {
+  for (let i = bubbles.length - 1; i >= 0; i--) {
+    const B = bubbles[i]; B.t += dt;
+    if (B.t > 2.4) { B.g.remove(); bubbles.splice(i, 1); }
+  }
+}
+
+/* =========================================================
+   【動畫】日夜循環
+   phase：0 = 正午、0.25 = 黃昏、0.5 = 午夜、0.75 = 清晨
+   ========================================================= */
+const RM_QUERY = matchMedia("(prefers-reduced-motion: reduce)");
+let reduced = RM_QUERY.matches;
+let phase = 0.92;            // 初始：上午十點
+let auto = !reduced;
+let tween = null;
+const CYCLE = 100;           // 自動循環一圈秒數
+const nightOf = p => clamp(.5 - .9 * Math.cos(p * Math.PI * 2), 0, 1);
+function clockText(p) {
+  const mins = Math.floor(((12 + p * 24) % 24) * 60), h = Math.floor(mins / 60), m = mins % 60;
+  const name = h < 5 ? "深夜" : h < 7 ? "清晨" : h < 11 ? "上午" : h < 13 ? "中午" : h < 17 ? "下午" : h < 19 ? "黃昏" : h < 23 ? "夜晚" : "深夜";
+  return { h, m, s: `${String(h).padStart(2, "0")}:${String(Math.floor(m / 5) * 5).padStart(2, "0")} ${name}` };
+}
+let lastClockKey = "";
+function updateSky(p, n) {
+  const a = p * Math.PI * 2, c = Math.cos(a);
+  const sx = 800 + 700 * Math.sin(a), sy = 420 - 330 * c;
+  const mx = 800 - 700 * Math.sin(a), my = 420 + 330 * c;
+  $("sun").setAttribute("transform", `translate(${snap(sx)},${snap(sy)})`);
+  $("moon").setAttribute("transform", `translate(${snap(mx)},${snap(my)})`);
+  $("dusk").setAttribute("opacity", clamp(1 - Math.abs(c) / .45, 0, 1).toFixed(3));
+  const ck = clockText(p), key = ck.h + ":" + Math.floor(ck.m / 5);
+  if (key !== lastClockKey) {
+    lastClockKey = key; $("clock").textContent = ck.s;
+    clockHands.innerHTML = "";
+    const cx = 884, cy = 184, ha = ((ck.h % 12) + ck.m / 60) / 12 * Math.PI * 2, ma = ck.m / 60 * Math.PI * 2;
+    pixLine(cx, cy, cx + Math.sin(ma) * 11, cy - Math.cos(ma) * 11, "ink", clockHands);
+    pixLine(cx, cy, cx + Math.sin(ha) * 7, cy - Math.cos(ha) * 7, "timber", clockHands);
+    thermo.textContent = (n > .5 ? "-18" : n > .2 ? "-12" : "-8") + "°";
+  }
+  document.querySelectorAll(".nightOnly").forEach(e => e.setAttribute("opacity", (n * (+e.dataset.o || .14)).toFixed(3)));
+}
+
+/* =========================================================
+   主迴圈
+   ========================================================= */
+let wind = .2, windTarget = .2, pointerIn = false;
+let last = performance.now(), t = 0, vehT = 2, walkT = 2, smokeT = 0, plowT = 45;
+
+function frame(now) {
+  const dt = Math.min(.05, (now - last) / 1000); last = now; t += dt;
+
+  // --- 日夜 ---
+  if (tween) {
+    tween.t += dt / (reduced ? .001 : 1.8);
+    const k = Math.min(1, tween.t), e = k < .5 ? 2 * k * k : 1 - Math.pow(-2 * k + 2, 2) / 2;
+    phase = tween.from + (tween.to - tween.from) * e;
+    if (k >= 1) { tween = null; phase %= 1; }
+  } else if (auto && !reduced) phase = (phase + dt / CYCLE) % 1;
+  const n = nightOf(phase);
+  applyNight(n);
+  updateSky(phase, n);
+  auroraBoost = Math.max(0, auroraBoost - dt * .25);
+  updateAurora(reduced ? 0 : t, n);
+
+  // --- 風：滑鼠控制，沒滑鼠時自己飄 ---
+  if (!pointerIn) windTarget = .2 + Math.sin(t * .2) * .5;
+  wind += (windTarget - wind) * Math.min(1, dt * 2.5);
+
+  // --- 燈光（含閃爍）、彩燈、營火 ---
+  for (const L of lamps) {
+    if (L.flick && !reduced) { if (Math.random() < dt * .4) L.f = .15; L.f += (1 - L.f) * dt * (L.f < .5 && Math.random() < .5 ? 1 : 6); }
+    const on = L.on ? L.f : 0;
+    L.glow.setAttribute("opacity", (n * on).toFixed(3));
+    L.bulb.setAttribute("class", L.on && L.f > .5 ? "c-lamp" : "f-metal");
+  }
+  for (const b of bulbs) b.el.setAttribute("opacity", reduced ? (.5 + .5 * n).toFixed(2) : ((.35 + .65 * n) * (.55 + .45 * Math.sin(t * 2.4 + b.ph))).toFixed(2));
+  fire.glow.setAttribute("opacity", (.3 + .7 * n).toFixed(2));
+  if (!reduced) {
+    fire.flames.forEach((f, i) => { const h = snap(6 + 10 * Math.abs(Math.sin(t * 7 + i * 1.7))); f.setAttribute("y", 448 - h); f.setAttribute("height", h); });
+  }
+  for (const s of stars) if (!reduced) s.s.setAttribute("opacity", (s.base * (.65 + .35 * Math.sin(t * 2 + s.ph))).toFixed(2));
+  for (const s of sparkles) s.s.setAttribute("opacity", reduced ? 0 : ((1 - n) * Math.max(0, Math.sin(t * 1.6 + s.ph * 3))).toFixed(2));
+
+  // --- 國旗飄動 ---
+  flagCols.forEach((c, i) => c.setAttribute("transform", `translate(0,${reduced ? 0 : snap(Math.sin(t * 5 - i * .7) * (2 + Math.abs(wind) * 3) * (i / 12))})`));
+
+  if (!reduced) {
+    // 雲
+    for (const c of clouds) {
+      c.x += (c.sp * 6 + wind * 12) * dt;
+      if (c.x > 1700) c.x = -c.w - 20; if (c.x < -c.w - 40) c.x = 1690;
+      c.g.setAttribute("transform", `translate(${snap(c.x)},${c.y})`);
+    }
+    // 煙囪
+    smokeT -= dt;
+    if (smokeT <= 0) { smokeT = .3; for (const C of chimneys) if (Math.random() < C.rate * .6) puff(C.x + rand(-2, 2), C.y, 8, 4, 4, -18, .55); }
+    // 車
+    vehT -= dt;
+    if (vehT <= 0) { vehT = rand(3, 7); spawnVehicle(); }
+    plowT -= dt;
+    if (plowT <= 0) { plowT = rand(70, 110); pendingPlow = 1; }
+    updateVehicles(dt, n, t);
+    // 行人
+    walkT -= dt;
+    if (walkT <= 0) {
+      walkT = rand(2.5, 5);
+      const front = Math.random() < .55, dir = Math.random() < .5 ? 1 : -1;
+      if (walkers.filter(w => w.front === front).length < (front ? 5 : 6)) addWalker(front ? "front" : "back", dir > 0 ? -40 : 1640, dir);
+    }
+    updateWalkers(dt);
+    updateElk(dt);
+    updateSnow(dt, t);
+    updatePuffs(dt);
+    updateBits(dt);
+    updateFlocks(dt);
+    updateMeteors(dt);
+    for (const p of prints) if (p.life > 0) { p.life -= dt; p.el.setAttribute("opacity", Math.max(0, p.life / 12).toFixed(2)); }
+    // 松樹搖晃
+    for (const T of frontPines) if (T.shake > 0) { T.shake -= dt; T.crown.setAttribute("transform", `translate(${T.shake > 0 ? snap(Math.sin(T.shake * 40) * 4) : 0},0)`); }
+    // 冰球
+    if (puck.t >= 0) {
+      puck.t += dt * 1.1;
+      const k = Math.min(1, puck.t);
+      puck.x = lerp(puck.sx, puck.tx, k); puck.y = lerp(puck.sy, puck.ty, k);
+      if (k >= 1) { puck.t = -1; bubble(netX + 40, 370, "進球！"); setTimeout(() => { puck.x = 92; puck.y = 444; }, 900); }
+    }
+  }
+  puck.el.setAttribute("x", snap(puck.x)); puck.el.setAttribute("y", snap(puck.y) - P);
+  updateSkaters(dt, !reduced);
+  updateGondolas(dt, !reduced);
+  updateSkiers(dt, !reduced);
+  updateBubbles(dt);
+  requestAnimationFrame(frame);
+}
+
+/* =========================================================
+   【互動】滑鼠、點擊、按鈕
+   ========================================================= */
+function svgPoint(evt) {
+  const p = svg.createSVGPoint(); p.x = evt.clientX; p.y = evt.clientY;
+  return p.matrixTransform(svg.getScreenCTM().inverse());
+}
+svg.addEventListener("pointermove", e => { pointerIn = true; windTarget = (svgPoint(e).x / 1600 - .5) * 2.4; });
+svg.addEventListener("pointerleave", () => { pointerIn = false; });
+function callPlow() {
+  if (vehicles.some(V => V.kind === "plow")) { bubble(800, 440, "剷雪車已經在路上了"); return; }
+  if (reduced) { const V = spawnVehicle("plow"); if (V) { V.x = 700; drawVehicle(V); } return; }
+  pendingPlow = 1;
+  bubble(160, 470, "剷雪車出動！");
+}
+const ACT = {
+  win: g => g._lit.classList.toggle("on"),
+  lamp: g => { g._obj.on = !g._obj.on; },
+  pine: (g, p) => {
+    const T = g._obj; T.shake = .6;
+    if (!reduced) for (let i = 0; i < 26; i++) chunk(T.x + rand(-T.w / 2, T.w / 2), rand(T.top, T.bottom - 10), T.bottom + rand(-6, 10));
+  },
+  snowman: (g, p) => {
+    const s = snowman.stage >= 4 ? 1 : snowman.stage + 1;
+    setSnowman(s);
+    bubble(344, 520, ["重新堆一個！", "滾一顆大雪球", "再疊上頭", "戴上毛帽和圍巾，完成！"][s - 1]);
+  },
+  snowkid: () => bubble(344, 540, snowman.stage >= 4 ? "我的雪人帥不帥？" : "幫我堆雪人～"),
+  lake: (g, p) => {
+    if (puck.t >= 0) return;
+    if (reduced) { bubble(netX + 30, 420, "進球！"); return; }
+    puck.sx = puck.x; puck.sy = puck.y; puck.tx = netX; puck.ty = 438; puck.t = 0;
+    bubble(hockeyKid.x + 40, 430, "看我射門！");
+  },
+  hockey: () => ACT.lake(),
+  skater: g => { const S = g._obj; S.spin = 1; bubble(S.x, S.y - 56, pick(["轉圈圈～", "看我的！", "冰好滑！"])); },
+  cafe: () => {
+    cafeDoor._door.setAttribute("class", "f-trim");
+    setTimeout(() => cafeDoor._door.setAttribute("class", "f-door"), 1400);
+    if (!reduced) for (let i = 0; i < 4; i++) puff(482 + rand(-6, 6), 396, 4, 1.4, 0, -20, .7);
+    bubble(482, 384, pick(["熱可可來囉！", "楓糖拿鐵好了～", "歡迎光臨！"]));
+  },
+  veh: (g, p) => {
+    const V = g._obj;
+    bubble(p.x, V.lane.y - 72, V.kind === "plow" ? "剷雪中，請慢行！" : V.kind === "bus" ? "下一站：纜車站" : "叭叭！");
+  },
+  gondola: (g, p) => bubble(p.x, p.y, pick(["好高喔！", "看得到冰河！", "山頂見～"])),
+  elk: (g, p) => { if (elk) { elk.stop = 3; bubble(elk.x, elk.y - 50, pick(["呦——", "（嚼嚼）", "這是我的地盤"])); } },
+  walker: (g, p) => { const W = g._obj; if (W) { W.stop = 1.5; bubble(W.x, W.y - W.f.h, pick(SAY)); } }
+};
+svg.addEventListener("click", e => {
+  const p = svgPoint(e);
+  const a = e.target.closest("[data-act]");
+  if (a && ACT[a.dataset.act]) { ACT[a.dataset.act](a, p); return; }
+  if (p.y < 260) {      // 點天空
+    if (nightOf(phase) > .5) { auroraBoost = 1.6; shootingStar(p.x - 120, p.y - 60); }
+    else spawnFlock(p.y);
+  }
+});
+
+$("btnDayNight").addEventListener("click", () => {
+  const n = nightOf(phase);
+  const base = Math.floor(phase);
+  let to = n > .5 ? base + 1 : base + .5;
+  if (to <= phase) to += 1;
+  tween = { from: phase, to, t: 0 };
+});
+$("btnAuto").addEventListener("click", () => {
+  auto = !auto;
+  $("btnAuto").setAttribute("aria-pressed", auto);
+  $("btnAuto").textContent = "自動循環：" + (auto ? "開" : "關");
+});
+$("btnPlow").addEventListener("click", callPlow);
+$("btnSnow").addEventListener("click", () => {
+  snowLevel = (snowLevel + 1) % SNOW_LEVELS.length;
+  $("btnSnow").textContent = "雪量：" + SNOW_LEVELS[snowLevel].name;
+  if (reduced) updateSnow(0, 0);
+});
+
+// 減少動態：停住自動循環、人車靜止、雪花停在空中
+function applyReduced() {
+  reduced = RM_QUERY.matches;
+  if (reduced) {
+    auto = false; $("btnAuto").setAttribute("aria-pressed", "false"); $("btnAuto").textContent = "自動循環：關";
+    updateSnow(0, 0);
+  }
+}
+RM_QUERY.addEventListener && RM_QUERY.addEventListener("change", applyReduced);
+
+/* =========================================================
+   初始化
+   ========================================================= */
+setSnowman(4);
+addWalker("front", 560, 1, { kind: "adult", extra: { skis: "ski2" } });
+addWalker("front", 1080, -1, { kind: "adult", extra: { dog: true } });
+addWalker("back", 700, 1, { kind: "adult" });
+addWalker("back", 1150, -1, { kind: "kid" });
+addWalker("back", 420, -1, { kind: "adult" });
+spawnElk(1180);
+const v1 = makeVehicle("suv", "near"); v1.x = 420; drawVehicle(v1);
+const v2 = makeVehicle("bus", "far"); v2.x = 1100; drawVehicle(v2);
+applyNight(nightOf(phase), true);
+clouds.forEach(c => c.g.setAttribute("transform", `translate(${c.x},${c.y})`));
+updateSnow(0, 0);
+applyReduced();
+requestAnimationFrame(frame);
+})();
+</script>
+</body>
+</html>

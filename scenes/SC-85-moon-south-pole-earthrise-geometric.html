@@ -1,0 +1,2163 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>月球南極的地球升起</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<style>
+/* =========================================================
+   SC-85 月球南極的地球升起｜極簡幾何風
+   版面：單一寬版 SVG 舞台（1600×600）＋下方控制列
+   風格重點：只用圓、膠囊、矩形、三角形與多邊形，平塗色塊不描邊；
+            山與石頭切成「亮面／暗面」兩塊，亮面跟著太陽方向對調。
+   科學設定（盡量寫實）：
+   - 地點是月球南極的環形山邊緣。從南極看，地球一直貼在地平線附近，
+     隨「天平動」慢慢上下晃，所以會看到地球從環形山邊緣升起又落下。
+   - 太陽也一直很低，貼著地平線繞圈，影子永遠拉得很長；太陽會躲到山後面，那就是「月夜」。
+   - 沒有大氣：白天天空也是黑的、遠山不會變朦朧、星星不會閃爍；
+     塵土照拋物線落下，不會飄成一團煙；流星體不會燒成流星，直接撞上月面閃光。
+   - 地相和月相相反：太陽在地球旁邊時是細細的「地牙」，太陽在背後時是滿地球。
+   - 月球的一天（朔望月）約 29.5 個地球日；畫面中一圈約 150 秒。
+   - 地球畫得比實際大（實際視直徑約 2 度），方便看清楚。
+   ---------------------------------------------------------
+   【色票 token】所有顏色集中在這裡，改這裡就能換色。
+   成對的色票寫成 --d-名稱（月晝）／--n-名稱（月夜，地球照亮的藍灰色），
+   部分另有 --k-名稱（地球日食時的紅銅色）。JS 會依光線內插，輸出成 --名稱，
+   並自動產生 .f-名稱（填色）、.s-名稱（描邊）兩個 class。
+   ========================================================= */
+:root{
+  /* —— 天空：沒有大氣，白天也是黑的 —— */
+  --d-sky-top:#020309;  --n-sky-top:#020309;
+  --d-sky-low:#0b0d16;  --n-sky-low:#080b17;  --k-sky-low:#1a0a07;
+
+  /* —— 遠山（亮面／暗面）與環形山邊緣 —— */
+  --d-mt-lit:#dcd7cd;   --n-mt-lit:#5d6884;   --k-mt-lit:#a5523a;
+  --d-mt-shade:#5c5752; --n-mt-shade:#262c3d; --k-mt-shade:#3c1b14;
+  --d-rim:#b9b3a8;      --n-rim:#47516b;      --k-rim:#7f3d2c;
+  --d-rim-top:#e6e1d7;  --n-rim-top:#66718e;  --k-rim-top:#b45a40;
+
+  /* —— 月面（月壤） —— */
+  --d-gr-far:#aea89e;   --n-gr-far:#3f4860;   --k-gr-far:#6b3326;
+  --d-gr-mid:#bfb9ae;   --n-gr-mid:#48526a;   --k-gr-mid:#783a2b;
+  --d-gr-near:#ccc6bb;  --n-gr-near:#515c76;  --k-gr-near:#84402f;
+  --d-gr-dot:#a19b90;   --n-gr-dot:#3a4357;   --k-gr-dot:#5c2b20;
+  --d-crater-in:#948e84; --n-crater-in:#343c50; --k-crater-in:#52261b;
+  --d-crater-lip:#e0dbd1; --n-crater-lip:#6a7591; --k-crater-lip:#a6543b;
+  --d-rock-lit:#d3cec4; --n-rock-lit:#5f6a86;  --k-rock-lit:#9c4c36;
+  --d-rock-shade:#6e6963; --n-rock-shade:#2c3344; --k-rock-shade:#431f17;
+  --d-track:#8e887e;    --n-track:#30384a;    --k-track:#4e2419;
+  --d-pad:#8d8a86;      --n-pad:#363d50;      --k-pad:#5a2b20;   /* 月壤燒結的降落場 */
+
+  /* —— 基地：居住艙、溫室、太陽能塔、天線、登月艙 —— */
+  --d-hull:#f4eee3;     --n-hull:#6f7895;     --k-hull:#bb6a4e;
+  --d-hull-sh:#cdc4b4;  --n-hull-sh:#454d68;  --k-hull-sh:#80402f;
+  --d-berm:#a29c91;     --n-berm:#3c4459;     --k-berm:#653024;  /* 蓋在居住艙上的月壤沙包 */
+  --d-foil:#f2b23a;     --n-foil:#7d6c46;     --k-foil:#b66a2a;  /* 金色隔熱箔 */
+  --d-foil-sh:#c4861b;  --n-foil-sh:#54472c;  --k-foil-sh:#7d4318;
+  --d-metal:#9ba4b4;    --n-metal:#3d465b;    --k-metal:#6e3a2e;
+  --d-metal-dk:#5b6375; --n-metal-dk:#252b3b; --k-metal-dk:#3b1d16;
+  --d-panel:#2d50a6;    --n-panel:#16214b;    --k-panel:#3b2438;
+  --d-panel-ln:#7095e3; --n-panel-ln:#27356f; --k-panel-ln:#6a3b4a;
+  --d-panel-back:#a8aeb9; --n-panel-back:#394055; --k-panel-back:#6b3a2f;
+  --d-glass:#27385f;    --n-glass:#141c33;
+
+  /* —— 太空衣 —— */
+  --d-suit:#f8f5ef;     --n-suit:#818aa6;     --k-suit:#c8765a;
+  --d-suit-sh:#cdc8be;  --n-suit-sh:#565e78;  --k-suit-sh:#8c4735;
+  --d-pack:#e4dfd5;     --n-pack:#646d88;     --k-pack:#a65e47;
+  --d-boot:#6c717f;     --n-boot:#2a2f3f;     --k-boot:#44211a;
+  --d-glove:#e0dbd1;    --n-glove:#6b7490;    --k-glove:#a65b44;
+  --d-visor:#f0b43c;    --n-visor:#8a7034;    --k-visor:#d0702e;  /* 鍍金面罩 */
+
+  /* —— 不隨光線變化的顏色 —— */
+  --coral:#ff7a5c; --mustard:#f5b83d; --teal:#2bb3a3; --indigo:#5266e0; --lilac:#b48cff;
+  --win:#ffd98a; --win-glow:#ffcf73; --beacon:#ff3b30; --ok:#3ddc84; --led:#ff74d4;
+  --sun:#ffffff; --plume:#bfe2ff; --flash:#fffbe8; --laser:#6dff8e;
+  --earth-ocean:#2c6cc4; --earth-deep:#1d4f9c; --earth-land:#5ea96b; --earth-desert:#d8b26a;
+  --earth-ice:#f3f7fc; --earth-cloud:#ffffff; --earth-night:#06091a; --city:#ffd27a;
+  --atmo:#8fd2ff; --aurora:#5dff9c; --aurora2:#ff6b8a; --ring:#ff6a3a;
+  --say-bg:#ffffff; --say-fg:#1c2033; --radio:#2bb3a3;
+
+  /* —— 頁面介面（淺色） —— */
+  --page-bg:#f3f2ee; --page-fg:#23252e; --page-muted:#666a76;
+  --ui-surface:#ffffff; --ui-line:#d9d7d0; --ui-accent:#3b4cc0; --ui-accent-2:#e2583c;
+
+  --font-ui:"Noto Sans TC","PingFang TC","Microsoft JhengHei",system-ui,sans-serif;
+}
+
+/* ---------- 頁面版面 ---------- */
+html,body{background:var(--page-bg);color:var(--page-fg);margin:0}
+body{font-family:var(--font-ui)}
+.wrap{max-width:1600px;margin:0 auto;padding-block:20px 32px;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));
+  display:flex;flex-direction:column;gap:14px}
+.stage{margin:0;border-radius:14px;overflow:hidden;background:#05060b;line-height:0;box-shadow:0 6px 24px rgba(20,20,40,.18)}
+#scene{display:block;width:100%;height:auto;touch-action:manipulation;user-select:none;-webkit-user-select:none}
+.panel{display:flex;flex-wrap:wrap;align-items:center;gap:10px 12px}
+.panel button{font:500 14px/1 var(--font-ui);color:var(--page-fg);background:var(--ui-surface);border:1.5px solid var(--ui-line);
+  border-radius:999px;padding:9px 14px;cursor:pointer}
+.panel button:hover{border-color:var(--ui-accent)}
+.panel button[aria-pressed="true"]{background:var(--page-fg);border-color:var(--page-fg);color:var(--ui-surface);font-weight:700}
+.panel button.big{background:var(--ui-accent-2);border-color:var(--ui-accent-2);color:#fff;font-weight:700}
+.panel button.big.alt{background:var(--ui-accent);border-color:var(--ui-accent)}
+.panel button.big.on{background:var(--page-fg);border-color:var(--page-fg)}
+.panel button:disabled{opacity:.5;cursor:default}
+.panel button:focus-visible,.panel input:focus-visible{outline:2px solid var(--ui-accent);outline-offset:3px}
+/* 畫面內可點物件：滑鼠點不顯示外框，用鍵盤 Tab 時才顯示 */
+#scene [tabindex]:focus{outline:none}
+body.kbd #scene [tabindex]:focus{outline:2px solid var(--ui-accent);outline-offset:3px}
+.timebox{display:flex;align-items:center;gap:10px;margin-left:auto;font-size:14px;color:var(--page-muted)}
+.timebox input{width:min(240px,40vw);accent-color:var(--ui-accent)}
+.clock{font:700 15px/1 var(--font-ui);color:var(--page-fg);min-width:6.4em}
+.hint{margin:0;padding-left:1.2em;color:var(--page-muted);font-size:14px;line-height:1.75}
+.hint b{color:var(--page-fg)}
+
+/* ---------- SVG 內的樣式 ---------- */
+#scene .clickable{cursor:pointer}
+#scene .noHit{pointer-events:none}
+#scene .say text{fill:var(--say-fg);font:700 15px var(--font-ui);text-anchor:middle;dominant-baseline:central}
+#scene .count text{fill:#fff;font:900 54px var(--font-ui);text-anchor:middle;dominant-baseline:central}
+</style>
+</head>
+<body>
+<main class="wrap">
+
+  <figure class="stage">
+  <!-- =====================================================
+       【場景】SVG 主畫布 1600×600，寬度自動縮放
+       圖層由後往前：黑色天空 → 星星與銀河 → 太陽 → 軌道站 → 地球
+       → 遠山（馬拉珀特山一帶）→ 環形山邊緣 → 月塵輝光
+       → 月面（遠、中、近三層）→ 永久陰影坑與探冰機器人 → 車轍腳印 → 影子
+       → 基地（太陽能塔、居住艙、溫室、登月艙、天線）
+       → 角色（太空人、月球車、小機器人、科學儀器，依遠近排序）
+       → 特效（塵土、撞擊閃光、對話）→ 太陽風暴粒子 → 閃光
+       ===================================================== -->
+  <svg id="scene" viewBox="0 0 1600 600" preserveAspectRatio="xMidYMid meet" role="img"
+       aria-label="極簡幾何風格的月球南極：黑色天空掛滿星星，藍色的地球貼著環形山邊緣升起，太陽低低地照著，影子拉得很長；左邊是蓋著月壤沙包的居住艙、高高的太陽能塔和發著粉紫光的溫室，中間停著登月艙和指向地球的天線，前景有穿白色太空衣的太空人在低重力下跳著走、採集岩石，一輛月球車停在旁邊，右邊是永遠照不到太陽的漆黑陰影坑">
+    <defs>
+      <linearGradient id="skyGrad" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" style="stop-color:var(--sky-top)"/>
+        <stop offset="1" style="stop-color:var(--sky-low)"/>
+      </linearGradient>
+      <radialGradient id="glare">
+        <stop offset="0" stop-color="#ffffff" stop-opacity=".75"/>
+        <stop offset=".12" stop-color="#fff8e6" stop-opacity=".35"/>
+        <stop offset=".45" stop-color="#fff2d6" stop-opacity=".08"/>
+        <stop offset="1" stop-color="#fff2d6" stop-opacity="0"/>
+      </radialGradient>
+      <radialGradient id="earthShade" cx=".38" cy=".35" r=".75">
+        <stop offset="0" style="stop-color:var(--earth-ocean)"/>
+        <stop offset="1" style="stop-color:var(--earth-deep)"/>
+      </radialGradient>
+      <radialGradient id="ringGlow">
+        <stop offset=".78" stop-color="#ff6a3a" stop-opacity="0"/>
+        <stop offset=".86" stop-color="#ff7a3a" stop-opacity=".9"/>
+        <stop offset=".9" stop-color="#ffb060" stop-opacity=".6"/>
+        <stop offset="1" stop-color="#ff6a3a" stop-opacity="0"/>
+      </radialGradient>
+      <linearGradient id="plumeGrad" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" stop-color="#ffffff" stop-opacity=".95"/>
+        <stop offset=".25" style="stop-color:var(--plume)" stop-opacity=".55"/>
+        <stop offset="1" style="stop-color:var(--plume)" stop-opacity="0"/>
+      </linearGradient>
+      <linearGradient id="beamGrad" x1="0" y1="0" x2="1" y2="0">
+        <stop offset="0" stop-color="#fff4c8" stop-opacity=".75"/>
+        <stop offset="1" stop-color="#fff4c8" stop-opacity="0"/>
+      </linearGradient>
+      <linearGradient id="floodGrad" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" stop-color="#ffe9b0" stop-opacity=".5"/>
+        <stop offset="1" stop-color="#ffe9b0" stop-opacity="0"/>
+      </linearGradient>
+      <linearGradient id="glowGrad" x1="0" y1="1" x2="0" y2="0">
+        <stop offset="0" stop-color="#fff3d8" stop-opacity=".55"/>
+        <stop offset="1" stop-color="#fff3d8" stop-opacity="0"/>
+      </linearGradient>
+      <radialGradient id="glowRad">
+        <stop offset="0" stop-color="#fff3d8" stop-opacity=".6"/>
+        <stop offset=".5" stop-color="#fff3d8" stop-opacity=".18"/>
+        <stop offset="1" stop-color="#fff3d8" stop-opacity="0"/>
+      </radialGradient>
+      <radialGradient id="ledGrad">
+        <stop offset="0" style="stop-color:var(--led)" stop-opacity=".8"/>
+        <stop offset="1" style="stop-color:var(--led)" stop-opacity="0"/>
+      </radialGradient>
+      <clipPath id="earthClip"><circle r="58"/></clipPath>
+      <clipPath id="earthDarkClip"><path id="earthDarkClipPath"/></clipPath>
+      <clipPath id="pitClip"><ellipse cx="1310" cy="361" rx="240" ry="27"/></clipPath>
+      <filter id="soft" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="3"/></filter>
+    </defs>
+
+    <!-- ===== 【場景】天空：星星、銀河、太陽、軌道站 ===== -->
+    <rect id="sky" class="clickable" x="0" y="0" width="1600" height="600" fill="url(#skyGrad)"/>
+    <g id="milky" class="noHit"></g>
+    <g id="stars" class="noHit"></g>
+    <g id="sun" class="clickable" tabindex="0" role="button" aria-label="太陽：切換到月夜"></g>
+    <g id="orbiter" class="noHit"></g>
+
+    <!-- ===== 【場景】地球（自轉、地相、城市燈、極光、日食紅環） ===== -->
+    <g id="earth" class="clickable" tabindex="0" role="button" aria-label="地球：太空人拍下地球的照片"></g>
+
+    <!-- ===== 【場景】遠山、環形山邊緣、月塵輝光 ===== -->
+    <g id="mtFar" class="noHit"></g>
+    <g id="rim" class="noHit"></g>
+    <g id="dustGlow" class="noHit" opacity="0"></g>
+
+    <!-- ===== 【場景】月面：三層地面、隕石坑、石頭、永久陰影坑 ===== -->
+    <g id="ground"></g>
+    <g id="pit" class="clickable" tabindex="0" role="button" aria-label="永久陰影坑：探冰機器人尋找水冰"></g>
+    <g id="tracks" class="noHit"></g>
+    <g id="shadows" class="noHit"></g>
+
+    <!-- ===== 【場景】基地 ===== -->
+    <g id="floods" class="noHit"></g>
+    <g id="towers" class="clickable" tabindex="0" role="button" aria-label="太陽能塔：顯示發電量"></g>
+    <g id="habitat" class="clickable" tabindex="0" role="button" aria-label="居住艙：氣閘艙開門"></g>
+    <g id="greenhouse" class="clickable" tabindex="0" role="button" aria-label="月面溫室：蔬菜長大"></g>
+    <g id="lander" class="clickable" tabindex="0" role="button" aria-label="登月艙：排放蒸氣、閃燈"></g>
+    <g id="dish" class="clickable" tabindex="0" role="button" aria-label="天線：傳訊息回地球"></g>
+    <g id="fxBack" class="noHit"></g>
+
+    <!-- ===== 【角色】太空人、月球車、小機器人、科學儀器（依遠近排序） ===== -->
+    <g id="actors"></g>
+
+    <!-- ===== 【動畫】塵土、撞擊閃光、對話泡泡、太陽風暴、閃光 ===== -->
+    <g id="fx" class="noHit"></g>
+    <g id="storm" class="noHit" opacity="0"></g>
+    <rect id="flash" class="noHit" x="0" y="0" width="1600" height="600" fill="var(--flash)" opacity="0"/>
+    <g id="says" class="noHit"></g>
+  </svg>
+  </figure>
+
+  <!-- =====================================================
+       【互動】控制列
+       ===================================================== -->
+  <div class="panel">
+    <button id="btnLaunch" class="big" type="button">🚀 登月艙升空</button>
+    <button id="btnEclipse" class="big alt" type="button">🌘 地球日食</button>
+    <button id="btnWeather" type="button">太空天氣：平靜</button>
+    <button id="btnSound" type="button" aria-pressed="true">🔊 聲音：開</button>
+    <button id="btnDay" type="button">☀ 月晝</button>
+    <button id="btnNight" type="button">☾ 月夜</button>
+    <button id="btnAuto" type="button" aria-pressed="true">自動播放</button>
+    <label class="timebox" for="timeRange">
+      <span>月球日</span>
+      <input id="timeRange" type="range" min="0" max="1000" value="300">
+      <span class="clock" id="clock">月晝・第 9 天</span>
+    </label>
+  </div>
+  <ul class="hint">
+    <li><b>登月艙升空</b>：倒數升空把岩石樣本送上軌道，再載下一批組員降落。</li>
+    <li><b>地球日食</b>：太陽躲到地球背後，地球鑲上一圈紅色的日出日落。</li>
+    <li><b>點一點</b>：太空人、月球車、登月艙、天線、地球、溫室、陰影坑、月震儀。</li>
+    <li><b>滑鼠</b>：小機器人跟著你跑；點天空，流星體會直接撞上月面。</li>
+    <li><b>太空天氣</b>：流星體、太陽風暴、月塵輝光。真空中聽不到聲音，聽到的是無線電。</li>
+  </ul>
+</main>
+<script id="showstop">
+/* =========================================================
+   ShowStop｜表演「再按一下優雅停止」共用模組（2026-11-24）
+   用法：放在場景主程式 <script> 之前；主程式最後呼叫
+     ShowStop.init({
+       on:      () => show.on,                  // 表演中回傳真值（多種表演時回傳種類）
+       ff:      () => { show.t = show.dur - .02; },  // （選用）快轉到結尾，讓場景下一幀自己收尾
+       btn:     'btnShow' 或 { fire: 'btnFire', stars: 'btnStars' },
+       save:    () => ({ ... }),                // 表演開始前記下使用者設定（日夜、天氣…）
+       restore: s => { ... },                   // 停止時還原
+       stop:    () => { endShow(); ... },       // 立刻結束表演、清掉秀中物件（有 ff 時：快轉後仍未結束才呼叫）
+       after:   () => { ... },                  // （選用）最後再補的清理
+     });
+   停止時：畫面凍結成一張「殘影」疊在上面 1.8 秒淡出（底下已回到原狀），
+           還沒響的表演音符取消、正在響的長音淡出，表演排程的計時器取消，
+           #cineFx 燈光歸零。播放中按鈕顯示「■ 停止」。
+   ========================================================= */
+(function () {
+  'use strict';
+  const W = window;
+  const FADE = 1.8;                      // 殘影淡出秒數
+  let cfg = null, saved = null, epoch = 0, zone = 0, quiet = null;
+  const reducedQ = W.matchMedia ? W.matchMedia('(prefers-reduced-motion: reduce)') : { matches: false };
+  const isOn = () => { try { return cfg ? cfg.on() : false; } catch (e) { return false; } };
+
+  /* ---------- ① 計時器：記下「表演開始時排程」的 setTimeout / setInterval ---------- */
+  const _st = W.setTimeout, _ct = W.clearTimeout, _si = W.setInterval, _ci = W.clearInterval;
+  const zt = new Map();                  // id → { iv, keep }
+  // 音訊收尾、泡泡移除這類「善後」計時器保留，其餘（放煙火、下一段劇情）停止時取消
+  const KEEP = /\.remove\(\)|disconnect|duck|level\(|\.gain\b|removeChild|classList\.remove/;
+  function wrapFn(fn, ep) {
+    if (typeof fn !== 'function') return fn;
+    return function () {
+      if (ep !== epoch) return;          // 已被停止
+      zone++; try { return fn.apply(this, arguments); } finally { zone--; }
+    };
+  }
+  // 表演進行中排程的「台詞」（say／bubble／narr）也算表演的，停止時一起取消
+  const LINE = /\b(say|bubble|narr)\(/;
+  W.setTimeout = function (fn, ms, ...a) {
+    if (!zone && !(cfg && typeof fn === 'function' && ms > 0 && LINE.test(String(fn)) && isOn())) return _st(fn, ms, ...a);
+    let id; const keep = typeof fn === 'function' && KEEP.test(String(fn)) && String(fn).length < 400;
+    const g = keep ? fn : wrapFn(fn, epoch);
+    id = _st(function () { zt.delete(id); return g.apply(this, arguments); }, ms, ...a);
+    zt.set(id, { iv: false, keep }); return id;
+  };
+  W.clearTimeout = function (id) { zt.delete(id); return _ct(id); };
+  W.setInterval = function (fn, ms, ...a) {
+    if (!zone) return _si(fn, ms, ...a);
+    const id = _si(wrapFn(fn, epoch), ms, ...a); zt.set(id, { iv: true, keep: false }); return id;
+  };
+  W.clearInterval = function (id) { zt.delete(id); return _ci(id); };
+
+  /* ---------- ② 聲音：記下表演期間排程的音符；停止時取消未響的、淡掉長音 ---------- */
+  const srcs = new Set(); const outs = new WeakMap();
+  const SN = W.AudioScheduledSourceNode && W.AudioScheduledSourceNode.prototype;
+  if (SN) {
+    const _start = SN.start, _stop = SN.stop;
+    SN.start = function (when, ...a) {
+      const c = this.context, now = c.currentTime;
+      if (quiet) quiet.push(this);       // 停止過程中（快轉到結尾）冒出的聲音，稍後直接靜音
+      this.__ss = { at: Math.max(now, when || 0), end: Infinity, show: !!(zone || isOn()) };
+      if (this.__ss.show) { srcs.add(this); this.addEventListener('ended', () => srcs.delete(this)); }
+      return _start.call(this, when, ...a);
+    };
+    SN.stop = function (when, ...a) {
+      if (this.__ss) this.__ss.end = Math.max(this.context.currentTime, when || 0);
+      return _stop.call(this, when, ...a);
+    };
+  }
+  const AN = W.AudioNode && W.AudioNode.prototype;
+  if (AN) {   // 所有接到喇叭的線都先經過一顆總音量，停止時可以短暫壓低長音
+    const _conn = AN.connect;
+    AN.connect = function (dest, ...a) {
+      if (dest && dest === this.context.destination && !this.__ssOut) {
+        let g = outs.get(this.context);
+        if (!g) { g = this.context.createGain(); g.__ssOut = true; _conn.call(g, this.context.destination); outs.set(this.context, g); }
+        return _conn.call(this, g, ...a);
+      }
+      return _conn.call(this, dest, ...a);
+    };
+  }
+  function stopAudio() {
+    let longs = [], ctx = null;
+    for (const s of srcs) {
+      const c = s.context, now = c.currentTime, m = s.__ss; ctx = c;
+      if (!m || !m.show) continue;
+      if (m.at > now + .02) { try { s.stop(); } catch (e) {} srcs.delete(s); }      // 還沒響：直接取消
+      else if (isFinite(m.end) && m.end > now + 1.2) longs.push(s);                                     // 長音：淡掉再停
+    }
+    if (longs.length && ctx) {
+      const g = outs.get(ctx), now = ctx.currentTime;
+      if (g) {
+        g.gain.cancelScheduledValues(now); g.gain.setValueAtTime(g.gain.value, now);
+        g.gain.linearRampToValueAtTime(0, now + 1.1); g.gain.setValueAtTime(0, now + 1.2);
+        g.gain.linearRampToValueAtTime(1, now + 1.9);
+      }
+      longs.forEach(s => { try { s.stop(now + 1.15); } catch (e) {} srcs.delete(s); });
+    }
+    srcs.clear();
+  }
+
+  /* ---------- ③ 殘影：把目前畫面凍結複製一份疊上去再淡出 ---------- */
+  let ghostCss = false;
+  function ghost(svg) {
+    if (!svg || reducedQ.matches) return;
+    if (!ghostCss) {
+      ghostCss = true;
+      const st = document.createElement('style');
+      st.textContent = '.ss-ghost,.ss-ghost *{animation-play-state:paused!important;pointer-events:none!important}.ss-ghost{position:absolute!important;margin:0!important;will-change:opacity;transition:opacity ' + FADE + 's cubic-bezier(.4,0,.2,1)}';
+      document.head.appendChild(st);
+    }
+    const cl = svg.cloneNode(true);
+    cl.classList.add('ss-ghost'); cl.removeAttribute('tabindex'); cl.setAttribute('aria-hidden', 'true');
+    // 凍結色票：把目前的 CSS 變數抄到殘影上，底下換色不影響殘影
+    const cs = getComputedStyle(svg);
+    const names = new Set();
+    for (let i = 0; i < cs.length; i++) if (cs[i].startsWith('--')) names.add(cs[i]);
+    try { for (const sh of document.styleSheets) for (const r of sh.cssRules) if (r.style) for (const p of r.style) if (p.startsWith('--')) names.add(p); } catch (e) {}
+    for (const p of document.documentElement.style) if (p.startsWith('--')) names.add(p);
+    names.forEach(p => { const v = cs.getPropertyValue(p); if (v) cl.style.setProperty(p, v); });
+    // 漸層、濾鏡等定義改名，殘影只用自己那份（凍結）
+    const map = {};
+    cl.querySelectorAll('[id]').forEach(e => { const n = e.id + '__ss'; map[e.id] = n; e.id = n; });
+    cl.id = svg.id; delete map[svg.id];
+    const fix = v => v.replace(/url\(\s*['"]?#([^'")\s]+)['"]?\s*\)/g, (m, id) => map[id] ? 'url(#' + map[id] + ')' : m);
+    const all = cl.querySelectorAll('*'), orig = svg.querySelectorAll('*');
+    let needCs = false;
+    try { for (const sh of document.styleSheets) for (const r of sh.cssRules) if (r.cssText.includes('url(#') || r.cssText.includes('url("#')) { needCs = true; break; } } catch (e) {}
+    for (let i = 0; i < all.length; i++) {
+      const e = all[i];
+      for (const a of e.attributes) {
+        if (a.value.includes('url(')) e.setAttribute(a.name, fix(a.value));
+        else if ((a.name === 'href' || a.name === 'xlink:href') && a.value[0] === '#' && map[a.value.slice(1)]) e.setAttribute(a.name, '#' + map[a.value.slice(1)]);
+      }
+      if (needCs && orig[i]) {
+        const o = getComputedStyle(orig[i]);
+        for (const p of ['fill', 'stroke', 'filter', 'clip-path', 'mask']) { const v = o.getPropertyValue(p); if (v && v.includes('url(')) e.style.setProperty(p, fix(v.replace(/url\("?[^#")]*#/g, 'url(#').replace(/"\)/g, ')'))); }
+      }
+    }
+    const par = svg.parentElement;
+    if (getComputedStyle(par).position === 'static') par.style.position = 'relative';
+    const r = svg.getBoundingClientRect(), pr = par.getBoundingClientRect();
+    Object.assign(cl.style, { left: (r.left - pr.left + par.scrollLeft - par.clientLeft) + 'px', top: (r.top - pr.top + par.scrollTop - par.clientTop) + 'px', width: r.width + 'px', height: r.height + 'px', opacity: 1 });
+    svg.after(cl);
+    try { cl.pauseAnimations && cl.pauseAnimations(); } catch (e) {}
+    requestAnimationFrame(() => requestAnimationFrame(() => { cl.style.opacity = 0; }));
+    _st(() => cl.remove(), FADE * 1000 + 300);
+  }
+
+  /* ---------- ④ 秀中冒出的說話泡泡：停止時一起收掉 ---------- */
+  let added = [];
+  const mo = W.MutationObserver ? new MutationObserver(ms => { if (!isOn()) return; for (const m of ms) for (const n of m.addedNodes) if (n.nodeType === 1) added.push(n); }) : null;
+  const BUB = /bubble|say|speech|talk|tip/i;
+  function clearBubbles() {
+    if (mo) for (const m of mo.takeRecords()) for (const n of m.addedNodes) if (n.nodeType === 1) added.push(n);
+    added.forEach(n => {
+      if (!n.isConnected || n.closest('.ss-ghost')) return;
+      const p = n.parentElement;
+      if (BUB.test(n.getAttribute('class') || '') || (p && BUB.test((p.id || '') + ' ' + (p.getAttribute('class') || '')))) n.remove();
+    });
+    added = [];
+  }
+
+  /* ---------- ⑤ 停止 ---------- */
+  let stopping = false;
+  function cancel() {
+    if (stopping) return; stopping = true;
+    const svg = cfg.svg ? document.querySelector(cfg.svg) : (document.getElementById('scene') || document.querySelector('svg'));
+    try { ghost(svg); } catch (e) {}
+    epoch++;
+    for (const [id, z] of zt) if (!z.keep) { z.iv ? _ci(id) : _ct(id); zt.delete(id); }
+    try { stopAudio(); } catch (e) {}
+    quiet = [];
+    zone++;   // 收尾過程中（快轉那幾幀、stop、restore）排出的計時器，例如散場後的鳴笛、煙火，最後一起取消
+    // ff：把表演時間快轉到結尾，讓場景自己的收尾邏輯跑完一幀（殘影蓋著看不到），再補 stop
+    if (cfg.ff) {
+      try { cfg.ff(); } catch (e) { console.warn('ShowStop ff', e); }
+      let n = 0; const wait = () => { if (isOn() && n++ < 8) requestAnimationFrame(wait); else finish(); };
+      requestAnimationFrame(wait);
+    } else finish();
+  }
+  function finish() {
+    try { if (isOn() || !cfg.ff) cfg.stop && cfg.stop(); } catch (e) { console.warn('ShowStop stop', e); }
+    try { if (typeof W.setCine === 'function') W.setCine(0); } catch (e) {}
+    try { if (cfg.cine) cfg.cine(); } catch (e) {}
+    if (saved && cfg.restore) { try { cfg.restore(saved); } catch (e) { console.warn('ShowStop restore', e); } }
+    saved = null;
+    clearBubbles();
+    (quiet || []).forEach(s => { try { s.stop(); } catch (e) {} }); quiet = null;
+    zone = Math.max(0, zone - 1);
+    for (const [id, z] of zt) if (!z.keep) { z.iv ? _ci(id) : _ct(id); zt.delete(id); }
+    try { cfg.after && cfg.after(); } catch (e) {}
+    // 背景配樂（scene-bgm）表演時被壓小聲：停止後很快恢復
+    try { if (W.sceneMusic && W.sceneMusic.playing) W.sceneMusic.duck(.3); } catch (e) {}
+    stopping = false;
+    sync();
+  }
+
+  /* ---------- ⑥ 按鈕：開始時記下設定；表演中再按＝停止；文字顯示「■ 停止」 ---------- */
+  const btns = [];
+  function btnFor(kind) {
+    if (!kind) return null;
+    if (typeof cfg.btn === 'string') return document.getElementById(cfg.btn);
+    const id = cfg.btn[kind] || cfg.btn['*']; return id ? document.getElementById(id) : null;
+  }
+  function sync() {
+    const k = isOn(), act = btnFor(k);
+    btns.forEach(b => {
+      const st = b === act, txt = cfg.label || '■ 停止';
+      if (st && b.disabled) b.disabled = false;   // 有些作品表演中會把按鈕停用，這裡讓它能按「停止」
+      // 作品自己改了按鈕文字（例如收場時換成下一個特效名稱）就記下來，結束時還原成它
+      if (b.classList.contains('ss-stop') && b.textContent !== txt) { b.__ssLabel = b.innerHTML; if (st) b.textContent = txt; }
+      if (st && !b.classList.contains('ss-stop')) {
+        b.__ssLabel = b.innerHTML; b.classList.add('ss-stop');
+        b.textContent = cfg.label || '■ 停止'; b.title = '再按一下停止表演';
+      } else if (!st && b.classList.contains('ss-stop')) {
+        b.classList.remove('ss-stop'); b.innerHTML = b.__ssLabel; b.removeAttribute('title');
+      }
+    });
+  }
+  function loop() { sync(); requestAnimationFrame(loop); }
+
+  W.ShowStop = {
+    init(c) {
+      cfg = c;
+      const ids = typeof c.btn === 'string' ? [c.btn] : Object.values(c.btn);
+      [...new Set(ids)].forEach(id => {
+        const b = document.getElementById(id); if (!b) return;
+        b.__ssLabel = b.innerHTML; btns.push(b);
+        b.addEventListener('click', e => {
+          const k = isOn();
+          if (k && btnFor(k) === b) {
+            e.stopImmediatePropagation(); e.preventDefault();
+            if (e.isTrusted || c.allowSynthetic) cancel();
+            return;
+          }
+          if (!k) {
+            if (c.save) { try { saved = c.save(); } catch (er) { saved = null; } }
+            epoch++; zone++; added = [];
+            // 這次點擊同步排出的計時器都算表演的（點擊處理完就關掉）
+            let done = false; const off = () => { if (!done) { done = true; zone = Math.max(0, zone - 1); W.removeEventListener('click', off); } };
+            W.addEventListener('click', off); _st(off, 0);
+          }
+        }, true);
+      });
+      if (mo) { const s = c.svg ? document.querySelector(c.svg) : (document.getElementById('scene') || document.querySelector('svg')); if (s) mo.observe(s, { childList: true, subtree: true }); }
+      requestAnimationFrame(loop);
+    },
+    cancel: () => { if (isOn()) cancel(); },
+    get saved() { return saved; }
+  };
+})();
+</script>
+<script>
+/* =========================================================
+   SC-85 月球南極的地球升起｜程式區
+   區塊：①工具與色票
+         ②場景（星空、太陽、地球、遠山、環形山邊緣、月面、陰影坑、基地）
+         ③角色（太空人、月球車、小機器人、探冰機器人、科學儀器、軌道站）
+         ④動畫（月球日與光線、地球、影子、太空天氣、登月艙升空、地球日食、主迴圈）
+         ⑤互動（點擊、滑鼠、聲音、控制列）
+   ========================================================= */
+(() => {
+'use strict';
+
+/* ---------------- ① 工具與色票 ---------------- */
+const NS = 'http://www.w3.org/2000/svg';
+const $ = id => document.getElementById(id);
+const root = document.documentElement;
+const svg = $('scene');
+const rand = (a, b) => a + Math.random() * (b - a);
+const pick = a => a[Math.floor(Math.random() * a.length)];
+const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+const lerp = (a, b, t) => a + (b - a) * t;
+const smooth = (a, b, x) => { const t = clamp((x - a) / (b - a), 0, 1); return t * t * (3 - 2 * t); };
+const RAD = Math.PI / 180;
+let seed = 20261123;         // 固定亂數：每次開啟構圖一樣
+const srand = (a = 0, b = 1) => { seed = (seed * 16807) % 2147483647; return a + (seed / 2147483647) * (b - a); };
+const f1 = n => (+n).toFixed(1);
+function el(tag, attrs = {}, parent) {
+  const n = document.createElementNS(NS, tag);
+  for (const k in attrs) {
+    const v = attrs[k];
+    // 用到色票變數的填色／描邊寫進 style，各家瀏覽器都吃得到
+    if ((k === 'fill' || k === 'stroke') && typeof v === 'string' && v.includes('var(')) n.style[k] = v;
+    else n.setAttribute(k, v);
+  }
+  if (parent) parent.appendChild(n);
+  return n;
+}
+const V = n => `var(--${n})`;
+
+// 讀取色票、內插混色
+const css = n => getComputedStyle(root).getPropertyValue(n).trim();
+const hex = h => {
+  h = h.replace('#', '');
+  if (h.length === 3) h = [...h].map(c => c + c).join('');
+  const n = parseInt(h.slice(0, 6), 16);
+  return [n >> 16 & 255, n >> 8 & 255, n & 255, 1];
+};
+const mix = (a, b, t) => a.map((v, i) => v + (b[i] - v) * t);
+const rgba = c => `rgba(${Math.round(c[0])},${Math.round(c[1])},${Math.round(c[2])},${(c[3] ?? 1).toFixed(3)})`;
+// 成對色票：自動找出所有 --d-xxx，配對 --n-xxx（與選用的 --k-xxx）
+const PAIRS = {};
+(() => {
+  const names = [];
+  for (const sheet of document.styleSheets) {
+    try { for (const r of sheet.cssRules) if (r.selectorText === ':root') for (const p of r.style) if (p.startsWith('--d-')) names.push(p.slice(4)); } catch (e) {}
+  }
+  let cls = '';
+  names.forEach(k => {
+    const k2 = css('--k-' + k);
+    PAIRS[k] = { d: hex(css('--d-' + k)), n: hex(css('--n-' + k)), k: k2 ? hex(k2) : null };
+    cls += `#scene .f-${k}{fill:var(--${k})}#scene .s-${k}{stroke:var(--${k});fill:none}`;
+  });
+  // 山和石頭的亮面／暗面：依太陽在左或右對調
+  cls += '#scene .fl{fill:var(--facetL)}#scene .fr{fill:var(--facetR)}#scene .rl{fill:var(--rockL)}#scene .rr{fill:var(--rockR)}';
+  const st = document.createElement('style'); st.textContent = cls; document.head.appendChild(st);
+})();
+
+/* 動態偏好：開啟「減少動態」時，畫面停在靜態構圖，只在操作時才動 */
+const mq = window.matchMedia('(prefers-reduced-motion: reduce)');
+let reduced = mq.matches;
+
+/* 物理比例：太空人身高約 1.8 公尺＝60 px，所以 1 公尺≈33 px。
+   月球重力 1.62 m/s² → 畫面上約 53 px/s²（地球的六分之一，跳起來慢慢飄下來） */
+const GM = 1.62 * 33;
+const HZN = 292;            // 地平線高度
+const PXD = 9;              // 全景畫面：每 1 度方位角＝9 px
+const EX0 = 1130;           // 地球的平均方位（畫面 x）
+
+/* ---------------- ② 場景：星空與銀河 ----------------
+   沒有大氣，星星不會閃爍；白天被太陽和月面的強光蓋過，所以看起來比較少 */
+function drawSky() {
+  const mw = $('milky');
+  // 銀河：幾道斜斜的淡色長橢圓疊起來，再撒上細碎的小星點
+  [[300, 70, 420, 34, .05], [760, 120, 520, 46, .06], [1180, 170, 460, 38, .05], [700, 112, 300, 16, .05]].forEach(([x, y, rx, ry, o]) =>
+    el('ellipse', { cx: x, cy: y, rx, ry, fill: '#c8d2ff', opacity: o, transform: `rotate(7,${x},${y})` }, mw));
+  for (let i = 0; i < 260; i++) {
+    const u = srand(), x = u * 1650 - 25, y = 40 + u * 140 + srand(-30, 30) * (1 - Math.abs(u - .5) * .8);
+    el('circle', { cx: f1(x), cy: f1(y), r: f1(srand(.4, .9)), fill: '#dfe6ff', opacity: f1(srand(.25, .6)) }, mw);
+  }
+  const g = $('stars');
+  for (let i = 0; i < 300; i++) {
+    const x = srand(0, 1600), y = srand(0, 300) * srand(.4, 1);
+    const big = srand() < .07;
+    const col = srand() < .14 ? '#ffe2b8' : srand() < .2 ? '#cfe0ff' : '#ffffff';
+    if (big) {   // 亮星畫成小小的四芒（幾何十字）
+      const s = el('g', { transform: `translate(${f1(x)},${f1(y)})` }, g);
+      el('rect', { x: -.6, y: -4, width: 1.2, height: 8, fill: col }, s);
+      el('rect', { x: -4, y: -.6, width: 8, height: 1.2, fill: col }, s);
+      el('circle', { r: 1.5, fill: col }, s);
+    } else el('circle', { cx: f1(x), cy: f1(y), r: f1(srand(.5, 1.2)), fill: col, opacity: f1(srand(.5, 1)) }, g);
+  }
+}
+
+/* ---------------- ② 場景：太陽（低低貼著地平線） ---------------- */
+let sunDisc = null, sunGlare = null, sunFlare = null, diamond = null;
+function drawSun() {
+  const g = $('sun');
+  sunGlare = el('circle', { r: 170, fill: 'url(#glare)' }, g);
+  sunFlare = el('g', { opacity: .45 }, g);
+  el('rect', { x: -230, y: -.8, width: 460, height: 1.6, fill: '#fff', opacity: .7 }, sunFlare);
+  el('rect', { x: -.7, y: -60, width: 1.4, height: 120, fill: '#fff', opacity: .35 }, sunFlare);
+  sunDisc = el('circle', { r: 11, fill: V('sun') }, g);
+  el('circle', { r: 28, fill: 'transparent' }, g);     // 讓小太陽比較好點
+  // 鑽石環：日食開始與結束時，地球邊緣一閃的光點（畫在地球上面，另外放）
+}
+
+/* ---------------- ② 場景：地球 ----------------
+   大陸、冰帽、雲用經緯度記錄，依自轉角度投影到圓盤上（離邊緣越近越扁）。
+   夜側用「晨昏線」遮罩蓋住，夜側再透出城市燈光。 */
+const E = { x: EX0, y: 190, r: 58, rot: 40, k: .5, th: 0, occ: 0, aur: 0, photo: 0, ping: 0 };
+const LAND = [   // [經度, 緯度, 寬(度), 高(度), 類型 l 綠地 d 沙漠 i 冰]
+  [20, 6, 34, 30, 'l'], [25, -16, 20, 24, 'l'], [12, 22, 32, 12, 'd'], [47, -19, 5, 10, 'l'],
+  [12, 49, 22, 10, 'l'], [32, 56, 26, 10, 'l'], [-4, 40, 8, 7, 'l'], [22, 64, 14, 9, 'l'],
+  [45, 24, 14, 11, 'd'], [57, 34, 16, 8, 'd'],
+  [90, 50, 52, 16, 'l'], [112, 63, 62, 10, 'l'], [78, 21, 11, 13, 'l'], [108, 30, 26, 14, 'l'], [103, 13, 10, 10, 'l'],
+  [138, 37, 5, 9, 'l'], [82, 40, 24, 8, 'd'], [118, -2, 20, 5, 'l'], [121, 24, 1.6, 2.6, 'l'],
+  [134, -25, 26, 15, 'd'], [146, -28, 8, 11, 'l'], [172, -42, 4, 8, 'l'],
+  [-100, 48, 34, 16, 'l'], [-110, 62, 42, 10, 'l'], [-94, 34, 20, 10, 'l'], [-79, 41, 10, 10, 'l'], [-102, 21, 10, 8, 'l'], [-112, 33, 10, 8, 'd'],
+  [-60, -8, 24, 22, 'l'], [-66, -30, 11, 18, 'l'], [-70, -47, 5, 10, 'l'],
+  [-42, 72, 16, 9, 'i']
+];
+const CITY = [[2, 49], [-0, 51], [13, 52], [9, 45], [-4, 40], [37, 56], [30, 50], [21, 52], [31, 30], [3, 6], [28, -26], [51, 25], [55, 25], [46, 24],
+  [72, 19], [77, 28], [88, 22], [80, 13], [116, 40], [121, 31], [113, 23], [121, 25], [127, 37], [139, 35], [135, 34], [106, 10], [100, 14], [103, 1], [106, -6],
+  [151, -34], [145, -38], [174, -37], [-74, 41], [-87, 42], [-77, 39], [-84, 34], [-95, 30], [-118, 34], [-122, 47], [-80, 26], [-99, 19], [-46, -23], [-43, -23], [-58, -34], [-70, -33]];
+const CLOUD = [];
+let earthG, landG, cloudG, cityG, darkPath, darkClipPath, ringEl, aurEl, atmoEl, earthHalo;
+function drawEarth() {
+  const g = $('earth');
+  earthHalo = el('circle', { r: 66, fill: V('atmo'), opacity: .12 }, g);
+  earthG = el('g', { 'clip-path': 'url(#earthClip)' }, g);
+  el('circle', { r: 58, fill: 'url(#earthShade)' }, earthG);
+  landG = el('g', {}, earthG);
+  LAND.forEach(L => { L.el = el('ellipse', { fill: V(L[4] === 'd' ? 'earth-desert' : L[4] === 'i' ? 'earth-ice' : 'earth-land') }, landG); });
+  // 南北極冰帽（不隨自轉改變）
+  el('ellipse', { cx: 0, cy: -57, rx: 30, ry: 9, fill: V('earth-ice') }, earthG);
+  el('ellipse', { cx: 0, cy: 56, rx: 44, ry: 12, fill: V('earth-ice') }, earthG);
+  cloudG = el('g', {}, earthG);
+  for (let i = 0; i < 20; i++) {
+    const c = { lon: srand(0, 360), lat: srand(-60, 62), w: srand(14, 40), h: srand(2.4, 4.6), sp: srand(-4, 4), off: 0 };
+    c.el = el('rect', { fill: V('earth-cloud'), opacity: .85 }, cloudG); CLOUD.push(c);
+  }
+  // 夜側（晨昏線遮罩）
+  darkPath = el('path', { fill: V('earth-night'), opacity: .9 }, earthG);
+  darkClipPath = $('earthDarkClipPath');
+  cityG = el('g', { 'clip-path': 'url(#earthDarkClip)' }, earthG);
+  CITY.forEach(c => { c.el = el('circle', { r: 1.1, fill: V('city') }, cityG); });
+  // 極光（太陽風暴時，地球兩極出現綠色光環）
+  aurEl = el('g', { opacity: 0 }, earthG);
+  el('ellipse', { cx: 0, cy: -46, rx: 24, ry: 6, fill: 'none', stroke: V('aurora'), 'stroke-width': 3.2 }, aurEl);
+  el('ellipse', { cx: 0, cy: -49, rx: 19, ry: 4.4, fill: 'none', stroke: V('aurora2'), 'stroke-width': 1.4, opacity: .7 }, aurEl);
+  el('ellipse', { cx: 0, cy: 47, rx: 26, ry: 6.5, fill: 'none', stroke: V('aurora'), 'stroke-width': 3.2 }, aurEl);
+  atmoEl = el('circle', { r: 57.5, fill: 'none', stroke: V('atmo'), 'stroke-width': 2.5, opacity: .55 }, g);
+  // 地球日食：地球大氣把太陽光折射成一圈紅色（全世界的日出日落同時發生）
+  ringEl = el('circle', { r: 72, fill: 'url(#ringGlow)', opacity: 0 }, g);
+  diamond = el('g', { opacity: 0 }, g);
+  el('circle', { r: 16, fill: 'url(#glare)' }, diamond);
+  el('rect', { x: -40, y: -.8, width: 80, height: 1.6, fill: '#fff' }, diamond);
+  el('rect', { x: -.8, y: -26, width: 1.6, height: 52, fill: '#fff' }, diamond);
+  el('circle', { r: 3.5, fill: '#fff' }, diamond);
+  el('circle', { r: 62, fill: 'transparent' }, g);
+}
+function project(lon, lat) {
+  const l = (lon - E.rot) * RAD, p = lat * RAD;
+  const cz = Math.cos(p) * Math.cos(l);
+  return { x: E.r * Math.cos(p) * Math.sin(l), y: -E.r * Math.sin(p), z: cz, cl: Math.cos(l), cp: Math.cos(p) };
+}
+function updateEarthSurface() {
+  LAND.forEach(L => {
+    const P = project(L[0], L[1]);
+    if (P.z < -.05) { L.el.setAttribute('opacity', 0); return; }
+    const rx = E.r * L[2] / 2 * RAD * Math.max(.08, P.cl), ry = E.r * L[3] / 2 * RAD * Math.max(.2, P.cp);
+    L.el.setAttribute('cx', f1(P.x)); L.el.setAttribute('cy', f1(P.y)); L.el.setAttribute('rx', f1(rx)); L.el.setAttribute('ry', f1(ry));
+    L.el.setAttribute('opacity', f1(smooth(-.05, .2, P.z)));
+  });
+  CLOUD.forEach(c => {
+    const P = project(c.lon + c.off, c.lat);
+    if (P.z < 0) { c.el.setAttribute('opacity', 0); return; }
+    const w = E.r * c.w * RAD * Math.max(.08, P.cl), h = E.r * c.h * RAD;
+    c.el.setAttribute('x', f1(P.x - w / 2)); c.el.setAttribute('y', f1(P.y - h / 2)); c.el.setAttribute('width', f1(w)); c.el.setAttribute('height', f1(h)); c.el.setAttribute('rx', f1(h / 2));
+    c.el.setAttribute('opacity', f1(.85 * smooth(0, .25, P.z)));
+  });
+  CITY.forEach(c => {
+    const P = project(c[0], c[1]);
+    c.el.setAttribute('cx', f1(P.x)); c.el.setAttribute('cy', f1(P.y));
+    c.el.setAttribute('opacity', P.z > .05 ? f1(.95 * (1 - E.occ * .1)) : 0);
+  });
+}
+/* 地相：k＝亮面比例（0 新地球、1 滿地球），th＝亮面朝向的角度 */
+function updateEarthPhase() {
+  const r = E.r, xt = r * (1 - 2 * E.k);         // 晨昏線在赤道上的位置
+  let d;
+  if (E.k > .995) d = 'M0,0';
+  else {
+    const sweep2 = xt > 0 ? 0 : 1;
+    d = `M0,${-r - 1}A${r + 1},${r + 1} 0 0 0 0,${r + 1}A${f1(Math.abs(xt) + .01)},${r + 1} 0 0 ${sweep2} 0,${-r - 1}Z`;
+  }
+  const tr = `rotate(${f1(E.th / RAD)})`;
+  darkPath.setAttribute('d', d); darkPath.setAttribute('transform', tr);
+  darkClipPath.setAttribute('d', d); darkClipPath.setAttribute('transform', tr);
+  darkPath.setAttribute('opacity', f1(.9 - E.occ * .05));
+}
+
+/* ---------------- ② 場景：遠山（像馬拉珀特山）與環形山邊緣 ----------------
+   沒有大氣，遠山和近處一樣清楚，不會變藍變淡。每座山切成左、右兩個面 */
+const PEAKS = [[-30, 228, 150], [150, 196, 175], [318, 222, 150], [452, 248, 128], [575, 266, 104], [1500, 244, 120], [1610, 222, 110]];
+function drawMountains() {
+  const g = $('mtFar'), B = 300;
+  PEAKS.forEach(([x, y, w]) => {
+    el('polygon', { points: `${x - w},${B} ${x},${y} ${x},${B}`, class: 'fl' }, g);
+    el('polygon', { points: `${x},${y} ${x + w},${B} ${x},${B}`, class: 'fr' }, g);
+    // 山腰幾道平行的幾何紋（地層）
+    for (let i = 1; i <= 2; i++) {
+      const yy = y + (B - y) * (.35 + i * .2), hw = w * (yy - y) / (B - y);
+      el('rect', { x: f1(x - hw * .55), y: f1(yy), width: f1(hw * .45), height: 2.2, class: 'fr', opacity: .5 }, g);
+    }
+  });
+  // 環形山邊緣（沙克爾頓坑的外緣），長長低低的一道
+  const r = $('rim');
+  let d = 'M560,300';
+  const pts = [[560, 290], [640, 284], [720, 287], [800, 281], [900, 286], [980, 280], [1060, 285], [1140, 282], [1230, 288], [1320, 283], [1420, 289], [1500, 285], [1600, 290]];
+  pts.forEach(p => d += `L${p[0]},${p[1]}`);
+  d += 'L1600,310L560,310Z';
+  el('path', { d, class: 'f-rim' }, r);
+  for (let i = 0; i < pts.length - 1; i++) {
+    const [x1, y1] = pts[i], [x2, y2] = pts[i + 1];
+    el('polygon', { points: `${x1},${y1} ${x2},${y2} ${x2},${y2 + 3} ${x1},${y1 + 3}`, class: 'f-rim-top' }, r);
+  }
+}
+
+/* ---------------- ② 場景：月面（三層地面、隕石坑、石頭、細紋） ---------------- */
+const craters = [], rocks = [];
+function drawGround() {
+  const g = $('ground');
+  el('rect', { x: 0, y: 296, width: 1600, height: 310, class: 'f-gr-far' }, g);
+  el('path', { d: 'M0,334 C300,326 520,338 800,330 S1300,334 1600,328 L1600,600 L0,600Z', class: 'f-gr-mid' }, g);
+  el('path', { d: 'M0,458 C260,450 520,462 820,454 S1320,460 1600,452 L1600,600 L0,600Z', class: 'f-gr-near' }, g);
+  // 細細的月壤紋理（短橫線）
+  for (let i = 0; i < 260; i++) {
+    const y = srand(300, 598), k = (y - 296) / 300, x = srand(0, 1600);
+    if (x > 1050 && x < 1570 && y > 322 && y < 398) continue;
+    el('rect', { x: f1(x), y: f1(y), width: f1(4 + k * 14), height: f1(.8 + k * 1.6), rx: .8, class: 'f-gr-dot', opacity: f1(srand(.35, .8)) }, g);
+  }
+  // 隕石坑：外緣亮、坑內暗，坑內朝太陽那一側落下影子
+  [[120, 318, 26], [470, 322, 18], [900, 316, 22], [640, 360, 30], [80, 392, 40], [1010, 418, 26], [300, 486, 46], [990, 520, 60], [560, 584, 50], [1250, 590, 44], [1530, 480, 36], [740, 498, 22], [1580, 400, 22], [210, 560, 24]]
+    .forEach(([x, y, r], i) => {
+      const ry = r * (.2 + (y - 296) / 300 * .14);
+      const c = { x, y, r, ry };
+      el('ellipse', { cx: x, cy: y, rx: f1(r * 1.14), ry: f1(ry * 1.25), class: 'f-crater-lip' }, g);
+      el('ellipse', { cx: x, cy: f1(y + ry * .08), rx: r, ry: f1(ry), class: 'f-crater-in' }, g);
+      const cp = el('clipPath', { id: 'cr' + i }, g);
+      el('ellipse', { cx: x, cy: f1(y + ry * .08), rx: r, ry: f1(ry) }, cp);
+      c.sh = el('ellipse', { cx: x, cy: f1(y + ry * .08), rx: f1(r * .9), ry: f1(ry * 1.05), fill: '#000', opacity: .35, 'clip-path': `url(#cr${i})` }, g);
+      craters.push(c);
+    });
+  // 石頭：多邊形切成兩個面
+  [[40, 470, 12], [250, 520, 9], [460, 470, 7], [690, 455, 6], [860, 540, 11], [1130, 470, 8], [1190, 596, 16], [1370, 448, 6], [1460, 570, 10], [370, 590, 13], [620, 515, 5], [930, 600, 14],
+   [320, 352, 6], [560, 380, 5], [770, 338, 4], [960, 372, 7], [205, 425, 5], [1585, 520, 9], [1035, 348, 5]]
+    .forEach(([x, y, s]) => {
+      const h = s * srand(.8, 1.2), t = srand(-.3, .3);
+      el('polygon', { points: `${f1(x - s)},${y} ${f1(x - s * .6)},${f1(y - h * .7)} ${f1(x + t * s)},${f1(y - h)} ${f1(x + t * s)},${y}`, class: 'rl' }, g);
+      el('polygon', { points: `${f1(x + t * s)},${f1(y - h)} ${f1(x + s * .7)},${f1(y - h * .6)} ${f1(x + s * 1.05)},${y} ${f1(x + t * s)},${y}`, class: 'rr' }, g);
+      rocks.push({ x, y, h, w: s * 2 });
+    });
+  // 電纜：太陽能塔、居住艙、溫室之間拉在地上的電線
+  [['M70,420 C120,436 160,430 190,420'], ['M612,424 C590,438 520,436 470,416'], ['M612,424 C660,440 700,438 720,432']].forEach(([d]) => el('path', { d, fill: 'none', stroke: V('metal-dk'), 'stroke-width': 2 }, g));
+  // 補給貨櫃（從貨運登陸器卸下來的）
+  [[560, 452, 30, 22, 'coral'], [588, 454, 22, 16, 'teal'], [574, 437, 20, 15, 'mustard']].forEach(([x, y, w, h, c]) => {
+    el('rect', { x: x - w / 2, y: y - h, width: w, height: h, rx: 2, class: 'f-hull' }, g);
+    el('rect', { x: x, y: y - h, width: w / 2, height: h, rx: 2, class: 'f-hull-sh' }, g);
+    el('rect', { x: x - w / 2, y: y - h * .62, width: w, height: 3, fill: V(c) }, g);
+  });
+  // 地平線上很遠的舊探測器（無人登陸器，早期任務留下的）
+  el('rect', { x: 1004, y: 282, width: 6, height: 4, class: 'f-metal' }, g);
+  el('rect', { x: 1001, y: 286, width: 12, height: 1.2, class: 'f-metal-dk' }, g);
+  // 降落場：月壤燒結成的硬地面（圓形）
+  el('ellipse', { cx: 760, cy: 433, rx: 86, ry: 12, class: 'f-pad' }, g);
+  el('ellipse', { cx: 760, cy: 433, rx: 60, ry: 8, fill: 'none', stroke: V('mustard'), 'stroke-width': 2, 'stroke-dasharray': '10 8', opacity: .55 }, g);
+}
+
+/* ---------------- ② 場景：永久陰影坑（沙克爾頓坑的坑底，幾十億年沒照過太陽，藏著水冰） ---------------- */
+const PIT = { bot: null, x: 1240, dir: 1, scan: 0, ice: [], beam: null, light: null };
+function drawPit() {
+  const g = $('pit');
+  el('ellipse', { cx: 1310, cy: 357, rx: 262, ry: 42, class: 'f-crater-lip' }, g);
+  el('ellipse', { cx: 1310, cy: 357, rx: 248, ry: 33, class: 'f-crater-in' }, g);
+  el('ellipse', { cx: 1310, cy: 361, rx: 240, ry: 27, fill: '#05060a' }, g);
+  const inner = el('g', { 'clip-path': 'url(#pitClip)' }, g);
+  // 水冰（平常看不到，探照燈掃到才閃）
+  for (let i = 0; i < 26; i++) {
+    const x = srand(1110, 1510), y = srand(350, 384);
+    PIT.ice.push({ x, el: el('polygon', { points: `${f1(x)},${f1(y - 3)} ${f1(x + 2)},${f1(y)} ${f1(x)},${f1(y + 3)} ${f1(x - 2)},${f1(y)}`, fill: '#bfefff', opacity: 0 }, inner) });
+  }
+  PIT.beam = el('polygon', { fill: 'url(#beamGrad)', opacity: .7 }, inner);
+  // 探冰機器人（坑底慢慢爬，頭燈照亮前方）
+  const b = el('g', {}, inner); PIT.bot = b;
+  el('rect', { x: -12, y: -12, width: 24, height: 9, rx: 2, class: 'f-hull-sh' }, b);
+  el('rect', { x: -8, y: -19, width: 14, height: 8, rx: 2, class: 'f-hull' }, b);
+  el('circle', { cx: -7, cy: -2, r: 3.4, class: 'f-metal-dk' }, b);
+  el('circle', { cx: 0, cy: -2, r: 3.4, class: 'f-metal-dk' }, b);
+  el('circle', { cx: 7, cy: -2, r: 3.4, class: 'f-metal-dk' }, b);
+  el('rect', { x: -9, y: -27, width: 1.6, height: 9, class: 'f-metal' }, b);
+  PIT.light = el('circle', { cx: 10, cy: -14, r: 2.4, fill: '#fff6c8' }, b);
+  el('circle', { cx: -8.2, cy: -28, r: 1.6, fill: V('beacon') }, b);
+}
+
+/* ---------------- ② 場景：基地 ---------------- */
+// 太陽能塔：南極的太陽很低，所以太陽能板做成高高的直立塔，跟著太陽轉
+const towers = [];
+function drawTower(x, base, h) {
+  const g = $('towers'), t = { x, base, h, panels: [] };
+  el('polygon', { points: `${x - 16},${base} ${x},${base - 26} ${x + 16},${base}`, class: 'f-metal-dk' }, g);
+  el('rect', { x: x - 3, y: base - h, width: 6, height: h, class: 'f-metal' }, g);
+  el('rect', { x: x, y: base - h, width: 3, height: h, class: 'f-metal-dk', opacity: .5 }, g);
+  for (let i = 0; i < 4; i++) {
+    const y = base - h + 8 + i * 44, p = el('g', {}, g);
+    const back = el('rect', { x: -22, y, width: 44, height: 38, class: 'f-panel-back' }, p);
+    const front = el('g', {}, p);
+    el('rect', { x: -22, y, width: 44, height: 38, class: 'f-panel' }, front);
+    for (let j = 1; j < 3; j++) el('rect', { x: -22, y: y + j * 12.6, width: 44, height: 1, class: 'f-panel-ln' }, front);
+    for (let j = 1; j < 4; j++) el('rect', { x: -22 + j * 11, y, width: 1, height: 38, class: 'f-panel-ln' }, front);
+    t.panels.push({ g: p, back, front });
+  }
+  t.lamp = el('circle', { cx: x, cy: base - h - 5, r: 3, fill: V('beacon') }, g);
+  towers.push(t);
+}
+// 居住艙：橫躺的圓筒，上面堆兩層月壤沙包擋輻射與微隕石
+const HAB = { win: [], door: null, lamp: null, glow: null, open: 0, openT: 0 };
+function drawHabitat() {
+  const g = $('habitat');
+  el('rect', { x: 160, y: 352, width: 262, height: 64, rx: 32, class: 'f-hull' }, g);
+  el('rect', { x: 160, y: 386, width: 262, height: 30, rx: 15, class: 'f-hull-sh' }, g);
+  el('rect', { x: 176, y: 384, width: 230, height: 4, class: 'f-hull' }, g);
+  // 月壤沙包（兩排交錯的膠囊）
+  for (let i = 0; i < 7; i++) el('rect', { x: 172 + i * 34, y: 338, width: 34, height: 17, rx: 8.5, class: 'f-berm' }, g);
+  for (let i = 0; i < 6; i++) el('rect', { x: 189 + i * 34, y: 324, width: 34, height: 16, rx: 8, class: 'f-berm' }, g);
+  for (let i = 0; i < 7; i++) el('rect', { x: 176 + i * 34, y: 352, width: 26, height: 2, class: 'f-gr-dot', opacity: .7 }, g);
+  // 支架
+  [[190, 416], [392, 416]].forEach(([x, y]) => el('polygon', { points: `${x - 12},${y + 6} ${x},${y - 6} ${x + 12},${y + 6}`, class: 'f-metal-dk' }, g));
+  // 圓窗（夜裡亮暖燈）
+  const glow = el('g', { opacity: 0 }, g); HAB.glow = glow;
+  [205, 245, 285, 325, 365].forEach(x => {
+    el('circle', { cx: x, cy: 372, r: 8, class: 'f-metal-dk' }, g);
+    HAB.win.push(el('circle', { cx: x, cy: 372, r: 5.6, class: 'f-glass' }, g));
+    el('circle', { cx: x, cy: 372, r: 13, fill: V('win-glow'), opacity: .35 }, glow);
+    el('circle', { cx: x, cy: 372, r: 5.6, fill: V('win') }, glow);
+  });
+  // 識別色帶
+  el('rect', { x: 300, y: 394, width: 60, height: 6, rx: 3, fill: V('coral') }, g);
+  el('rect', { x: 366, y: 394, width: 18, height: 6, rx: 3, fill: V('mustard') }, g);
+  // 氣閘艙（右端）
+  el('rect', { x: 418, y: 364, width: 46, height: 52, rx: 9, class: 'f-hull' }, g);
+  el('rect', { x: 441, y: 364, width: 23, height: 52, rx: 9, class: 'f-hull-sh' }, g);
+  el('rect', { x: 428, y: 374, width: 26, height: 40, rx: 6, class: 'f-metal-dk' }, g);
+  HAB.door = el('g', {}, g);
+  el('rect', { x: 429, y: 375, width: 24, height: 38, rx: 5.5, class: 'f-metal' }, HAB.door);
+  el('circle', { cx: 441, cy: 386, r: 4.4, class: 'f-glass' }, HAB.door);
+  HAB.lamp = el('circle', { cx: 458, cy: 368, r: 3, fill: V('ok') }, g);
+  // 屋頂天線與信標
+  el('rect', { x: 250, y: 300, width: 2.4, height: 26, class: 'f-metal' }, g);
+  el('rect', { x: 244, y: 304, width: 14, height: 2, class: 'f-metal' }, g);
+  HAB.beacon = el('circle', { cx: 251, cy: 298, r: 3.6, fill: V('ok') }, g);
+}
+// 月面溫室：幾何網格圓頂，裡面用 LED 粉紫光種菜
+const GH = { plants: [], grow: 0, glow: null };
+function drawGreenhouse() {
+  const g = $('greenhouse'), cx = 520, cy = 418, r = 36;
+  GH.glow = el('circle', { cx, cy: cy - 18, r: 46, fill: 'url(#ledGrad)', opacity: .5 }, g);
+  el('path', { d: `M${cx - r},${cy} A${r},${r} 0 0 1 ${cx + r},${cy} Z`, fill: '#1d2740', opacity: .9 }, g);
+  // 植物
+  for (let i = 0; i < 7; i++) {
+    const x = cx - 24 + i * 8, p = el('g', { transform: `translate(${x},${cy - 6})` }, g);
+    el('rect', { x: -.8, y: -10, width: 1.6, height: 10, fill: '#3fbf6a' }, p);
+    el('circle', { cx: 0, cy: -11, r: 4, fill: i % 3 === 1 ? '#7fdc5a' : '#3fbf6a' }, p);
+    const fruit = el('circle', { cx: 2.6, cy: -8, r: 1.8, fill: '#ff5a4a', opacity: 0 }, p);
+    GH.plants.push({ p, fruit, x });
+  }
+  el('rect', { x: cx - r + 4, y: cy - 7, width: 2 * r - 8, height: 4, fill: '#7a5a3a' }, g);
+  // 半透明網格罩（三角形面）
+  const segs = 6;
+  for (let i = 0; i < segs; i++) {
+    const a1 = Math.PI + i * Math.PI / segs, a2 = Math.PI + (i + 1) * Math.PI / segs;
+    const p1 = [cx + Math.cos(a1) * r, cy + Math.sin(a1) * r], p2 = [cx + Math.cos(a2) * r, cy + Math.sin(a2) * r];
+    const m = [cx + Math.cos((a1 + a2) / 2) * r * .55, cy + Math.sin((a1 + a2) / 2) * r * .55];
+    el('polygon', { points: `${f1(p1[0])},${f1(p1[1])} ${f1(p2[0])},${f1(p2[1])} ${f1(m[0])},${f1(m[1])}`, fill: '#ffffff', opacity: i % 2 ? .1 : .18 }, g);
+    el('line', { x1: f1(p1[0]), y1: f1(p1[1]), x2: f1(m[0]), y2: f1(m[1]), stroke: V('hull'), 'stroke-width': 1.3 }, g);
+    el('line', { x1: f1(p2[0]), y1: f1(p2[1]), x2: f1(m[0]), y2: f1(m[1]), stroke: V('hull'), 'stroke-width': 1.3 }, g);
+    el('line', { x1: f1(p1[0]), y1: f1(p1[1]), x2: f1(p2[0]), y2: f1(p2[1]), stroke: V('hull'), 'stroke-width': 2 }, g);
+  }
+  el('rect', { x: cx - r - 4, y: cy - 3, width: 2 * r + 8, height: 6, rx: 2, class: 'f-metal-dk' }, g);
+}
+// 登月艙：可重複使用的單節登陸器（原創設計），停在降落場上
+const LANDER = { x: 760, base: 432, alt: 0, tilt: 0, thrust: 0, squash: 0, body: null, plume: null, core: null, lights: [], hatch: null, vent: 0 };
+function drawLander() {
+  const g = $('lander'), b = el('g', {}, g); LANDER.body = b;
+  const p = el('g', {}, b);
+  LANDER.plume = el('polygon', { points: '-12,-4 12,-4 30,150 -30,150', fill: 'url(#plumeGrad)', opacity: 0 }, p);
+  LANDER.core = el('polygon', { points: '-8,-4 8,-4 0,40', fill: '#ffffff', opacity: 0 }, p);
+  // 後面兩隻腳
+  el('polygon', { points: '-10,-34 -6,-30 -28,0 -33,0', class: 'f-metal-dk' }, b);
+  el('polygon', { points: '10,-34 6,-30 28,0 33,0', class: 'f-metal-dk' }, b);
+  // 引擎噴嘴
+  el('polygon', { points: '-9,-20 9,-20 14,-4 -14,-4', class: 'f-metal-dk' }, b);
+  // 金箔裙板
+  el('rect', { x: -27, y: -44, width: 54, height: 25, rx: 3, class: 'f-foil' }, b);
+  el('rect', { x: 2, y: -44, width: 25, height: 25, rx: 3, class: 'f-foil-sh' }, b);
+  el('rect', { x: -27, y: -34, width: 54, height: 2, class: 'f-foil-sh', opacity: .7 }, b);
+  // 主體（推進劑槽＋乘員艙）
+  el('rect', { x: -23, y: -134, width: 46, height: 92, rx: 7, class: 'f-hull' }, b);
+  el('rect', { x: 2, y: -134, width: 21, height: 92, rx: 7, class: 'f-hull-sh' }, b);
+  el('polygon', { points: '-23,-130 23,-130 9,-156 -9,-156', class: 'f-hull' }, b);
+  el('polygon', { points: '2,-130 23,-130 9,-156 2,-156', class: 'f-hull-sh' }, b);
+  el('rect', { x: -6, y: -162, width: 12, height: 7, rx: 3, class: 'f-metal' }, b);
+  el('rect', { x: -23, y: -104, width: 46, height: 6, fill: V('coral') }, b);
+  el('rect', { x: -23, y: -96, width: 46, height: 3, fill: V('mustard') }, b);
+  // 窗、艙門、梯子
+  el('rect', { x: -15, y: -124, width: 16, height: 10, rx: 4, class: 'f-metal-dk' }, b);
+  LANDER.win = el('rect', { x: -13.5, y: -122.5, width: 13, height: 7, rx: 3, class: 'f-glass' }, b);
+  LANDER.hatch = el('rect', { x: -10, y: -80, width: 20, height: 26, rx: 4, class: 'f-metal' }, b);
+  el('rect', { x: -7, y: -54, width: 2, height: 52, class: 'f-metal' }, b);
+  el('rect', { x: 5, y: -54, width: 2, height: 52, class: 'f-metal' }, b);
+  for (let i = 0; i < 6; i++) el('rect', { x: -7, y: -50 + i * 9, width: 14, height: 1.8, class: 'f-metal' }, b);
+  // 姿態控制噴嘴
+  el('rect', { x: -29, y: -128, width: 6, height: 10, rx: 1.5, class: 'f-metal-dk' }, b);
+  el('rect', { x: 23, y: -128, width: 6, height: 10, rx: 1.5, class: 'f-metal-dk' }, b);
+  // 前面兩隻腳＋腳墊
+  el('polygon', { points: '-22,-40 -17,-36 -46,0 -52,0', class: 'f-metal' }, b);
+  el('polygon', { points: '22,-40 17,-36 46,0 52,0', class: 'f-metal' }, b);
+  el('ellipse', { cx: -49, cy: 0, rx: 9, ry: 3, class: 'f-metal' }, b);
+  el('ellipse', { cx: 49, cy: 0, rx: 9, ry: 3, class: 'f-metal' }, b);
+  el('ellipse', { cx: -30, cy: -1, rx: 6, ry: 2, class: 'f-metal-dk' }, b);
+  el('ellipse', { cx: 30, cy: -1, rx: 6, ry: 2, class: 'f-metal-dk' }, b);
+  // 航行燈：左紅右綠
+  LANDER.lights.push(el('circle', { cx: -26, cy: -133, r: 2.4, fill: V('beacon') }, b));
+  LANDER.lights.push(el('circle', { cx: 26, cy: -133, r: 2.4, fill: V('ok') }, b));
+}
+// 照明燈（夜裡打亮降落場）
+const FLOODS = [];
+function drawFloods() {
+  const g = $('floods');
+  [[686, 432], [836, 432]].forEach(([x, y], i) => {
+    const cone = el('polygon', { points: `${x},${y - 64} ${x + (i ? -70 : 70)},${y + 14} ${x + (i ? -6 : 6)},${y + 16}`, fill: 'url(#floodGrad)', opacity: 0 }, g);
+    el('rect', { x: x - 1.5, y: y - 64, width: 3, height: 64, class: 'f-metal-dk' }, g);
+    el('rect', { x: x - 6, y: y - 70, width: 12, height: 7, rx: 2, class: 'f-metal' }, g);
+    const lamp = el('rect', { x: x - 4.5, y: y - 64, width: 9, height: 2.5, fill: V('win'), opacity: 0 }, g);
+    FLOODS.push({ cone, lamp });
+  });
+}
+// 通訊天線：一直指著地球（地球上下晃時天線也跟著轉）
+const DISH = { x: 908, y: 372, g: null };
+function drawDish() {
+  const g = $('dish');
+  el('polygon', { points: '890,424 908,396 926,424', class: 'f-metal-dk' }, g);
+  el('rect', { x: 905, y: 372, width: 6, height: 40, class: 'f-metal' }, g);
+  const d = el('g', {}, g); DISH.g = d;
+  el('ellipse', { cx: 0, cy: 0, rx: 10, ry: 30, class: 'f-hull' }, d);
+  el('ellipse', { cx: 3, cy: 0, rx: 6.5, ry: 25, class: 'f-hull-sh' }, d);
+  el('rect', { x: 2, y: -1.2, width: 30, height: 2.4, class: 'f-metal' }, d);
+  el('rect', { x: 12, y: -12, width: 2, height: 12, class: 'f-metal', transform: 'rotate(-40,12,0)' }, d);
+  el('rect', { x: 12, y: 0, width: 2, height: 12, class: 'f-metal', transform: 'rotate(40,12,0)' }, d);
+  el('rect', { x: 30, y: -4, width: 7, height: 8, rx: 2, fill: V('mustard') }, d);
+  DISH.lamp = el('circle', { cx: 916, cy: 404, r: 2.2, fill: V('ok') }, g);
+}
+
+/* ---------------- ③ 角色：太空人 ----------------
+   腳底在 (0,0)，面向右。白色太空衣、維生背包、鍍金面罩，每人一條識別色帶。 */
+function makeAstro(parent, o = {}) {
+  const g = el('g', {}, parent), stripe = V(o.stripe || 'coral');
+  const body = el('g', {}, g);
+  const mkLeg = cls => { const L = el('g', {}, body); el('rect', { x: -4.4, y: -1, width: 8.8, height: 19, rx: 4.4, class: cls }, L); el('rect', { x: -4.8, y: 15, width: 11.5, height: 6, rx: 2.4, class: 'f-boot' }, L); return L; };
+  const mkArm = cls => { const A = el('g', {}, body); el('rect', { x: -3.7, y: -1, width: 7.4, height: 17, rx: 3.7, class: cls }, A); el('circle', { cx: 0, cy: 16.5, r: 3.8, class: 'f-glove' }, A); return A; };
+  const legB = mkLeg('f-suit-sh'), armB = mkArm('f-suit-sh');
+  const pack = el('rect', { x: -21, y: -50, width: 13, height: 28, rx: 3.5, class: 'f-pack' }, body);
+  el('rect', { x: -19, y: -46, width: 9, height: 3, fill: stripe }, body);
+  el('rect', { x: -10.5, y: -48, width: 22, height: 30, rx: 8, class: 'f-suit' }, body);
+  el('rect', { x: -10.5, y: -26, width: 22, height: 5, fill: stripe }, body);
+  el('rect', { x: -1, y: -41, width: 12, height: 8, rx: 1.8, class: 'f-metal' }, body);
+  el('circle', { cx: 2.6, cy: -37, r: 1.3, fill: V('ok') }, body);
+  el('circle', { cx: 6.6, cy: -37, r: 1.3, fill: stripe }, body);
+  const head = el('g', {}, body);
+  el('circle', { cx: 2, cy: -56, r: 11.2, class: 'f-suit' }, head);
+  el('ellipse', { cx: 6.2, cy: -56, rx: 7.2, ry: 7.6, class: 'f-visor' }, head);
+  el('ellipse', { cx: 8.6, cy: -59, rx: 2, ry: 2.8, fill: '#fff', opacity: .55 }, head);
+  el('rect', { x: -3, y: -68.5, width: 8, height: 3.2, rx: 1.4, class: 'f-metal' }, head);
+  const lamp = el('g', { opacity: 0 }, head);
+  el('polygon', { points: '7,-67 46,-80 46,-50', fill: 'url(#beamGrad)', opacity: .5 }, lamp);
+  el('circle', { cx: 6, cy: -67, r: 1.8, fill: '#fff6c8' }, lamp);
+  const legA = mkLeg('f-suit'), armA = mkArm('f-suit');
+  el('rect', { x: -3.7, y: 3, width: 7.4, height: 3, fill: stripe }, armA);
+  el('rect', { x: -4.4, y: 5, width: 8.8, height: 3, fill: stripe }, legA);
+  // 手上的工具：夾子（採樣）、相機、槌子與羽毛
+  const tool = el('g', { opacity: 0 }, armA);
+  if (o.tool === 'tongs') { el('rect', { x: -1, y: 14, width: 2, height: 22, class: 'f-metal' }, tool); el('polygon', { points: '-3,36 3,36 0,41', class: 'f-metal-dk' }, tool); }
+  if (o.tool === 'camera') { el('rect', { x: -6, y: 12, width: 12, height: 9, rx: 1.5, class: 'f-metal-dk' }, tool); el('circle', { cx: 0, cy: 16.5, r: 3, class: 'f-glass' }, tool); }
+  const a = { g, body, legA, legB, armA, armB, head, lamp, tool, pack, x: 0, y: 0, dir: 1, s: 1, ph: 0, air: 0, vy: 0, hop: 0, shown: 1 };
+  return a;
+}
+function astroPose(a, p = {}) {
+  a.legA.setAttribute('transform', `translate(3,-20) rotate(${f1(p.la || 0)})`);
+  a.legB.setAttribute('transform', `translate(-3,-20) rotate(${f1(p.lb || 0)})`);
+  a.armA.setAttribute('transform', `translate(5,-43) rotate(${f1(p.aa || 0)})`);
+  a.armB.setAttribute('transform', `translate(-3,-43) rotate(${f1(p.ab || 0)})`);
+  a.body.setAttribute('transform', `translate(0,${f1(-(p.bob || 0))}) rotate(${f1(p.lean || 0)},0,-20)`);
+  a.head.setAttribute('transform', `rotate(${f1(p.look || 0)},2,-47)`);
+}
+const depthScale = y => lerp(.72, 1, clamp((y - 415) / 160, 0, 1));
+function placeAstro(a) {
+  a.s = depthScale(a.y);
+  a.g.setAttribute('transform', `translate(${f1(a.x)},${f1(a.y - a.air)}) scale(${f1(a.dir * a.s)},${f1(a.s)})`);
+  a.g.setAttribute('opacity', f1(a.shown));
+}
+/* 低重力的走法：太空衣很硬，大家用「袋鼠跳」往前蹦，每一步都在空中飄一下才落地 */
+function lopePose(a, extra = {}) {
+  const s = Math.sin(a.ph);
+  astroPose(a, Object.assign({ la: -24 * s - 6, lb: 24 * s - 6, aa: -16 + 10 * s, ab: -10 - 10 * s, bob: 0, lean: 9 }, extra));
+}
+function idlePose(a, t, extra = {}) {
+  astroPose(a, Object.assign({ la: -3, lb: 3, aa: -6 + Math.sin(t * 1.3 + a.x) * 2, ab: 4, bob: Math.sin(t * 1.6 + a.x) * .4, lean: 0 }, extra));
+}
+// 往目標點袋鼠跳；回傳是否抵達
+function hopTo(a, tx, ty, speed, dt) {
+  const dx = tx - a.x, dy = ty - a.y, d = Math.hypot(dx, dy * 1.4);
+  if (d < 3 && a.air < .5) { a.air = 0; a.vy = 0; return true; }
+  if (Math.abs(dx) > 2) a.dir = dx > 0 ? 1 : -1;
+  // 每一步：離地跳起，月球重力慢慢拉回來
+  if (a.air <= 0 && a.vy <= 0) { a.vy = 46; a.air = .01; footprint(a); }
+  a.vy -= GM * dt * 1.0; a.air = Math.max(0, a.air + a.vy * dt);
+  if (a.air <= 0) a.vy = 0;
+  const v = speed * a.s;
+  const m = Math.min(1, v * dt / Math.max(d, .01));
+  a.x += dx * m; a.y += dy * m;
+  a.ph = (a.air > 0) ? Math.PI / 2 * clamp(a.vy / 46, -1, 1) : 0;
+  lopePose(a, { lean: 10 });
+  return false;
+}
+
+/* ---------------- ③ 角色：月球車（無壓力艙的雙人電動車，鐵絲網輪胎） ---------------- */
+const ROVER = { x: 880, y: 492, dir: 1, v: 0, mode: 'park', leg: 0, wait: 0, g: null, wheels: [], spin: 0, trackD: 0, s: .9 };
+function makeRover(parent) {
+  const g = el('g', {}, parent); ROVER.g = g;
+  const body = el('g', {}, g);
+  // 高增益天線（網狀傘，指向地球）
+  el('rect', { x: -40, y: -78, width: 2.4, height: 52, class: 'f-metal' }, body);
+  el('path', { d: 'M-52,-92 A16,16 0 0 1 -24,-74 Z', class: 'f-hull' }, body);
+  el('path', { d: 'M-48,-88 A11,11 0 0 1 -29,-77 Z', class: 'f-hull-sh' }, body);
+  // 相機桅杆
+  el('rect', { x: 34, y: -62, width: 2, height: 22, class: 'f-metal' }, body);
+  el('rect', { x: 30, y: -68, width: 11, height: 7, rx: 1.6, class: 'f-metal-dk' }, body);
+  // 座椅
+  el('rect', { x: -26, y: -46, width: 6, height: 20, rx: 2, class: 'f-metal-dk' }, body);
+  el('rect', { x: -26, y: -32, width: 20, height: 5, rx: 2, class: 'f-metal-dk' }, body);
+  el('rect', { x: 2, y: -46, width: 6, height: 20, rx: 2, class: 'f-metal-dk' }, body);
+  el('rect', { x: 2, y: -32, width: 20, height: 5, rx: 2, class: 'f-metal-dk' }, body);
+  // 駕駛（坐著，右手握控制桿）
+  const drv = makeAstro(body, { stripe: 'lilac' });
+  drv.g.setAttribute('transform', 'translate(12,-12) scale(.9)');
+  astroPose(drv, { la: -78, lb: -72, aa: -55, ab: -40, lean: -4 });
+  ROVER.driver = drv;
+  // 控制台
+  el('rect', { x: 34, y: -42, width: 6, height: 16, rx: 2, class: 'f-metal' }, body);
+  el('rect', { x: 30, y: -48, width: 12, height: 8, rx: 2, class: 'f-metal-dk' }, body);
+  el('circle', { cx: 36, cy: -44, r: 1.6, fill: V('ok') }, body);
+  // 底盤、擋泥板、後方工具架與樣本袋
+  el('rect', { x: -50, y: -28, width: 100, height: 8, rx: 3, class: 'f-metal' }, body);
+  el('rect', { x: -50, y: -28, width: 100, height: 3, fill: V('teal') }, body);
+  el('rect', { x: -60, y: -44, width: 10, height: 18, rx: 2, class: 'f-foil' }, body);
+  el('rect', { x: -58, y: -52, width: 6, height: 8, rx: 2, fill: V('mustard') }, body);
+  [-30, 30].forEach(x => {
+    el('path', { d: `M${x - 17},-18 A17,13 0 0 1 ${x + 17},-18 Z`, class: 'f-hull-sh' }, body);
+    const w = el('g', { transform: `translate(${x},-12)` }, body);
+    el('circle', { r: 12, class: 'f-metal-dk' }, w);
+    el('circle', { r: 9.5, class: 'f-metal' }, w);
+    const sp = el('g', {}, w);
+    for (let i = 0; i < 4; i++) el('rect', { x: -9.5, y: -.8, width: 19, height: 1.6, class: 'f-metal-dk', transform: `rotate(${i * 45})` }, sp);
+    el('circle', { r: 3, class: 'f-metal-dk' }, w);
+    ROVER.wheels.push(sp);
+  });
+  ROVER.body = body;
+  return g;
+}
+
+/* ---------------- ③ 角色：跟著滑鼠跑的小機器人 ---------------- */
+const BOT = { x: 640, y: 590, dir: 1, tx: 640, g: null, arm: null, eye: null, scoop: 0, wheels: [], spin: 0, idleT: 3 };
+function makeBot(parent) {
+  const g = el('g', {}, parent); BOT.g = g;
+  el('rect', { x: -15, y: -22, width: 30, height: 15, rx: 4, class: 'f-hull' }, g);
+  el('rect', { x: -15, y: -12, width: 30, height: 5, rx: 2, class: 'f-hull-sh' }, g);
+  el('rect', { x: -15, y: -19, width: 30, height: 3, fill: V('teal') }, g);
+  el('rect', { x: -12, y: -34, width: 16, height: 3.5, rx: 1.5, class: 'f-panel' }, g);
+  el('rect', { x: 4, y: -40, width: 2.4, height: 18, class: 'f-metal' }, g);
+  el('rect', { x: 0, y: -48, width: 13, height: 9, rx: 3, class: 'f-metal-dk' }, g);
+  BOT.eye = el('circle', { cx: 9, cy: -43.5, r: 2.4, fill: V('teal') }, g);
+  BOT.arm = el('g', { transform: 'translate(14,-14)' }, g);
+  el('rect', { x: 0, y: -1.2, width: 12, height: 2.4, class: 'f-metal' }, BOT.arm);
+  el('polygon', { points: '12,-3 16,-3 15,3 11,3', class: 'f-metal-dk' }, BOT.arm);
+  [-9, 0, 9].forEach(x => {
+    const w = el('g', { transform: `translate(${x},-4.5)` }, g);
+    el('circle', { r: 4.6, class: 'f-metal-dk' }, w);
+    const sp = el('rect', { x: -4, y: -.7, width: 8, height: 1.4, class: 'f-metal' }, w);
+    BOT.wheels.push(sp);
+  });
+  return g;
+}
+
+/* ---------------- ③ 角色：科學儀器（雷射反射器、月震儀） ---------------- */
+const SCI = { refl: null, reflFlash: null, seis: null, line: null, buf: [], quake: 0 };
+function makeReflector(parent) {
+  const g = el('g', { class: 'clickable', tabindex: 0, role: 'button', 'aria-label': '雷射反射器：地球打雷射來測距離' }, parent);
+  el('polygon', { points: '-14,0 0,-14 14,0', class: 'f-metal-dk' }, g);
+  const p = el('g', { transform: 'translate(0,-18) rotate(-24)' }, g);
+  el('rect', { x: -22, y: -16, width: 44, height: 30, rx: 2, class: 'f-metal' }, p);
+  for (let i = 0; i < 5; i++) for (let j = 0; j < 3; j++) el('circle', { cx: -16 + i * 8, cy: -9 + j * 8, r: 3, class: 'f-glass' }, p);
+  SCI.reflFlash = el('rect', { x: -22, y: -16, width: 44, height: 30, rx: 2, fill: V('laser'), opacity: 0 }, p);
+  SCI.refl = g;
+  return g;
+}
+function makeSeismo(parent) {
+  const g = el('g', { class: 'clickable', tabindex: 0, role: 'button', 'aria-label': '月震儀：測量月震' }, parent);
+  el('path', { d: 'M-16,0 A16,14 0 0 1 16,0 Z', class: 'f-foil' }, g);
+  el('path', { d: 'M0,0 L0,-14 A16,14 0 0 1 16,0 Z', class: 'f-foil-sh' }, g);
+  el('rect', { x: 20, y: -30, width: 46, height: 28, rx: 3, class: 'f-metal-dk' }, g);
+  el('rect', { x: 23, y: -27, width: 40, height: 22, rx: 2, fill: '#0d1426' }, g);
+  el('rect', { x: 40, y: -2, width: 3, height: 2, class: 'f-metal' }, g);
+  SCI.line = el('polyline', { fill: 'none', stroke: V('laser'), 'stroke-width': 1.3 }, g);
+  for (let i = 0; i < 40; i++) SCI.buf.push(0);
+  SCI.seis = g;
+  return g;
+}
+
+/* ---------------- ③ 角色：軌道站（遠遠的一個亮點，慢慢劃過星空） ---------------- */
+const ORB = { x: -40, t: 0, g: null, blink: null };
+function makeOrbiter() {
+  const g = $('orbiter'); ORB.g = el('g', {}, g);
+  el('rect', { x: -7, y: -.8, width: 14, height: 1.6, fill: '#cfd6e8' }, ORB.g);
+  el('rect', { x: -2, y: -1.8, width: 4, height: 3.6, rx: 1, fill: '#ffffff' }, ORB.g);
+  ORB.blink = el('circle', { cx: 3, cy: 0, r: 1.4, fill: V('beacon') }, ORB.g);
+}
+
+/* ---------------- ③ 角色：塵土、腳印、車轍、對話、撞擊 ---------------- */
+const parts = [];
+// 月塵：沒有空氣阻力，照拋物線飛出去再落下，不會飄成一團
+function dust(x, y, vx, vy, r = 1.6, layer = 'fx', col = 'gr-dot', floor = null) {
+  const e = el('circle', { cx: f1(x), cy: f1(y), r: f1(r), class: 'f-' + col }, $(layer));
+  parts.push({ el: e, x, y, vx, vy, g: GM, floor: floor ?? y + 1, life: 6, age: 0, kind: 'dust' });
+}
+function streak(x, y, vx, vy, len, life, layer = 'fx', col) {
+  const e = el('line', { stroke: V(col || (Math.random() < .5 ? 'crater-lip' : 'gr-dot')), 'stroke-width': 2.4, 'stroke-linecap': 'round' }, $(layer));
+  parts.push({ el: e, x, y, vx, vy, len, g: 0, life, age: 0, kind: 'streak' });
+}
+function footprint(a) {
+  if (!a.prints) return;
+  const s = a.s, x = a.x + a.dir * 2 * s, y = a.y + 1;
+  addMark(el('ellipse', { cx: f1(x), cy: f1(y), rx: f1(4.6 * s), ry: f1(1.4 * s), class: 'f-track', opacity: .8 }, $('tracks')));
+}
+const marks = [];
+function addMark(m) { marks.push(m); if (marks.length > 320) marks.shift().remove(); }
+let sayList = [];
+function say(x, y, text, dur = 2, radio = true) {
+  const g = el('g', { class: 'say' }, $('says'));
+  const w = Math.max(48, text.length * 15.5 + 26);
+  x = clamp(x, w / 2 + 6, 1600 - w / 2 - 6); y = clamp(y, 30, 560);
+  el('rect', { x: f1(x - w / 2), y: f1(y - 17), width: f1(w), height: 34, rx: 17, fill: V('say-bg'), opacity: .96 }, g);
+  if (radio) { // 無線電小圖示：天線＋電波
+    el('rect', { x: f1(x - w / 2 + 11), y: f1(y - 6), width: 2.4, height: 12, rx: 1, fill: V('radio') }, g);
+    el('circle', { cx: f1(x - w / 2 + 12.2), cy: f1(y - 7), r: 2.6, fill: V('radio') }, g);
+  }
+  const t = el('text', { x: f1(x + (radio ? 5 : 0)), y: f1(y + 1) }, g); t.textContent = text;
+  sayList.push({ el: g, age: 0, dur });
+}
+function countdown(n) {
+  const g = el('g', { class: 'count' }, $('says'));
+  el('circle', { cx: 760, cy: 200, r: 40, fill: V('coral'), opacity: .9 }, g);
+  const t = el('text', { x: 760, y: 203 }, g); t.textContent = n;
+  sayList.push({ el: g, age: 0, dur: .9 });
+}
+// 流星體撞擊：沒有大氣，不會燒成流星，直接在月面撞出閃光、噴出放射狀的月塵
+const impacts = [];
+function impact(x, y, big = 1) {
+  const s = depthScale(y + 120) * big;
+  const g = el('g', { transform: `translate(${f1(x)},${f1(y)})` }, $('fx'));
+  const fl = el('circle', { r: 2, fill: V('flash') }, g);
+  const rays = [];
+  for (let i = 0; i < 9; i++) {
+    const a = -Math.PI * (i + .5) / 9;
+    rays.push(el('line', { x1: 0, y1: 0, x2: f1(Math.cos(a) * 34 * s), y2: f1(Math.sin(a) * 18 * s), stroke: V('crater-lip'), 'stroke-width': 1.4, opacity: .9 }, g));
+  }
+  impacts.push({ g, fl, rays, age: 0, s });
+  for (let i = 0; i < 16; i++) { const a = rand(-Math.PI, 0); dust(x, y, Math.cos(a) * rand(20, 90) * s, Math.sin(a) * rand(30, 90) * s, 1.3 * s + .4, 'fx', 'crater-lip', y + rand(-2, 3)); }
+  // 留下一個新的小坑
+  addMark(el('ellipse', { cx: f1(x), cy: f1(y), rx: f1(7 * s), ry: f1(2 * s), class: 'f-crater-in' }, $('tracks')));
+  seismo(1.2 * big);
+}
+function seismo(v) { SCI.quake = Math.max(SCI.quake, v); }
+
+/* ---------------- ④ 動畫：月球日與光線 ----------------
+   T.t：0～1 是一個朔望月（約 29.5 地球日）。
+   太陽方位角 az：t=0.5 時太陽在地球的方向（新地球），t=0 時在背後（滿地球）。
+   太陽高度只有幾度：南極的太陽貼著地平線繞圈，低於山脊就是月夜。 */
+const T = { t: .30, auto: true, len: 150, dragging: false, ff: null };
+const LIGHT = { dl: 1, tw: 0, az: 72, e: 1.6, sx: 0, sy: 0, side: 1, shx: -1, shy: 0, len: 2 };
+let lastKey = '';
+const isNight = () => LIGHT.dl < .4;
+function sunNormal(t) {
+  let az = 180 - 360 * t; az = ((az + 180) % 360 + 360) % 360 - 180;
+  const e = .6 + 2.2 * Math.cos(2 * Math.PI * (t - .5));
+  return { az, e, x: EX0 + az * PXD, y: HZN - 8 - e * 14 };
+}
+function earthPos(t) {
+  // 天平動：地球在天上畫一個小橢圓，上下晃動，最低時會被環形山邊緣擋住一部分
+  const a = 2 * Math.PI * t * 1.08;
+  return { x: EX0 + 26 * Math.cos(a + .4), y: 192 + 56 * Math.sin(a + .06) };
+}
+function applyTime(force) {
+  const t = ((T.t % 1) + 1) % 1;
+  const S = sunNormal(t), P = earthPos(t);
+  E.x = P.x; E.y = P.y;
+  let sx = S.x, sy = S.y, az = S.az, e = S.e;
+  // 地球日食：太陽沿著直線慢慢滑到地球正後方
+  if (show.kind === 'eclipse' && show.u != null) {
+    const u = show.u, b = smooth(0, .28, u) * (1 - smooth(.72, 1, u));
+    sx = lerp(S.x, E.x + (1 - 2 * u) * 100, b); sy = lerp(S.y, E.y, b);
+    e = Math.max(e, 2);
+  }
+  LIGHT.sx = sx; LIGHT.sy = sy; LIGHT.az = az; LIGHT.e = e;
+  // 被地球遮住多少（0 沒遮、1 全遮）
+  const dE = Math.hypot(sx - E.x, sy - E.y);
+  E.occ = 1 - smooth(E.r - 11, E.r + 11, dE);
+  let dl = smooth(-.4, .5, e) * (1 - E.occ * .88);
+  const tw = E.occ;
+  LIGHT.dl = dl; LIGHT.tw = tw;
+  LIGHT.side = Math.sin(az * RAD) >= 0 ? 1 : -1;
+  // 影子方向：背著太陽。太陽很低，影子很長
+  LIGHT.shx = -Math.sin(az * RAD); LIGHT.shy = Math.cos(az * RAD) * .18;
+  LIGHT.len = clamp(1.3 / Math.tan(Math.max(.5, e) * RAD) * .06, 1.3, 2.6);
+  const key = `${dl.toFixed(3)}|${tw.toFixed(3)}|${LIGHT.side}`;
+  if (force || key !== lastKey) {
+    lastKey = key;
+    let s = '';
+    for (const k in PAIRS) {
+      const p = PAIRS[k];
+      let c = mix(p.n, p.d, dl);
+      if (p.k) c = mix(c, p.k, tw * .9);
+      s += `--${k}:${rgba(c)};`;
+    }
+    // 亮面跟著太陽：太陽在右邊時，山的右側面是亮的
+    const L = LIGHT.side > 0 ? 'shade' : 'lit', R = LIGHT.side > 0 ? 'lit' : 'shade';
+    s += `--facetL:var(--mt-${L});--facetR:var(--mt-${R});--rockL:var(--rock-${L});--rockR:var(--rock-${R});`;
+    root.setAttribute('style', s);
+    updateStatic();
+  }
+  // 太陽
+  const vis = smooth(-.6, .3, e);
+  $('sun').setAttribute('transform', `translate(${f1(sx)},${f1(sy)})`);
+  $('sun').setAttribute('opacity', f1(vis));
+  sunGlare.setAttribute('opacity', f1(1 - E.occ));
+  sunFlare.setAttribute('opacity', f1(.45 * (1 - E.occ)));
+  // 地相：太陽和地球在天上的夾角 ε → 亮面比例 k＝(1－cos ε)/2
+  const eps = Math.acos(clamp(Math.cos(az * RAD) * Math.cos((e - 3) * RAD), -1, 1));
+  E.k = (1 - Math.cos(eps)) / 2;
+  if (E.occ > 0) E.k = Math.min(E.k, .02 * (1 - E.occ));
+  E.th = Math.atan2((sy - E.y) / 260, Math.sin(az * RAD));
+  $('earth').setAttribute('transform', `translate(${f1(E.x)},${f1(E.y)})`);
+  ringEl.setAttribute('opacity', f1(smooth(.55, 1, E.occ)));
+  // 鑽石環：剛好要全遮（或剛要露出來）時，地球邊緣亮一下
+  const dm = smooth(.35, .8, E.occ) * (1 - smooth(.85, .99, E.occ));
+  if (dm > .01) {
+    const ang = Math.atan2(sy - E.y, sx - E.x);
+    diamond.setAttribute('transform', `translate(${f1(Math.cos(ang) * E.r)},${f1(Math.sin(ang) * E.r)})`);
+  }
+  diamond.setAttribute('opacity', f1(dm));
+  atmoEl.setAttribute('opacity', f1(.55 * (1 - E.occ)));
+  earthHalo.setAttribute('opacity', f1(.12 * (1 - E.occ)));
+  updateEarthPhase();
+  // 星星：白天被強光蓋過，月夜或日食時滿天星
+  $('stars').setAttribute('opacity', f1(.3 + .7 * (1 - dl)));
+  $('milky').setAttribute('opacity', f1(.15 + .85 * (1 - dl)));
+  // 時鐘：第幾天
+  const day = Math.floor(t * 29.5) + 1;
+  $('clock').textContent = `${dl > .35 ? '月晝' : '月夜'}・第 ${day} 天`;
+  if (!T.dragging) $('timeRange').value = Math.round(t * 1000);
+}
+// 光線改變時才需要更新的東西：影子、隕石坑內的陰影、太陽能板轉向、燈
+function updateStatic() {
+  const L = LIGHT;
+  craters.forEach(c => { c.sh.setAttribute('cx', f1(c.x + L.side * c.r * .42)); c.sh.setAttribute('opacity', f1(.38 * L.dl)); });
+  // 太陽能板永遠面向太陽：從我們這邊看，板子寬度＝|cos az|，太陽在背後時看到藍色正面
+  const ca = Math.cos(L.az * RAD), w = Math.max(.14, Math.abs(ca));
+  towers.forEach(t => t.panels.forEach(p => {
+    p.g.setAttribute('transform', `translate(${t.x},0) scale(${f1(w)},1)`);
+    p.front.setAttribute('opacity', ca < 0 ? 1 : 0);
+  }));
+  const night = 1 - L.dl;
+  HAB.glow.setAttribute('opacity', f1(clamp(night * 1.2 + L.tw * .6, 0, 1)));
+  FLOODS.forEach(f => { f.cone.setAttribute('opacity', f1(clamp(night * 1.2, 0, 1))); f.lamp.setAttribute('opacity', f1(clamp(night * 1.3, 0, 1))); });
+  staticShadows.forEach(drawShadow);
+}
+/* 影子：從物體腳下往太陽的反方向拉長的四邊形 */
+const staticShadows = [];
+function makeShadow(x, y, w, h, parent = $('shadows')) {
+  const s = { x, y, w, h, el: el('polygon', { fill: '#000', opacity: .3 }, parent) };
+  return s;
+}
+function drawShadow(s) {
+  const L = LIGHT, len = s.h * L.len, dx = L.shx * len, dy = L.shy * len + 2;
+  const w = s.w / 2;
+  s.el.setAttribute('points', `${f1(s.x - w)},${f1(s.y)} ${f1(s.x + w)},${f1(s.y)} ${f1(s.x + w * .6 + dx)},${f1(s.y + dy)} ${f1(s.x - w * .6 + dx)},${f1(s.y + dy)}`);
+  s.el.setAttribute('opacity', f1(.42 * L.dl * (1 - L.tw * .5)));
+}
+function setTime(t) {
+  if (show.kind) return;
+  T.t = t; T.auto = false; T.ff = null; $('btnAuto').setAttribute('aria-pressed', 'false'); applyTime(true);
+}
+function fastForward(t, then, dur = 2.6) {
+  const from = T.t % 1;
+  let dist = (t - from + 1) % 1;
+  if (dist < .005) { then && then(); return; }
+  T.ff = { from, dist, t: 0, dur, then };
+}
+
+/* ---------------- ④ 動畫：太空天氣（平靜、流星體、太陽風暴、月塵輝光） ---------------- */
+const WX = { list: [['calm', '平靜'], ['meteor', '流星體'], ['storm', '太陽風暴'], ['glow', '月塵輝光']], idx: 0, storm: 0, glow: 0, meteorT: 2, motes: [], streaks: [], alarmT: 0 };
+function buildWeather() {
+  const g = $('storm');
+  for (let i = 0; i < 46; i++) WX.streaks.push({ el: el('rect', { width: rand(30, 90), height: 1.2, fill: i % 3 ? '#ffd8a8' : '#ff9a7a', opacity: rand(.25, .6) }, g), x: rand(0, 1600), y: rand(0, 600), v: rand(700, 1300) });
+  const dg = $('dustGlow');
+  dg.glowRect = el('ellipse', { cx: 1600, cy: 300, rx: 760, ry: 70, fill: 'url(#glowRad)' }, dg);
+  for (let i = 0; i < 70; i++) WX.motes.push({ el: el('circle', { r: rand(.8, 1.8), fill: '#fff4dc', opacity: rand(.3, .8) }, dg), x: rand(0, 1600), y: rand(300, 590), ph: rand(0, 6), sp: rand(.3, .9) });
+}
+function setWeather(i) {
+  WX.idx = i;
+  $('btnWeather').textContent = '太空天氣：' + WX.list[i][1];
+  const k = WX.list[i][0];
+  if (k === 'storm') { sfx('alarm'); say(300, 270, '太陽風暴！全員回艙避難', 2.8); }
+  if (k === 'meteor') { say(1000, 250, '流星體預報：小石頭來囉', 2.4); WX.meteorT = .8; }
+  if (k === 'glow') say(800, 240, '晨昏線上的月塵飄起來了', 2.4);
+  if (reduced) { WX.storm = k === 'storm' ? 1 : 0; WX.glow = k === 'glow' ? 1 : 0; updateWeather(0); }
+}
+function updateWeather(dt) {
+  const k = WX.list[WX.idx][0];
+  WX.storm = lerp(WX.storm, k === 'storm' ? 1 : 0, clamp(dt * 1.5, 0, 1));
+  WX.glow = lerp(WX.glow, k === 'glow' ? 1 : 0, clamp(dt * 1.2, 0, 1));
+  // 太陽風暴：高能粒子（畫成從太陽方向射來的細線）、居住艙紅燈閃、地球兩極出現極光
+  $('storm').setAttribute('opacity', f1(WX.storm * .8));
+  if (WX.storm > .02) {
+    const dir = LIGHT.side;
+    WX.streaks.forEach(s => {
+      s.x -= dir * s.v * dt; s.y += s.v * dt * .12;
+      if (s.x < -100 || s.x > 1700 || s.y > 620) { s.x = dir > 0 ? rand(1500, 1700) : rand(-100, 100); s.y = rand(-40, 560); }
+      s.el.setAttribute('transform', `translate(${f1(s.x)},${f1(s.y)}) rotate(${f1(-dir * 7)})`);
+    });
+  }
+  aurEl.setAttribute('opacity', f1(WX.storm * (.6 + .4 * Math.sin(clockT * 3))));
+  const alarm = WX.storm > .5 && Math.sin(clockT * 8) > 0;
+  HAB.beacon.style.fill = WX.storm > .5 ? (alarm ? 'var(--beacon)' : '#5a1410') : 'var(--ok)';
+  // 月塵輝光：太陽剛好在地平線附近時，帶靜電的細塵浮起來，地平線上一道淡淡的光
+  const g = $('dustGlow');
+  const near = 1 - smooth(1.2, 3, LIGHT.e) * .55;
+  g.setAttribute('opacity', f1(WX.glow * near));
+  if (WX.glow > .02) {
+    g.glowRect.setAttribute('cx', f1(clamp(LIGHT.sx, -200, 1800)));
+    WX.motes.forEach(m => {
+      m.ph += dt * m.sp; m.x += dt * 4 * m.sp;
+      if (m.x > 1610) m.x = -10;
+      m.el.setAttribute('cx', f1(m.x)); m.el.setAttribute('cy', f1(m.y - 6 - Math.sin(m.ph) * 8));
+    });
+  }
+  // 流星體：每隔幾秒在月面某處撞出閃光
+  if (k === 'meteor' && !reduced) {
+    WX.meteorT -= dt;
+    if (WX.meteorT < 0) { WX.meteorT = rand(1.2, 3.2); const x = rand(30, 1570), y = rand(306, 596); if (!(x > 1060 && x < 1560 && y < 395 && y > 320)) impact(x, y, rand(.6, 1.2)); sfx('ping'); }
+  }
+}
+
+/* ---------------- ④ 動畫：表演（同一時間只能有一場） ---------------- */
+const show = { kind: null, s: 0, u: null, step: 0, wasAuto: true };
+function lockButtons(on) {
+  $('btnLaunch').disabled = on && show.kind !== 'launch';
+  $('btnEclipse').disabled = on && show.kind !== 'eclipse';
+  $('btnLaunch').classList.toggle('on', show.kind === 'launch');
+  $('btnEclipse').classList.toggle('on', show.kind === 'eclipse');
+  ['btnDay', 'btnNight'].forEach(b => $(b).disabled = on);
+}
+/* 登月艙升空：倒數 → 點火升空（引擎噴焰很淡，月塵被吹成一片片直線往外噴）
+   → 飛出畫面去軌道站 → 再載下一批組員回來降落（降落時一熄火，月塵立刻落地，不會飄） */
+function startLaunch() {
+  if (show.kind) return;
+  show.kind = 'launch'; show.s = 0; show.step = 0; lockButtons(true);
+  A.mode = 'board';
+  playLaunchMusic();
+}
+function updateLaunch(dt) {
+  if (show.kind !== 'launch') return;
+  show.s += dt; const s = show.s;
+  const L = LANDER;
+  if (show.step === 0 && (s > 3 || (s > 1 && Math.abs(A.x - 742) < 4))) { show.step = 1; A.shown = 0; A.mode = 'aboard'; say(760, 220, '組員登艙，關艙門', 1.4); }
+  for (let n = 5; n >= 1; n--) if (show.step === 7 - n && s > 3 + (5 - n) * 1) { show.step++; countdown(n); }
+  if (show.step === 7 && s > 8) { show.step = 8; say(760, 210, '點火！升空！', 1.6); seismo(1.5); }
+  if (s > 8 && s < 15) {
+    const k = s - 8; L.thrust = 1;
+    L.alt = 14 * k * k + 4 * k;
+    L.tilt = smooth(1.8, 5, k) * 12; L.dx = smooth(2, 7, k) * 160 * (k / 7);
+  } else if (s >= 15 && s < 16.2) { L.thrust = 0; L.alt = 900; }
+  else if (s >= 16.2 && s < 23.2) {
+    if (show.step === 8) { show.step = 9; say(1000, 150, '下一批組員：準備降落', 1.8); }
+    const u = (s - 16.2) / 7; L.thrust = .8; L.tilt = (1 - smooth(0, .5, u)) * -8; L.dx = (1 - smooth(0, .7, u)) * -120;
+    L.alt = 560 * (1 - u) * (1 - u);
+  } else if (s >= 23.2) {
+    if (show.step === 9) { show.step = 10; L.thrust = 0; L.alt = 0; L.tilt = 0; L.dx = 0; L.squash = 1; seismo(1.2); say(760, 220, '降落成功！', 1.8); sfx('thud'); }
+  }
+  if (s > 24.6 && show.step === 10) { show.step = 11; A.shown = 1; A.x = 742; A.y = 440; A.mode = 'wave'; A.t = 2.2; }
+  if (s > 26) endShow();
+  // 月塵：離地面越近，噴得越多，呈放射直線飛出去
+  if (L.thrust > 0 && L.alt < 130 && !reduced) {
+    const n = Math.round((1 - L.alt / 130) * 8);
+    for (let i = 0; i < n; i++) {
+      const dir = Math.random() < .5 ? -1 : 1, x = L.x + dir * rand(10, 40);
+      streak(x, L.base + rand(-3, 3), dir * rand(420, 760), rand(-30, 6), rand(14, 30), rand(.35, .7));
+    }
+    if (Math.random() < .5) dust(L.x + rand(-60, 60), L.base, rand(-140, 140), -rand(40, 110), 1.6, 'fx', 'gr-near', L.base + rand(-6, 8));
+  }
+}
+function endShow() {
+  const k = show.kind;
+  show.kind = null; show.u = null; lockButtons(false);
+  if (k === 'eclipse') { T.auto = show.wasAuto; $('btnAuto').setAttribute('aria-pressed', String(T.auto)); }
+  LANDER.thrust = 0;
+}
+/* 地球日食：從月球看，太陽躲到地球後面。地球變成黑色圓盤，
+   邊緣一圈紅光是地球大氣折射的陽光——等於同時看到全世界的日出和日落；
+   月面也被染成紅銅色（地球上看到的「血月」就是這個時候） */
+function startEclipse() {
+  if (show.kind) return;
+  show.kind = 'eclipse'; show.s = -1; show.u = null; show.step = 0; show.wasAuto = T.auto; lockButtons(true);
+  if (WX.idx !== 0) setWeather(0);
+  T.auto = false;
+  fastForward(.47, () => { show.s = 0; show.u = 0; playEclipseMusic(); say(1000, 120, '太陽要躲到地球後面了', 2); });
+}
+function updateEclipse(dt) {
+  if (show.kind !== 'eclipse' || show.s < 0) return;
+  show.s += dt; const s = show.s;
+  show.u = clamp(s / 20, 0, 1);
+  T.t = .47 + .06 * show.u;
+  if (show.step === 0 && E.occ > .97) { show.step = 1; say(E.x, E.y + 100, '全食！地球鑲上紅色光環', 2.6); sfx('shutter'); flashSnap(.25); }
+  if (show.step === 1 && E.occ < .9 && show.u > .5) { show.step = 2; say(E.x, E.y + 100, '鑽石環！太陽出來了', 2); }
+  if (s > 20.5) endShow();
+}
+
+/* ---------------- ③ 角色：太空人們的行為 ---------------- */
+let A, B, C, D, Ph;
+const astros = [];
+function addAstro(o) {
+  const a = makeAstro($('actors'), o);
+  Object.assign(a, { x: o.x, y: o.y, home: { x: o.x, y: o.y }, dir: o.dir || 1, mode: 'idle', t: rand(1, 4), prints: true, name: o.name });
+  a.shadow = makeShadow(o.x, o.y, 20, 66, $('shadows'));
+  a.inside = false;
+  astros.push(a);
+  placeAstro(a); idlePose(a, 0);
+  return a;
+}
+// 太陽風暴時：所有人跳回居住艙的氣閘艙避難；風暴過後再出來
+const AIRLOCK = { x: 441, y: 418 };
+function shelter(a, dt) {
+  if (WX.storm > .5 && !a.inside && a.mode !== 'aboard') {
+    if (hopTo(a, AIRLOCK.x, AIRLOCK.y, 70, dt)) { a.inside = true; a.shown = 0; HAB.openT = 1.2; }
+    return true;
+  }
+  if (a.inside) {
+    if (WX.storm < .3) { a.inside = false; a.shown = 1; a.x = AIRLOCK.x; a.y = AIRLOCK.y; a.mode = 'return'; HAB.openT = 1.2; }
+    return true;
+  }
+  if (a.mode === 'return') {
+    if (hopTo(a, a.home.x, a.home.y, 50, dt)) { a.mode = 'idle'; a.t = 1; }
+    return true;
+  }
+  return false;
+}
+// A：指揮官（珊瑚色），在居住艙和登月艙之間來回搬補給
+function updateA(a, dt, t) {
+  if (a.mode === 'aboard') return;
+  if (show.kind === 'launch' && a.mode === 'board') { if (hopTo(a, 742, 440, 120, dt)) { a.dir = 1; idlePose(a, t); } return; }
+  if (shelter(a, dt)) return;
+  a.t -= dt;
+  if (a.mode === 'wave') { idlePose(a, t, { aa: -150 + Math.sin(t * 8) * 18 }); if (a.t < 0) { a.mode = 'idle'; a.t = 2; } return; }
+  if (a.mode === 'walk') { if (hopTo(a, a.tx, a.home.y, 40, dt)) { a.mode = 'idle'; a.t = rand(2, 5); } return; }
+  idlePose(a, t);
+  if (a.t < 0 && !reduced) { a.mode = 'walk'; a.tx = a.x < 590 ? rand(640, 700) : rand(478, 520); }
+}
+// B：地質學家（青綠色），拿夾子採岩石
+function updateB(a, dt, t) {
+  if (shelter(a, dt)) { a.tool.setAttribute('opacity', 0); return; }
+  a.t -= dt;
+  if (a.mode === 'walk') { a.tool.setAttribute('opacity', 1); if (hopTo(a, a.tx, a.home.y, 40, dt)) { a.mode = 'bend'; a.t = 2.4; } return; }
+  if (a.mode === 'bend') {
+    const k = smooth(0, .5, 2.4 - a.t) * (1 - smooth(2, 2.4, 2.4 - a.t));
+    astroPose(a, { la: -14 * k, lb: 10 * k, aa: -30 * k, ab: 8, lean: 30 * k, bob: -2 * k, look: 14 * k });
+    if (a.t < 1.2 && !a.got) { a.got = true; sfx('click'); dust(a.x + a.dir * 18, a.y, a.dir * rand(5, 15), -rand(10, 30), 1.4); }
+    if (a.t < 0) { a.mode = 'idle'; a.t = rand(2, 4); a.got = false; }
+    return;
+  }
+  idlePose(a, t); a.tool.setAttribute('opacity', 1);
+  if (a.t < 0 && !reduced) { a.mode = 'walk'; a.tx = rand(110, 470); }
+}
+// C：物理老師（芥末黃），示範「槌子和羽毛同時落地」
+const DROP = { on: false, t: 0, h: null, f: null, y0: 0 };
+function updateC(a, dt, t) {
+  if (shelter(a, dt)) return;
+  if (DROP.on) {
+    DROP.t += dt; const k = DROP.t;
+    // 雙手平舉，一手槌子一手羽毛；放手後兩個以同樣的加速度落下
+    astroPose(a, { aa: -88, ab: -82, la: -3, lb: 3 });
+    const fall = k > .8 ? .5 * GM * (k - .8) ** 2 : 0;
+    const hY = Math.min(DROP.y0 + fall, a.y);
+    DROP.h.setAttribute('transform', `translate(${f1(a.x + 22 * a.s)},${f1(hY)})`);
+    DROP.f.setAttribute('transform', `translate(${f1(a.x + 12 * a.s)},${f1(hY)}) rotate(20)`);
+    if (hY >= a.y && !DROP.landed) { DROP.landed = true; sfx('thud'); dust(a.x + 22 * a.s, a.y, 10, -12, 1.2); dust(a.x + 18 * a.s, a.y, -10, -10, 1.2); say(a.x, a.y - 90, '同時落地！沒有空氣阻力', 2.4); }
+    if (k > 5) { DROP.on = false; DROP.h.remove(); DROP.f.remove(); }
+    return;
+  }
+  a.t -= dt;
+  if (a.mode === 'look') { idlePose(a, t, { look: -22, ab: 10 }); if (a.t < 0) { a.mode = 'idle'; a.t = rand(3, 6); } return; }
+  idlePose(a, t, { look: show.kind === 'eclipse' ? -26 : 0 });
+  if (a.t < 0 && !reduced) { a.mode = 'look'; a.t = 2.5; }
+}
+function dropDemo() {
+  const a = C;
+  if (DROP.on || a.inside) return;
+  DROP.on = true; DROP.t = 0; DROP.landed = false; a.dir = 1;
+  DROP.y0 = a.y - 40 * a.s;
+  DROP.h = el('g', {}, $('fx'));
+  el('rect', { x: -1.2, y: -14, width: 2.4, height: 14, class: 'f-metal-dk' }, DROP.h);
+  el('rect', { x: -6, y: -17, width: 12, height: 5, rx: 1.5, class: 'f-metal' }, DROP.h);
+  DROP.f = el('g', {}, $('fx'));
+  el('path', { d: 'M0,0 C-4,-6 -3,-14 0,-18 C3,-14 4,-6 0,0Z', fill: '#f2f0ea' }, DROP.f);
+  el('rect', { x: -.4, y: -18, width: .8, height: 20, fill: '#b9b3a6' }, DROP.f);
+  say(a.x, a.y - 92, '槌子和羽毛，誰先落地？', 2);
+  sfx('radio');
+}
+// D：跳跳隊員（靛藍色），在右邊開心地蹦來蹦去；點他會用力一跳
+function updateD(a, dt, t) {
+  if (shelter(a, dt)) return;
+  if (a.mode === 'jump') {
+    a.vy -= GM * dt; a.air += a.vy * dt;
+    const k = clamp(a.vy / 80, -1, 1);
+    astroPose(a, { la: -30 - 20 * k, lb: 10 - 20 * k, aa: -120 - 30 * k, ab: -100 - 30 * k, lean: 4 });
+    if (a.air <= 0) {
+      a.air = 0; a.vy = 0; sfx('thud'); footprint(a);
+      for (let i = 0; i < 10; i++) dust(a.x + rand(-8, 8), a.y, rand(-60, 60), -rand(20, 60), 1.3);
+      if (Math.random() < .35) { a.mode = 'fall'; a.t = 3.2; say(a.x, a.y - 95, '哎呀，跌倒了…', 1.6); }
+      else { a.mode = 'idle'; a.t = 1.4; say(a.x, a.y - 95, '跳了 1.5 公尺高！', 1.6); }
+    }
+    return;
+  }
+  if (a.mode === 'fall') {   // 慢慢往前趴倒，再用手撐起來（月球上跌倒也是慢動作）
+    a.t -= dt; const u = 3.2 - a.t;
+    const k = smooth(0, 1, u) * (1 - smooth(2, 3, u));
+    astroPose(a, { lean: 78 * k, bob: -4 * k, aa: -70 * k, ab: -60 * k, la: 10 * k, lb: 20 * k, look: -40 * k });
+    if (a.t < 0) { a.mode = 'idle'; a.t = 1; }
+    return;
+  }
+  a.t -= dt;
+  if (a.mode === 'walk') { if (hopTo(a, a.tx, a.home.y, 52, dt)) { a.mode = 'idle'; a.t = rand(1, 3); } return; }
+  idlePose(a, t, { look: show.kind === 'eclipse' ? -26 : 0 });
+  if (a.t < 0 && !reduced) { a.mode = 'walk'; a.tx = a.x < 1280 ? rand(1320, 1470) : rand(1090, 1220); }
+}
+function bigJump() {
+  const a = D;
+  if (a.mode === 'jump' || a.mode === 'fall' || a.inside || a.mode === 'return') return;
+  a.mode = 'jump'; a.air = .1; a.vy = Math.sqrt(2 * GM * 50); footprint(a); sfx('hop');
+}
+// 攝影師（白色），在天線旁拍地球
+function updatePh(a, dt, t) {
+  if (shelter(a, dt)) { a.tool.setAttribute('opacity', 0); return; }
+  a.t -= dt;
+  a.tool.setAttribute('opacity', 1);
+  if (a.mode === 'snap') {
+    const k = smooth(0, .3, 1.8 - a.t);
+    astroPose(a, { aa: -128 * k, ab: -110 * k, look: -18 * k });
+    if (a.t < 1.1 && !a.shot) { a.shot = true; sfx('shutter'); flashSnap(.12); }
+    if (a.t < 0) { a.mode = 'idle'; a.t = rand(4, 8); a.shot = false; }
+    return;
+  }
+  idlePose(a, t, { look: -14, aa: -20 });
+  if (a.t < 0 && !reduced) { a.mode = 'snap'; a.t = 1.8; a.shot = true; }
+}
+function flashSnap(v) { $('flash').setAttribute('opacity', f1(v)); FLASH.v = v; }
+const FLASH = { v: 0 };
+
+/* ---------------- ④ 動畫：月球車、小機器人、探冰機器人、軌道站 ---------------- */
+function updateRover(dt, t) {
+  const R = ROVER;
+  if (R.mode === 'park') { R.v = lerp(R.v, 0, clamp(dt * 4, 0, 1)); }
+  else {
+    // 去程：到目的地 → 停一下 → 掉頭 → 回來停車
+    const goal = R.leg === 0 ? R.goal : R.home;
+    const dx = goal - R.x;
+    if (R.wait > 0) { R.wait -= dt; R.v = 0; if (R.wait <= 0) R.dir = -R.dir; }
+    else {
+      const want = Math.sign(dx) * Math.min(95, Math.abs(dx) * 1.4 + 10);
+      R.v = lerp(R.v, want, clamp(dt * 1.6, 0, 1));
+      if (Math.abs(dx) < 3 && Math.abs(R.v) < 12) {
+        if (R.leg === 0) { R.leg = 1; R.wait = 1.2; R.v = 0; }
+        else { R.mode = 'park'; R.v = 0; R.dir = R.parkDir; }
+      }
+    }
+  }
+  R.x += R.v * dt;
+  if (Math.abs(R.v) > 2) {
+    R.dir = Math.sign(R.v);
+    R.spin += R.v * dt * 4.8;
+    R.wheels.forEach(w => w.setAttribute('transform', `rotate(${f1(R.spin)})`));
+    // 雞尾巴一樣的月塵弧線（純拋物線）
+    if (!reduced && Math.random() < Math.abs(R.v) / 95 * .9) {
+      const bx = R.x - R.dir * 30 * R.s;
+      dust(bx, R.y - 2, -R.dir * rand(20, 80), -rand(30, 80), 1.5, 'fx', 'gr-near', R.y + rand(-2, 2));
+    }
+    R.trackD += Math.abs(R.v) * dt;
+    if (R.trackD > 7) { R.trackD = 0; [0, -5].forEach(o => addMark(el('rect', { x: f1(R.x - 3), y: f1(R.y + o), width: 5, height: 1.6, class: 'f-track', opacity: .75 }, $('tracks')))); }
+  }
+  const bob = Math.abs(R.v) > 5 ? Math.sin(t * 22) * .7 : 0;
+  R.g.setAttribute('transform', `translate(${f1(R.x)},${f1(R.y + bob)}) scale(${f1(R.dir * R.s)},${f1(R.s)})`);
+  R.shadow.x = R.x; drawShadow(R.shadow);
+  // 駕駛手握控制桿，車停著時會轉頭看地球
+  ROVER.driver.head.setAttribute('transform', `rotate(${R.mode === 'park' ? f1(-12 + Math.sin(t * .7) * 6) : 0},2,-47)`);
+}
+function driveRover() {
+  const R = ROVER;
+  if (R.mode !== 'park') return;
+  R.mode = 'drive'; R.leg = 0; R.home = R.x; R.parkDir = R.dir;
+  R.goal = R.toggle ? 220 : 1460; R.toggle = !R.toggle;
+  sfx('rover'); say(R.x, R.y - 110, R.goal > R.x ? '出發去陰影坑邊探勘！' : '去溫室那邊載補給！', 1.8);
+}
+function updateBot(dt, t) {
+  const b = BOT;
+  if (mouse.in && mouse.y > 300 && !b.scoop) b.tx = mouse.x;
+  else if (!b.scoop) { b.idleT -= dt; if (b.idleT < 0 && !reduced) { b.idleT = rand(3, 6); b.tx = clamp(b.x + rand(-200, 200), 60, 1540); } }
+  const dx = b.tx - b.x;
+  if (b.scoop > 0) {
+    b.scoop -= dt;
+    const k = Math.sin(clamp(1 - b.scoop / 1.4, 0, 1) * Math.PI);
+    b.arm.setAttribute('transform', `translate(14,-14) rotate(${f1(40 * k)})`);
+    if (b.scoop < .7 && !b.dug) { b.dug = true; for (let i = 0; i < 6; i++) dust(b.x + b.dir * 26, b.y, b.dir * rand(-20, 30), -rand(15, 45), 1.2); sfx('robot'); }
+  } else if (Math.abs(dx) > 4) {
+    const v = clamp(dx * 2.4, -170, 170);
+    b.x += v * dt; b.dir = Math.sign(v);
+    b.spin += v * dt * 10; b.wheels.forEach(w => w.setAttribute('transform', `rotate(${f1(b.spin)})`));
+    if (Math.random() < .06) addMark(el('rect', { x: f1(b.x - 2), y: f1(b.y), width: 3, height: 1.2, class: 'f-track', opacity: .7 }, $('tracks')));
+  } else if (b.pending) { b.pending = false; b.scoop = 1.4; b.dug = false; }
+  b.eye.setAttribute('opacity', f1(.6 + .4 * Math.sin(t * 5)));
+  b.g.setAttribute('transform', `translate(${f1(b.x)},${f1(b.y)}) scale(${b.dir},1)`);
+  b.shadow.x = b.x; drawShadow(b.shadow);
+}
+function updatePit(dt, t) {
+  const P = PIT;
+  if (!reduced || P.scan > 0) P.x += P.dir * dt * (P.scan > 0 ? 6 : 14);
+  if (P.x > 1470) P.dir = -1; if (P.x < 1140) P.dir = 1;
+  P.bot.setAttribute('transform', `translate(${f1(P.x)},378) scale(${P.dir * .9},.9)`);
+  const reach = P.scan > 0 ? 230 : 120;
+  const x0 = P.x + P.dir * 9, x1 = P.x + P.dir * reach;
+  P.beam.setAttribute('points', `${f1(x0)},365 ${f1(x1)},${P.scan > 0 ? 352 : 358} ${f1(x1)},${P.scan > 0 ? 396 : 386}`);
+  P.beam.setAttribute('opacity', f1(P.scan > 0 ? .95 : .55));
+  P.scan = Math.max(0, P.scan - dt);
+  P.ice.forEach(i => {
+    const inBeam = (i.x - x0) * P.dir > 0 && (i.x - x0) * P.dir < reach;
+    i.el.setAttribute('opacity', inBeam ? f1((P.scan > 0 ? .95 : .35) * (.5 + .5 * Math.sin(t * 9 + i.x))) : 0);
+  });
+}
+function updateOrbiter(dt, t) {
+  ORB.x += dt * 22;
+  if (ORB.x > 1700) ORB.x = -60;
+  const y = 70 + ORB.x * .05;
+  ORB.g.setAttribute('transform', `translate(${f1(ORB.x)},${f1(y)})`);
+  ORB.blink.setAttribute('opacity', Math.sin(t * 5) > .6 ? 1 : 0);
+}
+
+/* ---------------- ④ 動畫：特效更新 ---------------- */
+function updateFx(dt) {
+  for (let i = parts.length - 1; i >= 0; i--) {
+    const p = parts[i]; p.age += dt;
+    p.vy += p.g * dt; p.x += p.vx * dt; p.y += p.vy * dt;
+    if (p.kind === 'dust') {
+      if ((p.vy > 0 && p.y >= p.floor) || p.age > p.life) { p.el.remove(); parts.splice(i, 1); continue; }
+      p.el.setAttribute('cx', f1(p.x)); p.el.setAttribute('cy', f1(p.y));
+    } else {
+      if (p.age > p.life) { p.el.remove(); parts.splice(i, 1); continue; }
+      const n = Math.hypot(p.vx, p.vy) || 1;
+      p.el.setAttribute('x1', f1(p.x)); p.el.setAttribute('y1', f1(p.y));
+      p.el.setAttribute('x2', f1(p.x - p.vx / n * p.len)); p.el.setAttribute('y2', f1(p.y - p.vy / n * p.len));
+      p.el.setAttribute('opacity', f1(1 - p.age / p.life));
+    }
+  }
+  for (let i = impacts.length - 1; i >= 0; i--) {
+    const m = impacts[i]; m.age += dt;
+    const a = m.age;
+    m.fl.setAttribute('r', f1((4 + a * 90) * m.s)); m.fl.setAttribute('opacity', f1(Math.max(0, 1 - a / .3)));
+    m.rays.forEach(r => r.setAttribute('opacity', f1(Math.max(0, .9 - a / .9))));
+    if (a > 1) { m.g.remove(); impacts.splice(i, 1); }
+  }
+  sayList = sayList.filter(s => {
+    s.age += dt;
+    const o = smooth(0, .15, s.age) * (1 - smooth(s.dur - .3, s.dur, s.age));
+    s.el.setAttribute('opacity', f1(o));
+    if (s.age > s.dur) { s.el.remove(); return false; }
+    return true;
+  });
+  if (FLASH.v > 0) { FLASH.v = Math.max(0, FLASH.v - dt * 1.2); $('flash').setAttribute('opacity', f1(FLASH.v)); }
+}
+// 登月艙動畫
+function updateLander(dt, t) {
+  const L = LANDER;
+  L.squash = Math.max(0, L.squash - dt * 2);
+  const sq = Math.sin(L.squash * Math.PI * 2) * L.squash * 2;
+  L.body.setAttribute('transform', `translate(${f1(L.x + (L.dx || 0))},${f1(L.base - L.alt + sq)}) rotate(${f1(L.tilt)})`);
+  const th = L.thrust * (.85 + Math.random() * .15);
+  L.plume.setAttribute('opacity', f1(th * .8)); L.core.setAttribute('opacity', f1(th));
+  // 噴焰碰到地面就被截斷、往兩邊攤開
+  const pl = clamp(L.alt + 2, 6, 120 + th * 60), pw = 20 + th * 14 + Math.max(0, 40 - L.alt) * .6;
+  L.plume.setAttribute('points', `-12,-4 12,-4 ${f1(pw)},${f1(pl)} ${f1(-pw)},${f1(pl)}`);
+  L.core.setAttribute('points', `-8,-4 8,-4 0,${f1(clamp(L.alt + 1, 4, 40))}`);
+  L.flare.setAttribute('opacity', f1(th * (1 - smooth(10, 90, L.alt)) * .8));
+  L.flare.setAttribute('cx', f1(L.x + (L.dx || 0)));
+  L.lights[0].setAttribute('opacity', Math.sin(t * 4) > 0 ? 1 : .2);
+  L.lights[1].setAttribute('opacity', Math.sin(t * 4 + 1.5) > 0 ? 1 : .2);
+  L.win.style.fill = isNight() || show.kind === 'launch' ? 'var(--win)' : 'var(--glass)';
+  L.shadow.h = L.alt > 300 ? 0 : 160; L.shadow.x = L.x + (L.dx || 0); L.shadow.w = 64 * (1 - clamp(L.alt / 300, 0, 1));
+  drawShadow(L.shadow);
+  // 排氣（點登月艙）：低溫推進劑排放，噴出的氣體瞬間結成冰晶，直直地散開
+  if (L.vent > 0) {
+    L.vent -= dt;
+    if (!reduced || L.vent > 0) for (let i = 0; i < 3; i++) {
+      const a = rand(-.5, .5) - Math.PI / 2 + Math.PI / 2;
+      streak(L.x + 30, L.base - 125, Math.cos(a) * rand(80, 160), Math.sin(a) * rand(-60, 40), rand(4, 9), rand(.5, 1));
+    }
+  }
+}
+function updateHab(dt) {
+  HAB.openT = Math.max(0, HAB.openT - dt);
+  HAB.open = lerp(HAB.open, HAB.openT > 0 ? 1 : 0, clamp(dt * 6, 0, 1));
+  HAB.door.setAttribute('transform', `translate(0,${f1(-HAB.open * 30)})`);
+  HAB.door.setAttribute('opacity', f1(1 - HAB.open * .9));
+  HAB.lamp.style.fill = HAB.open > .1 ? 'var(--beacon)' : 'var(--ok)';
+}
+function updateGH(dt, t) {
+  GH.grow = Math.max(0, GH.grow - dt * .02);
+  GH.plants.forEach((p, i) => {
+    const s = 1 + GH.grow * (.6 + (i % 3) * .2);
+    p.p.setAttribute('transform', `translate(${p.x},412) scale(${f1(s)})`);
+    p.fruit.setAttribute('opacity', GH.grow > .4 && i % 2 === 0 ? 1 : 0);
+  });
+  GH.glow.setAttribute('opacity', f1(.35 + .25 * (1 - LIGHT.dl) + .05 * Math.sin(t * 2)));
+}
+function updateTowers(t) {
+  towers.forEach((tw, i) => tw.lamp.setAttribute('opacity', Math.sin(t * 2.4 + i * 1.7) > .5 ? 1 : .25));
+}
+function updateSeismo(dt, t) {
+  SCI.quake = Math.max(0, SCI.quake - dt * .8);
+  SCI.acc = (SCI.acc || 0) + dt;
+  if (SCI.acc > .06) {
+    SCI.acc = 0;
+    SCI.buf.shift(); SCI.buf.push((Math.random() - .5) * (1 + SCI.quake * 16));
+    SCI.line.setAttribute('points', SCI.buf.map((v, i) => `${f1(24 + i)},${f1(-16 + clamp(v, -9, 9))}`).join(' '));
+  }
+}
+
+/* ---------------- ⑤ 互動：聲音（Web Audio 即時合成，不使用任何音檔） ----------------
+   月球是真空，聲音傳不過去。這裡的聲音都是「太空人聽到的」：
+   無線電（開頭和結尾的嗶聲）、透過太空衣傳來的震動、儀器的提示音。
+   聲音分兩條軌：音樂軌（兩場秀的配樂）與音效軌（點擊音效）。
+   同一條軌一次只播一段，新的開始時舊的淡出；音樂播放時音效轉小聲；按「聲音：關」立刻全停。 */
+let actx = null, master = null, soundOn = true, userGesture = false, noiseBuf = null, pickAudio = false;
+// 是否在網站「作者精選」播放區（純插畫版放在 iframe 裡）
+const inPicks = (() => { let top = true; try { top = window.top === window; } catch (e) { top = false; } return !!document.getElementById('pure-art') && !top; })();
+const quiet = () => inPicks && !pickAudio;   // 精選區還沒打開配樂時，一律不出聲
+function ensureAudio() {
+  if (!actx) {
+    const AC = window.__SceneAudioContext || window.AudioContext || window.webkitAudioContext;
+    if (!AC) return null;
+    actx = new AC();
+    master = actx.createGain(); master.gain.value = soundOn ? .5 : 0;
+    const comp = actx.createDynamicsCompressor(); comp.threshold.value = -16; comp.ratio.value = 3;
+    master.connect(comp); comp.connect(actx.destination);
+  }
+  if (actx.state === 'suspended' && userGesture) actx.resume();
+  return actx;
+}
+const ok = () => soundOn && ensureAudio() && (actx.state === 'running' || userGesture);
+const duckMusic = sec => { try { window.sceneMusic && window.sceneMusic.duck(sec); } catch (e) {} };
+function noise() {
+  if (!noiseBuf) { noiseBuf = actx.createBuffer(1, actx.sampleRate * 2, actx.sampleRate); const d = noiseBuf.getChannelData(0); for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1; }
+  const s = actx.createBufferSource(); s.buffer = noiseBuf; s.loop = true; return s;
+}
+let OUT = null, busNow = { music: null, sfx: null }, musicUntil = 0;
+function bus(kind, len = 3) {
+  const now = actx.currentTime, old = busNow[kind];
+  if (old) { old.gain.cancelScheduledValues(now); old.gain.setValueAtTime(old.gain.value, now); old.gain.linearRampToValueAtTime(.0001, now + .15); setTimeout(() => old.disconnect(), 400); }
+  const g = actx.createGain(); g.connect(master);
+  const v = kind === 'sfx' && now < musicUntil ? .35 : (kind === 'music' ? .64 : 1) /* 音樂軌 ×0.64（2026-11-24 兩次各調降 20%） */;
+  g.gain.setValueAtTime(v, now);
+  busNow[kind] = g;
+  if (kind === 'music') musicUntil = now + len;
+  OUT = g; return g;
+}
+// 精選區交來的 AudioContext：改用它出聲
+function useCtx(c) {
+  actx = c; noiseBuf = null; busNow.music = busNow.sfx = null; musicUntil = 0;
+  master = actx.createGain(); master.gain.value = soundOn ? .5 : 0;
+  const comp = actx.createDynamicsCompressor(); comp.threshold.value = -16; comp.ratio.value = 3;
+  master.connect(comp); comp.connect(actx.destination);
+}
+function stopAll() {
+  if (!actx) return;
+  ['music', 'sfx'].forEach(k => { const g = busNow[k]; if (g) { const now = actx.currentTime; g.gain.cancelScheduledValues(now); g.gain.setValueAtTime(.0001, now); setTimeout(() => g.disconnect(), 100); busNow[k] = null; } });
+  musicUntil = 0;
+}
+function envG(t, a, d, v, dest = OUT) {
+  const g = actx.createGain(); g.gain.setValueAtTime(.0001, t); g.gain.linearRampToValueAtTime(v, t + a); g.gain.exponentialRampToValueAtTime(.0001, t + a + d); g.connect(dest); return g;
+}
+function osc(type, f, t, dur, dest) { const o = actx.createOscillator(); o.type = type; o.frequency.value = f; o.connect(dest); o.start(t); o.stop(t + dur + .05); return o; }
+function nz(t, dur, freq, vol, type = 'bandpass', q = 1, dest = OUT) {
+  const s = noise(), f = actx.createBiquadFilter(); f.type = type; f.frequency.value = freq; f.Q.value = q;
+  s.connect(f); f.connect(envG(t, .004, dur, vol, dest)); s.start(t); s.stop(t + dur + .1); return f;
+}
+const HZ = n => { const m = /^([A-G])([#b]?)(-?\d)$/.exec(n); const st = { C: 0, D: 2, E: 4, F: 5, G: 7, A: 9, B: 11 }[m[1]] + (m[2] === '#' ? 1 : m[2] === 'b' ? -1 : 0); return 440 * Math.pow(2, (st + (+m[3] + 1) * 12 - 69) / 12); };
+// 無線電的嗶聲：按下通話鍵 2525 Hz、放開 2475 Hz（太空任務通訊常見的提示音）
+function beep(t, f, dur, vol = .12, dest = OUT) { osc('sine', f, t, dur, envG(t, .005, dur, vol, dest)); }
+function radioOpen(t, dest = OUT) { beep(t, 2525, .22, .1, dest); nz(t + .02, .25, 1800, .05, 'bandpass', .8, dest); }
+function radioClose(t, dest = OUT) { nz(t, .2, 1800, .04, 'bandpass', .8, dest); beep(t + .18, 2475, .22, .1, dest); }
+// 合成器音色
+function synth(t, f, dur, vol, dest, type = 'sawtooth', cut = 2200) {
+  const g = actx.createGain();
+  g.gain.setValueAtTime(.0001, t); g.gain.linearRampToValueAtTime(vol, t + .03); g.gain.setValueAtTime(vol * .8, t + dur * .6); g.gain.exponentialRampToValueAtTime(.0001, t + dur + .25);
+  const lp = actx.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = cut; lp.Q.value = .8;
+  lp.connect(g); g.connect(dest);
+  [-5, 5].forEach(d => { const o = osc(type, f, t, dur + .3, lp); o.detune.value = d; });
+}
+function pad(t, notes, dur, vol, dest, cut = 1400) { notes.forEach(n => synth(t, HZ(n), dur, vol, dest, 'sawtooth', cut)); }
+function bell(t, f, vol, dest, dur = 2.4) {   // 玻璃感的鐘聲：基音＋不和諧泛音
+  [[1, 1], [2.76, .35], [5.4, .12]].forEach(([m, v]) => osc('sine', f * m, t, dur, envG(t, .004, dur * (1 / m + .2), vol * v, dest)));
+}
+function timp(t, f, vol, dest) { const o = osc('sine', f, t, .9, envG(t, .005, .8, vol, dest)); o.frequency.setValueAtTime(f * 1.5, t); o.frequency.exponentialRampToValueAtTime(f, t + .08); nz(t, .12, 300, vol * .3, 'lowpass', .7, dest); }
+
+function sfx(name) {
+  if (quiet() || !ok()) return;
+  const t = actx.currentTime + .02, o = bus('sfx', 2);
+  if (name === 'radio') { radioOpen(t, o); radioClose(t + .9, o); }
+  else if (name === 'thud') { const s = osc('sine', 70, t, .3, envG(t, .005, .28, .5, o)); s.frequency.exponentialRampToValueAtTime(40, t + .25); nz(t, .1, 200, .15, 'lowpass', .7, o); }
+  else if (name === 'hop') { const s = osc('triangle', 220, t, .5, envG(t, .01, .45, .12, o)); s.frequency.exponentialRampToValueAtTime(660, t + .45); }
+  else if (name === 'shutter') { nz(t, .03, 4000, .3, 'highpass', .7, o); nz(t + .07, .04, 3000, .25, 'highpass', .7, o); }
+  else if (name === 'click') { beep(t, 1600, .05, .08, o); }
+  else if (name === 'rover') { const s = osc('sawtooth', 90, t, 1.6, envG(t, .2, 1.4, .07, o)); s.frequency.linearRampToValueAtTime(180, t + 1.2); radioOpen(t, o); }
+  else if (name === 'robot') { [880, 1320, 990, 1480].forEach((f, i) => beep(t + i * .08, f, .07, .07, o)); }
+  else if (name === 'ping') { beep(t, 1760, .18, .08, o); beep(t + .2, 1320, .25, .06, o); }
+  else if (name === 'alarm') { for (let i = 0; i < 4; i++) { beep(t + i * .5, 960, .22, .12, o); beep(t + i * .5 + .25, 720, .22, .12, o); } }
+  else if (name === 'uplink') { radioOpen(t, o); const s = osc('sine', 600, t + .3, .9, envG(t + .3, .02, .8, .08, o)); s.frequency.exponentialRampToValueAtTime(2400, t + 1.1); }
+  else if (name === 'reply') { radioOpen(t, o); [784, 988, 1175].forEach((f, i) => beep(t + .35 + i * .14, f, .12, .08, o)); radioClose(t + 1, o); }
+  else if (name === 'door') { nz(t, .9, 900, .12, 'bandpass', .6, o); beep(t + .9, 1200, .1, .06, o); }
+  else if (name === 'grow') { [1047, 1319, 1568, 2093].forEach((f, i) => bell(t + i * .09, f, .05, o, 1)); }
+  else if (name === 'vent') { nz(t, 1.2, 3000, .1, 'highpass', .5, o); }
+  else if (name === 'laser') { beep(t, 2200, .06, .07, o); beep(t + 1.25, 2600, .06, .07, o); beep(t + 2.5, 3100, .1, .08, o); }
+  else if (name === 'quake') { const s = osc('sine', 38, t, 1.4, envG(t, .2, 1.2, .45, o)); nz(t, 1.2, 120, .2, 'lowpass', .7, o); }
+  else if (name === 'scan') { const s = osc('sine', 400, t, 1, envG(t, .05, .9, .06, o)); s.frequency.linearRampToValueAtTime(1600, t + 1); }
+  else if (name === 'power') { [523, 659, 784].forEach((f, i) => beep(t + i * .1, f, .14, .07, o)); }
+  else if (name === 'sky') { nz(t, .05, 2500, .15, 'bandpass', 1, o); beep(t + .05, 1760, .18, .07, o); }
+}
+
+/* 登月艙升空配樂（約 21 秒，原創）：倒數時心跳般的低音脈動，點火後銅管般的主旋律 */
+function playLaunchMusic() {
+  if (quiet() || !ok()) return;
+  duckMusic(24);
+  const o = bus('music', 22), t0 = actx.currentTime + .05, b = .5;   // 每分鐘 120 拍
+  radioOpen(t0, o);
+  // 0～8 秒：低音脈動＋高音嗶聲倒數
+  for (let i = 0; i < 16; i++) { const t = t0 + .3 + i * b; synth(t, HZ(i % 4 === 3 ? 'G2' : 'C2'), .3, .07, o, 'sawtooth', 500); }
+  pad(t0 + .3, ['C3', 'G3', 'D4'], 7.6, .025, o, 700);
+  for (let i = 0; i < 5; i++) beep(t0 + 3 + i, 1000, .12, .1, o);
+  // 8 秒：點火的大和弦＋定音鼓
+  const T8 = t0 + 8;
+  timp(T8, 65, .5, o); timp(T8 + .25, 65, .3, o);
+  const prog = [['C3', 'E3', 'G3', 'C4'], ['D3', 'F#3', 'A3', 'D4'], ['E3', 'G3', 'B3', 'E4'], ['A2', 'E3', 'A3', 'C4'], ['F2', 'C3', 'F3', 'A3'], ['G2', 'D3', 'G3', 'B3'], ['C3', 'G3', 'C4', 'E4']];
+  prog.forEach((ch, i) => { pad(T8 + i * 2, ch, i === 6 ? 2.6 : 1.9, .03, o, 1600); synth(T8 + i * 2, HZ(ch[0]) / 2, 1.9, .06, o, 'triangle', 400); timp(T8 + i * 2, HZ(ch[0]) / 2, .25, o); });
+  const mel = [['G4', 1], ['C5', 1], ['D5', 1], ['E5', 1.5], ['D5', .5], ['G5', 2], ['F#5', 1], ['E5', 1], ['D5', 1], ['B4', 1], ['C5', 1.5], ['E5', .5], ['A5', 2], ['G5', 1], ['E5', 1], ['D5', 2], ['E5', 1], ['G5', 1], ['C6', 3]];
+  let tt = T8 + .02;
+  mel.forEach(([n, d]) => { synth(tt, HZ(n), d * b * .92, .07, o, 'sawtooth', 2600); synth(tt, HZ(n) / 2, d * b * .92, .03, o, 'square', 1200); tt += d * b; });
+  for (let i = 0; i < 24; i++) nz(T8 + i * b + b / 2, .05, 6000, .03, 'highpass', .7, o);
+  radioClose(t0 + 21, o);
+}
+/* 地球日食配樂（約 20 秒，原創）：緩慢的合成器長音和弦，加上玻璃般的鐘聲琶音 */
+function playEclipseMusic() {
+  if (quiet() || !ok()) return;
+  duckMusic(22);
+  const o = bus('music', 21), t0 = actx.currentTime + .05;
+  const prog = [['D3', 'A3', 'C4', 'E4', 'F4'], ['Bb2', 'F3', 'A3', 'D4'], ['G2', 'D3', 'F3', 'Bb3', 'A4'], ['A2', 'E3', 'G3', 'C#4'], ['D3', 'A3', 'D4', 'E4', 'F4']];
+  prog.forEach((ch, i) => { pad(t0 + i * 4, ch, i === 4 ? 4.6 : 4, .028, o, 900 + i * 150); synth(t0 + i * 4, HZ(ch[0]) / 2, 4, .05, o, 'sine', 300); });
+  const arp = [['D5', 'F5', 'A5', 'E5'], ['D5', 'F5', 'A5', 'C6'], ['Bb4', 'D5', 'F5', 'A5'], ['C#5', 'E5', 'G5', 'A5'], ['A5', 'F5', 'D5', 'D6']];
+  arp.forEach((a, i) => a.forEach((n, j) => bell(t0 + i * 4 + j * .9 + .2, HZ(n), .045, o, 2.6)));
+  // 全食那一刻：高音的閃光
+  bell(t0 + 8.5, HZ('A6'), .05, o, 4); bell(t0 + 8.8, HZ('E6'), .04, o, 4);
+}
+
+/* ---------------- ⑤ 互動：點擊與鍵盤 ---------------- */
+function act(fn) { userGesture = true; ensureAudio(); fn(); }
+function onAct(node, fn) {
+  node.addEventListener('click', e => { e.stopPropagation(); act(() => fn(e)); });
+  node.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); act(() => fn(e)); } });
+}
+function svgPoint(e) { const p = svg.createSVGPoint(); p.x = e.clientX; p.y = e.clientY; return p.matrixTransform(svg.getScreenCTM().inverse()); }
+const mouse = { x: 800, y: 500, in: false };
+function hitAstro(a, fn) {
+  a.g.classList.add('clickable'); a.g.setAttribute('tabindex', 0); a.g.setAttribute('role', 'button');
+  onAct(a.g, fn);
+}
+let radioBusy = 0;
+function bindAll() {
+  // 太陽：切換到月夜；地球：攝影師拍照
+  onAct($('sun'), () => { if (!show.kind) { fastForward(.93, () => {}); T.auto = false; $('btnAuto').setAttribute('aria-pressed', 'false'); say(LIGHT.sx, LIGHT.sy + 60, '太陽躲到山後面，月夜來了', 2); } });
+  onAct($('earth'), () => { Ph.mode = 'snap'; Ph.t = 1.8; Ph.shot = false; say(Ph.x, Ph.y - 80, '拍下地球！地球每天轉一圈', 2); });
+  // 天線：訊號單程 1.3 秒，來回 2.6 秒
+  onAct($('dish'), () => {
+    if (radioBusy > 0) return;
+    radioBusy = 3.2; sfx('uplink'); say(DISH.x, DISH.y - 60, '呼叫地球！', 1.4);
+    pulse(DISH.x + 14, DISH.y - 6, E.x, E.y, 1.3, () => { E.ping = 1; pulse(E.x, E.y, DISH.x + 14, DISH.y - 6, 1.3, () => { sfx('reply'); say(DISH.x, DISH.y - 60, '地球：收到！延遲 2.6 秒', 2.2); }); });
+  });
+  onAct($('lander'), () => { if (show.kind === 'launch') return; LANDER.vent = 1.2; sfx('vent'); say(760, 230, '排放多餘的推進劑蒸氣', 1.8); });
+  onAct($('habitat'), () => { HAB.openT = 2.4; sfx('door'); say(300, 300, '氣閘艙：抽氣、開門', 1.8); });
+  onAct($('greenhouse'), () => { GH.grow = 1; sfx('grow'); say(520, 330, '月面溫室：LED 種的生菜和番茄', 2); });
+  onAct($('towers'), () => { sfx('power'); say(300, 140, LIGHT.dl > .3 ? `太陽能塔轉向太陽，發電中` : '月夜沒有太陽，改用電池供電', 2); });
+  onAct($('pit'), () => { PIT.scan = 3; sfx('scan'); say(1310, 300, '永久陰影區：零下 200 度，找到水冰！', 2.4); });
+  onAct(SCI.refl, () => { sfx('laser'); laser(); say(SCI.rx, SCI.ry - 70, '地球打雷射來測距：來回 2.5 秒', 2.4); });
+  onAct(SCI.seis, () => { seismo(3); SHAKE.t = 1.4; sfx('quake'); say(SCI.sx + 20, SCI.sy - 60, '偵測到淺層月震！', 1.8); });
+  onAct(ROVER.g, () => driveRover());
+  onAct(BOT.g, () => { BOT.scoop = 1.4; BOT.dug = false; say(BOT.x, BOT.y - 70, '採一點月壤樣本', 1.4); });
+  hitAstro(A, () => { if (A.mode === 'aboard' || A.inside) return; A.mode = 'wave'; A.t = 2.2; sfx('radio'); say(A.x, A.y - 75, '這裡是南極基地，一切正常', 2); });
+  hitAstro(B, () => { if (B.inside) return; B.mode = 'bend'; B.t = 2.4; B.got = false; sfx('radio'); say(B.x, B.y - 90, pick(['撿到斜長岩，月球高地的白色岩石', '這顆是撞擊熔融的角礫岩', '玻璃珠！隕石撞擊時噴出來的']), 2.4); });
+  hitAstro(C, () => dropDemo());
+  hitAstro(D, () => bigJump());
+  hitAstro(Ph, () => { Ph.mode = 'snap'; Ph.t = 1.8; Ph.shot = false; say(Ph.x, Ph.y - 80, '幫地球拍張照', 1.4); });
+  // 天空：流星體直接撞上下面的月面
+  $('sky').addEventListener('click', e => act(() => {
+    const p = svgPoint(e);
+    if (p.y < 300) { impact(clamp(p.x, 20, 1580), rand(330, 590), 1.2); sfx('sky'); say(p.x, p.y + 30, '沒有大氣，流星體直接撞上月面', 1.8, false); }
+  }));
+  // 地面：小機器人跑過去採樣
+  $('ground').addEventListener('click', e => act(() => {
+    const p = svgPoint(e);
+    BOT.tx = clamp(p.x, 40, 1560); BOT.pending = true; sfx('robot');
+  }));
+  svg.addEventListener('pointermove', e => { const p = svgPoint(e); mouse.x = p.x; mouse.y = p.y; mouse.in = true; });
+  svg.addEventListener('pointerleave', () => { mouse.in = false; });
+  // 控制列
+  $('btnLaunch').addEventListener('click', () => act(() => { if (show.kind === 'launch') return; startLaunch(); }));
+  $('btnEclipse').addEventListener('click', () => act(() => { if (show.kind === 'eclipse') return; startEclipse(); }));
+  $('btnWeather').addEventListener('click', () => act(() => setWeather((WX.idx + 1) % WX.list.length)));
+  $('btnSound').addEventListener('click', () => {
+    soundOn = !soundOn;
+    $('btnSound').textContent = soundOn ? '🔊 聲音：開' : '🔇 聲音：關';
+    $('btnSound').setAttribute('aria-pressed', String(soundOn));
+    if (!soundOn) stopAll();
+    if (master) master.gain.value = soundOn ? .5 : 0;
+    try { if (!soundOn && window.sceneMusic) window.sceneMusic.stop(); } catch (e) {}
+  });
+  $('btnDay').addEventListener('click', () => act(() => { if (!show.kind) { T.auto = false; $('btnAuto').setAttribute('aria-pressed', 'false'); fastForward(.30, () => {}); } }));
+  $('btnNight').addEventListener('click', () => act(() => { if (!show.kind) { T.auto = false; $('btnAuto').setAttribute('aria-pressed', 'false'); fastForward(.95, () => {}); } }));
+  $('btnAuto').addEventListener('click', () => { if (show.kind) return; T.auto = !T.auto; T.ff = null; $('btnAuto').setAttribute('aria-pressed', String(T.auto)); });
+  const tr = $('timeRange');
+  tr.addEventListener('input', () => { T.dragging = true; setTime(tr.value / 1000); });
+  tr.addEventListener('change', () => { T.dragging = false; });
+  window.addEventListener('keydown', e => { if (e.key === 'Tab') document.body.classList.add('kbd'); });
+  window.addEventListener('pointerdown', () => document.body.classList.remove('kbd'));
+  mq.addEventListener && mq.addEventListener('change', e => { reduced = e.matches; if (reduced) { T.auto = false; $('btnAuto').setAttribute('aria-pressed', 'false'); } });
+}
+// 無線電訊號：一個小光點沿直線飛過去（光速，月地單程約 1.3 秒）
+const pulses = [];
+function pulse(x0, y0, x1, y1, dur, then) {
+  const g = el('g', {}, $('fx'));
+  for (let i = 0; i < 3; i++) el('circle', { r: 3 - i * .7, fill: V('mustard'), opacity: 1 - i * .3 }, g);
+  pulses.push({ g, x0, y0, x1, y1, dur, t: 0, then });
+}
+function laser() {
+  SCI.laser = 0;
+}
+const SHAKE = { t: 0 };
+function updatePulses(dt) {
+  for (let i = pulses.length - 1; i >= 0; i--) {
+    const p = pulses[i]; p.t += dt;
+    const k = clamp(p.t / p.dur, 0, 1);
+    [...p.g.children].forEach((c, j) => { const kk = clamp(k - j * .04, 0, 1); c.setAttribute('cx', f1(lerp(p.x0, p.x1, kk))); c.setAttribute('cy', f1(lerp(p.y0, p.y1, kk))); });
+    if (k >= 1) { p.g.remove(); pulses.splice(i, 1); p.then && p.then(); }
+  }
+  radioBusy = Math.max(0, radioBusy - dt);
+  E.ping = Math.max(0, E.ping - dt * 1.5);
+  atmoEl.setAttribute('stroke-width', f1(2.5 + E.ping * 4));
+  // 雷射測距：地球上的天文台發射 → 1.25 秒後反射器亮 → 再 1.25 秒回到地球
+  if (SCI.laser != null) {
+    SCI.laser += dt; const s = SCI.laser;
+    SCI.reflFlash.setAttribute('opacity', f1(s > 1.2 && s < 1.6 ? .9 : 0));
+    E.ping = Math.max(E.ping, (s < .25 || (s > 2.45 && s < 2.8)) ? .8 : 0);
+    if (s > 3) SCI.laser = null;
+  }
+}
+
+/* ---------------- ④ 動畫：主迴圈 ---------------- */
+let clockT = 0, sortT = 0, earthT = 0;
+const sortList = [];
+function step(dt) {
+  clockT += dt;
+  const t = clockT, mv = reduced ? 0 : 1;
+  // 時間
+  if (T.ff) {
+    T.ff.t += dt;
+    const k = smooth(0, 1, T.ff.t / T.ff.dur);
+    T.t = T.ff.from + T.ff.dist * k;
+    if (T.ff.t >= T.ff.dur) { const fn = T.ff.then; T.ff = null; fn && fn(); }
+  } else if (T.auto && !show.kind && !reduced && !T.dragging) T.t = (T.t + dt / T.len) % 1;
+  updateEclipse(dt);
+  applyTime(false);
+  // 地球自轉（為了看得出來，放慢成約 40 秒一圈）
+  E.rot = (E.rot + dt * 9 * mv) % 360;
+  CLOUD.forEach(c => c.off = ((c.off || 0) + dt * c.sp * mv));
+  earthT -= dt;
+  if (earthT < 0) { earthT = .08; updateEarthSurface(); }
+  updateWeather(dt);
+  updateFx(dt);
+  updatePulses(dt);
+  // 天線一直對準地球
+  DISH.g.setAttribute('transform', `translate(${DISH.x},${DISH.y}) rotate(${f1(Math.atan2(E.y - DISH.y, E.x - DISH.x) / RAD)})`);
+  updateLaunch(dt);
+  updateLander(dt, t);
+  updateHab(dt);
+  updateGH(dt, t);
+  updateTowers(t);
+  updateSeismo(dt, t);
+  updatePit(dt, t);
+  if (mv) updateOrbiter(dt, t);
+  updateRover(dt, t);
+  updateBot(dt, t);
+  updateA(A, dt, t); updateB(B, dt, t); updateC(C, dt, t); updateD(D, dt, t); updatePh(Ph, dt, t);
+  // 夜裡太空人打開頭燈
+  const lampOn = isNight() || E.occ > .6 ? 1 : 0;
+  astros.forEach(a => { placeAstro(a); a.lamp.setAttribute('opacity', lampOn); a.shadow.x = a.x; a.shadow.y = a.y; a.shadow.h = a.shown ? 66 * a.s : 0; a.shadow.w = 20 * a.s; drawShadow(a.shadow); });
+  // 月震：畫面輕輕搖
+  if (SHAKE.t > 0) { SHAKE.t -= dt; const k = SHAKE.t; svg.style.transform = `translate(${f1(Math.sin(t * 60) * k * 1.6)}px,${f1(Math.cos(t * 47) * k)}px)`; if (SHAKE.t <= 0) svg.style.transform = ''; }
+  // 依照遠近排序（每 0.3 秒一次），近的蓋住遠的
+  sortT -= dt;
+  if (sortT < 0) { sortT = .3; sortList.slice().sort((a, b) => a.y - b.y).forEach(a => $('actors').appendChild(a.g)); }
+}
+let last = 0;
+function loop(ts) {
+  const dt = Math.min(.1, (ts - last) / 1000 || 0);
+  if (dt >= 1 / 45 || !last) { last = ts; step(dt); }
+  requestAnimationFrame(loop);
+}
+
+/* ---------------- 初始化 ---------------- */
+function init() {
+  drawSky();
+  drawSun();
+  makeOrbiter();
+  drawEarth();
+  drawMountains();
+  drawGround();
+  drawPit();
+  drawFloods();
+  drawTower(70, 420, 200);
+  drawTower(612, 424, 186);
+  drawHabitat();
+  drawGreenhouse();
+  drawLander();
+  drawDish();
+  LANDER.flare = el('ellipse', { cx: 760, cy: 430, rx: 80, ry: 7, fill: V('plume'), opacity: 0 }, $('fxBack'));
+  // 靜態物體的影子
+  const sh = $('shadows');
+  [[70, 420, 22, 200], [612, 424, 22, 186], [291, 418, 250, 70], [520, 418, 70, 36], [908, 422, 24, 80]].forEach(([x, y, w, h]) => staticShadows.push(makeShadow(x, y, w, h, sh)));
+  rocks.filter(r => r.h > 8).forEach(r => staticShadows.push(makeShadow(r.x, r.y, r.w * .8, r.h, sh)));
+  LANDER.shadow = makeShadow(760, 432, 64, 160, sh);
+  // 科學儀器
+  const refl = makeReflector($('actors')); SCI.rx = 1300; SCI.ry = 506; refl.setAttribute('transform', 'translate(1300,506)');
+  const seis = makeSeismo($('actors')); SCI.sx = 1410; SCI.sy = 516; seis.setAttribute('transform', 'translate(1410,516)');
+  sortList.push({ g: refl, y: 506 }, { g: seis, y: 516 });
+  // 月球車、小機器人
+  makeRover($('actors')); ROVER.shadow = makeShadow(ROVER.x, ROVER.y, 100, 40, sh); sortList.push(ROVER);
+  makeBot($('actors')); BOT.shadow = makeShadow(BOT.x, BOT.y, 30, 40, sh); sortList.push(BOT);
+  // 太空人：指揮官（珊瑚）、地質學家（青綠）、物理示範（芥末黃）、跳跳隊員（靛藍）、攝影師（紫）
+  A = addAstro({ x: 520, y: 440, stripe: 'coral', name: 'A' });
+  B = addAstro({ x: 260, y: 548, stripe: 'teal', tool: 'tongs', name: 'B' });
+  C = addAstro({ x: 640, y: 566, stripe: 'mustard', name: 'C' });
+  D = addAstro({ x: 1200, y: 572, stripe: 'indigo', name: 'D' });
+  Ph = addAstro({ x: 990, y: 446, stripe: 'lilac', tool: 'camera', name: 'Ph' });
+  Ph.dir = 1;
+  astros.forEach(a => sortList.push(a));
+  bindAll();
+  if (reduced) { T.auto = false; $('btnAuto').setAttribute('aria-pressed', 'false'); }
+  buildWeather();
+  setWeather(0);
+  applyTime(true);
+  updateEarthSurface();
+  step(1 / 30);
+  requestAnimationFrame(loop);
+  // 網站「作者精選」播放區：預設輪播「地球日食」（使用者指定）；不會自己出聲，打開配樂後每一輪都配上音樂
+  if (inPicks) {
+    let idle = 0;
+    const next = () => {
+      if (show.kind || T.ff) return;
+      const from = T.t % 1;
+      // 時間倒回日食前（太陽慢慢退回地球右邊），再開演
+      T.auto = false;
+      T.ff = { from, dist: .47 - from, t: 0, dur: 3, then: () => startEclipse() };
+    };
+    setTimeout(() => startEclipse(), 800);
+    setInterval(() => { if (!show.kind && !T.ff) { idle += 1; if (idle >= 4) { idle = 0; next(); } } else idle = 0; }, 1000);
+    window.sceneMusic = {
+      playing: false,
+      start(c) {
+        if (this.playing) return; this.playing = true; pickAudio = true; userGesture = true;
+        if (c && c !== actx) useCtx(c); else ensureAudio();
+        if (actx && actx.state !== 'running') actx.resume();
+        if (show.kind === 'eclipse' && show.s >= 0 && show.s < 3) playEclipseMusic();
+      },
+      stop() { this.playing = false; pickAudio = false; stopAll(); },
+      duck() {}
+    };
+  }
+}
+init();
+/* ShowStop：再按一下優雅停止表演（共用模組在上方 <script id="showstop">） */
+ShowStop.init({
+  on: () => show.kind,
+  btn: { launch: 'btnLaunch', eclipse: 'btnEclipse' },
+  save: () => ({ t: T.t, auto: T.auto, w: WX.idx }),
+  stop: () => {
+    const k = show.kind;
+    T.ff = null;
+    endShow();
+    if (k === 'launch') {
+      // 登月艙回到地面、組員回到艙外
+      Object.assign(LANDER, { thrust: 0, alt: 0, tilt: 0, dx: 0, squash: 0 });
+      A.shown = 1; A.x = 742; A.y = 440; A.mode = 'wave'; A.t = 1.2;
+    }
+  },
+  restore: s => { if (WX.idx !== s.w) setWeather(s.w); T.t = s.t; T.auto = s.auto; $('btnAuto').setAttribute('aria-pressed', String(T.auto)); applyTime(true); }
+});
+/* /ShowStop */
+})();
+</script>
+</body>
+</html>

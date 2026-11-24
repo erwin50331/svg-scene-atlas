@@ -1,0 +1,1884 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>惡魔島大逃亡</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@500;700;900&family=Noto+Sans+TC:wght@400;500&display=swap">
+<style>
+/* =========================================================
+   SC-13 惡魔島大逃亡｜剪紙層疊風格
+   【色票 token】所有顏色集中在這裡。
+   - 場景色成對出現：--名稱-day / --名稱-night，
+     JS 依「日夜比例」自動混色，輸出成 --名稱 給 SVG 使用，
+     並自動產生 .f-名稱（填色）與 .s-名稱（描邊）class。
+   - 「常亮光源」不參與混色（燈塔光束、窗燈、航行燈）。
+   換色時只需改這個區塊。
+   ========================================================= */
+:root{
+  color-scheme:dark;
+
+  /* ---- 頁面外框 ---- */
+  --page-bg:#141821;
+  --page-panel:#1e2430;
+  --page-fg:#ece6da;
+  --page-dim:#a3a29c;
+  --page-line:#313a4c;
+  --page-accent:#ff8a5b;
+  --font-display:"Noto Serif TC","Songti TC","PMingLiU",serif;
+  --font-body:"Noto Sans TC","PingFang TC","Microsoft JhengHei",sans-serif;
+
+  /* ---- 天空與遠景 ---- */
+  --sky-top-day:#8fc0d8;    --sky-top-night:#0b1230;
+  --sky-bot-day:#f3dcc0;    --sky-bot-night:#2a2f5e;
+  --hill-far-day:#a9bfc4;   --hill-far-night:#1b2244;
+  --hill-near-day:#8aa79f;  --hill-near-night:#18213a;
+  --bridge-day:#c8664c;     --bridge-night:#4a2a3c;
+  --city1-day:#b8c3cc;      --city1-night:#232a52;
+  --city2-day:#9eabb8;      --city2-night:#1a2045;
+
+  /* ---- 海灣（由遠到近四層） ---- */
+  --water-far-day:#7fb0c2;  --water-far-night:#18234c;
+  --water-mid-day:#5d97ae;  --water-mid-night:#142047;
+  --water-near-day:#467f99; --water-near-night:#101a3c;
+  --water-front-day:#336a85;--water-front-night:#0b1430;
+  --foam-day:#f4f8f6;       --foam-night:#8e9cc8;
+
+  /* ---- 島嶼與建築 ---- */
+  --rock-back-day:#9c8f78;  --rock-back-night:#2b2a40;
+  --rock-front-day:#b8a487; --rock-front-night:#363450;
+  --rock-shade-day:#7b6f5f; --rock-shade-night:#1f1e33;
+  --concrete-day:#d7cdb8;   --concrete-night:#45435e;
+  --cell-wall-day:#e6dcc6;  --cell-wall-night:#4b4865;
+  --cell-roof-day:#8f8a82;  --cell-roof-night:#292a42;
+  --cell-win-day:#5f6f7a;   --cell-win-night:#1a1f38;
+  --tower-day:#f4efe2;      --tower-night:#5b5872;
+  --ruin-day:#c9a98b;       --ruin-night:#3b3248;
+  --tree-dk-day:#55745a;    --tree-dk-night:#18282c;
+  --tree-lt-day:#77966a;    --tree-lt-night:#1f3333;
+  --path-day:#e8dcc2;       --path-night:#55506a;
+  --fog-day:#f5f2ec;        --fog-night:#6f76a0;
+  --fog-dk-day:#e2e2e0;     --fog-dk-night:#525a88;
+
+  /* ---- 船、碼頭、人物、動物 ---- */
+  --hull-day:#f6f3ec;       --hull-night:#6d6c86;
+  --hull-band-day:#28456a;  --hull-band-night:#141f3c;
+  --cabin-day:#dfe6ea;      --cabin-night:#4c5270;
+  --sail-day:#fbf6ea;       --sail-night:#7e80a0;
+  --ship-day:#7b5048;       --ship-night:#2c2338;
+  --deck-day:#9a7454;       --deck-night:#33283a;
+  --deck-dk-day:#6f523d;    --deck-dk-night:#221b2b;
+  --rail-day:#4c4a4f;       --rail-night:#14131f;
+  --ink-day:#2d2b31;        --ink-night:#04050d;
+  --skin-day:#e8c3a0;       --skin-night:#8e7676;
+  --hair-day:#3a2e2a;       --hair-night:#120f18;
+  --coat1-day:#d8573f;      --coat1-night:#6c3036;
+  --coat2-day:#3b6a8f;      --coat2-night:#1f3352;
+  --coat3-day:#e4b343;      --coat3-night:#7a6438;
+  --coat4-day:#5f7c55;      --coat4-night:#23342d;
+  --pants-day:#3a3e4a;      --pants-night:#14151f;
+  --sealion-day:#6e4a33;    --sealion-night:#2a1f2a;
+  --sealion-dk-day:#4a3022; --sealion-dk-night:#18121c;
+  --raft-day:#cfc6b4;       --raft-night:#4a4660;
+  --gull-day:#ffffff;       --gull-night:#9aa0c4;
+  --flag-day:#d24a3c;       --flag-night:#6e2c36;
+  --buoy-day:#ef6a3c;       --buoy-night:#7a3434;
+  --pelican-day:#9a8670;    --pelican-night:#3a3346;
+  --beak-day:#e9a43c;       --beak-night:#7a5a32;
+  --raft-y-day:#f2c12e;     --raft-y-night:#7d6a2e;
+  --fish-day:#cfd8dc;       --fish-night:#6a7090;
+
+  /* ---- 常亮光源（不隨日夜混色） ---- */
+  --win-on:#ffd27a;   /* 窗內暖光 */
+  --beam:#fff4c8;     /* 燈塔光束 */
+  --lamp:#ffe6a8;     /* 碼頭路燈 */
+  --nav-red:#ff4a4a;  /* 左舷紅燈 */
+  --nav-green:#49f0a0;/* 右舷綠燈 */
+  --sun:#ffd98a;
+  --moon:#f4f0dc;
+  --star:#fff8e0;
+  --alarm:#ff3b3b;   /* 越獄警報紅燈 */
+  --dusk:#ff9a62;     /* 黃昏、清晨的地平線暖光（依時間自動淡入淡出） */
+}
+
+/* ===== 頁面版面 ===== */
+html,body{margin:0;background:var(--page-bg);color:var(--page-fg)}
+body{font-family:var(--font-body);line-height:1.6}
+.wrap{max-width:1680px;margin:0 auto;padding-block:20px 32px;
+  padding-left:max(16px,env(safe-area-inset-left,0px));
+  padding-right:max(16px,env(safe-area-inset-right,0px));
+  display:grid;gap:16px}
+header{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 18px}
+h1{font-family:var(--font-display);font-weight:900;font-size:clamp(1.4rem,2.6vw,2rem);margin:0;letter-spacing:.04em;text-wrap:balance}
+h1 small{font-size:.55em;font-weight:700;color:var(--page-accent);letter-spacing:.12em;margin-right:.6em}
+.meta{color:var(--page-dim);font-size:.9rem;margin:0}
+.stage{position:relative;border-radius:6px;overflow:hidden;background:#000;
+  box-shadow:0 0 0 1px var(--page-line),0 18px 40px -18px #000}
+.stage svg{display:block;width:100%;height:auto;max-width:100%;touch-action:manipulation}
+.controls{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.controls button{font:500 .95rem/1 var(--font-body);color:var(--page-fg);background:var(--page-panel);
+  border:1px solid var(--page-line);border-radius:3px;padding:10px 16px;cursor:pointer;
+  box-shadow:0 3px 0 -1px #0007;transition:transform .12s,background .2s}
+.controls button:hover{background:#29303f}
+.controls button:active{transform:translateY(2px)}
+.controls button:focus-visible{outline:2px solid var(--page-accent);outline-offset:2px}
+.controls button[aria-pressed="true"]{border-color:var(--page-accent);color:#fff}
+.clock{margin-left:auto;font-family:var(--font-display);font-size:1rem;color:var(--page-dim);font-variant-numeric:tabular-nums}
+.hint{margin:0;padding:0;list-style:none;display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:6px 20px;color:var(--page-dim);font-size:.88rem}
+.hint b{color:var(--page-fg);font-weight:500;margin-right:.4em}
+
+/* ===== SVG 內樣式 ===== */
+#cut feDropShadow{flood-color:var(--ink);flood-opacity:.5}
+#cutSoft feDropShadow{flood-color:var(--ink);flood-opacity:.38}
+.lit{fill:var(--win-on);opacity:0;transition:opacity .35s}
+.lit.on{opacity:var(--lit,.2)}
+.lit.flash{opacity:1}  /* 牢房點名：燈光波浪，白天也看得到 */
+.cwin,#lighthouse,#ferry,.sealion,#sky,#cyclist,.tourist,#guardTower{cursor:pointer}
+.controls .fun{border-style:dashed}
+.bubble text{font-family:var(--font-display);font-weight:900;font-size:22px;fill:var(--ink)}
+.signtxt{font-family:var(--font-display);font-weight:900;letter-spacing:.12em}
+.ring{fill:none;stroke:var(--foam);stroke-width:3}
+/* 船煙 */
+.smoke{fill:var(--fog);opacity:0}
+/* 城市倒影閃爍 */
+.shimmer{animation:shim 2.4s ease-in-out infinite}
+.shimmer:nth-child(3n){animation-delay:.8s}.shimmer:nth-child(3n+1){animation-delay:1.6s}
+@keyframes shim{0%,100%{opacity:.25}50%{opacity:.85}}
+/* 星星閃爍 */
+.star{fill:var(--star);animation:twinkle 3s ease-in-out infinite}
+.star:nth-child(4n){animation-delay:1.1s}.star:nth-child(4n+1){animation-delay:2.2s}
+@keyframes twinkle{0%,100%{opacity:1}50%{opacity:.35}}
+
+/* ===== 減少動態：關閉 CSS 動畫（JS 端另行停住船、霧、人） ===== */
+@media (prefers-reduced-motion: reduce){
+  .shimmer,.star{animation:none}
+  .lit{transition:none}
+  .controls button{transition:none}
+}
+</style>
+</head>
+<body>
+<main class="wrap">
+
+  <div class="stage">
+  <!-- =====================================================
+       【場景】SVG 主舞台 viewBox 1600×600
+       圖層由後到前（每一層都是一張「紙板」，帶投影）：
+       天空 → 日月星 → 高空霧 → 遠山與大橋 → 城市天際線 → 遠海 → 貨輪與帆船
+       → 背後霧 → 島（岩層、監獄、燈塔、水塔、碼頭）→ 島前低霧
+       → 中海 → 渡輪 → 近海 → 海獅浮台 → 前景觀景棧道 → 最前海浪 → 紙紋
+       滑鼠移動時各層依深度位移，做出紙板視差。
+       ===================================================== -->
+  <svg id="scene" viewBox="0 0 1600 600" preserveAspectRatio="xMidYMid meet" role="img" aria-label="舊金山灣的監獄島，渡輪、帆船與海獅，海霧飄動，燈塔夜裡旋轉，可切換白天與夜晚">
+    <defs>
+      <linearGradient id="skyGrad" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" style="stop-color:var(--sky-top)"/>
+        <stop offset="1" style="stop-color:var(--sky-bot)"/>
+      </linearGradient>
+      <linearGradient id="beamGrad" x1="0" y1="0" x2="1" y2="0">
+        <stop offset="0" style="stop-color:var(--beam);stop-opacity:.85"/>
+        <stop offset="1" style="stop-color:var(--beam);stop-opacity:0"/>
+      </linearGradient>
+      <linearGradient id="coneGrad" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" style="stop-color:var(--lamp);stop-opacity:.5"/>
+        <stop offset="1" style="stop-color:var(--lamp);stop-opacity:0"/>
+      </linearGradient>
+      <radialGradient id="glowGrad">
+        <stop offset="0" style="stop-color:var(--lamp);stop-opacity:.85"/>
+        <stop offset="1" style="stop-color:var(--lamp);stop-opacity:0"/>
+      </radialGradient>
+      <radialGradient id="sunGlow">
+        <stop offset="0" style="stop-color:var(--sun);stop-opacity:.7"/>
+        <stop offset="1" style="stop-color:var(--sun);stop-opacity:0"/>
+      </radialGradient>
+      <radialGradient id="moonGlow">
+        <stop offset="0" style="stop-color:var(--moon);stop-opacity:.45"/>
+        <stop offset="1" style="stop-color:var(--moon);stop-opacity:0"/>
+      </radialGradient>
+      <linearGradient id="duskGrad" x1="0" y1="0" x2="0" y2="1">
+        <stop offset=".2" style="stop-color:var(--dusk);stop-opacity:0"/>
+        <stop offset=".55" style="stop-color:var(--dusk);stop-opacity:.75"/>
+      </linearGradient>
+      <radialGradient id="vignette" cx=".5" cy=".5" r=".75">
+        <stop offset=".62" stop-color="#000" stop-opacity="0"/>
+        <stop offset="1" stop-color="#000" stop-opacity=".4"/>
+      </radialGradient>
+      <!-- 月牙遮罩 -->
+      <mask id="moonMask"><circle r="25" fill="#fff"/><circle cx="10" cy="-6" r="21" fill="#000"/></mask>
+      <!-- 剪紙投影：每層紙板底下的影子 -->
+      <filter id="cut" x="-5%" y="-15%" width="110%" height="135%">
+        <feDropShadow dx="0" dy="5" stdDeviation="4"/>
+      </filter>
+      <filter id="cutSoft" x="-20%" y="-20%" width="140%" height="150%">
+        <feDropShadow dx="0" dy="2.5" stdDeviation="2"/>
+      </filter>
+      <!-- 紙張纖維紋理 -->
+      <filter id="paper" x="0" y="0" width="100%" height="100%">
+        <feTurbulence type="fractalNoise" baseFrequency=".9" numOctaves="3" seed="13"/>
+        <feColorMatrix values="0 0 0 0 .5  0 0 0 0 .46  0 0 0 0 .4  0 0 0 .9 0"/>
+      </filter>
+    </defs>
+
+    <!-- 天空（點天空放出一隻海鷗） -->
+    <rect id="sky" width="1600" height="600" fill="url(#skyGrad)"/>
+    <!-- 黃昏暖光 -->
+    <rect id="duskGlow" width="1600" height="600" fill="url(#duskGrad)" opacity="0" pointer-events="none"/>
+    <g id="stars" class="nightOnly"></g>
+    <!-- 太陽與月亮（JS 依時間移動） -->
+    <g id="sun"><circle r="90" fill="url(#sunGlow)"/><circle r="34" fill="var(--sun)"/></g>
+    <g id="moon"><circle r="70" fill="url(#moonGlow)"/><circle r="24" fill="var(--moon)" mask="url(#moonMask)"/></g>
+    <!-- 高空薄霧（JS 生成） -->
+    <g id="fogHigh"></g>
+
+    <!-- ===== 遠景：北岸山丘、大橋、東岸城市 ===== -->
+    <g id="lyFar" data-depth=".15">
+      <g filter="url(#cut)">
+        <path id="hillFar" class="f-hill-far"/>
+        <path id="hillNear" class="f-hill-near"/>
+      </g>
+      <!-- 遠方紅色吊橋剪影（原創簡化造型） -->
+      <g id="bridge" filter="url(#cutSoft)">
+        <path class="f-bridge" d="M-20,300 L360,300 L360,307 L-20,307 Z"/>
+        <!-- 兩座橋塔 -->
+        <path class="f-bridge" d="M86,300 L90,196 L104,196 L108,300 Z M90,222 L104,222 L104,227 L90,227 Z M90,252 L104,252 L104,257 L90,257 Z"/>
+        <path class="f-bridge" d="M262,300 L266,196 L280,196 L284,300 Z M266,222 L280,222 L280,227 L266,227 Z M266,252 L280,252 L280,257 L266,257 Z"/>
+        <!-- 主纜與吊索 -->
+        <path class="s-bridge" fill="none" stroke-width="2.5" d="M-20,268 Q40,296 97,198 Q185,292 273,198 Q330,290 380,262"/>
+        <g id="hangers" class="s-bridge" stroke-width="1" opacity=".8"></g>
+        <g id="bridgeLights" class="nightOnly"></g>
+      </g>
+      <!-- 城市天際線（JS 生成） -->
+      <g id="city" filter="url(#cutSoft)"></g>
+      <g id="cityLights" class="nightOnly"></g>
+    </g>
+
+    <!-- ===== 遠海 ===== -->
+    <rect y="318" width="1600" height="282" class="f-water-far"/>
+    <g id="cityRefl" class="nightOnly"></g>
+    <path id="waveFar" class="f-water-far" opacity=".0"/>
+    <g id="farSea">
+      <!-- 【角色】地平線上的貨輪 -->
+      <g id="cargo" filter="url(#cutSoft)">
+        <path class="f-ship" d="M0,0 L120,0 L112,10 L6,10 Z"/>
+        <rect x="8" y="-10" width="16" height="10" class="f-coat2"/><rect x="26" y="-10" width="16" height="10" class="f-coat1"/>
+        <rect x="44" y="-10" width="16" height="10" class="f-coat3"/><rect x="62" y="-10" width="16" height="10" class="f-coat4"/>
+        <rect x="26" y="-20" width="16" height="10" class="f-coat4"/><rect x="44" y="-20" width="16" height="10" class="f-coat2"/>
+        <path class="f-hull" d="M88,0 L88,-20 L104,-20 L104,0 Z"/><rect x="93" y="-27" width="5" height="7" class="f-ink"/>
+        <circle cx="96" cy="-30" r="1.8" fill="var(--win-on)" class="nightOnly"/>
+      </g>
+      <!-- 帆船（JS 控制位置） -->
+      <g id="sails"></g>
+    </g>
+
+    <!-- 島後的霧（JS 生成） -->
+    <g id="fogBack"></g>
+
+    <!-- ===== 島 ===== -->
+    <g id="lyIsland" data-depth=".4">
+      <!-- 後岩層 -->
+      <path filter="url(#cut)" class="f-rock-back" d="M410,446 L432,414 466,398 486,356 514,334 552,326 586,302 616,282 636,262 700,256 760,252 900,252 948,258 990,262 1040,270 1072,292 1094,322 1114,348 1134,382 1152,420 1166,446 Z"/>
+      <!-- 岩壁裂紋 -->
+      <path class="s-rock-shade" fill="none" stroke-width="2.5" stroke-linecap="round" d="M500,352 L512,380 M560,330 L566,356 L560,372 M1080,300 L1090,330 M1110,352 L1122,384 M1040,276 L1046,296"/>
+      <!-- 頂部台地與監獄主樓 -->
+      <g id="cellhouse" filter="url(#cut)">
+        <!-- 屋頂 -->
+        <path class="f-cell-roof" d="M640,196 L930,196 L924,184 L646,184 Z"/>
+        <rect x="690" y="172" width="22" height="12" class="f-cell-roof"/><rect x="790" y="172" width="22" height="12" class="f-cell-roof"/><rect x="870" y="174" width="18" height="10" class="f-cell-roof"/>
+        <!-- 牆 -->
+        <rect x="646" y="196" width="278" height="60" class="f-cell-wall"/>
+        <!-- 側翼（入口） -->
+        <rect x="610" y="214" width="40" height="42" class="f-cell-wall"/>
+        <path class="f-cell-roof" d="M606,214 L654,214 L650,206 L610,206 Z"/>
+        <rect x="622" y="232" width="14" height="24" class="f-ink" opacity=".7"/>
+        <!-- 腰線 -->
+        <rect x="646" y="244" width="278" height="4" class="f-cell-roof" opacity=".6"/>
+        <!-- 窗戶（JS 生成，可點擊開燈） -->
+        <g id="cellWins"></g>
+        <!-- 越獄警報：屋頂紅燈與整棟泛紅 -->
+        <rect id="alarmGlow" x="606" y="168" width="324" height="90" fill="var(--alarm)" opacity="0" pointer-events="none"/>
+        <circle id="alarmLamp" cx="801" cy="168" r="5" fill="var(--alarm)" opacity="0"/>
+      </g>
+      <!-- 典獄長宅廢墟 -->
+      <g filter="url(#cutSoft)">
+        <path class="f-ruin" d="M968,262 L968,226 L984,226 L984,218 L1000,218 L1000,226 L1036,226 L1036,240 L1030,240 L1030,262 Z"/>
+        <rect x="975" y="234" width="7" height="12" class="f-ink" opacity=".75"/><rect x="990" y="234" width="7" height="12" class="f-ink" opacity=".75"/>
+        <rect x="1005" y="234" width="7" height="12" class="f-ink" opacity=".75"/><rect x="1019" y="242" width="7" height="12" class="f-ink" opacity=".75"/>
+        <rect x="986" y="214" width="4" height="8" class="f-ruin"/>
+      </g>
+      <!-- 燈塔（可點擊：霧笛） -->
+      <g id="lighthouse" filter="url(#cutSoft)">
+        <rect x="922" y="244" width="40" height="18" class="f-tower"/>
+        <path class="f-tower" d="M930,262 L934,134 L950,134 L954,262 Z"/>
+        <rect x="934" y="168" width="16" height="3" class="f-cell-roof"/><rect x="933" y="206" width="18" height="3" class="f-cell-roof"/>
+        <rect x="926" y="130" width="32" height="5" class="f-ink"/>
+        <rect x="934" y="114" width="16" height="16" class="f-cell-win"/>
+        <rect id="lanternLit" x="934" y="114" width="16" height="16" fill="var(--beam)"/>
+        <path class="f-ink" d="M932,114 L942,104 L952,114 Z"/><rect x="941" y="98" width="2" height="7" class="f-ink"/>
+        <rect x="926" y="250" width="8" height="10" class="f-cell-win"/><rect x="950" y="250" width="8" height="10" class="f-cell-win"/>
+      </g>
+      <!-- 水塔 -->
+      <g filter="url(#cutSoft)">
+        <path class="s-ink" stroke-width="2" fill="none" d="M1056,304 L1062,262 M1100,304 L1094,262 M1068,304 L1070,262 M1088,304 L1086,262 M1060,290 L1096,276 M1096,290 L1060,276"/>
+        <rect x="1052" y="226" width="52" height="38" rx="3" class="f-concrete"/>
+        <path class="f-cell-roof" d="M1050,228 L1078,214 L1106,228 Z"/>
+        <rect x="1052" y="246" width="52" height="3" class="f-cell-roof" opacity=".5"/>
+      </g>
+      <!-- 前岩層（較亮，含步道） -->
+      <path filter="url(#cut)" class="f-rock-front" d="M420,448 L452,424 496,412 540,398 596,400 640,384 700,372 760,360 820,346 880,332 930,320 980,326 1022,316 1060,328 1100,350 1132,386 1150,448 Z"/>
+      <path class="s-rock-shade" fill="none" stroke-width="2.5" stroke-linecap="round" d="M880,340 L888,372 M960,330 L956,358 L966,380 M1040,330 L1050,356 M1120,384 L1128,420 M760,368 L768,392"/>
+      <!-- 瞭望塔（探照燈從這裡打出去；點它也能開關探照燈） -->
+      <g id="guardTower" filter="url(#cutSoft)">
+        <path class="s-ink" stroke-width="2" fill="none" d="M580,304 L584,266 M600,304 L596,266 M582,290 L598,278 M598,290 L582,278"/>
+        <rect x="576" y="248" width="28" height="20" class="f-concrete"/>
+        <rect x="580" y="252" width="20" height="8" class="f-cell-win"/>
+        <path class="f-cell-roof" d="M572,249 L608,249 L600,240 L580,240 Z"/>
+        <circle id="towerLamp" cx="590" cy="244" r="3.5" fill="var(--beam)" opacity=".3"/>
+      </g>
+      <!-- 樹叢（JS 生成） -->
+      <g id="trees"></g>
+      <!-- 之字形步道（遊客走在上面） -->
+      <path id="trail" class="s-path" fill="none" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" d="M636,404 L736,370 L668,338 L800,300 L708,276 L742,258"/>
+      <g id="visitors"></g>
+      <!-- 越獄路線：從監獄後側沿東坡跑到海邊（看不見的路徑） -->
+      <path id="escPath" fill="none" stroke="none" d="M914,254 L962,264 L1012,274 L1052,300 L1090,332 L1118,372 L1140,412 L1160,442"/>
+      <g id="escapee"></g>
+      <!-- 碼頭平台與營房 -->
+      <g filter="url(#cut)">
+        <rect x="436" y="398" width="220" height="50" class="f-concrete"/>
+        <rect x="470" y="334" width="152" height="66" class="f-cell-wall"/>
+        <path class="f-cell-roof" d="M464,334 L628,334 L622,324 L470,324 Z"/>
+        <g id="barrackWins"></g>
+        <!-- 營房招牌（虛構文字） -->
+        <rect x="496" y="340" width="100" height="14" class="f-hull-band"/>
+        <text class="signtxt" x="546" y="351" text-anchor="middle" font-size="10" fill="var(--hull)">ISLE · PIER</text>
+        <!-- 旗桿 -->
+        <rect x="644" y="320" width="2.5" height="80" class="f-ink"/>
+        <path id="flag" class="f-flag" d="M646,322 L672,326 L646,334 Z"/>
+      </g>
+      <!-- 棧橋 -->
+      <g filter="url(#cutSoft)">
+        <rect x="330" y="438" width="140" height="8" class="f-deck"/>
+        <g class="f-deck-dk"><rect x="338" y="446" width="5" height="12"/><rect x="370" y="446" width="5" height="12"/><rect x="402" y="446" width="5" height="12"/><rect x="434" y="446" width="5" height="12"/><rect x="460" y="446" width="5" height="12"/></g>
+        <rect x="340" y="420" width="2" height="18" class="f-ink"/><circle cx="341" cy="419" r="3" fill="var(--lamp)" class="nightOnly"/>
+      </g>
+      <!-- 島上的夜燈光暈 -->
+      <g class="nightOnly">
+        <circle cx="341" cy="419" r="22" fill="url(#glowGrad)"/>
+        <circle cx="630" cy="222" r="26" fill="url(#glowGrad)" opacity=".7"/>
+      </g>
+      <!-- 燈塔光束（JS 旋轉） -->
+      <g id="beamWrap" transform="translate(942,122)">
+        <g id="beam"><path d="M0,-6 L900,-60 L900,60 L0,6 Z" fill="url(#beamGrad)"/></g>
+        <circle id="beamGlow" r="34" fill="url(#glowGrad)"/>
+      </g>
+    </g>
+
+    <!-- 島前低霧（JS 生成） -->
+    <g id="fogLow"></g>
+
+    <!-- ===== 中海：渡輪航道 ===== -->
+    <g id="lyMid" data-depth=".6">
+      <path id="waveMid" class="f-water-mid" filter="url(#cut)"/>
+      <g id="wake"></g>
+      <!-- 【角色】渡輪（點擊鳴笛） -->
+      <g id="ferry">
+        <g id="ferryBody" filter="url(#cutSoft)">
+          <!-- 船身：船頭朝右 -->
+          <path class="f-hull" d="M0,0 L176,0 L196,-24 L-6,-24 Z"/>
+          <path class="f-hull-band" d="M2,-4 L180,-4 L186,-11 L-2,-11 Z"/>
+          <text class="signtxt" x="90" y="-14" text-anchor="middle" font-size="7" fill="var(--hull)" opacity=".9">BAY STAR</text>
+          <!-- 第一層客艙 -->
+          <rect x="14" y="-46" width="150" height="22" class="f-cabin"/>
+          <g id="ferryWin1"></g>
+          <!-- 第二層客艙 -->
+          <rect x="34" y="-64" width="104" height="18" class="f-cabin"/>
+          <g id="ferryWin2"></g>
+          <!-- 頂層甲板欄杆 -->
+          <path class="s-rail" fill="none" stroke-width="1.5" d="M40,-64 L40,-72 L132,-72 L132,-64 M52,-64 L52,-72 M64,-64 L64,-72 M76,-64 L76,-72 M88,-64 L88,-72 M100,-64 L100,-72 M112,-64 L112,-72 M124,-64 L124,-72"/>
+          <!-- 駕駛台與煙囪 -->
+          <rect x="120" y="-80" width="26" height="16" class="f-hull"/>
+          <rect x="124" y="-76" width="18" height="6" class="f-cell-win"/>
+          <rect x="56" y="-82" width="12" height="18" class="f-hull-band"/>
+          <!-- 頂層甲板乘客 -->
+          <g id="ferryPax"></g>
+          <!-- 航行燈 -->
+          <circle cx="190" cy="-22" r="2.6" fill="var(--nav-green)" class="nightOnly"/>
+          <circle cx="146" cy="-84" r="2.2" fill="#fff" class="nightOnly"/>
+        </g>
+        <g id="ferrySmoke"></g>
+      </g>
+      <!-- 【角色】越獄者的雨衣橡皮艇 -->
+      <g id="escRaft" style="opacity:0"></g>
+    </g>
+
+    <!-- ===== 近海與海獅浮台 ===== -->
+    <g id="lyNear" data-depth=".85">
+      <path id="waveNear" class="f-water-near" filter="url(#cut)"/>
+      <g id="raft">
+        <path class="f-raft" filter="url(#cut)" d="M1150,526 L1480,526 L1496,546 L1136,546 Z"/>
+        <path class="s-deck-dk" stroke-width="2" d="M1190,526 L1186,546 M1240,526 L1238,546 M1290,526 L1290,546 M1340,526 L1342,546 M1390,526 L1394,546 M1440,526 L1446,546"/>
+        <!-- 浮台救生圈 -->
+        <circle cx="1470" cy="536" r="7" fill="none" class="s-buoy" stroke-width="4"/>
+        <g id="sealions"></g>
+      </g>
+      <g id="diveFx"></g>
+    </g>
+
+    <!-- ===== 前景：岸邊觀景棧道 ===== -->
+    <g id="lyFront" data-depth="1.15">
+      <g filter="url(#cut)">
+        <!-- 木棧道 -->
+        <path class="f-deck" d="M-40,548 L520,548 L540,600 L-40,600 Z"/>
+        <path class="s-deck-dk" stroke-width="2" d="M40,548 L44,600 M120,548 L126,600 M200,548 L208,600 M280,548 L290,600 M360,548 L372,600 M440,548 L454,600"/>
+        <rect x="-40" y="548" width="560" height="5" class="f-deck-dk"/>
+      </g>
+      <!-- 木樁與海鷗站點 -->
+      <g filter="url(#cutSoft)">
+        <rect x="532" y="520" width="16" height="80" rx="3" class="f-deck-dk"/>
+        <rect x="560" y="536" width="14" height="64" rx="3" class="f-deck-dk"/>
+      </g>
+      <!-- 欄杆 -->
+      <g filter="url(#cutSoft)">
+        <path class="s-rail" fill="none" stroke-width="4" stroke-linecap="round" d="M-40,512 L512,512 M-40,530 L512,530"/>
+        <g id="posts" class="f-rail"></g>
+      </g>
+      <!-- 欄杆上的救生圈 -->
+      <g filter="url(#cutSoft)"><circle cx="46" cy="526" r="13" fill="none" class="s-buoy" stroke-width="7"/><path class="s-hull" stroke-width="7" fill="none" d="M37,517 A13,13 0 0 1 46,513 M59,526 A13,13 0 0 1 55,535"/></g>
+      <!-- 投幣望遠鏡 -->
+      <g id="scope" filter="url(#cutSoft)">
+        <rect x="292" y="514" width="6" height="34" class="f-rail"/>
+        <rect x="284" y="544" width="22" height="5" class="f-rail"/>
+        <path class="f-coat2" d="M280,496 L306,492 L310,508 L284,514 Z"/>
+        <rect x="306" y="494" width="9" height="12" rx="2" class="f-ink"/>
+      </g>
+      <!-- 路燈 -->
+      <g filter="url(#cutSoft)">
+        <rect x="464" y="420" width="5" height="130" class="f-rail"/>
+        <path class="f-rail" d="M458,420 L476,420 L472,410 L462,410 Z"/>
+        <rect x="460" y="420" width="14" height="10" fill="var(--lamp)" class="lampLight"/>
+      </g>
+      <g class="nightOnly"><path d="M452,430 L482,430 L520,548 L414,548 Z" fill="url(#coneGrad)"/><circle cx="467" cy="425" r="30" fill="url(#glowGrad)"/></g>
+      <!-- 【角色】棧道上的遊客（JS 生成）與單車 -->
+      <g id="tourists"></g>
+      <g id="cyclist"></g>
+      <!-- 站在木樁上的海鷗 -->
+      <g id="perched"></g>
+    </g>
+
+    <!-- 最前排海浪 -->
+    <g id="lyWave" data-depth="1.3">
+      <path id="waveFront" class="f-water-front" filter="url(#cut)"/>
+      <g id="ripples"></g>
+    </g>
+
+    <!-- 【互動】探照燈光束與光斑（JS 控制） -->
+    <g id="search" style="opacity:0" pointer-events="none">
+      <path id="searchBeam" fill="var(--beam)" opacity=".28"/>
+      <ellipse id="searchSpot" rx="70" ry="20" fill="url(#glowGrad)"/>
+    </g>
+    <!-- 【角色】鵜鶘（按鈕放出） -->
+    <g id="pelicans"></g>
+    <!-- 【動畫】海鷗（JS 生成） -->
+    <g id="gulls"></g>
+    <!-- 對話泡泡 -->
+    <g id="bubbles"></g>
+
+    <!-- 紙紋與暗角 -->
+    <rect width="1600" height="600" filter="url(#paper)" opacity=".1" pointer-events="none" style="mix-blend-mode:multiply"/>
+    <rect width="1600" height="600" fill="url(#vignette)" pointer-events="none"/>
+  </svg>
+  </div>
+
+  <!-- 【互動】控制列 -->
+  <div class="controls">
+    <button id="btnDayNight" type="button">切換日夜</button>
+    <button id="btnAuto" type="button" aria-pressed="true">自動循環：開</button>
+    <button id="btnFog" type="button">海霧：薄霧</button>
+    <button id="btnSound" type="button" aria-pressed="true">🔊 聲音：開</button>
+    <button id="btnEscape" class="fun" type="button">🚨 越獄行動</button>
+    <button id="btnSearch" class="fun" type="button" aria-pressed="false">🔦 探照燈：關</button>
+    <button id="btnRoll" class="fun" type="button">🔔 牢房點名</button>
+    <button id="btnChorus" class="fun" type="button">🦭 海獅合唱</button>
+    <button id="btnPelican" class="fun" type="button">🐦 鵜鶘俯衝</button>
+    <button id="btnHorn" class="fun" type="button">📯 霧笛</button>
+    <button id="btnFerry" class="fun" type="button">⛴️ 叫渡輪</button>
+    <span class="clock" id="clock">黃昏・霧起</span>
+  </div>
+  <ul class="hint">
+    <li><b>滑鼠左右移動</b>紙板層會錯開（視差），也改變風向與霧的速度</li>
+    <li><b>點燈塔</b>拉響霧笛，光束轉快一陣</li>
+    <li><b>點渡輪</b>鳴笛冒煙；靠岸時會提早開船</li>
+    <li><b>點監獄窗戶</b>開燈或關燈</li>
+    <li><b>點海獅</b>叫一聲，偶爾跳進海裡</li>
+    <li><b>點天空</b>放出一隻海鷗；<b>點海面</b>泛起漣漪</li>
+    <li><b>越獄行動</b>警報響起，囚犯沿東坡跑下海，划雨衣橡皮艇消失在濃霧裡</li>
+    <li><b>探照燈</b>從瞭望塔打光，光斑跟著滑鼠走（點瞭望塔也能開關）</li>
+    <li><b>牢房點名</b>鐘聲三響，牢房燈光一路亮過去</li>
+    <li><b>海獅合唱</b>浮台上的海獅輪流開唱，最後一隻跳水謝幕</li>
+    <li><b>鵜鶘俯衝</b>島名原意就是鵜鶘：三隻鵜鶘俯衝入海叼魚</li>
+    <li><b>霧笛、叫渡輪</b>拉響霧笛；催渡輪開船或叫下一班</li>
+  </ul>
+</main>
+
+<script id="showstop">
+/* =========================================================
+   ShowStop｜表演「再按一下優雅停止」共用模組（2026-11-24）
+   用法：放在場景主程式 <script> 之前；主程式最後呼叫
+     ShowStop.init({
+       on:      () => show.on,                  // 表演中回傳真值（多種表演時回傳種類）
+       ff:      () => { show.t = show.dur - .02; },  // （選用）快轉到結尾，讓場景下一幀自己收尾
+       btn:     'btnShow' 或 { fire: 'btnFire', stars: 'btnStars' },
+       save:    () => ({ ... }),                // 表演開始前記下使用者設定（日夜、天氣…）
+       restore: s => { ... },                   // 停止時還原
+       stop:    () => { endShow(); ... },       // 立刻結束表演、清掉秀中物件（有 ff 時：快轉後仍未結束才呼叫）
+       after:   () => { ... },                  // （選用）最後再補的清理
+     });
+   停止時：畫面凍結成一張「殘影」疊在上面 1.8 秒淡出（底下已回到原狀），
+           還沒響的表演音符取消、正在響的長音淡出，表演排程的計時器取消，
+           #cineFx 燈光歸零。播放中按鈕顯示「■ 停止」。
+   ========================================================= */
+(function () {
+  'use strict';
+  const W = window;
+  const FADE = 1.8;                      // 殘影淡出秒數
+  let cfg = null, saved = null, epoch = 0, zone = 0, quiet = null;
+  const reducedQ = W.matchMedia ? W.matchMedia('(prefers-reduced-motion: reduce)') : { matches: false };
+  const isOn = () => { try { return cfg ? cfg.on() : false; } catch (e) { return false; } };
+
+  /* ---------- ① 計時器：記下「表演開始時排程」的 setTimeout / setInterval ---------- */
+  const _st = W.setTimeout, _ct = W.clearTimeout, _si = W.setInterval, _ci = W.clearInterval;
+  const zt = new Map();                  // id → { iv, keep }
+  // 音訊收尾、泡泡移除這類「善後」計時器保留，其餘（放煙火、下一段劇情）停止時取消
+  const KEEP = /\.remove\(\)|disconnect|duck|level\(|\.gain\b|removeChild|classList\.remove/;
+  function wrapFn(fn, ep) {
+    if (typeof fn !== 'function') return fn;
+    return function () {
+      if (ep !== epoch) return;          // 已被停止
+      zone++; try { return fn.apply(this, arguments); } finally { zone--; }
+    };
+  }
+  // 表演進行中排程的「台詞」（say／bubble／narr）也算表演的，停止時一起取消
+  const LINE = /\b(say|bubble|narr)\(/;
+  W.setTimeout = function (fn, ms, ...a) {
+    if (!zone && !(cfg && typeof fn === 'function' && ms > 0 && LINE.test(String(fn)) && isOn())) return _st(fn, ms, ...a);
+    let id; const keep = typeof fn === 'function' && KEEP.test(String(fn)) && String(fn).length < 400;
+    const g = keep ? fn : wrapFn(fn, epoch);
+    id = _st(function () { zt.delete(id); return g.apply(this, arguments); }, ms, ...a);
+    zt.set(id, { iv: false, keep }); return id;
+  };
+  W.clearTimeout = function (id) { zt.delete(id); return _ct(id); };
+  W.setInterval = function (fn, ms, ...a) {
+    if (!zone) return _si(fn, ms, ...a);
+    const id = _si(wrapFn(fn, epoch), ms, ...a); zt.set(id, { iv: true, keep: false }); return id;
+  };
+  W.clearInterval = function (id) { zt.delete(id); return _ci(id); };
+
+  /* ---------- ② 聲音：記下表演期間排程的音符；停止時取消未響的、淡掉長音 ---------- */
+  const srcs = new Set(); const outs = new WeakMap();
+  const SN = W.AudioScheduledSourceNode && W.AudioScheduledSourceNode.prototype;
+  if (SN) {
+    const _start = SN.start, _stop = SN.stop;
+    SN.start = function (when, ...a) {
+      const c = this.context, now = c.currentTime;
+      if (quiet) quiet.push(this);       // 停止過程中（快轉到結尾）冒出的聲音，稍後直接靜音
+      this.__ss = { at: Math.max(now, when || 0), end: Infinity, show: !!(zone || isOn()) };
+      if (this.__ss.show) { srcs.add(this); this.addEventListener('ended', () => srcs.delete(this)); }
+      return _start.call(this, when, ...a);
+    };
+    SN.stop = function (when, ...a) {
+      if (this.__ss) this.__ss.end = Math.max(this.context.currentTime, when || 0);
+      return _stop.call(this, when, ...a);
+    };
+  }
+  const AN = W.AudioNode && W.AudioNode.prototype;
+  if (AN) {   // 所有接到喇叭的線都先經過一顆總音量，停止時可以短暫壓低長音
+    const _conn = AN.connect;
+    AN.connect = function (dest, ...a) {
+      if (dest && dest === this.context.destination && !this.__ssOut) {
+        let g = outs.get(this.context);
+        if (!g) { g = this.context.createGain(); g.__ssOut = true; _conn.call(g, this.context.destination); outs.set(this.context, g); }
+        return _conn.call(this, g, ...a);
+      }
+      return _conn.call(this, dest, ...a);
+    };
+  }
+  function stopAudio() {
+    let longs = [], ctx = null;
+    for (const s of srcs) {
+      const c = s.context, now = c.currentTime, m = s.__ss; ctx = c;
+      if (!m || !m.show) continue;
+      if (m.at > now + .02) { try { s.stop(); } catch (e) {} srcs.delete(s); }      // 還沒響：直接取消
+      else if (isFinite(m.end) && m.end > now + 1.2) longs.push(s);                                     // 長音：淡掉再停
+    }
+    if (longs.length && ctx) {
+      const g = outs.get(ctx), now = ctx.currentTime;
+      if (g) {
+        g.gain.cancelScheduledValues(now); g.gain.setValueAtTime(g.gain.value, now);
+        g.gain.linearRampToValueAtTime(0, now + 1.1); g.gain.setValueAtTime(0, now + 1.2);
+        g.gain.linearRampToValueAtTime(1, now + 1.9);
+      }
+      longs.forEach(s => { try { s.stop(now + 1.15); } catch (e) {} srcs.delete(s); });
+    }
+    srcs.clear();
+  }
+
+  /* ---------- ③ 殘影：把目前畫面凍結複製一份疊上去再淡出 ---------- */
+  let ghostCss = false;
+  function ghost(svg) {
+    if (!svg || reducedQ.matches) return;
+    if (!ghostCss) {
+      ghostCss = true;
+      const st = document.createElement('style');
+      st.textContent = '.ss-ghost,.ss-ghost *{animation-play-state:paused!important;pointer-events:none!important}.ss-ghost{position:absolute!important;margin:0!important;will-change:opacity;transition:opacity ' + FADE + 's cubic-bezier(.4,0,.2,1)}';
+      document.head.appendChild(st);
+    }
+    const cl = svg.cloneNode(true);
+    cl.classList.add('ss-ghost'); cl.removeAttribute('tabindex'); cl.setAttribute('aria-hidden', 'true');
+    // 凍結色票：把目前的 CSS 變數抄到殘影上，底下換色不影響殘影
+    const cs = getComputedStyle(svg);
+    const names = new Set();
+    for (let i = 0; i < cs.length; i++) if (cs[i].startsWith('--')) names.add(cs[i]);
+    try { for (const sh of document.styleSheets) for (const r of sh.cssRules) if (r.style) for (const p of r.style) if (p.startsWith('--')) names.add(p); } catch (e) {}
+    for (const p of document.documentElement.style) if (p.startsWith('--')) names.add(p);
+    names.forEach(p => { const v = cs.getPropertyValue(p); if (v) cl.style.setProperty(p, v); });
+    // 漸層、濾鏡等定義改名，殘影只用自己那份（凍結）
+    const map = {};
+    cl.querySelectorAll('[id]').forEach(e => { const n = e.id + '__ss'; map[e.id] = n; e.id = n; });
+    cl.id = svg.id; delete map[svg.id];
+    const fix = v => v.replace(/url\(\s*['"]?#([^'")\s]+)['"]?\s*\)/g, (m, id) => map[id] ? 'url(#' + map[id] + ')' : m);
+    const all = cl.querySelectorAll('*'), orig = svg.querySelectorAll('*');
+    let needCs = false;
+    try { for (const sh of document.styleSheets) for (const r of sh.cssRules) if (r.cssText.includes('url(#') || r.cssText.includes('url("#')) { needCs = true; break; } } catch (e) {}
+    for (let i = 0; i < all.length; i++) {
+      const e = all[i];
+      for (const a of e.attributes) {
+        if (a.value.includes('url(')) e.setAttribute(a.name, fix(a.value));
+        else if ((a.name === 'href' || a.name === 'xlink:href') && a.value[0] === '#' && map[a.value.slice(1)]) e.setAttribute(a.name, '#' + map[a.value.slice(1)]);
+      }
+      if (needCs && orig[i]) {
+        const o = getComputedStyle(orig[i]);
+        for (const p of ['fill', 'stroke', 'filter', 'clip-path', 'mask']) { const v = o.getPropertyValue(p); if (v && v.includes('url(')) e.style.setProperty(p, fix(v.replace(/url\("?[^#")]*#/g, 'url(#').replace(/"\)/g, ')'))); }
+      }
+    }
+    const par = svg.parentElement;
+    if (getComputedStyle(par).position === 'static') par.style.position = 'relative';
+    const r = svg.getBoundingClientRect(), pr = par.getBoundingClientRect();
+    Object.assign(cl.style, { left: (r.left - pr.left + par.scrollLeft - par.clientLeft) + 'px', top: (r.top - pr.top + par.scrollTop - par.clientTop) + 'px', width: r.width + 'px', height: r.height + 'px', opacity: 1 });
+    svg.after(cl);
+    try { cl.pauseAnimations && cl.pauseAnimations(); } catch (e) {}
+    requestAnimationFrame(() => requestAnimationFrame(() => { cl.style.opacity = 0; }));
+    _st(() => cl.remove(), FADE * 1000 + 300);
+  }
+
+  /* ---------- ④ 秀中冒出的說話泡泡：停止時一起收掉 ---------- */
+  let added = [];
+  const mo = W.MutationObserver ? new MutationObserver(ms => { if (!isOn()) return; for (const m of ms) for (const n of m.addedNodes) if (n.nodeType === 1) added.push(n); }) : null;
+  const BUB = /bubble|say|speech|talk|tip/i;
+  function clearBubbles() {
+    if (mo) for (const m of mo.takeRecords()) for (const n of m.addedNodes) if (n.nodeType === 1) added.push(n);
+    added.forEach(n => {
+      if (!n.isConnected || n.closest('.ss-ghost')) return;
+      const p = n.parentElement;
+      if (BUB.test(n.getAttribute('class') || '') || (p && BUB.test((p.id || '') + ' ' + (p.getAttribute('class') || '')))) n.remove();
+    });
+    added = [];
+  }
+
+  /* ---------- ⑤ 停止 ---------- */
+  let stopping = false;
+  function cancel() {
+    if (stopping) return; stopping = true;
+    const svg = cfg.svg ? document.querySelector(cfg.svg) : (document.getElementById('scene') || document.querySelector('svg'));
+    try { ghost(svg); } catch (e) {}
+    epoch++;
+    for (const [id, z] of zt) if (!z.keep) { z.iv ? _ci(id) : _ct(id); zt.delete(id); }
+    try { stopAudio(); } catch (e) {}
+    quiet = [];
+    zone++;   // 收尾過程中（快轉那幾幀、stop、restore）排出的計時器，例如散場後的鳴笛、煙火，最後一起取消
+    // ff：把表演時間快轉到結尾，讓場景自己的收尾邏輯跑完一幀（殘影蓋著看不到），再補 stop
+    if (cfg.ff) {
+      try { cfg.ff(); } catch (e) { console.warn('ShowStop ff', e); }
+      let n = 0; const wait = () => { if (isOn() && n++ < 8) requestAnimationFrame(wait); else finish(); };
+      requestAnimationFrame(wait);
+    } else finish();
+  }
+  function finish() {
+    try { if (isOn() || !cfg.ff) cfg.stop && cfg.stop(); } catch (e) { console.warn('ShowStop stop', e); }
+    try { if (typeof W.setCine === 'function') W.setCine(0); } catch (e) {}
+    try { if (cfg.cine) cfg.cine(); } catch (e) {}
+    if (saved && cfg.restore) { try { cfg.restore(saved); } catch (e) { console.warn('ShowStop restore', e); } }
+    saved = null;
+    clearBubbles();
+    (quiet || []).forEach(s => { try { s.stop(); } catch (e) {} }); quiet = null;
+    zone = Math.max(0, zone - 1);
+    for (const [id, z] of zt) if (!z.keep) { z.iv ? _ci(id) : _ct(id); zt.delete(id); }
+    try { cfg.after && cfg.after(); } catch (e) {}
+    // 背景配樂（scene-bgm）表演時被壓小聲：停止後很快恢復
+    try { if (W.sceneMusic && W.sceneMusic.playing) W.sceneMusic.duck(.3); } catch (e) {}
+    stopping = false;
+    sync();
+  }
+
+  /* ---------- ⑥ 按鈕：開始時記下設定；表演中再按＝停止；文字顯示「■ 停止」 ---------- */
+  const btns = [];
+  function btnFor(kind) {
+    if (!kind) return null;
+    if (typeof cfg.btn === 'string') return document.getElementById(cfg.btn);
+    const id = cfg.btn[kind] || cfg.btn['*']; return id ? document.getElementById(id) : null;
+  }
+  function sync() {
+    const k = isOn(), act = btnFor(k);
+    btns.forEach(b => {
+      const st = b === act, txt = cfg.label || '■ 停止';
+      if (st && b.disabled) b.disabled = false;   // 有些作品表演中會把按鈕停用，這裡讓它能按「停止」
+      // 作品自己改了按鈕文字（例如收場時換成下一個特效名稱）就記下來，結束時還原成它
+      if (b.classList.contains('ss-stop') && b.textContent !== txt) { b.__ssLabel = b.innerHTML; if (st) b.textContent = txt; }
+      if (st && !b.classList.contains('ss-stop')) {
+        b.__ssLabel = b.innerHTML; b.classList.add('ss-stop');
+        b.textContent = cfg.label || '■ 停止'; b.title = '再按一下停止表演';
+      } else if (!st && b.classList.contains('ss-stop')) {
+        b.classList.remove('ss-stop'); b.innerHTML = b.__ssLabel; b.removeAttribute('title');
+      }
+    });
+  }
+  function loop() { sync(); requestAnimationFrame(loop); }
+
+  W.ShowStop = {
+    init(c) {
+      cfg = c;
+      const ids = typeof c.btn === 'string' ? [c.btn] : Object.values(c.btn);
+      [...new Set(ids)].forEach(id => {
+        const b = document.getElementById(id); if (!b) return;
+        b.__ssLabel = b.innerHTML; btns.push(b);
+        b.addEventListener('click', e => {
+          const k = isOn();
+          if (k && btnFor(k) === b) {
+            e.stopImmediatePropagation(); e.preventDefault();
+            if (e.isTrusted || c.allowSynthetic) cancel();
+            return;
+          }
+          if (!k) {
+            if (c.save) { try { saved = c.save(); } catch (er) { saved = null; } }
+            epoch++; zone++; added = [];
+            // 這次點擊同步排出的計時器都算表演的（點擊處理完就關掉）
+            let done = false; const off = () => { if (!done) { done = true; zone = Math.max(0, zone - 1); W.removeEventListener('click', off); } };
+            W.addEventListener('click', off); _st(off, 0);
+          }
+        }, true);
+      });
+      if (mo) { const s = c.svg ? document.querySelector(c.svg) : (document.getElementById('scene') || document.querySelector('svg')); if (s) mo.observe(s, { childList: true, subtree: true }); }
+      requestAnimationFrame(loop);
+    },
+    cancel: () => { if (isOn()) cancel(); },
+    get saved() { return saved; }
+  };
+})();
+</script>
+<script>
+(() => {
+"use strict";
+/* =========================================================
+   基本工具
+   ========================================================= */
+const NS = "http://www.w3.org/2000/svg";
+const $ = id => document.getElementById(id);
+const svg = $("scene");
+const root = document.documentElement;
+function el(tag, attrs, parent) {
+  const e = document.createElementNS(NS, tag);
+  for (const k in attrs) e.setAttribute(k, attrs[k]);
+  if (parent) parent.appendChild(e);
+  return e;
+}
+// 固定亂數種子，讓每次載入的天際線、樹叢長一樣
+function rng(seed) {
+  return () => {
+    seed |= 0; seed = seed + 0x6D2B79F5 | 0;
+    let t = Math.imul(seed ^ seed >>> 15, 1 | seed);
+    t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t;
+    return ((t ^ t >>> 14) >>> 0) / 4294967296;
+  };
+}
+const R = rng(13131313);
+const rand = (a, b) => a + Math.random() * (b - a);
+const pick = arr => arr[Math.floor(Math.random() * arr.length)];
+
+/* =========================================================
+   【色票】日夜混色引擎
+   讀取 --名稱-day / --名稱-night，依 night(0~1) 混色寫回 --名稱。
+   ========================================================= */
+const MIX = ["sky-top","sky-bot","hill-far","hill-near","bridge","city1","city2",
+  "water-far","water-mid","water-near","water-front","foam",
+  "rock-back","rock-front","rock-shade","concrete","cell-wall","cell-roof","cell-win","tower","ruin",
+  "tree-dk","tree-lt","path","fog","fog-dk",
+  "hull","hull-band","cabin","sail","ship","deck","deck-dk","rail","ink","skin","hair",
+  "coat1","coat2","coat3","coat4","pants","sealion","sealion-dk","raft","gull","flag","buoy",
+  "pelican","beak","raft-y","fish"];
+(function injectClasses() {
+  const css = MIX.map(n => `.f-${n}{fill:var(--${n})}.s-${n}{stroke:var(--${n})}`).join("");
+  const st = document.createElement("style"); st.textContent = css; document.head.appendChild(st);
+})();
+const cs = getComputedStyle(root);
+const hex = s => { s = s.trim().replace("#",""); if (s.length === 3) s = s.split("").map(c => c + c).join(""); const n = parseInt(s,16); return [n>>16&255, n>>8&255, n&255]; };
+const PAIRS = MIX.map(n => [n, hex(cs.getPropertyValue(`--${n}-day`)), hex(cs.getPropertyValue(`--${n}-night`))]);
+let lastApplied = -1;
+function applyNight(nt, force) {
+  if (!force && Math.abs(nt - lastApplied) < 0.004) return;
+  lastApplied = nt;
+  for (const [n, a, b] of PAIRS) {
+    const c = a.map((v, i) => Math.round(v + (b[i] - v) * nt));
+    root.style.setProperty(`--${n}`, `rgb(${c[0]},${c[1]},${c[2]})`);
+  }
+  $("duskGlow").setAttribute("opacity", (Math.pow(4 * nt * (1 - nt), 2) * .7).toFixed(3));
+  root.style.setProperty("--lit", (0.15 + 0.85 * nt).toFixed(3));
+  const on = Math.max(0, nt * 1.5 - 0.45);
+  document.querySelectorAll(".nightOnly").forEach(e => e.style.opacity = on.toFixed(3));
+}
+
+/* =========================================================
+   【場景】星星
+   ========================================================= */
+(function buildStars() {
+  const g = $("stars");
+  for (let i = 0; i < 90; i++)
+    el("circle", { cx: R() * 1600, cy: R() * 230, r: (.6 + R() * 1.4).toFixed(2), class: "star" }, g);
+})();
+
+/* =========================================================
+   【場景】遠山：北岸丘陵（左）與東岸丘陵（右後）
+   ========================================================= */
+function ridge(x0, x1, base, pts, jitter) {
+  // pts：[[x, y], ...] 控制點，中間加上小鋸齒，像剪刀剪出的邊
+  let d = `M${x0},${base} `;
+  for (let i = 0; i < pts.length - 1; i++) {
+    const [ax, ay] = pts[i], [bx, by] = pts[i + 1];
+    const steps = Math.max(2, Math.round((bx - ax) / 22));
+    for (let s = 0; s < steps; s++) {
+      const k = s / steps, x = ax + (bx - ax) * k;
+      const y = ay + (by - ay) * (k * k * (3 - 2 * k)) + (R() - .5) * jitter;
+      d += `L${x.toFixed(1)},${y.toFixed(1)} `;
+    }
+  }
+  const [lx, ly] = pts[pts.length - 1];
+  return d + `L${lx},${ly} L${x1},${base} Z`;
+}
+$("hillFar").setAttribute("d", ridge(-20, 1620, 320,
+  [[-20,250],[120,214],[260,236],[420,262],[640,290],[900,296],[1120,272],[1300,250],[1460,262],[1620,240]], 5));
+$("hillNear").setAttribute("d", ridge(-20, 640, 322,
+  [[-20,262],[60,240],[150,262],[230,276],[330,288],[440,300],[560,314],[640,320]], 4));
+// 吊索
+(function buildHangers() {
+  const g = $("hangers");
+  // 沿主纜取點往下垂到橋面
+  const cable = (x) => {
+    if (x < 97) { const k = (x + 20) / 117; return (1-k)*(1-k)*268 + 2*(1-k)*k*296 + k*k*198; }
+    if (x < 273) { const k = (x - 97) / 176; return (1-k)*(1-k)*198 + 2*(1-k)*k*292 + k*k*198; }
+    const k = (x - 273) / 107; return (1-k)*(1-k)*198 + 2*(1-k)*k*290 + k*k*262;
+  };
+  for (let x = -10; x < 360; x += 9) {
+    if (Math.abs(x - 97) < 8 || Math.abs(x - 273) < 8) continue;
+    el("line", { x1: x, y1: cable(x).toFixed(1), x2: x, y2: 300 }, g);
+  }
+  const L = $("bridgeLights");
+  for (let x = 0; x < 360; x += 24) el("circle", { cx: x, cy: 299, r: 1.6, fill: "var(--lamp)" }, L);
+  el("circle", { cx: 97, cy: 194, r: 2.4, fill: "var(--nav-red)" }, L);
+  el("circle", { cx: 273, cy: 194, r: 2.4, fill: "var(--nav-red)" }, L);
+})();
+
+/* =========================================================
+   【場景】東岸城市天際線（原創樓群，含尖塔與圓頂塔）
+   ========================================================= */
+(function buildCity() {
+  const g = $("city"), lights = $("cityLights"), refl = $("cityRefl");
+  const base = 322;
+  // 後排
+  let x = 1160;
+  while (x < 1620) {
+    const w = 18 + R() * 26, top = 250 + R() * 50;
+    el("rect", { x: x.toFixed(1), y: top.toFixed(1), width: w.toFixed(1), height: (base - top).toFixed(1), class: "f-city2" }, g);
+    x += w - 2;
+  }
+  // 前排（帶窗燈）
+  x = 1180;
+  const SPECIAL = { 1400: "spire", 1250: "dome" };
+  while (x < 1610) {
+    let w = 20 + R() * 30, top = 236 + R() * 64;
+    const key = Object.keys(SPECIAL).find(k => Math.abs(k - x) < 22 && SPECIAL[k]);
+    if (key === "1400") { // 細長尖塔大樓
+      w = 34; top = 200;
+      el("path", { d: `M${x},${base} L${x},${top} L${x + w / 2},${top - 70} L${x + w},${top} L${x + w},${base} Z`, class: "f-city1" }, g);
+      el("circle", { cx: x + w / 2, cy: top - 72, r: 2.2, fill: "var(--nav-red)" }, lights);
+      SPECIAL[1400] = null;
+    } else if (key === "1250") { // 山丘上的圓柱觀景塔
+      w = 16; top = 228;
+      el("rect", { x, y: top, width: w, height: base - top, class: "f-city1" }, g);
+      el("path", { d: `M${x - 3},${top} L${x + w + 3},${top} L${x + w},${top - 8} L${x},${top - 8} Z`, class: "f-city1" }, g);
+      SPECIAL[1250] = null;
+    } else {
+      el("rect", { x: x.toFixed(1), y: top.toFixed(1), width: w.toFixed(1), height: (base - top).toFixed(1), class: "f-city1" }, g);
+    }
+    for (let yy = top + 8; yy < base - 6; yy += 9)
+      for (let xx = x + 4; xx < x + w - 4; xx += 7)
+        if (R() < .3) el("rect", { x: xx.toFixed(1), y: yy.toFixed(1), width: 3, height: 4, fill: "var(--win-on)", opacity: .8 }, lights);
+    x += w + 3;
+  }
+  // 城市在海面的倒影（細長光條，CSS 閃爍）
+  for (let i = 0; i < 46; i++) {
+    const rx = 1180 + R() * 420;
+    el("rect", { x: rx.toFixed(1), y: (326 + R() * 40).toFixed(1), width: (6 + R() * 16).toFixed(1), height: 1.6, fill: "var(--win-on)", class: "shimmer" }, refl);
+  }
+})();
+
+/* =========================================================
+   【場景】樹叢、監獄窗、營房窗、欄杆柱
+   ========================================================= */
+(function buildIslandDetails() {
+  const g = $("trees");
+  const clumps = [[506,342,1],[540,330,.9],[600,296,.8],[848,342,1.1],[900,330,.8],[1006,312,1],[1112,360,1.1],[1124,396,.9],[460,420,.8],[1060,322,.7],[790,358,.8]];
+  for (const [x, y, s] of clumps) {
+    const c = el("g", { filter: "url(#cutSoft)" }, g);
+    el("ellipse", { cx: x, cy: y, rx: 20 * s, ry: 12 * s, class: "f-tree-dk" }, c);
+    el("ellipse", { cx: x - 9 * s, cy: y - 6 * s, rx: 12 * s, ry: 9 * s, class: "f-tree-lt" }, c);
+    el("ellipse", { cx: x + 8 * s, cy: y - 8 * s, rx: 10 * s, ry: 8 * s, class: "f-tree-lt" }, c);
+  }
+  // 監獄主樓窗戶：三排細長窗，可點擊開燈
+  const wg = $("cellWins");
+  for (let i = 0; i < 17; i++) {
+    const x = 656 + i * 15.8;
+    const w = el("g", { class: "cwin" }, wg);
+    el("rect", { x: x.toFixed(1), y: 202, width: 8, height: 38, rx: 3, class: "f-cell-win" }, w);
+    const lit = el("rect", { x: x.toFixed(1), y: 202, width: 8, height: 38, rx: 3, class: "lit" }, w);
+    if (R() < .45) lit.classList.add("on");
+    // 窗格鐵條
+    el("path", { d: `M${(x + 4).toFixed(1)},202 L${(x + 4).toFixed(1)},240 M${x.toFixed(1)},214 L${(x + 8).toFixed(1)},214 M${x.toFixed(1)},227 L${(x + 8).toFixed(1)},227`, class: "s-cell-roof", "stroke-width": 1, "pointer-events": "none" }, w);
+  }
+  // 營房窗戶
+  const bg = $("barrackWins");
+  for (let r = 0; r < 2; r++) for (let i = 0; i < 9; i++) {
+    const x = 478 + i * 16, y = 360 + r * 18;
+    el("rect", { x, y, width: 9, height: 12, class: "f-cell-win" }, bg);
+    if (R() < .5) el("rect", { x, y, width: 9, height: 12, class: "lit on" }, bg);
+  }
+  // 前景欄杆柱
+  const pg = $("posts");
+  for (let x = -20; x < 520; x += 56) el("rect", { x, y: 504, width: 7, height: 46, rx: 2 }, pg);
+})();
+
+/* =========================================================
+   【場景】渡輪窗戶與乘客
+   ========================================================= */
+(function buildFerry() {
+  const w1 = $("ferryWin1"), w2 = $("ferryWin2"), pax = $("ferryPax");
+  for (let i = 0; i < 12; i++) {
+    el("rect", { x: 20 + i * 12, y: -42, width: 8, height: 10, class: "f-cell-win" }, w1);
+    el("rect", { x: 20 + i * 12, y: -42, width: 8, height: 10, class: "lit on" }, w1);
+  }
+  for (let i = 0; i < 8; i++) {
+    el("rect", { x: 40 + i * 12, y: -60, width: 8, height: 9, class: "f-cell-win" }, w2);
+    el("rect", { x: 40 + i * 12, y: -60, width: 8, height: 9, class: "lit on" }, w2);
+  }
+  const coats = ["f-coat1","f-coat2","f-coat3","f-coat4"];
+  [46, 60, 82, 98, 110].forEach((x, i) => {
+    el("rect", { x: x - 3, y: -78, width: 6, height: 8, rx: 2, class: coats[i % 4] }, pax);
+    el("circle", { cx: x, cy: -81, r: 2.6, class: "f-skin" }, pax);
+  });
+})();
+
+/* =========================================================
+   【角色】人物畫法（遊客、步道上的小人、單車騎士）
+   ========================================================= */
+const COATS = ["coat1","coat2","coat3","coat4"];
+function drawPerson(g, s, coat, opts = {}) {
+  // 以腳底為原點，s 為縮放；opts.point：舉手指向、opts.kid：小孩
+  g.innerHTML = "";
+  const h = opts.kid ? .68 : 1;
+  const legs = el("g", { class: "legs" }, g);
+  el("rect", { x: -3.2 * s, y: -16 * s * h, width: 2.8 * s, height: 16 * s * h, rx: 1 * s, class: "f-pants" }, legs);
+  el("rect", { x: .4 * s, y: -16 * s * h, width: 2.8 * s, height: 16 * s * h, rx: 1 * s, class: "f-pants" }, legs);
+  el("path", { d: `M${-5 * s},${-15 * s * h} L${5 * s},${-15 * s * h} L${4 * s},${-34 * s * h} L${-4 * s},${-34 * s * h} Z`, class: `f-${coat}` }, g);
+  if (opts.point) el("path", { d: `M${3 * s},${-31 * s * h} L${13 * s},${-40 * s * h}`, class: `s-${coat}`, "stroke-width": 2.6 * s, "stroke-linecap": "round" }, g);
+  el("circle", { cx: 0, cy: -39 * s * h, r: 4.6 * s * (opts.kid ? 1.1 : 1), class: "f-skin" }, g);
+  el("path", { d: `M${-4.8 * s},${-39 * s * h} A${4.8 * s},${4.8 * s} 0 0 1 ${4.8 * s},${-40 * s * h} Z`, class: opts.cap ? `f-${opts.cap}` : "f-hair" }, g);
+  if (opts.bag) el("rect", { x: -7.5 * s, y: -31 * s * h, width: 4 * s, height: 9 * s, rx: 1.4 * s, class: "f-ink" }, g);
+}
+
+/* 前景棧道上的遊客：有人在看望遠鏡、親子指向島、走路的人 */
+const tourists = [];
+(function buildTourists() {
+  const g = $("tourists");
+  const defs = [
+    { x: 316, y: 548, coat: "coat3", still: true, lean: true, s: 1.5 },        // 看望遠鏡
+    { x: 150, y: 548, coat: "coat2", still: true, point: true, s: 1.5 },       // 大人指著島
+    { x: 172, y: 548, coat: "coat1", still: true, kid: true, s: 1.5, cap: "coat3" }, // 小孩
+    { x: -40, y: 556, coat: "coat4", dir: 1, sp: 34, s: 1.55, bag: true },     // 散步
+    { x: 430, y: 560, coat: "coat1", dir: -1, sp: 28, s: 1.6, cap: "coat2" },  // 散步
+  ];
+  for (const d of defs) {
+    const p = el("g", { class: "tourist", filter: "url(#cutSoft)" }, g);
+    drawPerson(p, d.s, d.coat, d);
+    tourists.push(Object.assign({ g: p, ph: R() * 6, hop: 0 }, d));
+  }
+})();
+
+/* 單車騎士：從左騎到右，輪子轉動 */
+const bike = { x: -140, y: 566, sp: 110, spin: 0, wait: 6, dir: 1 };
+(function buildBike() {
+  const g = $("cyclist");
+  g.setAttribute("filter", "url(#cutSoft)");
+  bike.w1 = el("g", {}, g); bike.w2 = el("g", {}, g);
+  for (const [w, cx] of [[bike.w1, -22], [bike.w2, 22]]) {
+    w.dataset.cx = cx;
+    el("circle", { cx: 0, cy: 0, r: 13, fill: "none", class: "s-ink", "stroke-width": 2.5 }, w);
+    el("path", { d: "M-13,0 L13,0 M0,-13 L0,13", class: "s-ink", "stroke-width": 1 }, w);
+  }
+  el("path", { d: "M-22,-13 L-4,-13 L6,-30 M-22,-13 L-10,-32 L8,-32 M22,-13 L8,-32 L10,-38 L16,-38 M-10,-32 L-14,-36", class: "s-coat1", fill: "none", "stroke-width": 3, "stroke-linecap": "round", "stroke-linejoin": "round", transform: "translate(0,13)" }, g);
+  // 騎士
+  el("path", { d: "M-6,-19 L4,-37 L12,-37", class: "s-pants", fill: "none", "stroke-width": 4, "stroke-linecap": "round" }, g);
+  el("path", { d: "M-8,-22 L4,-46 L12,-42 L-1,-20 Z", class: "f-coat2" }, g);
+  el("path", { d: "M6,-44 L14,-30", class: "s-coat2", "stroke-width": 3.5, "stroke-linecap": "round" }, g);
+  el("circle", { cx: 8, cy: -52, r: 5.5, class: "f-skin" }, g);
+  el("path", { d: "M2,-53 A6.5,6.5 0 0 1 15,-54 Z", class: "f-coat3" }, g);
+})();
+function drawBike() {
+  $("cyclist").setAttribute("transform", `translate(${bike.x.toFixed(1)},${bike.y}) scale(${bike.dir},1)`);
+  for (const w of [bike.w1, bike.w2]) w.setAttribute("transform", `translate(${w.dataset.cx},0) rotate(${(bike.spin % 360).toFixed(1)})`);
+}
+
+/* 島上步道的小遊客：沿著 #trail 來回走 */
+const trail = $("trail"), trailLen = trail.getTotalLength();
+const visitors = [];
+(function buildVisitors() {
+  const g = $("visitors");
+  for (let i = 0; i < 8; i++) {
+    const v = el("g", {}, g);
+    const coat = COATS[i % 4];
+    el("rect", { x: -1.6, y: -7, width: 3.2, height: 5, rx: 1, class: `f-${coat}` }, v);
+    el("rect", { x: -1.2, y: -2, width: 2.4, height: 2.4, class: "f-pants" }, v);
+    el("circle", { cx: 0, cy: -8.6, r: 1.7, class: "f-skin" }, v);
+    visitors.push({ g: v, u: R(), dir: R() < .5 ? 1 : -1, sp: 6 + R() * 6 });
+  }
+})();
+function drawVisitor(v, t) {
+  const p = trail.getPointAtLength(v.u * trailLen);
+  const bob = Math.abs(Math.sin(t * 6 + v.sp)) * .8;
+  v.g.setAttribute("transform", `translate(${p.x.toFixed(1)},${(p.y - bob).toFixed(1)})`);
+}
+
+/* =========================================================
+   【角色】海獅
+   ========================================================= */
+const sealions = [];
+const SL_BODY = {
+  // 抬頭坐姿（臉朝左）
+  sit: "M30,2 C32,-8 22,-12 10,-12 C2,-12 -4,-18 -8,-28 C-10,-35 -18,-37 -21,-31 C-23,-25 -18,-16 -14,-8 C-20,-4 -22,1 -16,2 Z",
+  // 趴著曬太陽
+  lie: "M34,2 C36,-6 22,-10 6,-10 C-8,-10 -18,-14 -28,-11 C-36,-8 -36,0 -30,2 Z",
+};
+(function buildSealions() {
+  const g = $("sealions");
+  const defs = [[1190,"lie",1.3,1],[1250,"sit",1.35,-1],[1316,"lie",1.4,-1],[1372,"sit",1.45,1],[1430,"lie",1.2,1],[1462,"sit",1.1,-1]];
+  for (const [x, pose, s, flip] of defs) {
+    const o = el("g", { class: "sealion", filter: "url(#cutSoft)" }, g);
+    const inner = el("g", {}, o);
+    el("path", { d: SL_BODY[pose], class: "f-sealion" }, inner);
+    // 前鰭
+    el("path", { d: pose === "sit" ? "M-8,-6 L-2,2 L-14,2 Z" : "M-10,-6 L-4,2 L-16,2 Z", class: "f-sealion-dk" }, inner);
+    // 尾鰭
+    el("path", { d: "M30,0 L40,-5 L38,3 Z", class: "f-sealion-dk" }, inner);
+    // 眼睛、鼻子
+    const hx = pose === "sit" ? -16 : -30, hy = pose === "sit" ? -30 : -7;
+    el("circle", { cx: hx, cy: hy, r: 1.4, class: "f-ink" }, inner);
+    el("circle", { cx: hx - 4, cy: hy + 2, r: 1, class: "f-ink" }, inner);
+    sealions.push({ g: o, inner, x, y: 527, s, flip, pose, ph: R() * 6, bark: 0, dive: -1, hx, hy });
+  }
+})();
+function drawSealion(S, t, bob) {
+  let x = S.x, y = S.y + bob, rot = 0, op = 1;
+  if (S.dive >= 0) {
+    // 跳水弧線：0~1 躍入，1~3 潛水（隱藏），3~4 爬回浮台
+    const k = S.dive;
+    if (k < 1) { x += -S.flip * 70 * k; y += -40 * Math.sin(k * Math.PI) + k * 34; rot = -S.flip * 120 * k; }
+    else if (k < 3) op = 0;
+    else { const r = k - 3; y += 26 * (1 - r); op = r; }
+  }
+  const head = S.pose === "sit" ? Math.sin(t * 1.3 + S.ph) * 4 + (S.bark > 0 ? Math.sin(t * 30) * 6 : 0) : 0;
+  S.g.setAttribute("transform", `translate(${x.toFixed(1)},${y.toFixed(1)}) rotate(${rot.toFixed(1)}) scale(${(S.s * S.flip).toFixed(2)},${S.s})`);
+  S.inner.setAttribute("transform", `rotate(${head.toFixed(1)} 10 0)`);
+  S.g.style.opacity = op;
+}
+
+/* =========================================================
+   【角色】海鷗（飛行）與站在木樁上的海鷗
+   ========================================================= */
+const gulls = [];
+function addGull(x, y, scared) {
+  const g = el("g", { filter: "url(#cutSoft)" }, $("gulls"));
+  const w = el("path", { class: "f-gull" }, g);
+  const G = { g, w, x, y, cx: x, cy: y, r: rand(40, 120), a: rand(0, 6.28), sp: rand(.4, .9) * (Math.random() < .5 ? 1 : -1), drift: rand(14, 30), s: rand(.7, 1.2), flap: rand(0, 6), life: scared ? 14 : Infinity, vx: scared ? rand(-60, 60) : 0 };
+  gulls.push(G);
+  return G;
+}
+function drawGull(G, t) {
+  const f = Math.sin(t * 9 + G.flap);
+  const wy = -10 * f;
+  const d = `M-16,${wy.toFixed(1)} Q-8,${(-4 - f * 4).toFixed(1)} 0,0 Q8,${(-4 - f * 4).toFixed(1)} 16,${wy.toFixed(1)} Q8,${(2 - f * 2).toFixed(1)} 0,3 Q-8,${(2 - f * 2).toFixed(1)} -16,${wy.toFixed(1)} Z`;
+  G.w.setAttribute("d", d);
+  G.g.setAttribute("transform", `translate(${G.x.toFixed(1)},${G.y.toFixed(1)}) scale(${G.s.toFixed(2)})`);
+}
+[[300,110],[820,70],[1120,140],[620,170],[1380,100]].forEach(([x, y]) => addGull(x, y));
+(function buildPerched() {
+  const g = $("perched");
+  for (const [x, y] of [[540, 520], [567, 536]]) {
+    const p = el("g", { transform: `translate(${x},${y})`, filter: "url(#cutSoft)" }, g);
+    el("path", { d: "M-9,-2 C-9,-10 0,-13 6,-11 L11,-12 L7,-9 C9,-4 4,0 -2,0 Z", class: "f-gull" }, p);
+    el("path", { d: "M-10,-6 L-2,-9 L2,-4 Z", class: "f-cell-roof" }, p);
+    el("circle", { cx: 5, cy: -11, r: .9, class: "f-ink" }, p);
+    el("path", { d: "M-1,0 L-1,3 M2,0 L2,3", class: "s-coat3", "stroke-width": 1.2 }, p);
+  }
+})();
+
+/* =========================================================
+   【動畫】海浪：四層剪紙海面，每層一條起伏的邊，水平捲動
+   ========================================================= */
+const WAVES = [
+  { id: "waveMid",   top: 436, amp: 4,   per: 120, sp: 10 },
+  { id: "waveNear",  top: 500, amp: 6,   per: 170, sp: 18 },
+  { id: "waveFront", top: 572, amp: 8,   per: 230, sp: 28 },
+];
+for (const W of WAVES) {
+  // 路徑比畫面寬一個週期，捲動時位移 0~per 再歸零，看起來無限延伸
+  let d = `M${-W.per},600 L${-W.per},${W.top} `;
+  for (let x = -W.per; x <= 1600 + W.per; x += W.per / 2) {
+    const up = (Math.round((x + W.per) / (W.per / 2)) % 2 === 0);
+    d += `Q${x + W.per / 4},${W.top + (up ? -W.amp : W.amp)} ${x + W.per / 2},${W.top} `;
+  }
+  d += `L${1600 + W.per * 1.5},600 Z`;
+  W.el = $(W.id); W.el.setAttribute("d", d); W.off = R() * W.per;
+}
+
+/* =========================================================
+   【動畫】海霧：一團團剪紙霧塊，從左往右飄
+   霧量 0 = 晴朗、1 = 薄霧、2 = 濃霧
+   ========================================================= */
+function fogShape(w, h, bumps) {
+  // 上緣一串圓弧，下緣微彎，像剪下來的棉花紙
+  // 每一團寬度、高度都不同，中間高、兩端低，比較像自然的霧堤
+  const ws = Array.from({ length: bumps }, () => .5 + R());
+  const sum = ws.reduce((a, b) => a + b, 0);
+  let d = `M0,${h} `, x = 0;
+  ws.forEach((k, i) => {
+    const step = w * k / sum, mid = 1 - Math.abs((i + .5) / bumps - .5) * 1.2;
+    const hh = h * (.35 + mid * .5 + R() * .3);
+    const yEnd = i === bumps - 1 ? h : h * (.6 + R() * .25);
+    d += `C${(x - step * .1).toFixed(1)},${(h - hh * 1.25).toFixed(1)} ${(x + step * 1.1).toFixed(1)},${(h - hh * 1.25).toFixed(1)} ${(x + step).toFixed(1)},${yEnd.toFixed(1)} `;
+    x += step;
+  });
+  return d + `Q${w / 2},${h + 6} 0,${h} Z`;
+}
+const fogs = [];
+function buildFogLayer(gid, defs, cls) {
+  const g = $(gid);
+  for (const [x, y, w, h, sp, lvl] of defs) {
+    const blob = el("g", { filter: "url(#cut)" }, g);
+    el("path", { d: fogShape(w, h, Math.round(w / 60)), class: cls }, blob);
+    fogs.push({ g: blob, x, y, w, sp, lvl, op: 0 });
+  }
+}
+// [x, y, 寬, 高, 速度, 出現所需霧量]
+buildFogLayer("fogHigh", [[100, 60, 360, 34, 6, 1], [900, 30, 420, 30, 5, 2], [1400, 90, 300, 28, 7, 1]], "f-fog-dk");
+buildFogLayer("fogBack", [[-200, 268, 700, 60, 9, 1], [520, 280, 640, 50, 8, 2], [1150, 276, 600, 54, 10, 1]], "f-fog-dk");
+buildFogLayer("fogLow", [[-400, 408, 620, 46, 14, 2], [300, 414, 520, 40, 12, 1], [1000, 404, 680, 48, 15, 2]], "f-fog");
+let fogLevel = 1;
+const FOG_NAMES = ["晴朗", "薄霧", "濃霧"];
+function setFog(n) {
+  fogLevel = n;
+  $("btnFog").textContent = "海霧：" + FOG_NAMES[n];
+}
+
+/* =========================================================
+   【角色】帆船與貨輪
+   ========================================================= */
+const sails = [];
+(function buildSails() {
+  const g = $("sails");
+  const defs = [[200, 362, 16, .8, "coat1"], [1000, 378, -12, 1, "coat2"], [1500, 352, 9, .65, "coat3"]];
+  for (const [x, y, sp, s, stripe] of defs) {
+    const b = el("g", { filter: "url(#cutSoft)" }, g);
+    el("path", { d: "M-22,0 L22,0 L16,8 L-16,8 Z", class: "f-hull" }, b);
+    el("rect", { x: -1, y: -46, width: 2, height: 46, class: "f-ink" }, b);
+    el("path", { d: "M2,-44 L2,-4 L28,-4 Z", class: "f-sail" }, b);
+    el("path", { d: "M-2,-38 L-2,-4 L-20,-4 Z", class: "f-sail" }, b);
+    el("path", { d: "M2,-12 L20,-12 L28,-4 L2,-4 Z", class: `f-${stripe}` }, b);
+    el("circle", { cx: 0, cy: -47, r: 1.8, fill: "#fff", class: "nightOnly" }, b);
+    sails.push({ g: b, x, y, sp, s, ph: R() * 6 });
+  }
+})();
+let cargoX = 700;
+
+/* =========================================================
+   【角色】渡輪狀態機
+   approach（駛向棧橋）→ dock（停靠）→ leave（駛離）→ wait（畫面外）
+   ========================================================= */
+const DOCK_X = 300;            // 停靠時船身左緣位置
+const ferry = { x: -60, state: "approach", v: 60, timer: 0, honk: 0, y: 470 };
+const wakeDots = [];
+for (let i = 0; i < 16; i++) wakeDots.push({ e: el("ellipse", { rx: 0, ry: 0, class: "f-foam", opacity: 0 }, $("wake")), life: 0, x: 0, y: 0 });
+const smokePuffs = [];
+for (let i = 0; i < 10; i++) smokePuffs.push({ e: el("circle", { r: 0, class: "smoke" }, $("ferrySmoke")), life: 0, x: 0, y: 0 });
+let wakeTimer = 0;
+function puffSmoke(n) {
+  for (let i = 0; i < n; i++) {
+    const p = smokePuffs.find(s => s.life <= 0); if (!p) return;
+    p.life = 1; p.x = 62 + rand(-3, 3); p.y = -86 - i * 6; p.dx = rand(-14, -6);
+  }
+}
+function updateFerry(dt) {
+  const F = ferry;
+  if (F.state === "approach") {
+    const dist = DOCK_X - F.x;
+    F.v = Math.max(8, Math.min(70, dist * .5));
+    F.x += F.v * dt;
+    if (dist < 1) { F.state = "dock"; F.timer = 7; F.v = 0; }
+  } else if (F.state === "dock") {
+    F.timer -= dt;
+    if (F.timer <= 0) { F.state = "leave"; puffSmoke(3); }
+  } else if (F.state === "leave") {
+    F.v = Math.min(80, F.v + 18 * dt);
+    F.x += F.v * dt;
+    if (F.x > 1700) { F.state = "wait"; F.timer = 4; }
+  } else if (F.state === "wait") {
+    F.timer -= dt;
+    if (F.timer <= 0) { F.state = "approach"; F.x = -240; }
+  }
+  // 航跡浪花
+  wakeTimer -= dt;
+  if (F.v > 10 && wakeTimer <= 0) {
+    wakeTimer = .18;
+    const w = wakeDots.find(d => d.life <= 0);
+    if (w) { w.life = 1; w.x = F.x - 4; w.y = F.y + rand(-2, 3); }
+  }
+}
+function drawFerry(t) {
+  const F = ferry;
+  const bob = Math.sin(t * 1.6) * 1.5, tilt = Math.sin(t * 1.1) * .6;
+  $("ferry").setAttribute("transform", `translate(${F.x.toFixed(1)},${(F.y + bob).toFixed(1)}) rotate(${tilt.toFixed(2)})`);
+}
+
+/* =========================================================
+   【動畫】漣漪、霧笛聲波、對話泡泡
+   ========================================================= */
+const ripplePool = [];
+for (let i = 0; i < 14; i++) ripplePool.push({ e: el("ellipse", { class: "ring", opacity: 0, rx: 0, ry: 0 }, $("ripples")), life: 0 });
+function ripple(x, y, big) {
+  const r = ripplePool.find(r => r.life <= 0) || ripplePool[0];
+  Object.assign(r, { x, y, big, life: 1 });
+}
+const horns = [];
+function hornRings(x, y) {
+  for (let i = 0; i < 3; i++) {
+    const c = el("circle", { cx: x, cy: y, r: 10, class: "ring", opacity: 0 }, $("bubbles"));
+    horns.push({ e: c, life: 1 + i * .35, x, y });
+  }
+}
+function bubble(x, y, text) {
+  // 外層 g 只負責定位（transform 屬性）；內層 g 負責淡入淡出的 CSS 動畫，
+  // 兩者分開，CSS 動畫的 transform 才不會蓋掉定位，泡泡不會跑出畫面。
+  const w = text.length * 22 + 26;
+  x = Math.max(w / 2 + 8, Math.min(1600 - w / 2 - 8, x));   // 左右夾在畫面內
+  y = Math.max(56, Math.min(590, y));                         // 上下夾在畫面內
+  const g = el("g", { class: "bubble", transform: `translate(${x.toFixed(1)},${y.toFixed(1)})` }, $("bubbles"));
+  const inner = el("g", {}, g);
+  el("rect", { x: -w / 2, y: -46, width: w, height: 36, rx: 18, class: "f-hull", filter: "url(#cutSoft)" }, inner);
+  el("path", { d: "M-6,-11 L0,0 L8,-11 Z", class: "f-hull" }, inner);
+  const tx = el("text", { x: 0, y: -21, "text-anchor": "middle" }, inner); tx.textContent = text;
+  const dur = reduced ? 1600 : 1900;
+  const dy = reduced ? 0 : 1;   // 減少動態時只淡入淡出、不上下飄
+  inner.animate([{ opacity: 0, transform: `translateY(${8 * dy}px)` }, { opacity: 1, transform: "translateY(0px)", offset: .15 }, { opacity: 1, transform: "translateY(0px)", offset: .8 }, { opacity: 0, transform: `translateY(${-10 * dy}px)` }], { duration: dur, fill: "forwards" });
+  setTimeout(() => g.remove(), dur);
+}
+
+
+/* =========================================================
+   【音效】Web Audio 即時合成（原創音色，不載入外部音檔）
+   霧笛、渡輪汽笛、海獅叫、警報、點名鐘、水花、海鷗、單車鈴
+   想改音色就改 SFX 裡對應的函式；「聲音」按鈕可整個關掉。
+   ========================================================= */
+let actx = null, master = null, soundOn = true, noiseBuf = null;
+function ensureAudio() {
+  if (!actx) {
+    const AC = window.__SceneAudioContext || window.AudioContext || window.webkitAudioContext;
+    if (!AC) return null;
+    actx = new AC();
+    master = actx.createGain(); master.gain.value = soundOn ? .4 : 0;
+    const comp = actx.createDynamicsCompressor(); comp.threshold.value = -16; comp.ratio.value = 3;
+    master.connect(comp); comp.connect(actx.destination);
+  }
+  if (actx.state === "suspended") actx.resume();
+  return actx;
+}
+function envG(t, a, d, v, dest) {
+  const g = actx.createGain(); g.gain.setValueAtTime(.0001, t); g.gain.linearRampToValueAtTime(v, t + a);
+  g.gain.exponentialRampToValueAtTime(.0001, t + a + d); g.connect(dest || master); return g;
+}
+function osc(type, f, t, dur, dest) { const o = actx.createOscillator(); o.type = type; o.frequency.setValueAtTime(f, t); o.connect(dest); o.start(t); o.stop(t + dur + .05); return o; }
+function lowpass(freq, dest) { const f = actx.createBiquadFilter(); f.type = "lowpass"; f.frequency.value = freq; f.connect(dest); return f; }
+function nz(t, dur, freq, vol, type = "bandpass", q = 1) {
+  if (!noiseBuf) { noiseBuf = actx.createBuffer(1, actx.sampleRate * 2, actx.sampleRate); const d = noiseBuf.getChannelData(0); for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1; }
+  const s = actx.createBufferSource(); s.buffer = noiseBuf; s.loop = true;
+  const f = actx.createBiquadFilter(); f.type = type; f.frequency.value = freq; f.Q.value = q;
+  s.connect(f); f.connect(envG(t, .01, dur, vol)); s.start(t); s.stop(t + dur + .1);
+}
+const SFX = {
+  // 霧笛：兩聲低沉的長鳴
+  foghorn(t) { [[98, 0], [87, 1.5]].forEach(([f, d]) => { const out = lowpass(520, envG(t + d, .25, 1.3, .55)); osc("sawtooth", f, t + d, 1.6, out); osc("sawtooth", f * 1.006, t + d, 1.6, out); }); },
+  // 渡輪汽笛：和弦長音
+  ferry(t) { const out = lowpass(900, envG(t, .05, 1.1, .35)); osc("square", 196, t, 1.2, out); osc("square", 247, t, 1.2, out); },
+  // 海獅：三聲短促下滑的「嗷」
+  bark(t) { for (let i = 0; i < 3; i++) { const tt = t + i * .16; const o = osc("sawtooth", 340, tt, .13, lowpass(1200, envG(tt, .01, .12, .35))); o.frequency.exponentialRampToValueAtTime(170, tt + .12); nz(tt, .08, 700, .1); } },
+  // 越獄警報：上下起伏的警笛
+  siren(t) { const o = osc("triangle", 620, t, 3.4, envG(t, .1, 3.3, .22)); for (let i = 0; i < 4; i++) { o.frequency.linearRampToValueAtTime(940, t + i * .8 + .4); o.frequency.linearRampToValueAtTime(620, t + i * .8 + .8); } },
+  // 點名鐘：三響
+  bell(t) { for (let i = 0; i < 3; i++) { const tt = t + i * .55; [[1, .32, 1.6], [2.4, .14, .9], [3, .09, .6], [4.2, .05, .4]].forEach(([m, v, d]) => osc("sine", 520 * m, tt, d, envG(tt, .004, d, v))); } },
+  splash(t) { nz(t, .5, 900, .4, "lowpass", .7); nz(t + .05, .3, 2500, .12); },
+  drop(t) { const o = osc("sine", 900, t, .12, envG(t, .005, .12, .12)); o.frequency.exponentialRampToValueAtTime(300, t + .12); },
+  gull(t) { for (let i = 0; i < 2; i++) { const tt = t + i * .22; const o = osc("sine", 1900, tt, .18, envG(tt, .02, .16, .13)); o.frequency.exponentialRampToValueAtTime(1150, tt + .18); } },
+  ring(t) { [0, .14].forEach(d => { osc("sine", 2600, t + d, .5, envG(t + d, .003, .5, .14)); osc("sine", 3500, t + d, .3, envG(t + d, .003, .3, .06)); }); },
+  click(t) { osc("square", 1400, t, .03, envG(t, .002, .03, .06)); },
+};
+function sfx(name) { if (!soundOn || !ensureAudio()) return; SFX[name](actx.currentTime + .02); }
+
+/* =========================================================
+   【互動】霧笛、叫渡輪
+   ========================================================= */
+function foghorn() {
+  beamBoost = 1; hornRings(942 - parX * .4 * 14, 120);
+  bubble(942, 92, "嗚——"); sfx("foghorn");
+  // 海鷗被嚇飛兩隻
+  if (!reduced) { addGull(900, 150, true); addGull(990, 170, true); }
+}
+function callFerry() {
+  sfx("ferry"); puffSmoke(4);
+  if (ferry.state === "dock") { ferry.timer = Math.min(ferry.timer, .5); bubble(ferry.x + 90, ferry.y - 96, "開船囉！"); }
+  else if (ferry.state === "wait") { ferry.state = "approach"; ferry.x = -240; bubble(140, 420, "下一班來了！"); }
+  else if (ferry.state === "leave") bubble(ferry.x + 90, ferry.y - 96, "等下一班！");
+  else bubble(ferry.x + 90, ferry.y - 96, "叭——");
+}
+
+/* =========================================================
+   【互動】探照燈：從瞭望塔打出光束，光斑跟著滑鼠走；
+   沒有滑鼠時自己掃海面；越獄時會追著逃犯跑
+   ========================================================= */
+let searchOn = false, searchOp = 0, lastPt = null;
+const spot = { x: 820, y: 500 };
+function setSearch(on) {
+  searchOn = on;
+  $("btnSearch").setAttribute("aria-pressed", String(on));
+  $("btnSearch").textContent = "🔦 探照燈：" + (on ? "開" : "關");
+}
+
+/* =========================================================
+   【互動】牢房點名：鐘聲三響，牢房燈光一路亮過去再熄掉，最後恢復原狀
+   ========================================================= */
+let rollBusy = false;
+function rollcall() {
+  if (rollBusy) return; rollBusy = true;
+  sfx("bell"); bubble(785, 150, "點名！");
+  const lits = [...document.querySelectorAll("#cellWins .lit")];
+  const saved = lits.map(l => l.classList.contains("on"));
+  const step = reduced ? 0 : 70;
+  lits.forEach((l, i) => setTimeout(() => l.classList.add("on", "flash"), i * step));
+  lits.forEach((l, i) => setTimeout(() => l.classList.remove("on", "flash"), 1500 + i * step));
+  lits.forEach((l, i) => setTimeout(() => l.classList.add("on", "flash"), 2700 + i * step));
+  setTimeout(() => {
+    lits.forEach((l, i) => { l.classList.remove("flash"); l.classList.toggle("on", saved[i]); });
+    rollBusy = false;
+  }, 4300 + lits.length * step);
+  tourists.forEach(T => T.hop = 1);   // 棧道上的遊客也嚇一跳
+}
+
+/* =========================================================
+   【互動】海獅合唱：輪流叫，最後一隻跳水謝幕
+   ========================================================= */
+let chorusBusy = false;
+function chorus() {
+  if (chorusBusy) return; chorusBusy = true;
+  const words = ["嗷！", "歐～", "嗷嗷！", "汪？", "嗷～", "歐歐！"];
+  sealions.forEach((S, i) => setTimeout(() => {
+    S.bark = .8; sfx("bark");
+    bubble(S.x, S.y - 38 - (i % 2) * 34, words[i % words.length]);
+  }, i * 330));
+  setTimeout(() => {
+    const S = sealions.filter(s => s.dive < 0).pop();
+    if (S && !reduced) { S.dive = 0; setTimeout(() => sfx("splash"), 700); }
+    else if (S) bubble(S.x, S.y - 40, "（鞠躬）");
+    chorusBusy = false;
+  }, sealions.length * 330 + 300);
+}
+
+/* =========================================================
+   【角色】鵜鶘：從左邊飛進來 → 收翅俯衝入海 → 叼著魚飛走
+   ========================================================= */
+const pelicans = [];
+function launchPelicans() {
+  if (pelicans.length) return;
+  bubble(240, 170, "島名原意是鵜鶘！");
+  for (let i = 0; i < 3; i++) {
+    const g = el("g", { filter: "url(#cutSoft)" }, $("pelicans"));
+    const body = el("g", {}, g);
+    el("path", { d: "M-18,0 L-27,-5 L-25,4 Z", class: "f-pelican" }, body);              // 尾
+    el("ellipse", { cx: 0, cy: 0, rx: 18, ry: 7.5, class: "f-pelican" }, body);           // 身體
+    el("path", { d: "M12,-3 C16,-12 20,-14 23,-10 L20,-2 Z", class: "f-pelican" }, body); // 脖子
+    el("circle", { cx: 21, cy: -10, r: 4.5, class: "f-hull" }, body);                    // 頭
+    el("path", { d: "M23,-11 L48,-6 L24,-7 Z", class: "f-beak" }, body);                 // 長喙
+    el("path", { d: "M24,-7 Q34,2 46,-5 Z", class: "f-beak", opacity: .75 }, body);      // 喉囊
+    el("circle", { cx: 22, cy: -11, r: .9, class: "f-ink" }, body);
+    const fish = el("path", { d: "M38,-4 l8,-3 l0,6 z M46,-4 l5,-3 l0,6 z", class: "f-fish", opacity: 0 }, body);
+    const wing = el("path", { class: "f-pelican" }, g);
+    const P = { g, wing, fish, x: -80 - i * 90, y: 110 + i * 34, tx: [270, 1240, 1500][i] + rand(-30, 30), ty: rand(470, 500), state: "fly", k: 0, ph: rand(0, 6), rot: 0 };
+    if (reduced) { P.state = "float"; P.x = 700 + i * 180; P.y = 488 + i * 8; P.k = 0; }
+    pelicans.push(P);
+  }
+}
+function drawPelican(P, t, flap) {
+  const f = flap ? Math.sin(t * 7 + P.ph) : -.25;   // 收翅時翅膀貼著身體
+  P.wing.setAttribute("d", `M-10,-3 L8,-3 L${(-6 + f * 2).toFixed(1)},${(-3 - 26 * f).toFixed(1)} Z`);
+  P.g.setAttribute("transform", `translate(${P.x.toFixed(1)},${P.y.toFixed(1)}) rotate(${P.rot.toFixed(1)})`);
+}
+function updatePelicans(dt, t) {
+  for (let i = pelicans.length - 1; i >= 0; i--) {
+    const P = pelicans[i];
+    if (P.state === "fly") {
+      P.x += 170 * dt; P.y += Math.sin(t * 2 + P.ph) * 10 * dt; P.rot = 0;
+      if (P.x >= P.tx - 130) { P.state = "dive"; P.sx = P.x; P.sy = P.y; P.k = 0; }
+    } else if (P.state === "dive") {
+      P.k = Math.min(1, P.k + dt * 1.5);
+      P.x = P.sx + 130 * P.k; P.y = P.sy + (P.ty - P.sy) * P.k * P.k; P.rot = 75 * P.k;
+      if (P.k >= 1) { P.state = "under"; P.k = 0; P.g.style.opacity = 0; ripple(P.x, P.ty, 1.8); ripple(P.x, P.ty, 1); sfx("splash"); }
+    } else if (P.state === "under") {
+      P.k += dt;
+      if (P.k > .8) { P.state = "up"; P.k = 0; P.g.style.opacity = 1; P.fish.setAttribute("opacity", 1); ripple(P.x, P.ty, 1.2); }
+    } else if (P.state === "up") {
+      P.x += 130 * dt; P.y -= 80 * dt; P.rot = -18;
+      if (P.y < -60 || P.x > 1720) { P.g.remove(); pelicans.splice(i, 1); continue; }
+    } else if (P.state === "float") {   // 減少動態：浮在水面上幾秒就離開
+      P.k += dt; P.rot = 0; P.fish.setAttribute("opacity", 1);
+      if (P.k > 4) { P.g.remove(); pelicans.splice(i, 1); continue; }
+    }
+    drawPelican(P, t, P.state === "fly" || P.state === "up");
+  }
+}
+
+/* =========================================================
+   【互動】越獄行動
+   警報響 → 囚犯從監獄後側沿東坡跑到海邊 → 跳上雨衣橡皮艇
+   → 划向右邊，海霧變濃 → 消失在霧裡（結局成謎）→ 一切恢復
+   ========================================================= */
+const escPath = $("escPath"), escLen = escPath.getTotalLength();
+const esc = { state: "idle", u: 0, x: 0, timer: 0, fogBefore: 1, searchBefore: false, said: false };
+let alarm = 0;
+(function buildEscape() {
+  // 條紋囚衣小人
+  const g = $("escapee");
+  el("rect", { x: -3, y: -12, width: 6, height: 8, rx: 1.5, class: "f-hull" }, g);
+  el("path", { d: "M-3,-10 L3,-10 M-3,-7.5 L3,-7.5 M-3,-5 L3,-5", class: "s-ink", "stroke-width": 1 }, g);
+  esc.legs = el("g", {}, g);
+  el("rect", { x: -2.5, y: -4, width: 2, height: 4, class: "f-pants" }, esc.legs);
+  el("rect", { x: .5, y: -4, width: 2, height: 4, class: "f-pants" }, esc.legs);
+  el("circle", { cx: 0, cy: -14.5, r: 2.6, class: "f-skin" }, g);
+  g.style.opacity = 0;
+  // 雨衣拼成的橡皮艇，上面兩個人划槳
+  const r = $("escRaft");
+  r.setAttribute("filter", "url(#cutSoft)");
+  esc.pads = [];
+  [-12, 10].forEach(x => {
+    const man = el("g", { transform: `translate(${x},-8)` }, r);
+    el("rect", { x: -4, y: -13, width: 8, height: 11, rx: 2, class: "f-hull" }, man);
+    el("path", { d: "M-4,-10 L4,-10 M-4,-7 L4,-7 M-4,-4 L4,-4", class: "s-ink", "stroke-width": 1.2 }, man);
+    el("circle", { cx: 0, cy: -16, r: 3.4, class: "f-skin" }, man);
+    const pad = el("path", { d: "M0,-8 L-14,10 M-17,8 L-11,14", class: "s-deck-dk", "stroke-width": 2.4, "stroke-linecap": "round" }, man);
+    esc.pads.push(pad);
+  });
+  el("path", { d: "M-34,-2 Q-38,-12 -28,-12 L28,-12 Q38,-12 34,-2 Q0,6 -34,-2 Z", class: "f-raft-y" }, r);
+  el("path", { d: "M-20,-11 L-16,-1 M0,-12 L0,0 M18,-11 L14,-1", class: "s-coat3", "stroke-width": 1.2 }, r);
+})();
+function startEscape() {
+  if (esc.state !== "idle") return;
+  esc.state = "run"; esc.u = 0; esc.timer = 0; esc.said = false;
+  esc.fogBefore = fogLevel; esc.searchBefore = searchOn;
+  alarm = 4.5; sfx("siren"); setSearch(true);
+  bubble(785, 150, "有人越獄！");
+  if (reduced) { esc.state = "raft"; esc.x = 1380; setFog(2); }
+}
+function updateEscape(dt, t) {
+  const eg = $("escapee"), rg = $("escRaft");
+  if (esc.state === "run") {
+    esc.u = Math.min(1, esc.u + dt / 6);
+    const p = escPath.getPointAtLength(esc.u * escLen);
+    esc.px = p.x; esc.py = p.y;
+    eg.style.opacity = 1;
+    eg.setAttribute("transform", `translate(${p.x.toFixed(1)},${(p.y - Math.abs(Math.sin(t * 12)) * 1.5).toFixed(1)}) scale(1.3)`);
+    esc.legs.setAttribute("transform", `scale(1,${(.7 + Math.abs(Math.sin(t * 12)) * .3).toFixed(2)})`);
+    if (esc.u >= 1) { esc.state = "raft"; esc.x = 1170; eg.style.opacity = 0; ripple(1170, 470, 1.6); sfx("splash"); }
+  } else if (esc.state === "raft") {
+    if (!reduced) esc.x += 26 * dt; else esc.timer += dt;
+    // 划進濃霧後慢慢淡出（看不清楚，結局成謎）
+    rg.style.opacity = reduced ? .55 : Math.max(0, Math.min(1, (1660 - esc.x) / 260)).toFixed(2);
+    rg.setAttribute("transform", `translate(${esc.x.toFixed(1)},${(472 + Math.sin(t * 2) * 2).toFixed(1)}) rotate(${(Math.sin(t * 1.6) * 3).toFixed(1)})`);
+    esc.pads.forEach((pd, i) => pd.setAttribute("transform", `rotate(${(reduced ? 0 : Math.sin(t * 4 + i * 3) * 22).toFixed(1)} 0 -8)`));
+    if (esc.x > 1330 && fogLevel < 2) setFog(2);
+    if ((esc.x > 1460 || esc.timer > .8) && !esc.said) { esc.said = true; bubble(1360, 430, "他們…成功了嗎？"); }
+    if (esc.x > 1700 || esc.timer > 4) { esc.state = "end"; esc.timer = 0; rg.style.opacity = 0; }
+  } else if (esc.state === "end") {
+    esc.timer += dt;
+    if (esc.timer > 3) { esc.state = "idle"; setFog(esc.fogBefore); setSearch(esc.searchBefore); }
+  }
+}
+
+/* =========================================================
+   每一幀更新新功能（由主迴圈呼叫）
+   ========================================================= */
+function updateExtras(dt, night) {
+  updateEscape(dt, t);
+  updatePelicans(reduced ? dt : dt, t);
+  // 警報燈
+  alarm = Math.max(0, alarm - dt);
+  const blink = alarm > 0 ? (reduced ? 1 : (Math.sin(t * 10) > 0 ? 1 : .2)) : 0;
+  $("alarmGlow").setAttribute("opacity", (blink * .22).toFixed(2));
+  $("alarmLamp").setAttribute("opacity", blink.toFixed(2));
+  // 探照燈
+  searchOp += ((searchOn ? .35 + .65 * night : 0) - searchOp) * Math.min(1, dt * (reduced ? 20 : 4));
+  $("search").style.opacity = searchOp.toFixed(3);
+  $("towerLamp").setAttribute("opacity", (.3 + searchOp * .7).toFixed(2));
+  if (searchOp > .01) {
+    const ox = 590 - parX * .4 * 14, oy = 246;
+    let tx, ty;
+    if (esc.state === "run") { tx = esc.px - parX * .4 * 14; ty = esc.py - 6; }
+    else if (esc.state === "raft") { tx = esc.x - parX * .6 * 14; ty = 466; }
+    else if (pointerIn && lastPt) { tx = lastPt.x; ty = Math.max(300, lastPt.y); }
+    else { tx = 820 + Math.sin(t * .35) * 640; ty = 500 + Math.sin(t * .8) * 40; }
+    const k = Math.min(1, dt * (reduced ? 20 : 3.5));
+    spot.x += (tx - spot.x) * k; spot.y += (ty - spot.y) * k;
+    const rx = 30 + (spot.y - 250) * .18, ry = rx * .3;
+    $("searchSpot").setAttribute("cx", spot.x.toFixed(1)); $("searchSpot").setAttribute("cy", spot.y.toFixed(1));
+    $("searchSpot").setAttribute("rx", rx.toFixed(1)); $("searchSpot").setAttribute("ry", ry.toFixed(1));
+    $("searchBeam").setAttribute("d", `M${ox.toFixed(1)},${oy - 3} L${ox.toFixed(1)},${oy + 3} L${(spot.x + rx * .9).toFixed(1)},${spot.y.toFixed(1)} L${(spot.x - rx * .9).toFixed(1)},${spot.y.toFixed(1)} Z`);
+  }
+}
+
+/* =========================================================
+   【動畫】日夜循環
+   phase：0 = 正午、0.5 = 深夜；night = 0~1
+   ========================================================= */
+const RM_QUERY = matchMedia("(prefers-reduced-motion: reduce)");
+let reduced = RM_QUERY.matches;
+let phase = 0.25;           // 初始：黃昏，霧剛起、燈剛亮
+let auto = !reduced;
+let tween = null;
+const CYCLE = 60;           // 自動循環一圈秒數
+const nightOf = p => .5 - .5 * Math.cos(p * Math.PI * 2);
+function clockLabel(p) {
+  const n = nightOf(p), rising = (p % 1) < .5;
+  if (n < .25) return "白天・海風";
+  if (n > .75) return "深夜・燈塔";
+  return rising ? "黃昏・霧起" : "清晨・海鷗歸來";
+}
+
+/* =========================================================
+   主迴圈
+   ========================================================= */
+let wind = .3, windTarget = .3, pointerIn = false, parX = 0, parTarget = 0;
+let last = performance.now(), t = 0, mixTimer = 0;
+let beamAng = 0, beamBoost = 0;
+const layers = [...svg.querySelectorAll("[data-depth]")].map(g => ({ g, d: +g.dataset.depth }));
+
+function frame(now) {
+  const dt = Math.min(.05, (now - last) / 1000); last = now; t += dt;
+
+  // --- 日夜 ---
+  if (tween) {
+    tween.t += dt / (reduced ? .001 : 1.6);
+    const k = Math.min(1, tween.t), e = k < .5 ? 2 * k * k : 1 - Math.pow(-2 * k + 2, 2) / 2;
+    phase = tween.from + (tween.to - tween.from) * e;
+    if (k >= 1) tween = null;
+  } else if (auto && !reduced) phase = (phase + dt / CYCLE) % 1;
+  const night = nightOf(phase);
+  mixTimer -= dt;
+  if (mixTimer <= 0 || tween) { applyNight(night); mixTimer = .12; $("clock").textContent = clockLabel(phase); }
+
+  // 太陽西沉、月亮東升
+  const rising = (phase % 1) < .5;
+  const sunY = 70 + night * 300, sunX = rising ? 520 - night * 120 : 300 + night * 100;
+  $("sun").setAttribute("transform", `translate(${sunX.toFixed(1)},${sunY.toFixed(1)})`);
+  $("moon").setAttribute("transform", `translate(1190,${(400 - night * 320).toFixed(1)})`);
+
+  // --- 風與視差：滑鼠控制，沒滑鼠時自己晃 ---
+  if (!pointerIn) { windTarget = .3 + Math.sin(t * .25) * .3; parTarget = 0; }
+  wind += (windTarget - wind) * Math.min(1, dt * 2);
+  parX += (parTarget - parX) * Math.min(1, dt * (reduced ? 20 : 3));
+  for (const L of layers) L.g.setAttribute("transform", `translate(${(-parX * L.d * 14).toFixed(2)},0)`);
+
+  if (!reduced) {
+    // 海浪捲動
+    for (const W of WAVES) {
+      W.off = (W.off + W.sp * dt * (.6 + Math.abs(wind))) % W.per;
+      W.el.setAttribute("transform", `translate(${W.off.toFixed(1)},${(Math.sin(t * .9 + W.top) * 1.5).toFixed(1)})`);
+    }
+    // 霧塊飄移
+    for (const f of fogs) {
+      f.x += (f.sp * (.4 + wind * 1.4)) * dt;
+      if (f.x > 1700) f.x = -f.w - 60; if (f.x < -f.w - 80) f.x = 1680;
+    }
+    // 帆船、貨輪
+    for (const s of sails) {
+      s.x += s.sp * (.6 + wind * .8) * dt;
+      if (s.x > 1660) s.x = -60; if (s.x < -60) s.x = 1660;
+    }
+    cargoX -= 4 * dt; if (cargoX < -140) cargoX = 1640;
+    // 步道遊客
+    for (const v of visitors) {
+      v.u += v.dir * v.sp / trailLen * dt;
+      if (v.u > 1) { v.u = 1; v.dir = -1; } if (v.u < 0) { v.u = 0; v.dir = 1; }
+      drawVisitor(v, t);
+    }
+    // 前景散步遊客
+    for (const T of tourists) {
+      if (T.still) continue;
+      T.x += T.dir * T.sp * dt; T.ph += dt * T.sp / 5;
+      // 棧道只到畫面中段：走到盡頭就轉身，從左邊出去的人過一會兒再走回來
+      if (T.dir > 0 && T.x > 500) T.dir = -1;
+      if (T.dir < 0 && T.x < -60) T.dir = 1;
+    }
+    // 單車
+    if (bike.wait > 0) bike.wait -= dt;
+    else {
+      // 騎到棧道盡頭迴轉，騎回左邊離開，等一陣再出現
+      bike.x += bike.dir * bike.sp * dt; bike.spin += bike.sp * dt * 4.4;
+      if (bike.dir > 0 && bike.x > 470) bike.dir = -1;
+      if (bike.dir < 0 && bike.x < -140) { bike.dir = 1; bike.wait = rand(6, 12); }
+    }
+    // 渡輪
+    updateFerry(dt);
+    // 海鷗盤旋
+    for (let i = gulls.length - 1; i >= 0; i--) {
+      const G = gulls[i];
+      G.a += G.sp * dt; G.cx += (G.drift * (.3 + wind) + G.vx) * dt;
+      if (G.cx > 1720) G.cx = -120; if (G.cx < -140) G.cx = 1700;
+      G.x = G.cx + Math.cos(G.a) * G.r; G.y = G.cy + Math.sin(G.a) * G.r * .35;
+      if (G.life !== Infinity) { G.life -= dt; G.cy -= 8 * dt; if (G.life <= 0) { G.g.remove(); gulls.splice(i, 1); continue; } }
+      drawGull(G, t);
+    }
+    // 旗子
+    const fw = Math.sin(t * 6) * 3, fl = 26 + wind * 8;
+    $("flag").setAttribute("d", `M646,322 Q${(646 + fl / 2).toFixed(1)},${(322 + fw).toFixed(1)} ${(646 + fl).toFixed(1)},${(326 + fw * .6).toFixed(1)} L646,334 Z`);
+    // 煙
+    for (const p of smokePuffs) {
+      if (p.life <= 0) continue;
+      p.life -= dt * .5; p.x += p.dx * dt; p.y -= 18 * dt;
+      p.e.setAttribute("cx", p.x.toFixed(1)); p.e.setAttribute("cy", p.y.toFixed(1));
+      p.e.setAttribute("r", (5 + (1 - p.life) * 12).toFixed(1));
+      p.e.style.opacity = Math.max(0, p.life * .8).toFixed(2);
+    }
+    // 航跡
+    for (const w of wakeDots) {
+      if (w.life <= 0) { w.e.setAttribute("opacity", 0); continue; }
+      w.life -= dt * .45;
+      const k = 1 - w.life;
+      w.e.setAttribute("cx", (w.x - k * 20).toFixed(1)); w.e.setAttribute("cy", w.y.toFixed(1));
+      w.e.setAttribute("rx", (8 + k * 34).toFixed(1)); w.e.setAttribute("ry", (2 + k * 3).toFixed(1));
+      w.e.setAttribute("opacity", Math.max(0, w.life * .7).toFixed(2));
+    }
+    // 跳水的海獅
+    for (const S of sealions) {
+      if (S.dive >= 0) {
+        const prev = S.dive;
+        S.dive += dt * (S.dive < 1 ? 1.4 : 1);
+        if (prev < 1 && S.dive >= 1) { const sx = S.x - S.flip * 70 * S.s; ripple(sx, 556, 1.8); ripple(sx, 556, 1.1); }
+        if (prev < 3 && S.dive >= 3) ripple(S.x, 548, 1);
+        if (S.dive >= 4) S.dive = -1;
+      }
+    }
+  }
+
+  // 霧的透明度：依霧量淡入淡出（減少動態時也照樣切換，只是不飄）
+  for (const f of fogs) {
+    const target = fogLevel >= f.lvl ? (f.lvl === 2 ? .82 : .7) : 0;
+    f.op += (target - f.op) * Math.min(1, dt * (reduced ? 20 : 1.2));
+    f.g.setAttribute("transform", `translate(${f.x.toFixed(1)},${f.y})`);
+    f.g.style.opacity = f.op.toFixed(3);
+  }
+  // 帆船、貨輪定位（含上下晃）
+  for (const s of sails) s.g.setAttribute("transform", `translate(${s.x.toFixed(1)},${(s.y + Math.sin(t * 1.4 + s.ph) * 1.2).toFixed(1)}) scale(${s.sp < 0 ? -s.s : s.s},${s.s})`);
+  $("cargo").setAttribute("transform", `translate(${cargoX.toFixed(1)},322) scale(.8)`);
+  drawFerry(t);
+  drawBike();
+  for (const T of tourists) {
+    const step = T.still ? 0 : Math.abs(Math.sin(T.ph)) * 2;
+    const hop = T.hop > 0 ? Math.sin(T.hop * Math.PI) * 12 : 0;
+    if (T.hop > 0) T.hop = Math.max(0, T.hop - dt * 2.5);
+    const lean = T.lean ? " rotate(12)" : "";
+    T.g.setAttribute("transform", `translate(${T.x.toFixed(1)},${(T.y - step - hop).toFixed(1)})${lean} scale(${T.dir < 0 ? -1 : 1},1)`);
+  }
+  const raftBob = Math.sin(t * 1.3) * 2;
+  $("raft").setAttribute("transform", `translate(0,${raftBob.toFixed(2)})`);
+  for (const S of sealions) { S.bark = Math.max(0, S.bark - dt); drawSealion(S, reduced ? 0 : t, 0); }
+
+  // 燈塔：夜裡光束旋轉；靠鏡頭方向時燈室最亮
+  beamAng += dt * (reduced ? 0 : (1.1 + beamBoost * 3));
+  beamBoost = Math.max(0, beamBoost - dt * .35);
+  const c = Math.cos(beamAng), sn = Math.sin(beamAng);
+  const facing = Math.max(0, sn);                 // >0：光束朝向觀眾這一側
+  const beamOn = Math.max(0, night * 1.4 - .35);
+  $("beam").setAttribute("transform", `scale(${(c).toFixed(3)},${(.6 + facing * .5).toFixed(3)})`);
+  $("beam").style.opacity = (beamOn * (.25 + facing * .75)).toFixed(3);
+  const glow = .25 + .75 * Math.pow(facing, 6);
+  $("beamGlow").style.opacity = (beamOn * glow).toFixed(3);
+  $("lanternLit").style.opacity = (.35 + .65 * Math.max(beamOn * glow, .25 * (1 - night))).toFixed(3);
+  // 路燈偶爾閃一下
+  if (!reduced && Math.random() < dt * .15) lampFlick = rand(.2, .5);
+  lampFlick = Math.max(0, lampFlick - dt);
+  document.querySelectorAll(".lampLight").forEach(e => e.style.opacity = ((.3 + .7 * night) * (lampFlick > 0 && Math.sin(t * 45) > 0 ? .25 : 1)).toFixed(2));
+
+  // 漣漪與霧笛聲波
+  for (const r of ripplePool) {
+    if (r.life <= 0) continue;
+    r.life -= dt * (reduced ? 3 : 1);
+    const k = 1 - r.life;
+    r.e.setAttribute("cx", r.x.toFixed(1)); r.e.setAttribute("cy", r.y.toFixed(1));
+    r.e.setAttribute("rx", (4 + k * 34 * r.big).toFixed(1)); r.e.setAttribute("ry", (1 + k * 6 * r.big).toFixed(1));
+    r.e.setAttribute("opacity", Math.max(0, r.life * .85).toFixed(2));
+  }
+  for (let i = horns.length - 1; i >= 0; i--) {
+    const h = horns[i];
+    h.life -= dt * (reduced ? 2 : .7);
+    if (h.life <= 0) { h.e.remove(); horns.splice(i, 1); continue; }
+    if (h.life > 1) continue;
+    const k = 1 - h.life;
+    h.e.setAttribute("r", (10 + k * 120).toFixed(1));
+    h.e.setAttribute("opacity", (h.life * .8).toFixed(2));
+  }
+
+  updateExtras(dt, night);
+  requestAnimationFrame(frame);
+}
+let lampFlick = 0;
+
+/* =========================================================
+   【互動】
+   ========================================================= */
+function svgPoint(evt) {
+  const p = svg.createSVGPoint(); p.x = evt.clientX; p.y = evt.clientY;
+  return p.matrixTransform(svg.getScreenCTM().inverse());
+}
+// 滑鼠左右：風向 + 紙板視差
+svg.addEventListener("pointermove", e => {
+  pointerIn = true;
+  lastPt = svgPoint(e);
+  const x = lastPt.x / 1600 - .5;
+  windTarget = x * 1.6; parTarget = x * 2;
+});
+svg.addEventListener("pointerleave", () => { pointerIn = false; });
+// 點監獄窗戶開關燈
+$("cellWins").addEventListener("click", e => {
+  const w = e.target.closest(".cwin"); if (!w) return;
+  e.stopPropagation();
+  w.querySelector(".lit").classList.toggle("on");
+});
+// 點燈塔：霧笛
+$("lighthouse").addEventListener("click", e => { e.stopPropagation(); foghorn(); });
+// 點渡輪：鳴笛、冒煙；靠岸中就提早出發
+$("ferry").addEventListener("click", e => {
+  e.stopPropagation();
+  puffSmoke(4); sfx("ferry");
+  bubble(ferry.x + 90, ferry.y - 96, "叭——");
+  if (ferry.state === "dock") ferry.timer = Math.min(ferry.timer, .6);
+});
+// 點海獅：叫一聲，偶爾跳水
+$("sealions").addEventListener("click", e => {
+  const g = e.target.closest(".sealion"); if (!g) return;
+  e.stopPropagation();
+  const S = sealions.find(s => s.g === g); if (!S) return;
+  S.bark = .8; sfx("bark");
+  bubble(S.x, S.y - 40, pick(["嗷嗷！", "歐～", "嗷！"]));
+  if (S.dive < 0 && !reduced && Math.random() < .5) { S.dive = 0; setTimeout(() => sfx("splash"), 700); }
+});
+// 點前景遊客：跳一下
+$("tourists").addEventListener("click", e => {
+  const g = e.target.closest(".tourist"); if (!g) return;
+  e.stopPropagation();
+  const T = tourists.find(x => x.g === g); if (T) T.hop = 1;
+});
+// 點單車：按鈴
+$("cyclist").addEventListener("click", e => { e.stopPropagation(); bubble(bike.x + 8, bike.y - 60, "鈴鈴"); sfx("ring"); });
+// 點瞭望塔：開關探照燈
+$("guardTower").addEventListener("click", e => { e.stopPropagation(); setSearch(!searchOn); sfx("click"); });
+// 點天空放海鷗；點海面泛漣漪
+svg.addEventListener("click", e => {
+  const p = svgPoint(e);
+  if (p.y < 300) { addGull(p.x, p.y, true); sfx("gull"); }
+  else if (p.y > 440) { ripple(p.x, p.y, 1.5); ripple(p.x, p.y, .9); sfx("drop"); }
+});
+
+// 控制鈕
+$("btnDayNight").addEventListener("click", () => {
+  const n = nightOf(phase);
+  const to = n > .5 ? Math.ceil(phase) : Math.floor(phase) + .5; // 往下一個「正午」或「深夜」
+  tween = { from: phase, to: to <= phase ? to + 1 : to, t: 0 };
+});
+$("btnAuto").addEventListener("click", () => {
+  auto = !auto;
+  $("btnAuto").setAttribute("aria-pressed", auto);
+  $("btnAuto").textContent = "自動循環：" + (auto ? "開" : "關");
+});
+$("btnFog").addEventListener("click", () => setFog((fogLevel + 1) % 3));
+// 趣味按鈕
+$("btnSound").addEventListener("click", () => {
+  soundOn = !soundOn;
+  if (soundOn) ensureAudio();
+  if (master) master.gain.setValueAtTime(soundOn ? .4 : 0, actx.currentTime);
+  $("btnSound").setAttribute("aria-pressed", String(soundOn));
+  $("btnSound").textContent = soundOn ? "🔊 聲音：開" : "🔇 聲音：關";
+});
+$("btnEscape").addEventListener("click", startEscape);
+$("btnSearch").addEventListener("click", () => { setSearch(!searchOn); sfx("click"); });
+$("btnRoll").addEventListener("click", rollcall);
+$("btnChorus").addEventListener("click", chorus);
+$("btnPelican").addEventListener("click", launchPelicans);
+$("btnHorn").addEventListener("click", foghorn);
+$("btnFerry").addEventListener("click", callFerry);
+
+// 減少動態：停住船、霧、人，只保留切換與點擊回饋
+function applyReduced() {
+  reduced = RM_QUERY.matches;
+  if (reduced) { auto = false; $("btnAuto").setAttribute("aria-pressed", "false"); $("btnAuto").textContent = "自動循環：關"; }
+}
+RM_QUERY.addEventListener && RM_QUERY.addEventListener("change", applyReduced);
+applyReduced();
+
+/* =========================================================
+   初始化
+   ========================================================= */
+setFog(1);
+applyNight(nightOf(phase), true);
+for (const f of fogs) f.op = fogLevel >= f.lvl ? .7 : 0;
+for (const W of WAVES) W.el.setAttribute("transform", `translate(${W.off.toFixed(1)},0)`);
+visitors.forEach(v => drawVisitor(v, 0));
+gulls.forEach(G => { G.x = G.cx; G.y = G.cy; drawGull(G, 0); });
+ferry.x = 120; // 第一眼就看到渡輪正駛向棧橋
+requestAnimationFrame(frame);
+/* ShowStop：再按一下優雅停止表演（共用模組在上方 <script id="showstop">） */
+ShowStop.init({
+  on: () => esc.state !== 'idle',
+  btn: 'btnEscape',
+  stop: () => {
+    esc.state = 'idle'; alarm = 0;
+    $('escapee').style.opacity = 0; $('escRaft').style.opacity = 0;
+    setFog(esc.fogBefore); setSearch(esc.searchBefore);
+  }
+});
+/* /ShowStop */
+})();
+</script>
+</body>
+</html>

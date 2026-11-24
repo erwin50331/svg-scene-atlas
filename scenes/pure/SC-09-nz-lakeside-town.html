@@ -1,0 +1,1520 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>/* 基本重設 */ body{margin:0} img{max-width:100%} [hidden]{display:none!important}</style>
+<title>SC-09 紐西蘭湖畔小鎮</title>
+<style>
+/* =========================================================
+   SC-09 紐西蘭湖畔小鎮｜線稿 line art
+   ---------------------------------------------------------
+   【色票 token】所有顏色集中在這裡，改這裡就能換色。
+   day-* / dusk-* / night-* 是日、黃昏、夜三組，
+   JS 會依時間在幾組之間內插，寫進下面的「即時變數」。
+   ========================================================= */
+:root{
+  /* 天空：上緣／下緣 */
+  --day-sky-top:#a9d3e8;   --day-sky-bottom:#eef4ea;
+  --dusk-sky-top:#5e6aa0;  --dusk-sky-bottom:#f2b27e;
+  --night-sky-top:#060b22; --night-sky-bottom:#18224a;
+
+  /* 紙（物件底色）與墨（線條色） */
+  --day-paper:#fbf8ef;  --night-paper:#1a2140;
+  --day-ink:#28302f;    --night-ink:#cfd8ee;
+  --day-far:#dfe6ea;    --night-far:#1d2750;   /* 遠山（南阿爾卑斯） */
+  --day-near:#cfdccb;   --night-near:#18213f;  /* 近山丘陵 */
+  --day-snow:#ffffff;   --night-snow:#b9c4e4;  /* 山頂積雪 */
+  --day-lake-top:#7fc3c9;    --night-lake-top:#16254e;    /* 冰河湖（上緣） */
+  --day-lake-bottom:#b9e0d8; --night-lake-bottom:#0f1a3b; /* 冰河湖（近岸） */
+  --dusk-lake-top:#c49aa6;
+  --day-ground:#e8ecc9; --night-ground:#141b35; /* 岸邊草地 */
+  --day-road:#e7e1d2;   --night-road:#1b2240;   /* 道路 */
+  --day-shade:#d9dcc0;  --night-shade:#10162d;  /* 陰影、山坡 */
+
+  /* 點綴色（線稿中少量使用） */
+  --lupin-1:#8a63c9;   /* 魯冰花：紫 */
+  --lupin-2:#e27aa8;   /* 魯冰花：粉 */
+  --lupin-3:#f2d9a0;   /* 魯冰花：奶油黃 */
+  --roof-a:#c8574a;    /* 鐵皮屋頂：紅 */
+  --roof-b:#3f8f8a;    /* 鐵皮屋頂：青 */
+  --boat:#c94a3a;      /* 蒸汽船、小船 */
+  --canopy:#f0a640;    /* 滑翔傘 */
+  --van:#e9b949;       /* 露營車 */
+  --pukeko:#3d55a8;    /* 紫水雞羽色 */
+  --beak:#d8382a;      /* 紫水雞紅喙 */
+  --glow:#ffd27a;      /* 窗光、燈光 */
+  --worm:#7ef0e6;      /* 螢火蟲洞的藍光 */
+  --aurora-1:#4ef0a6;  /* 南極光：綠 */
+  --aurora-2:#d86cf0;  /* 南極光：紫粉 */
+  --sun:#f5b84a;
+  --moon:#f5efd2;
+  --rain:#5f7891;       /* 雨絲 */
+  --flake:#ffffff;      /* 雪花 */
+  --storm:#55606e;      /* 陰雨天的灰色罩層 */
+
+  /* 頁面介面 */
+  --page:#eef1e8; --page-ink:#28302f; --page-mute:#5f6a66; --page-line:#cdd5cb;
+  --btn:#fbf8ef; --btn-on:#28302f; --btn-on-ink:#fbf8ef;
+
+  /* 即時變數（JS 每幀改寫，這裡是白天的初始值） */
+  --sky-top:var(--day-sky-top); --sky-bottom:var(--day-sky-bottom);
+  --paper:var(--day-paper); --ink:var(--day-ink); --far:var(--day-far); --near:var(--day-near);
+  --snow:var(--day-snow); --lake-top:var(--day-lake-top); --lake-bottom:var(--day-lake-bottom);
+  --ground:var(--day-ground); --road:var(--day-road); --shade:var(--day-shade);
+
+  --font-ui:"Noto Sans TC","PingFang TC","Microsoft JhengHei",system-ui,sans-serif;
+  --font-sign:"Georgia","Noto Serif TC","Songti TC",serif;
+}
+
+/* ---------- 頁面版面 ---------- */
+html,body{background:var(--page);color:var(--page-ink)}
+body{font-family:var(--font-ui)}
+.wrap{max-width:1600px;margin:0 auto;padding-block:20px 32px;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));
+  display:flex;flex-direction:column;gap:14px}
+.head{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 14px}
+.code{font:600 13px/1 var(--font-ui);letter-spacing:.12em;padding:5px 8px;border:1.5px solid var(--page-ink);border-radius:3px}
+h1{margin:0;font:700 26px/1.2 var(--font-ui);letter-spacing:.06em;text-wrap:balance}
+.style{color:var(--page-mute);font-size:14px;letter-spacing:.04em}
+.stage{margin:0;border:1.5px solid var(--page-ink);border-radius:4px;overflow:hidden;background:var(--sky-bottom);line-height:0}
+#scene{display:block;width:100%;height:auto;touch-action:manipulation}
+.panel{display:flex;flex-wrap:wrap;align-items:center;gap:10px 12px}
+.panel button{font:500 14px/1 var(--font-ui);color:var(--page-ink);background:var(--btn);border:1.5px solid var(--page-ink);
+  border-radius:999px;padding:9px 14px;cursor:pointer}
+.panel button[aria-pressed="true"]{background:var(--btn-on);color:var(--btn-on-ink)}
+.panel button:focus-visible,#scene [tabindex]:focus-visible{outline:2px dashed var(--roof-b);outline-offset:3px}
+.timebox{display:flex;align-items:center;gap:10px;flex:1 1 260px;min-width:0}
+.timebox input{flex:1;min-width:0;accent-color:var(--page-ink)}
+.clock{font:600 15px/1 var(--font-ui);font-variant-numeric:tabular-nums;min-width:3.2em}
+.hint{margin:0;color:var(--page-mute);font-size:13.5px;line-height:1.7;max-width:70em}
+
+/* ---------- SVG 線稿共用樣式 ---------- */
+#scene .ink{stroke:var(--ink);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+#scene .thin{stroke:var(--ink);fill:none;stroke-width:1.2;stroke-linecap:round;stroke-linejoin:round}
+#scene .hair{stroke:var(--ink);fill:none;stroke-width:.8;stroke-linecap:round;opacity:.5}
+#scene .paper{fill:var(--paper)}
+#scene .shade{fill:var(--shade)}
+#scene .far{fill:var(--far)}
+#scene .near{fill:var(--near)}
+#scene .snow{fill:var(--snow)}
+#scene .ground{fill:var(--ground)}
+#scene .road{fill:var(--road)}
+#scene .inkfill{fill:var(--ink)}
+#scene .glowfill{fill:var(--glow)}
+#scene .hatch{stroke:var(--ink);stroke-width:1;opacity:.28;fill:none}
+#scene .sign-t{fill:var(--ink);font-family:var(--font-sign);font-weight:700;text-anchor:middle;dominant-baseline:central;letter-spacing:.08em}
+#scene .clickable{cursor:pointer}
+#scene .bubble rect{fill:var(--paper);stroke:var(--ink);stroke-width:1.6}
+#scene .bubble text{fill:var(--ink);font:700 15px var(--font-ui);text-anchor:middle;dominant-baseline:central}
+@media (prefers-reduced-motion:reduce){ *{scroll-behavior:auto!important} }
+</style>
+
+<main class="wrap">
+
+  <figure class="stage">
+  <!-- =====================================================
+       【場景】SVG 主畫布 1600×600，寬度自動縮放
+       ===================================================== -->
+  <svg id="scene" viewBox="0 0 1600 600" preserveAspectRatio="xMidYMid slice" role="img" aria-label="紐西蘭南島湖畔小鎮線稿動畫：雪山倒映在冰河湖上，有木棧碼頭、石造小教堂、魯冰花、羊群、露營車與日夜變化，夜裡出現南極光">
+    <defs>
+      <linearGradient id="skyGrad" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" style="stop-color:var(--sky-top)"/>
+        <stop offset="1" style="stop-color:var(--sky-bottom)"/>
+      </linearGradient>
+      <linearGradient id="lakeGrad" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" style="stop-color:var(--lake-top)"/>
+        <stop offset="1" style="stop-color:var(--lake-bottom)"/>
+      </linearGradient>
+      <radialGradient id="glowGrad">
+        <stop offset="0" style="stop-color:var(--glow);stop-opacity:.85"/>
+        <stop offset="1" style="stop-color:var(--glow);stop-opacity:0"/>
+      </radialGradient>
+      <radialGradient id="wormGrad">
+        <stop offset="0" style="stop-color:var(--worm);stop-opacity:1"/>
+        <stop offset="1" style="stop-color:var(--worm);stop-opacity:0"/>
+      </radialGradient>
+      <linearGradient id="coneGrad" x1="0" y1="0" x2="1" y2="0">
+        <stop offset="0" style="stop-color:var(--glow);stop-opacity:.6"/>
+        <stop offset="1" style="stop-color:var(--glow);stop-opacity:0"/>
+      </linearGradient>
+      <!-- 南極光：下緣亮綠、往上漸淡成紫粉 -->
+      <linearGradient id="auroraGrad" x1="0" y1="1" x2="0" y2="0">
+        <stop offset="0" style="stop-color:var(--aurora-1);stop-opacity:.0"/>
+        <stop offset=".12" style="stop-color:var(--aurora-1);stop-opacity:.85"/>
+        <stop offset=".55" style="stop-color:var(--aurora-1);stop-opacity:.25"/>
+        <stop offset="1" style="stop-color:var(--aurora-2);stop-opacity:0"/>
+      </linearGradient>
+      <linearGradient id="meteorGrad" x1="0" y1="0" x2="1" y2="0">
+        <stop offset="0" style="stop-color:var(--moon);stop-opacity:0"/>
+        <stop offset="1" style="stop-color:var(--moon);stop-opacity:1"/>
+      </linearGradient>
+      <filter id="soft" x="-10%" y="-40%" width="120%" height="180%"><feGaussianBlur stdDeviation="7"/></filter>
+      <filter id="mist" x="-10%" y="-100%" width="120%" height="300%"><feGaussianBlur stdDeviation="5"/></filter>
+      <!-- 湖面範圍（倒影只畫在湖裡） -->
+      <clipPath id="lakeClip"><rect x="-40" y="318" width="1680" height="180"/></clipPath>
+      <!-- 鐵皮浪板屋頂的直紋 -->
+      <pattern id="tin" width="6" height="10" patternUnits="userSpaceOnUse">
+        <path class="hatch" d="M3 0V10" style="opacity:.45"/>
+      </pattern>
+      <!-- 木板牆的橫紋 -->
+      <pattern id="board" width="10" height="7" patternUnits="userSpaceOnUse">
+        <path class="hatch" d="M0 6.5H10"/>
+      </pattern>
+      <!-- 石牆紋 -->
+      <pattern id="stone" width="22" height="14" patternUnits="userSpaceOnUse">
+        <path class="hatch" d="M0 .5H22M0 7.5H22M6 .5V7.5M17 .5V7.5M2 7.5V14M12 7.5V14" style="opacity:.4"/>
+      </pattern>
+      <!-- 草坡短線 -->
+      <pattern id="tussock" width="34" height="18" patternUnits="userSpaceOnUse">
+        <path class="hatch" d="M4 14l2 -5M8 14l-1 -6M22 6l2 -4M26 6l-1 -5"/>
+      </pattern>
+    </defs>
+
+    <!-- ===== 場景：天空 ===== -->
+    <rect x="-20" y="-20" width="1640" height="640" fill="url(#skyGrad)" id="sky"/>
+    <g id="milky"></g>
+    <g id="stars"></g>
+    <!-- 南極光（JS 每幀改寫波形） -->
+    <g id="aurora" filter="url(#soft)" style="mix-blend-mode:screen"></g>
+    <g id="meteors"></g>
+    <!-- 太陽 -->
+    <g id="sun"><g id="sunRays" class="ink"></g><circle r="26" style="fill:var(--sun)" class="ink"/></g>
+    <!-- 月亮（用遮罩挖出彎月） -->
+    <g id="moon">
+      <mask id="moonMask"><circle r="22" fill="#fff"/><circle cx="10" cy="-6" r="19" fill="#000"/></mask>
+      <circle r="22" style="fill:var(--moon)" mask="url(#moonMask)"/>
+      <path class="thin" d="M-6 -21A22 22 0 1 0 21 7A19 19 0 0 1 -6 -21Z"/>
+    </g>
+    <g id="clouds"></g>
+
+    <!-- ===== 場景：雪山（遠山＋近山）＝視差圖層 ===== -->
+    <g id="farLayer">
+      <g id="mtnAll"><!-- JS 依 RANGES 設定產生山稜、積雪 --></g>
+      <g id="mtnHatch"></g>
+      <g id="farShore"></g>
+    </g>
+    <!-- 天上的小飛機、滑翔傘（在山前面） -->
+    <g id="paraglider"></g>
+    <g id="plane"></g>
+    <g id="flock"></g>
+
+    <!-- ===== 場景：冰河湖、倒影、波光 ===== -->
+    <rect x="-20" y="316" width="1640" height="200" fill="url(#lakeGrad)"/>
+    <g clip-path="url(#lakeClip)">
+      <g id="reflect" opacity=".38"><g id="reflectInner" transform="translate(0 513.2) scale(1 -.614)"><!-- JS 複製雪山進來當倒影 --></g></g>
+      <g id="glint"></g>
+      <g id="shimmer"></g>
+    </g>
+    <path class="thin" d="M-20 318 H1620"/>
+    <!-- 清晨湖霧 -->
+    <g id="mistG" filter="url(#mist)" opacity="0"></g>
+    <!-- 湖上：蒸汽船、獨木舟、鴨子、漣漪 -->
+    <g id="ripples"></g>
+    <g id="steamer" class="clickable" tabindex="0" role="button" aria-label="蒸汽船，點了會鳴笛"></g>
+    <g id="kayaks"></g>
+    <g id="ducks"></g>
+    <g id="fishJump"></g>
+    <!-- 點湖面的感應區（透明） -->
+    <rect id="lakeHit" class="clickable" x="0" y="330" width="1600" height="110" fill="transparent"/>
+
+    <!-- ===== 場景：岸邊草地與右側牧場山坡 ===== -->
+    <path id="land" class="ground ink" d=""/>
+    <path id="landHatch" d="" fill="url(#tussock)"/>
+    <g id="shoreDetail"></g>
+
+    <!-- ===== 場景：碼頭、教堂、柳樹、蘆葦 ===== -->
+    <g id="jetty"></g>
+    <g id="church" class="clickable" tabindex="0" role="button" aria-label="石造小教堂，點了會敲鐘"></g>
+    <g id="trees"></g>
+    <g id="reeds"></g>
+    <g id="woolshed"></g>
+
+    <!-- ===== 角色：牧場羊群、紫水雞、觀星的人 ===== -->
+    <g id="sheep"></g>
+    <g id="fence"></g>
+    <g id="pukeko" class="clickable" tabindex="0" role="button" aria-label="紫水雞，點了會跑開"></g>
+    <g id="stargazers"></g>
+    <g id="lupinsBack"></g>
+
+    <!-- ===== 場景：小鎮街屋（由 JS 依 TOWN 設定產生） ===== -->
+    <g id="town"></g>
+    <g id="lamps"></g>
+
+    <!-- ===== 場景：道路 ===== -->
+    <rect class="road" x="-20" y="522" width="1640" height="42"/>
+    <path class="ink" d="M-20 522 H1620 M-20 564 H1620"/>
+    <path class="thin" d="M-20 543 H1620" stroke-dasharray="26 22" style="opacity:.55"/>
+    <rect class="ground" x="-20" y="564" width="1640" height="60"/>
+    <path class="hatch" d="M30 580l3 -6M90 590l-2 -7M210 584l3 -6M380 592l2 -6M470 578l-2 -6M820 586l3 -7M960 594l-2 -6M1100 582l2 -6M1220 590l-3 -6"/>
+
+    <!-- ===== 角色＆交通工具：人行道行人、車輛 ===== -->
+    <g id="walkers"></g>
+    <g id="traffic"></g>
+
+    <!-- ===== 場景：前景（蕨類土坡、螢火蟲、魯冰花） ===== -->
+    <g id="fernBank"></g>
+    <g id="lupins" class="clickable"></g>
+
+    <!-- ===== 動畫：天氣（陰天罩層、雨絲、雪花），由「天氣」按鈕切換 ===== -->
+    <rect id="wxShade" x="-20" y="-20" width="1640" height="640" style="fill:var(--storm)" opacity="0" pointer-events="none"/>
+    <g id="wx" pointer-events="none"></g>
+
+    <!-- 粒子：煙、花瓣、音符、對話泡泡 -->
+    <g id="smoke"></g>
+    <g id="petals"></g>
+    <g id="bubbles"></g>
+  </svg>
+  </figure>
+
+  <!-- ===== 互動：控制列 ===== -->
+  <div class="panel">
+    <button id="btnDay" type="button">☀ 白天</button>
+    <button id="btnNight" type="button">☾ 夜晚</button>
+    <button id="btnAuto" type="button" aria-pressed="true">自動播放</button>
+    <button id="btnGust" type="button">🌬 吹一陣風</button>
+    <button id="btnMeteor" type="button">✦ 流星雨</button>
+    <button id="btnWeather" type="button">☀ 天氣：晴天</button>
+    <label class="timebox" for="timeRange">
+      <span>時間</span>
+      <input id="timeRange" type="range" min="0" max="1000" value="440">
+      <span class="clock" id="clock">10:33</span>
+    </label>
+  </div>
+  <p class="hint">可以點：羊（跳起來咩一聲）、湖面（漣漪，偶爾有鱒魚躍出）、蒸汽船（鳴笛冒煙）、石造小教堂（敲鐘）、碼頭盡頭的釣客（收竿）、紫水雞（拍翅逃跑）、露營車（按喇叭加速）、魯冰花（花瓣隨風飛散）、天空（白天飛過一群鳥，夜裡劃過流星並讓極光變亮）。滑鼠移動時雪山會微微視差。按鈕：「吹一陣風」讓雲、風向袋、樹和魯冰花一起被吹動、花瓣滿天飛；「流星雨」會轉成夜晚，連續劃過流星並讓極光變亮。「天氣」按鈕會在晴天、下雨、下雪之間輪流切換，下雨時湖面會冒出雨滴漣漪。</p>
+</main>
+
+<script>
+/* =========================================================
+   SC-09 紐西蘭湖畔小鎮｜程式區
+   區塊：①工具 ②場景（山、湖、岸、小鎮） ③角色 ④動畫 ⑤互動
+   ========================================================= */
+(() => {
+'use strict';
+
+/* ---------------- ① 工具 ---------------- */
+const NS = 'http://www.w3.org/2000/svg';
+const $ = id => document.getElementById(id);
+const root = document.documentElement;
+const svg = $('scene');
+const HORIZON = 318;   // 湖的遠岸線
+const WALK = 520;      // 人行道（行人腳底）
+const LANE_A = 556;    // 前車道（往右）
+const LANE_B = 540;    // 後車道（往左）
+const rand = (a, b) => a + Math.random() * (b - a);
+const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+const smooth = (a, b, x) => { const t = clamp((x - a) / (b - a), 0, 1); return t * t * (3 - 2 * t); };
+// 固定亂數：讓每次開啟的構圖一樣
+let seed = 20261121;
+const srand = (a = 0, b = 1) => { seed = (seed * 16807) % 2147483647; return a + (seed / 2147483647) * (b - a); };
+function el(tag, attrs = {}, parent) {
+  const n = document.createElementNS(NS, tag);
+  for (const k in attrs) n.setAttribute(k, attrs[k]);
+  if (parent) parent.appendChild(n);
+  return n;
+}
+function frag(parent, html) { parent.insertAdjacentHTML('beforeend', html); return parent.lastElementChild; }
+const f1 = n => n.toFixed(1);
+// 色票讀取與內插
+const css = n => getComputedStyle(root).getPropertyValue(n).trim();
+const hex = h => { h = h.replace('#', ''); if (h.length === 3) h = [...h].map(c => c + c).join(''); const n = parseInt(h, 16); return [n >> 16 & 255, n >> 8 & 255, n & 255]; };
+const mix = (a, b, t) => a.map((v, i) => Math.round(v + (b[i] - v) * t));
+const rgb = c => `rgb(${c[0]},${c[1]},${c[2]})`;
+const PAL = {};
+['sky-top', 'sky-bottom', 'lake-top'].forEach(k => PAL[k] = { day: hex(css('--day-' + k)), dusk: hex(css('--dusk-' + k)), night: hex(css('--night-' + k)) });
+['paper', 'ink', 'far', 'near', 'snow', 'lake-bottom', 'ground', 'road', 'shade'].forEach(k => PAL[k] = { day: hex(css('--day-' + k)), night: hex(css('--night-' + k)) });
+
+/* 動態偏好 */
+const mq = window.matchMedia('(prefers-reduced-motion: reduce)');
+let reduced = mq.matches;
+
+/* 岸線高度：x 位置的草地上緣（右側是牧場山坡） */
+const hill = x => 92 * smooth(1110, 1470, x) - 8 * smooth(1470, 1640, x);
+const shoreY = x => 458 + 5 * Math.sin(x / 140) + 3 * Math.sin(x / 53 + 1) - hill(x);
+
+/* ---------------- ② 場景：雪山 ----------------
+   RANGES：每一道山稜的折點，想改山形改這裡。
+   cls：填色（far 遠山／near 近山）；snow：積雪最大深度 */
+const RANGES = [
+  { cls: 'far', snow: 58, pts: [[-40, 250], [30, 214], [80, 232], [150, 172], [205, 206], [262, 150], [330, 200], [384, 184], [446, 228], [508, 196], [574, 128], [636, 180], [690, 162], [760, 214], [822, 190], [890, 112], [948, 166], [1000, 146], [1066, 204], [1126, 176], [1196, 100], [1262, 160], [1314, 142], [1384, 200], [1444, 172], [1508, 210], [1566, 180], [1640, 226]] },
+  { cls: 'near', snow: 26, pts: [[-40, 284], [60, 258], [140, 270], [230, 236], [320, 262], [420, 250], [520, 276], [640, 254], [760, 280], [880, 266], [960, 286], [1060, 258], [1160, 244], [1240, 268], [1330, 252], [1440, 276], [1540, 262], [1640, 280]] }
+];
+function drawMountains() {
+  const g = $('mtnAll'), hg = $('mtnHatch');
+  RANGES.forEach(r => {
+    const p = r.pts;
+    el('path', { class: r.cls + ' ink', d: 'M' + p.map(q => q.join(' ')).join(' L') + ` V${HORIZON + 2} H-40Z` }, g);
+    // 積雪：每個山峰往下挖出鋸齒狀雪帽
+    let d = '', hd = '';
+    for (let i = 1; i < p.length - 1; i++) {
+      const [px, py] = p[i], L = p[i - 1], R = p[i + 1];
+      if (!(py < L[1] && py < R[1])) continue;
+      const dep = Math.min(r.snow, (L[1] - py) * .62, (R[1] - py) * .62);
+      if (dep < 10) continue;
+      const lx = px + (L[0] - px) * dep / (L[1] - py), rx = px + (R[0] - px) * dep / (R[1] - py);
+      const y = py + dep;
+      d += `M${px} ${py} L${f1(rx)} ${f1(y)}`;
+      for (let k = 1; k < 5; k++) d += ` L${f1(rx + (lx - rx) * k / 5)} ${f1(y + (k % 2 ? -dep * .34 : dep * .12))}`;
+      d += ` L${f1(lx)} ${f1(y)}Z`;
+      // 山的右側陰影排線
+      for (let k = 1; k <= 4; k++) {
+        const t = .25 + k * .16;
+        const sx = px + (R[0] - px) * t, sy = py + (R[1] - py) * t;
+        hd += `M${f1(sx)} ${f1(sy + 4)} l${-6 - k * 2} ${14 + k * 4}`;
+      }
+    }
+    el('path', { class: 'snow thin', d }, g);
+    el('path', { class: 'hatch', d: hd }, hg);
+  });
+  // 倒影：複製一份山稜到湖裡（上下翻轉、壓扁）
+  $('reflectInner').appendChild(g.cloneNode(true)).removeAttribute('id');
+  // 近山腳下的森林（小三角樹）與遠岸小屋
+  const fs = $('farShore');
+  let t = '';
+  for (let x = -20; x < 1640; x += srand(9, 16)) {
+    const h = srand(8, 16), y = HORIZON - srand(0, 5);
+    t += `M${f1(x)} ${f1(y)} l${f1(h * .35)} ${f1(-h)} l${f1(h * .35)} ${f1(h)}`;
+  }
+  el('path', { class: 'hair', d: t, style: 'opacity:.6' }, fs);
+  [[1215, 312], [1236, 314], [1262, 311], [300, 313], [318, 315]].forEach(([x, y]) =>
+    frag(fs, `<g><rect x="${x}" y="${y - 6}" width="12" height="6" class="paper thin"/><path class="thin" d="M${x - 1} ${y - 6} l7 -5 l7 5"/></g>`));
+}
+
+/* ---------------- ② 場景：湖面波光、湖霧 ---------------- */
+const shimmer = [];
+function drawLake() {
+  for (let i = 0; i < 46; i++) {
+    const y = srand(326, 452), w = 8 + (y - 318) * .12 * srand(.6, 1.4);
+    const p = el('path', { class: 'thin', d: `M0 0 h${f1(w)}`, opacity: .5 }, $('shimmer'));
+    shimmer.push({ el: p, x: srand(0, 1600), y, sp: srand(.4, 1.2), ph: srand(0, 6.28) });
+  }
+  // 日月倒影的光帶（短橫線）
+  for (let i = 0; i < 12; i++) el('path', { class: 'glint-l', d: '', style: 'stroke:var(--glow);stroke-width:2;stroke-linecap:round' }, $('glint'));
+  // 湖霧：幾條柔和的白帶
+  [[200, 334, 420], [760, 346, 520], [1240, 330, 380], [480, 372, 300]].forEach(([x, y, w]) =>
+    el('ellipse', { cx: x, cy: y, rx: w / 2, ry: 9, style: 'fill:var(--day-snow)' }, $('mistG')));
+}
+
+/* ---------------- ② 場景：岸邊草地、細節 ---------------- */
+function drawLand() {
+  let d = 'M-20 ' + f1(shoreY(-20));
+  for (let x = 0; x <= 1620; x += 20) d += ` L${x} ${f1(shoreY(x))}`;
+  d += ' V630 H-20Z';
+  $('land').setAttribute('d', d);
+  $('landHatch').setAttribute('d', d);
+  // 岸邊石子
+  let s = '';
+  for (let x = 10; x < 1120; x += srand(14, 30)) {
+    const y = shoreY(x) + srand(2, 7);
+    s += `M${f1(x)} ${f1(y)} q3 -3 6 0`;
+  }
+  el('path', { class: 'hair', d: s }, $('shoreDetail'));
+}
+
+/* ---------------- ② 場景：碼頭 ---------------- */
+let fisher = null, windsock = null;
+function drawJetty() {
+  const g = $('jetty');
+  // 透視：近端寬、遠端窄
+  const nL = [906, 474], nR = [966, 476], fL = [970, 392], fR = [992, 392];
+  let s = '';
+  // 木樁（湖裡）
+  for (let i = 0; i <= 6; i++) {
+    const t = i / 6, tt = t * t * .6 + t * .4;
+    const lx = nL[0] + (fL[0] - nL[0]) * tt, ly = nL[1] + (fL[1] - nL[1]) * tt;
+    const rx = nR[0] + (fR[0] - nR[0]) * tt, ry = nR[1] + (fR[1] - nR[1]) * tt;
+    const h = 6 + (1 - tt) * 12;
+    if (ly < 462) s += `<path class="ink" d="M${f1(lx)} ${f1(ly)} v${f1(h)} M${f1(rx)} ${f1(ry)} v${f1(h)}"/>`;
+  }
+  s += `<path class="paper ink" d="M${nL.join(' ')} L${fL.join(' ')} L${fR.join(' ')} L${nR.join(' ')}Z"/>`;
+  // 木板
+  let pl = '';
+  for (let i = 1; i < 16; i++) {
+    const t = i / 16, tt = t * t * .6 + t * .4;
+    const lx = nL[0] + (fL[0] - nL[0]) * tt, ly = nL[1] + (fL[1] - nL[1]) * tt;
+    const rx = nR[0] + (fR[0] - nR[0]) * tt;
+    pl += `M${f1(lx)} ${f1(ly)} H${f1(rx)}`;
+  }
+  s += `<path class="hair" d="${pl}" style="opacity:.7"/>`;
+  // 欄杆柱
+  s += `<path class="thin" d="M908 474 v-14 M940 433 v-9 M960 410 v-6 M970 392 v-5 M992 392 v-5 M974 410 v-6 M985 433 v-9 M964 476 v-14"/>`;
+  s += `<path class="hair" d="M908 462 L940 424 L960 404 L970 387 M964 462 L985 424 L974 404 L992 387" style="opacity:.8"/>`;
+  // 繫在碼頭邊的小船
+  s += `<g transform="translate(1012 428)"><path class="ink" style="fill:var(--boat)" d="M-24 -6 H22 L16 4 H-18Z"/><path class="thin" d="M-16 -6 v-3 h8 v3 M-30 -10 L-46 -24"/><path class="hair" d="M-24 -6 Q-34 -10 -42 -2"/></g>`;
+  frag(g, `<g>${s}</g>`);
+  // 風向袋（看得出風往哪吹）
+  frag(g, `<g><path class="ink" d="M898 476 V414"/><circle cx="898" cy="412" r="2" class="inkfill"/></g>`);
+  windsock = frag(g, `<g transform="translate(898 418)"><path class="ink" style="fill:var(--canopy)" d="M0 -5 L30 -3 L30 3 L0 5Z"/><path class="thin" d="M10 -4.3 v8.6 M20 -3.6 v7.2" style="stroke:var(--paper)"/></g>`);
+  // 碼頭盡頭的釣客（可點）
+  fisher = frag(g, `<g class="clickable" tabindex="0" role="button" aria-label="釣客，點了會收竿" transform="translate(982 390) scale(.62)">
+    <rect x="-30" y="-60" width="60" height="66" fill="transparent"/>
+    <path class="paper ink" d="M-5 -38 L-6 -18 L6 -18 L5 -38 Q0 -41 -5 -38Z"/>
+    <path class="ink" d="M-3 -18 L-5 0 M3 -18 L5 0"/>
+    <circle cx="0" cy="-45" r="6" class="paper ink"/><path class="ink" d="M-8 -48 H8 M-5 -48 Q0 -56 5 -48" style="fill:var(--roof-b)"/>
+    <path class="ink" d="M4 -34 L14 -30"/>
+    <path class="thin rod" d="M14 -30 Q40 -70 68 -60"/>
+    <path class="hair line" d="M68 -60 L72 20" style="opacity:.9"/>
+    <g class="catch" opacity="0"><path class="paper ink" d="M66 -8 q6 -10 12 0 q-6 10 -12 0z M78 -8 l5 -4 v8z"/></g>
+    <rect x="-16" y="-8" width="10" height="8" class="paper thin"/>
+  </g>`);
+}
+
+/* ---------------- ② 場景：石造小教堂 ---------------- */
+let bell = null, churchWin = null;
+function drawChurch() {
+  const g = $('church');
+  frag(g, `<g>
+    <!-- 側牆（透視） -->
+    <path class="paper ink" d="M682 424 L724 414 L724 470 L682 480Z"/>
+    <path d="M682 424 L724 414 L724 470 L682 480Z" fill="url(#stone)"/>
+    <path class="ink" style="fill:var(--roof-a)" d="M640 380 L684 370 L728 416 L682 426Z"/>
+    <path d="M640 380 L684 370 L728 416 L682 426Z" fill="url(#tin)"/>
+    <!-- 正面山牆 -->
+    <path class="paper ink" d="M598 424 L640 378 L682 424 V480 H598Z"/>
+    <path d="M598 424 L640 378 L682 424 V480 H598Z" fill="url(#stone)"/>
+    <path class="ink" d="M592 428 L640 374 L688 428"/>
+    <!-- 鐘樓 -->
+    <path class="paper ink" d="M630 380 V354 H650 V380"/>
+    <path class="ink" d="M626 356 L640 340 L654 356Z" style="fill:var(--roof-a)"/>
+    <path class="ink" d="M640 340 V330 M636 334 H644"/>
+    <path class="thin" d="M634 376 V362 Q640 356 646 362 V376"/>
+    <!-- 拱窗與拱門 -->
+    <path class="paper thin" d="M630 416 V402 Q640 390 650 402 V416Z"/>
+    <path class="thin" d="M640 392 V416 M630 406 H650"/>
+    <path class="paper ink" d="M628 480 V454 Q640 440 652 454 V480"/>
+    <path class="thin" d="M640 446 V480"/><circle cx="645" cy="464" r="1.4" class="inkfill"/>
+    <path class="thin" d="M694 440 V428 Q700 420 706 428 V440 M710 436 V425 Q715 418 720 425 V436"/>
+    <!-- 階梯與小路 -->
+    <path class="ink" d="M622 480 H658 M618 485 H662"/>
+    <path class="thin" d="M630 486 Q622 500 610 518 M650 486 Q656 500 664 518"/>
+  </g>`);
+  churchWin = frag(g, `<g opacity="0"><path class="glowfill" d="M631 415 V402 Q640 391 649 402 V415Z"/><path class="glowfill" d="M695 439 V428 Q700 421 705 428 V439Z M711 435 V425 Q715 419 719 425 V435Z"/><circle cx="640" cy="404" r="38" fill="url(#glowGrad)" opacity=".5"/></g>`);
+  bell = frag(g, `<g transform="translate(640 362)"><path class="ink" style="fill:var(--sun)" d="M-5 6 Q-5 -4 0 -4 Q5 -4 5 6 H-6Z"/></g>`);
+  frag(g, `<rect x="590" y="330" width="140" height="160" fill="transparent"/>`);
+}
+
+/* ---------------- ② 場景：樹木、蘆葦、剪羊毛小屋 ---------------- */
+const swayers = [];  // 會隨風擺動的東西
+function drawTrees() {
+  const g = $('trees');
+  // 垂柳（枝條會隨風擺）
+  const wil = frag(g, `<g><path class="ink" d="M808 488 C806 460 812 440 800 410 M802 430 C790 414 776 404 760 402 M806 420 C820 404 834 396 852 398"/></g>`);
+  const wb = el('g', {}, wil);
+  for (let i = 0; i < 22; i++) {
+    const x = 748 + i * 5.4, top = 388 + Math.abs(i - 11) * 1.6;
+    const len = 46 + srand(0, 36);
+    const p = el('path', { class: 'thin', d: '' }, wb);
+    swayers.push({ type: 'willow', el: p, x, top, len, ph: srand(0, 6) });
+  }
+  // 柳樹的樹冠輪廓
+  frag(wil, `<path class="thin" d="M744 404 C756 380 790 374 806 380 C826 372 854 380 862 404" style="opacity:.8"/>`);
+
+  // 白楊（小鎮後方，高瘦）
+  [[548, 500, 120], [566, 500, 96], [1170, shoreY(1170) + 10, 84]].forEach(([x, y, h]) => {
+    const t = frag(g, `<g data-x="${x}" data-y="${y}"><path class="paper ink" d="M${x} ${y - h} C${x + 14} ${y - h * .7} ${x + 13} ${y - 22} ${x} ${y - 14} C${x - 13} ${y - 22} ${x - 14} ${y - h * .7} ${x} ${y - h}Z"/>
+      <path class="hair" d="M${x} ${y - h + 14} V${y - 18} M${x - 6} ${y - h * .6} l6 6 M${x + 6} ${y - h * .45} l-6 6"/><path class="ink" d="M${x} ${y - 14} V${y}"/></g>`);
+    swayers.push({ type: 'tree', el: t, x, y, amp: 1.6, ph: srand(0, 6) });
+  });
+  // 朱蕉（甘藍樹 cabbage tree）
+  [[1122, shoreY(1122) + 12, 70], [1150, shoreY(1150) + 16, 52], [870, 486, 58]].forEach(([x, y, h]) => {
+    let fr = '';
+    for (let k = 0; k < 11; k++) { const a = -Math.PI + k * Math.PI / 10; fr += `M0 0 L${f1(Math.cos(a) * 22)} ${f1(Math.sin(a) * 18 + 6)}`; }
+    const t = frag(g, `<g><path class="ink" d="M${x} ${y} C${x - 2} ${y - h * .5} ${x + 4} ${y - h * .8} ${x + 2} ${y - h}"/>
+      <g class="crown" transform="translate(${x + 2} ${y - h})"><path class="thin" d="${fr}"/></g></g>`);
+    swayers.push({ type: 'crown', el: t.querySelector('.crown'), x: x + 2, y: y - h, amp: 5, ph: srand(0, 6) });
+  });
+  // 蘆葦
+  let rd = '';
+  for (let i = 0; i < 16; i++) { const x = 836 + i * 4.2, h = srand(20, 40), y = shoreY(x) + 10; rd += `M${f1(x)} ${f1(y)} q2 ${f1(-h / 2)} ${f1(srand(-3, 5))} ${f1(-h)}`; }
+  const r = el('path', { class: 'thin', d: rd }, $('reeds'));
+  r.style.transformOrigin = '850px 486px';
+  swayers.push({ type: 'reed', el: r, amp: 3, ph: 1 });
+  // 剪羊毛小屋（山坡上）
+  const wx = 1468, wy = shoreY(1468) + 8;
+  frag($('woolshed'), `<g>
+    <path class="paper ink" d="M${wx} ${wy} V${wy - 34} H${wx + 70} V${wy}Z"/><path d="M${wx} ${wy} V${wy - 34} H${wx + 70} V${wy}Z" fill="url(#board)"/>
+    <path class="ink" style="fill:var(--roof-a)" d="M${wx - 6} ${wy - 32} L${wx + 35} ${wy - 56} L${wx + 76} ${wy - 32}Z"/>
+    <path d="M${wx - 6} ${wy - 32} L${wx + 35} ${wy - 56} L${wx + 76} ${wy - 32}Z" fill="url(#tin)"/>
+    <rect x="${wx + 24}" y="${wy - 24}" width="22" height="24" class="shade thin"/><path class="thin" d="M${wx + 24} ${wy - 24} l22 24 M${wx + 46} ${wy - 24} l-22 24"/>
+    <rect x="${wx + 6}" y="${wy - 26}" width="10" height="8" class="paper thin wsWin"/>
+    <path class="thin" d="M${wx + 82} ${wy} V${wy - 40} M${wx + 74} ${wy - 40} h16 M${wx + 82} ${wy - 40} l0 -6"/>
+    <g class="mill" transform="translate(${wx + 82} ${wy - 46})"><path class="thin" d="M0 0 L0 -12 M0 0 L10 6 M0 0 L-10 6 M0 0 L-10 -6 M0 0 L10 -6 M0 0 L0 12"/></g>
+  </g>`);
+  swayers.push({ type: 'mill', el: $('woolshed').querySelector('.mill') });
+}
+
+/* ---------------- ② 場景：小鎮街屋 ----------------
+   TOWN：街屋設定。type：cottage 木屋／store 雜貨店假立面／cafe 咖啡店／bakery 麵包店 */
+const TOWN = [
+  { x: 14,  w: 112, type: 'cottage', roof: 'roof-a' },
+  { x: 136, w: 150, type: 'store',   name: 'GENERAL STORE', est: 'EST. 1902' },
+  { x: 296, w: 124, type: 'cafe',    name: 'LAKE CAFÉ', roof: 'roof-b' },
+  { x: 430, w: 96,  type: 'bakery',  name: 'BAKERY' }
+];
+const BASE = 512;   // 街屋底線
+const windows = [];
+const chimneys = [];
+let stringLights = [];
+function winGlow(g, x, y, w, h, thr) {
+  const gl = frag(g, `<g opacity="0"><rect x="${x}" y="${y}" width="${w}" height="${h}" class="glowfill"/><circle cx="${x + w / 2}" cy="${y + h / 2}" r="${Math.max(w, h)}" fill="url(#glowGrad)" opacity=".5"/></g>`);
+  windows.push({ el: gl, thr, val: 0, ph: srand(0, 6) });
+}
+function drawTown() {
+  const g = $('town');
+  TOWN.forEach(h => {
+    const { x, w } = h, cx = x + w / 2, gg = el('g', {}, g);
+    if (h.type === 'cottage') {
+      const wt = 440;
+      frag(gg, `<g><rect x="${x}" y="${wt}" width="${w}" height="${BASE - wt}" class="paper ink"/><rect x="${x}" y="${wt}" width="${w}" height="${BASE - wt}" fill="url(#board)"/>
+        <rect x="${x + 76}" y="402" width="14" height="30" class="paper ink"/><path d="M${x + 76} 402 h14 v30 h-14z" fill="url(#stone)"/>
+        <path class="ink" style="fill:var(--${h.roof})" d="M${x - 8} ${wt + 2} L${cx} 402 L${x + w + 8} ${wt + 2}Z"/><path d="M${x - 8} ${wt + 2} L${cx} 402 L${x + w + 8} ${wt + 2}Z" fill="url(#tin)"/>
+        <circle cx="${cx}" cy="424" r="5" class="paper thin"/></g>`);
+      chimneys.push({ x: x + 83, y: 400, rate: .9 });
+      [[x + 12, 456], [x + 74, 456]].forEach(([wx, wy]) => {
+        winGlow(gg, wx, wy, 24, 30, .35 + srand(0, .3));
+        frag(gg, `<g><rect x="${wx}" y="${wy}" width="24" height="30" class="thin" style="fill:none"/><path class="thin" d="M${wx} ${wy + 15} h24 M${wx + 12} ${wy} v30"/><path class="thin" d="M${wx - 3} ${wy + 33} h30"/></g>`);
+      });
+      frag(gg, `<g><rect x="${x + 44}" y="470" width="20" height="42" class="paper ink"/><circle cx="${x + 59}" cy="492" r="1.4" class="inkfill"/>
+        <path class="thin" d="M${x - 6} 512 V498 M${x + 4} 512 V498 M${x - 10} 502 h18"/>
+        <path class="paper ink" d="M${x + w + 2} 512 V494 M${x + w - 6} 494 h16 v-9 h-16z"/><path class="thin" d="M${x + w + 6} 490 h4"/></g>`);
+    }
+    if (h.type === 'store') {
+      const top = 392;
+      frag(gg, `<g><rect x="${x}" y="${top + 20}" width="${w}" height="${BASE - top - 20}" class="paper ink"/><rect x="${x}" y="${top + 20}" width="${w}" height="${BASE - top - 20}" fill="url(#board)"/>
+        <path class="paper ink" d="M${x} ${top + 22} V${top + 10} H${cx - 30} L${cx - 22} ${top} H${cx + 22} L${cx + 30} ${top + 10} H${x + w} V${top + 22}"/>
+        <path class="ink" d="M${x - 4} ${top + 22} H${x + w + 4}"/>
+        <rect x="${x + 12}" y="${top + 26}" width="${w - 24}" height="20" class="paper thin"/>
+        <text class="sign-t" x="${cx}" y="${top + 36.5}" font-size="12">${h.name}</text>
+        <text class="sign-t" x="${cx}" y="${top + 11}" font-size="7.5">${h.est}</text>
+        <path class="ink" style="fill:var(--roof-b)" d="M${x - 8} 456 H${x + w + 8} L${x + w + 2} 466 H${x - 2}Z"/><path d="M${x - 8} 456 H${x + w + 8} L${x + w + 2} 466 H${x - 2}Z" fill="url(#tin)"/>
+        <path class="thin" d="M${x + 2} 466 V512 M${x + 50} 466 V512 M${x + 100} 466 V512 M${x + w - 2} 466 V512"/>
+        <path class="hair" d="M${x - 2} 470 l4 -4 M${x + w + 2} 470 l-4 -4"/></g>`);
+      // 招牌下方的小氣窗
+      [[x + 14, 442], [x + w - 34, 442]].forEach(([wx, wy]) => {
+        winGlow(gg, wx, wy, 20, 10, .4 + srand(0, .3));
+        frag(gg, `<g><rect x="${wx}" y="${wy}" width="20" height="10" class="thin"/><path class="thin" d="M${wx + 10} ${wy} v10"/></g>`);
+      });
+      // 一樓櫥窗：罐子、果醬、毛線
+      winGlow(gg, x + 8, 474, 38, 28, .3); winGlow(gg, x + w - 46, 474, 38, 28, .3);
+      frag(gg, `<g><rect x="${x + 8}" y="474" width="38" height="28" class="thin"/><rect x="${x + w - 46}" y="474" width="38" height="28" class="thin"/>
+        ${[0, 1, 2].map(i => `<path class="paper thin" d="M${x + 13 + i * 11} 502 v-10 q0 -3 4 -3 q4 0 4 3 v10"/>`).join('')}
+        ${[0, 1, 2].map(i => `<circle cx="${x + w - 38 + i * 11}" cy="496" r="5" class="paper thin"/><path class="hair" d="M${x + w - 42 + i * 11} 494 q4 4 8 0"/>`).join('')}
+        <rect x="${cx - 13}" y="476" width="26" height="36" class="paper ink"/><path class="thin" d="M${cx - 9} 480 h18 v14 h-18z"/>
+        <path class="paper ink" d="M${x + w - 16} 512 v-18 h14 v18 M${x + w - 16} 500 h14"/><text class="sign-t" x="${x + w - 9}" y="${489}" font-size="6">ICE</text>
+        <path class="paper ink" d="M${x + w - 16} 494 h14 v-10 h-14z"/></g>`);
+    }
+    if (h.type === 'cafe') {
+      const wt = 438;
+      frag(gg, `<g><rect x="${x}" y="${wt}" width="${w}" height="${BASE - wt}" class="paper ink"/><rect x="${x}" y="${wt}" width="${w}" height="${BASE - wt}" fill="url(#board)"/>
+        <path class="ink" style="fill:var(--${h.roof})" d="M${x - 10} ${wt + 4} L${cx} 392 L${x + w + 10} ${wt + 4}Z"/><path d="M${x - 10} ${wt + 4} L${cx} 392 L${x + w + 10} ${wt + 4}Z" fill="url(#tin)"/>
+        <rect x="${cx - 40}" y="${wt - 2}" width="80" height="16" class="paper thin"/>
+        <text class="sign-t" x="${cx}" y="${wt + 6}" font-size="10.5">${h.name}</text>
+        <rect x="${x + 82}" y="398" width="12" height="20" class="paper ink"/></g>`);
+      chimneys.push({ x: x + 88, y: 396, rate: .6 });
+      winGlow(gg, x + 10, 462, 60, 34, .25);
+      frag(gg, `<g><rect x="${x + 10}" y="462" width="60" height="34" class="thin"/><path class="thin" d="M${x + 30} 462 v34 M${x + 50} 462 v34"/>
+        <path class="hair" d="M${x + 14} 490 h52"/>
+        <rect x="${x + 84}" y="464" width="22" height="48" class="paper ink"/><path class="thin" d="M${x + 88} 468 h14 v20 h-14z"/>
+        <!-- 立牌：今日咖啡 -->
+        <path class="paper ink" d="M${x + w + 6} 512 l5 -26 h16 l5 26 M${x + w + 9} 500 h20"/>
+        <text class="sign-t" x="${x + w + 19}" y="${492}" font-size="5.5">FLAT</text><text class="sign-t" x="${x + w + 19}" y="${497}" font-size="5.5">WHITE</text>
+        <!-- 戶外桌椅與陽傘 -->
+        <path class="ink" d="M${x - 2} 512 v-16"/></g>`);
+      // 串燈：從咖啡店拉到路燈
+      const sl = el('g', {}, gg);
+      for (let i = 0; i < 9; i++) {
+        const t = i / 8, lx = x + w + t * (536 - x - w), ly = 446 + Math.sin(t * Math.PI) * 10;
+        const b = el('circle', { cx: f1(lx), cy: f1(ly), r: 2.2, class: 'paper thin' }, sl);
+        stringLights.push({ el: b, ph: i * .9 });
+      }
+      frag(gg, `<path class="hair" d="M${x + w} 446 Q${(x + w + 536) / 2} 466 536 446" style="opacity:.8"/>`);
+    }
+    if (h.type === 'bakery') {
+      const wt = 446;
+      frag(gg, `<g><rect x="${x}" y="${wt}" width="${w}" height="${BASE - wt}" class="paper ink"/><rect x="${x}" y="${wt}" width="${w}" height="${BASE - wt}" fill="url(#board)"/>
+        <path class="ink" style="fill:var(--roof-a)" d="M${x - 6} ${wt + 2} L${x + 10} 420 H${x + w - 4} L${x + w + 6} ${wt + 2}Z"/><path d="M${x - 6} ${wt + 2} L${x + 10} 420 H${x + w - 4} L${x + w + 6} ${wt + 2}Z" fill="url(#tin)"/>
+        <rect x="${cx - 30}" y="${wt + 6}" width="60" height="14" class="paper thin"/>
+        <text class="sign-t" x="${cx}" y="${wt + 13}" font-size="9">${h.name}</text>
+        <rect x="${x + 60}" y="476" width="22" height="36" class="paper ink"/>
+        <path class="thin" d="M${x + w} 470 h14 M${x + w + 12} 470 v6"/>
+        <g class="pieSign"><rect x="${x + w + 4}" y="476" width="18" height="12" class="paper thin"/><text class="sign-t" x="${x + w + 13}" y="482" font-size="6">PIES</text></g></g>`);
+      winGlow(gg, x + 10, 474, 40, 24, .3);
+      frag(gg, `<g><rect x="${x + 10}" y="474" width="40" height="24" class="thin"/>
+        ${[0, 1, 2].map(i => `<path class="paper thin" d="M${x + 14 + i * 12} 496 q5 -9 10 0z"/>`).join('')}</g>`);
+      const ps = gg.querySelector('.pieSign');
+      swayers.push({ type: 'sign', el: ps, x: x + w + 13, y: 470, amp: 6, ph: 0 });
+    }
+  });
+  // 人行道
+  frag(g, `<g><path class="ink" d="M-20 512 H560"/><path class="hair" d="M40 516 v6 M120 516 v6 M200 516 v6 M280 516 v6 M360 516 v6 M440 516 v6 M520 516 v6"/></g>`);
+  // 郵筒、腳踏車架
+  frag(g, `<g><path class="paper ink" d="M282 512 v-22 q0 -6 7 -6 q7 0 7 6 v22z" style="fill:var(--roof-a)"/><path class="thin" d="M284 494 h10" style="stroke:var(--paper)"/>
+    <path class="thin" d="M532 512 q0 -12 10 -12 q10 0 10 12 M546 512 q0 -12 10 -12 q10 0 10 12"/></g>`);
+}
+
+/* ---------------- ② 場景：路燈 ---------------- */
+const lamps = [];
+function drawLamps() {
+  [[538, 512], [860, 520], [1200, 520]].forEach(([x, y], i) => {
+    frag($('lamps'), `<g><path class="ink" d="M${x} ${y} V${y - 74} q0 -8 8 -8 h6"/><path class="paper ink" d="M${x + 8} ${y - 82} h14 l-3 7 h-8z"/></g>`);
+    const glow = frag($('lamps'), `<g opacity="0"><circle cx="${x + 15}" cy="${y - 74}" r="34" fill="url(#glowGrad)"/><circle cx="${x + 15}" cy="${y - 75}" r="3" class="glowfill"/></g>`);
+    lamps.push({ el: glow, ph: i * 2 });
+  });
+}
+
+/* ---------------- ② 場景：前景蕨類土坡＋螢火蟲洞的藍光 ---------------- */
+const worms = [];
+function drawFernBank() {
+  const g = $('fernBank');
+  frag(g, `<g><path class="shade ink" d="M-20 600 V566 C10 560 40 568 70 574 C100 580 120 590 140 604Z"/></g>`);
+  // 蕨類捲芽 koru 與葉片
+  [[22, 590, -20], [70, 596, 10], [110, 604, 25]].forEach(([x, y, a], i) => {
+    let lf = '';
+    for (let k = 0; k < 9; k++) lf += `M${k * 6} ${-k * 4} l-6 -8 M${k * 6} ${-k * 4} l4 -9`;
+    const f = frag(g, `<g transform="translate(${x} ${y}) rotate(${a})"><path class="thin" d="M0 0 Q20 -20 52 -38"/><path class="hair" d="${lf}" style="opacity:.8"/></g>`);
+    swayers.push({ type: 'fern', el: f, x, y, a, amp: 3, ph: i });
+  });
+  frag(g, `<path class="thin" d="M130 600 q-2 -18 10 -22 q8 -2 8 6 q0 6 -6 6 q-4 0 -3 -4"/>`);
+  for (let i = 0; i < 26; i++) {
+    const c = el('circle', { cx: f1(srand(0, 120)), cy: f1(srand(572, 598)), r: f1(srand(1, 2)), fill: 'url(#wormGrad)', opacity: 0 }, g);
+    worms.push({ el: c, ph: srand(0, 6), sp: srand(.6, 1.6) });
+  }
+}
+
+/* ---------------- ② 場景：魯冰花 ---------------- */
+const lupins = [];
+function lupin(parent, x, y, h, col, s = 1) {
+  let bells = '';
+  const n = Math.round(h / 4.2);
+  for (let k = 0; k < n; k++) {
+    const t = k / n, yy = -h * .35 - t * h * .65, w = (1 - t) * 4 + 1.4;
+    bells += `<ellipse cx="${f1(-w)}" cy="${f1(yy)}" rx="${f1(w * .7 + .6)}" ry="2" /><ellipse cx="${f1(w)}" cy="${f1(yy - 1.8)}" rx="${f1(w * .7 + .6)}" ry="2"/>`;
+  }
+  let lf = '';
+  for (let k = 0; k < 7; k++) { const a = -Math.PI * (.12 + k * .126); lf += `M0 ${-h * .22} l${f1(Math.cos(a) * 11)} ${f1(Math.sin(a) * 7 + 4)}`; }
+  const g = frag(parent, `<g transform="translate(${f1(x)} ${f1(y)}) scale(${s})"><g class="stem"><path class="thin" d="M0 0 Q1 ${f1(-h * .4)} 0 ${f1(-h)}"/><path class="hair" d="${lf}" style="opacity:.9"/>
+    <g style="fill:var(--${col});stroke:var(--ink);stroke-width:.7">${bells}</g></g></g>`);
+  const l = { g, stem: g.querySelector('.stem'), x, y, h, col, ph: srand(0, 6), kick: 0 };
+  lupins.push(l);
+  return l;
+}
+function drawLupins() {
+  const cols = ['lupin-1', 'lupin-1', 'lupin-2', 'lupin-3'];
+  // 前景（路下方）四叢：[起點x, 終點x, 株數]，想更密就加大株數
+  [[540, 810, 34], [1240, 1600, 46], [130, 320, 18], [-10, 120, 14]].forEach(([a, b, n]) => {
+    for (let i = 0; i < n; i++) lupin($('lupins'), srand(a, b), srand(594, 606), srand(34, 62), cols[Math.floor(srand(0, 4))]);
+  });
+  // 湖岸（碼頭右邊）較小的一叢
+  for (let i = 0; i < 26; i++) { const x = srand(1024, 1110); lupin($('lupinsBack'), x, shoreY(x) + srand(10, 30), srand(22, 38), cols[Math.floor(srand(0, 4))], .8); }
+  // 點擊感應區
+  el('rect', { x: 540, y: 538, width: 270, height: 70, fill: 'transparent' }, $('lupins'));
+  el('rect', { x: 1240, y: 538, width: 370, height: 70, fill: 'transparent' }, $('lupins'));
+  el('rect', { x: 110, y: 550, width: 220, height: 60, fill: 'transparent' }, $('lupins'));
+  el('rect', { x: -20, y: 550, width: 150, height: 60, fill: 'transparent' }, $('lupins'));
+}
+
+/* ---------------- ② 場景：牧場圍籬 ---------------- */
+function drawFence() {
+  let d = '', w1 = 'M1170 ' + f1(shoreY(1170) + 52), w2 = 'M1170 ' + f1(shoreY(1170) + 62);
+  for (let x = 1170; x <= 1620; x += 30) {
+    const y = Math.min(508, shoreY(x) + 70);
+    d += `M${x} ${f1(y)} v-22`;
+    w1 += ` L${x} ${f1(y - 18)}`; w2 += ` L${x} ${f1(y - 8)}`;
+  }
+  frag($('fence'), `<g><path class="ink" d="${d}"/><path class="hair" d="${w1} ${w2}" style="opacity:.9"/></g>`);
+}
+
+/* ---------------- ③ 角色：羊群 ---------------- */
+const sheep = [];
+function drawSheep() {
+  const g = $('sheep');
+  const spots = [[1230, 0], [1290, 0], [1340, 0], [1400, 0], [1440, 1], [1520, 0], [1560, 1], [1330, 1], [1480, 0], [1270, 1], [1590, 0]];
+  spots.forEach(([x0, lamb], i) => {
+    const top = shoreY(x0) + 18, bottom = Math.min(500, shoreY(x0) + 60);
+    const y0 = srand(top, bottom), dir = srand() < .5 ? 1 : -1, s = (lamb ? .62 : .86) * (.8 + (y0 - 380) / 600);
+    const o = frag(g, `<g class="clickable" tabindex="0" role="button" aria-label="羊"><g class="body">
+      <rect x="-24" y="-30" width="48" height="34" fill="transparent"/>
+      <path class="ink" d="M-10 -6 v10 M-4 -6 v11 M8 -6 v10 M13 -6 v9"/>
+      <path class="paper ink" d="M-16 -10 q-4 -10 6 -12 q4 -8 12 -4 q8 -6 14 2 q8 2 4 12 q2 8 -8 8 q-6 4 -12 0 q-8 4 -12 -2 q-8 0 -4 -4z"/>
+      <g class="head"><ellipse cx="18" cy="-14" rx="5.5" ry="4" class="inkfill"/><path class="ink" d="M14 -17 l-4 -3"/></g>
+    </g></g>`);
+    const sh = { g: o, body: o.querySelector('.body'), head: o.querySelector('.head'), x: x0, y: y0, dir, s, ph: srand(0, 6), jump: 0, tx: x0, wait: srand(2, 8) };
+    o.addEventListener('click', e => { e.stopPropagation(); baa(sh); });
+    o.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); baa(sh); } });
+    sheep.push(sh);
+  });
+  sheep.sort((a, b) => a.y - b.y).forEach(s => g.appendChild(s.g));
+}
+
+/* ---------------- ③ 角色：紫水雞 ---------------- */
+const puk = { x: 760, dir: 1, run: 0, ph: 0 };
+function drawPukeko() {
+  frag($('pukeko'), `<g class="pk"><rect x="-16" y="-30" width="34" height="32" fill="transparent"/>
+    <path class="ink legs" d="M-2 -8 L-4 0 M3 -8 L5 0" style="stroke:var(--canopy)"/>
+    <path class="ink" style="fill:var(--pukeko)" d="M-12 -14 Q-10 -24 2 -22 Q10 -20 10 -12 Q8 -6 -2 -6 Q-12 -6 -12 -14Z"/>
+    <path class="thin" d="M-12 -14 l-4 2 l3 3z" style="fill:var(--paper)"/>
+    <path class="ink" style="fill:var(--pukeko)" d="M6 -20 Q8 -30 12 -30 Q16 -30 15 -26"/>
+    <path class="thin" style="fill:var(--beak)" d="M12 -31 L20 -27 L15 -25Z"/>
+    <circle cx="13.5" cy="-28.5" r=".9" class="inkfill"/>
+  </g>`);
+}
+
+/* ---------------- ③ 角色：夜裡觀星的人 ---------------- */
+function drawStargazers() {
+  frag($('stargazers'), `<g transform="translate(748 506)">
+    <path class="ink" d="M-40 0 l6 -16 M-28 0 l-6 -16 M-34 -16 l20 -18"/>
+    <rect x="-20" y="-40" width="26" height="8" rx="3" class="paper ink" transform="rotate(-34 -14 -36)"/>
+    <path class="paper ink" d="M-6 -36 L-7 -14 L4 -14 L3 -36 Q-2 -39 -6 -36Z"/><path class="ink" d="M-4 -14 L-6 0 M2 -14 L4 0"/>
+    <circle cx="-2" cy="-43" r="6" class="paper ink"/><path class="ink" d="M-6 -32 L-16 -36"/>
+    <path class="paper ink" d="M18 -30 L17 -14 L28 -14 L27 -30 Q22 -33 18 -30Z" style="fill:var(--roof-b)"/>
+    <path class="ink" d="M20 -14 L18 0 M26 -14 L27 0"/><circle cx="22" cy="-37" r="6" class="paper ink"/>
+    <path class="ink" d="M20 -26 L14 -40"/><circle cx="13" cy="-42" r="2" class="glowfill"/>
+  </g>`);
+}
+
+/* ---------------- ③ 角色：人行道行人 ----------------
+   WALKERS：想加人改這裡。kit：backpack 登山背包／dog 牽狗／ice 冰淇淋／hat 帽子 */
+const WALKERS = [
+  { x: 60,   v: 22,  kit: ['backpack', 'hat'], shirt: 'canopy' },
+  { x: 330,  v: -18, kit: ['dog'], shirt: 'roof-b' },
+  { x: 900,  v: 16,  kit: ['ice'], shirt: 'lupin-2', kid: true },
+  { x: 1180, v: -24, kit: ['backpack'], shirt: 'roof-a' },
+  { x: 700,  v: 14,  kit: ['hat'], shirt: 'lupin-1' }
+];
+const walkers = [];
+function personSVG(o) {
+  const s = o.kid ? .72 : 1;
+  let back = '', front = '';
+  if (o.kit.includes('backpack')) back += `<rect x="-14" y="-42" width="10" height="22" rx="3" class="paper ink" style="fill:var(--van)"/><path class="thin" d="M-13 -44 h8"/>`;
+  if (o.kit.includes('hat')) front += `<path class="ink" d="M-9 -49 H9 M-5 -49 Q0 -58 5 -49" style="fill:var(--paper)"/>`;
+  if (o.kit.includes('ice')) front += `<path class="paper thin" d="M10 -30 l3 8 l3 -8z"/><circle cx="13" cy="-32" r="3.5" style="fill:var(--lupin-2)" class="thin"/>`;
+  return `<g transform="scale(${s})">${back}
+    <path class="ink legL" d=""/><path class="ink legR" d=""/>
+    <path class="paper ink" style="fill:var(--${o.shirt})" d="M-6 -38 L-7 -18 L7 -18 L6 -38 Q0 -42 -6 -38Z"/>
+    <path class="ink armL" d=""/><path class="ink armR" d=""/>
+    <circle cx="0" cy="-45" r="6.5" class="paper ink"/>${front}</g>`;
+}
+function drawWalkers() {
+  WALKERS.forEach(o => {
+    const g = el('g', {}, $('walkers'));
+    const body = frag(g, `<g>${personSVG(o)}</g>`);
+    let dog = null;
+    if (o.kit.includes('dog')) {
+      dog = frag(g, `<g transform="translate(26 0)"><path class="ink dl" d=""/><path class="paper ink" d="M-10 -12 Q-10 -18 0 -18 Q10 -18 10 -12 Q10 -8 0 -8 Q-10 -8 -10 -12Z"/>
+        <circle cx="12" cy="-18" r="5" class="paper ink"/><path class="ink" d="M10 -22 l-2 -4 M15 -21 l3 -3"/><path class="ink tail" d="M-10 -14 q-6 -6 -4 -10"/></g>`);
+      frag(g, `<path class="hair" d="M8 -28 Q20 -14 30 -16" style="opacity:.9"/>`);
+    }
+    walkers.push({ ...o, g, body, dog, ph: srand(0, 6), legs: g.querySelectorAll('.legL,.legR,.armL,.armR') });
+  });
+}
+
+/* ---------------- ③ 交通工具：露營車、農用小貨卡、載獨木舟的車、單車 ---------------- */
+const traffic = [];
+function wheel(x, r = 9) { return `<g transform="translate(${x} 0)"><circle r="${r}" class="paper ink"/><g class="spin"><path class="thin" d="M${-r + 3} 0 H${r - 3} M0 ${-r + 3} V${r - 3}"/></g><circle r="2" class="inkfill"/></g>`; }
+function drawTraffic() {
+  // 露營車（往右，可點）
+  const van = frag($('traffic'), `<g class="clickable" tabindex="0" role="button" aria-label="露營車，點了會按喇叭">
+    <g class="beam" opacity="0"><path d="M62 -22 L190 -40 L190 8 L62 -10Z" fill="url(#coneGrad)"/></g>
+    <path class="paper ink" style="fill:var(--van)" d="M-58 -8 V-52 Q-58 -58 -52 -58 H34 Q42 -58 46 -50 L60 -30 Q64 -26 64 -18 V-8Z"/>
+    <path class="paper ink" d="M-46 -58 L-40 -70 H20 L26 -58"/><path class="hair" d="M-36 -64 h52"/>
+    <path class="paper thin" d="M36 -52 L52 -32 H32 V-52Z"/>
+    <rect x="-46" y="-48" width="22" height="16" rx="2" class="paper thin vanWin"/><rect x="-16" y="-48" width="38" height="16" rx="2" class="paper thin vanWin"/>
+    <path class="thin" d="M-58 -26 H64" style="stroke:var(--paper);stroke-width:3"/><path class="hair" d="M-58 -24 H64"/>
+    <rect x="58" y="-24" width="6" height="5" class="glowfill thin"/>
+    <path class="thin" d="M-66 -16 m-6 0 a7 7 0 1 0 14 0 a7 7 0 1 0 -14 0 M-66 -16 l8 -14 h-10 M-58 -30 l4 -2"/>
+    ${wheel(-34)}${wheel(40)}
+  </g>`);
+  traffic.push({ g: van, x: -200, y: LANE_A, v: 58, dir: 1, len: 140, boost: 0, isVan: true });
+  // 小貨卡＋牧羊犬（往左）
+  const ute = frag($('traffic'), `<g>
+    <g class="beam" opacity="0"><path d="M50 -20 L160 -36 L160 4 L50 -10Z" fill="url(#coneGrad)"/></g>
+    <path class="paper ink" style="fill:var(--roof-b)" d="M-50 -8 V-26 H6 V-42 Q6 -46 10 -46 H28 Q34 -46 38 -40 L46 -28 Q52 -26 52 -18 V-8Z"/>
+    <path class="paper thin" d="M14 -42 H28 L36 -30 H14Z"/><path class="thin" d="M-50 -26 h56"/>
+    <g class="dogHead"><path class="paper ink" d="M-20 -26 q0 -10 8 -10 q6 0 6 6 v4"/><circle cx="-6" cy="-36" r="5" class="paper ink"/><path class="ink" d="M-9 -40 l-2 -4"/></g>
+    ${wheel(-30, 8)}${wheel(32, 8)}
+  </g>`);
+  traffic.push({ g: ute, x: 1900, y: LANE_B, v: 76, dir: -1, len: 110 });
+  // 車頂載獨木舟的小車（往左）
+  const car = frag($('traffic'), `<g>
+    <g class="beam" opacity="0"><path d="M44 -18 L150 -34 L150 4 L44 -8Z" fill="url(#coneGrad)"/></g>
+    <path class="ink" style="fill:var(--boat)" d="M-56 -46 Q0 -54 58 -46 Q0 -40 -56 -46Z"/><path class="thin" d="M-20 -44 v4 M24 -44 v4"/>
+    <path class="paper ink" d="M-46 -8 V-22 Q-46 -26 -40 -28 L-24 -40 H18 L32 -28 Q46 -26 46 -18 V-8Z"/>
+    <path class="paper thin" d="M-22 -36 H-2 V-28 H-32Z M2 -36 H16 L26 -28 H2Z"/>
+    ${wheel(-26, 8)}${wheel(28, 8)}
+  </g>`);
+  traffic.push({ g: car, x: 2600, y: LANE_B, v: 70, dir: -1, len: 110 });
+  // 單車騎士（往右，載駝包）
+  const bike = frag($('traffic'), `<g>
+    ${wheel(-18, 11)}${wheel(18, 11)}
+    <path class="ink" d="M-18 0 L-4 -18 L12 -18 L18 0 M-4 -18 L0 0 L12 -18 M10 -22 l4 -2"/>
+    <rect x="-30" y="-14" width="12" height="12" rx="2" class="paper thin" style="fill:var(--roof-a)"/>
+    <path class="ink pedal" d=""/>
+    <path class="paper ink" style="fill:var(--lupin-1)" d="M-6 -22 L2 -42 L10 -38 L4 -20Z"/><path class="ink" d="M6 -38 L12 -24"/>
+    <circle cx="8" cy="-48" r="6" class="paper ink"/><path class="ink" d="M2 -51 Q8 -58 14 -51Z" style="fill:var(--canopy)"/>
+  </g>`);
+  traffic.push({ g: bike, x: 300, y: LANE_A, v: 30, dir: 1, len: 60, bike: true });
+}
+
+/* ---------------- ③ 湖上：蒸汽船、獨木舟、鴨子 ---------------- */
+const steamer = { x: 300, dir: 1, v: 9, horn: 0 };
+const kayaks = [];
+const ducks = [];
+function drawLakeLife() {
+  frag($('steamer'), `<g class="hull">
+    <rect x="-70" y="-60" width="140" height="70" fill="transparent"/>
+    <path class="paper ink" d="M-64 -10 H62 L52 4 H-56Z"/>
+    <path class="ink" style="fill:var(--boat)" d="M-60 -4 H58 L52 4 H-56Z"/>
+    <rect x="-40" y="-24" width="70" height="14" class="paper ink"/>
+    <path class="thin" d="M-34 -20 h8 M-20 -20 h8 M-6 -20 h8 M8 -20 h8"/>
+    <rect x="-28" y="-34" width="40" height="10" class="paper ink"/>
+    <rect x="-6" y="-54" width="9" height="20" class="ink" style="fill:var(--boat)"/><path class="ink" d="M-7 -50 h11" style="stroke:var(--ink)"/>
+    <path class="thin" d="M40 -10 V-40 M-56 -10 V-30 M-56 -30 L40 -40"/>
+    <path class="thin" d="M-50 -2 m-5 0 a5 5 0 1 0 10 0 a5 5 0 1 0 -10 0" style="opacity:0"/>
+  </g>`);
+  [[700, 404, 1, 12, 'roof-a'], [1180, 420, -1, 9, 'canopy']].forEach(([x, y, d, v, c]) => {
+    const g = frag($('kayaks'), `<g><path class="ink" style="fill:var(--${c})" d="M-22 0 Q0 -6 22 0 Q0 4 -22 0Z"/><circle cx="0" cy="-9" r="3.5" class="paper thin"/><path class="thin" d="M0 -6 v5"/><path class="thin paddle" d="M-12 -2 L12 -10"/></g>`);
+    kayaks.push({ g, x, y, dir: d, v, ph: srand(0, 6), paddle: g.querySelector('.paddle') });
+  });
+  [[1048, 444], [1070, 448], [1090, 442], [540, 436]].forEach(([x, y], i) => {
+    const g = frag($('ducks'), `<g class="clickable"><path class="paper ink" d="M-7 0 Q-8 -6 0 -6 Q5 -6 6 -3 L6 -9 Q6 -13 10 -12 L13 -10 L10 -9 V-3 Q8 0 -7 0Z"/><path class="hair" d="M-4 -3 q4 -2 7 0"/></g>`);
+    ducks.push({ g, x, y, ph: srand(0, 6), dive: 0, dir: i % 2 ? 1 : -1 });
+  });
+}
+
+/* ---------------- ③ 天空：雲、滑翔傘、小飛機、鳥 ---------------- */
+const clouds = [];
+function cloudPath(w) {
+  const n = Math.max(3, Math.round(w / 34)); let d = `M0 0`;
+  for (let i = 0; i < n; i++) { const x0 = i * w / n, x1 = (i + 1) * w / n, h = 18 + srand(0, 18); d += ` C${f1(x0)} ${f1(-h)} ${f1(x1)} ${f1(-h)} ${f1(x1)} 0`; }
+  return d + ` Q${f1(w / 2)} 8 0 0Z`;
+}
+function drawSky() {
+  [[100, 70, 180, 3], [560, 46, 140, 4], [980, 84, 220, 2.5], [1340, 58, 150, 3.5], [1600, 110, 120, 4.5]].forEach(([x, y, w, sp]) => {
+    const g = frag($('clouds'), `<g><path class="paper ink" d="${cloudPath(w)}"/><path class="hair" d="M${w * .2} -4 h${w * .4}"/></g>`);
+    clouds.push({ g, x, y, sp, s: 1 });
+  });
+  // 星星與銀河
+  for (let i = 0; i < 140; i++) {
+    const c = el('circle', { cx: f1(srand(0, 1600)), cy: f1(srand(0, 300)), r: f1(srand(.5, 1.6)), style: 'fill:var(--moon)', opacity: 0 }, $('stars'));
+    stars.push({ el: c, sp: srand(.8, 3), ph: srand(0, 6) });
+  }
+  for (let i = 0; i < 360; i++) {
+    const t = srand(), off = (srand() + srand() + srand() - 1.5) * 60;
+    const x = 200 + t * 1200 + off * .5, y = 40 + t * 180 - off;
+    el('circle', { cx: f1(x), cy: f1(y), r: f1(srand(.3, 1)), style: 'fill:var(--moon)' }, $('milky'));
+  }
+  // 南極光三道
+  for (let i = 0; i < 3; i++) aurora.push({ el: el('path', { fill: 'url(#auroraGrad)', d: '' }, $('aurora')), base: 210 + i * 18, h: 120 - i * 25, sp: .25 + i * .08, ph: i * 2 });
+  // 滑翔傘
+  frag($('paraglider'), `<g><path class="ink" style="fill:var(--canopy)" d="M-26 0 Q0 -14 26 0 Q0 -6 -26 0Z"/><path class="hair" d="M-24 0 L0 30 M24 0 L0 30 M-10 -4 L0 30 M10 -4 L0 30" style="opacity:.8"/><circle cx="0" cy="34" r="3.5" class="paper thin"/><path class="thin" d="M0 38 v6"/></g>`);
+  // 水上小飛機
+  frag($('plane'), `<g class="clickable" tabindex="0" role="button" aria-label="水上小飛機"><g class="pl">
+    <rect x="-46" y="-30" width="92" height="44" fill="transparent"/>
+    <path class="paper ink" d="M-40 -8 Q-40 -16 -30 -16 L20 -18 Q34 -16 36 -8 Q30 -2 -30 -2Z"/>
+    <path class="ink" style="fill:var(--boat)" d="M-14 -18 L18 -22 L22 -18 L-12 -16Z"/>
+    <path class="paper ink" d="M-40 -14 L-48 -28 L-36 -28 L-30 -16"/>
+    <path class="paper thin" d="M14 -16 L24 -16 L30 -9 L14 -9Z"/>
+    <path class="thin" d="M-20 -2 L-24 8 M14 -2 L18 8 M-34 10 H34 Q38 10 38 6"/>
+    <g class="prop"><path class="thin" d="M38 -16 V0"/></g>
+  </g></g>`);
+}
+const stars = [];
+const aurora = [];
+
+/* ---------------- ④ 動畫 ---------------- */
+const DAY_SECONDS = 80;     // 自動播放時，一天＝80 秒
+let tod = 0.44;              // 一天中的時間 0～1（0＝午夜、0.5＝中午）
+let target = null;
+let auto = !reduced;
+let T = 0, wind = 0.4, mx = 0, mxS = 0, nightAmt = 0, auroraBoost = 0;
+let gust = 0;        // 【互動】「吹一陣風」按鈕：0～1，逐漸消退
+let meteorRain = 0;  // 【互動】「流星雨」按鈕：剩餘秒數
+// 【動畫】天氣：0 晴天／1 下雨／2 下雪；rainAmt、snowAmt 會慢慢淡入淡出
+const WEATHER = [{ icon: '☀', name: '晴天' }, { icon: '☂', name: '下雨' }, { icon: '❄', name: '下雪' }];
+let weather = 0, rainAmt = 0, snowAmt = 0;
+const wxDrops = [];
+const plane = { x: 1900, y: 170, v: -90, wob: 0, wait: 6 };
+const glider = { x: 1300, y: 150 };
+
+/* 粒子池：煙 */
+const smokePool = [];
+for (let i = 0; i < 46; i++) {
+  const p = el('circle', { class: 'paper thin', r: 4, opacity: 0 }, $('smoke'));
+  smokePool.push({ el: p, life: 0, max: 1, x: 0, y: 0, vx: 0, vy: 0, r: 4 });
+}
+function emitSmoke(x, y, big = 1) {
+  const p = smokePool.find(q => q.life <= 0);
+  if (!p) return;
+  Object.assign(p, { x: x + rand(-2, 2), y, vx: rand(-2, 4), vy: rand(-16, -10) * big, life: rand(1.8, 3), r: rand(2.5, 4) * big });
+  p.max = p.life;
+}
+/* 粒子池：花瓣 */
+const petalPool = [];
+for (let i = 0; i < 50; i++) {
+  const p = el('ellipse', { rx: 2.6, ry: 1.5, opacity: 0, style: 'stroke:var(--ink);stroke-width:.5' }, $('petals'));
+  petalPool.push({ el: p, life: 0, x: 0, y: 0, vx: 0, vy: 0, rot: 0 });
+}
+function emitPetal(x, y, col) {
+  const p = petalPool.find(q => q.life <= 0);
+  if (!p) return;
+  Object.assign(p, { x, y, vx: rand(20, 70), vy: rand(-50, -10), life: rand(2, 3.5), rot: rand(0, 360) });
+  p.el.style.fill = `var(--${col})`;
+}
+/* 漣漪 */
+const ripples = [];
+function addRipple(x, y, big = 1) {
+  const e = el('ellipse', { cx: x, cy: y, rx: 2, ry: .6, class: 'thin' }, $('ripples'));
+  ripples.push({ el: e, t: 0, big });
+}
+/* 對話泡泡 */
+const bubbles = [];
+function say(x, y, text, dur = 1.6) {
+  const w = text.length * 15 + 20;
+  const g = frag($('bubbles'), `<g class="bubble" transform="translate(${x} ${y})"><rect x="${-w / 2}" y="-30" width="${w}" height="26" rx="13"/><path class="ink" d="M-4 -4 L0 4 L4 -4" style="fill:var(--paper)"/><text y="-17">${text}</text></g>`);
+  bubbles.push({ g, x, y, t: 0, dur });
+}
+
+function applyTime() {
+  const elev = Math.sin((tod - 0.25) * Math.PI * 2);
+  const day = smooth(-0.2, 0.25, elev);
+  const dusk = Math.max(0, 1 - Math.abs(elev) / 0.34) * (elev > -0.25 ? 1 : 0);
+  nightAmt = 1 - day;
+  for (const k of ['sky-top', 'sky-bottom', 'lake-top']) {
+    const c = mix(mix(PAL[k].night, PAL[k].day, day), PAL[k].dusk, dusk * 0.75);
+    root.style.setProperty('--' + k, rgb(c));
+  }
+  for (const k of ['paper', 'ink', 'far', 'near', 'snow', 'lake-bottom', 'ground', 'road', 'shade']) root.style.setProperty('--' + k, rgb(mix(PAL[k].night, PAL[k].day, day)));
+
+  // 太陽、月亮軌跡（會從雪山後面升起）
+  const sp = (tod - 0.25) / 0.5;
+  const sx = 120 + sp * 1360, sy = 360 - elev * 300;
+  $('sun').setAttribute('transform', `translate(${f1(sx)} ${f1(sy)}) rotate(${f1(T * 8)})`);
+  $('sun').style.opacity = elev > -0.15 ? f1(1 - Math.max(rainAmt, snowAmt) * .8) : 0; // 雨雪天太陽變淡
+  const mt = (tod + 0.5) % 1, melev = Math.sin((mt - 0.25) * Math.PI * 2), msp = (mt - 0.25) / 0.5;
+  const mxp = 120 + msp * 1360, myp = 360 - melev * 280;
+  $('moon').setAttribute('transform', `translate(${f1(mxp)} ${f1(myp)})`);
+  $('moon').style.opacity = melev > -0.15 ? 1 : 0;
+  // 湖面光帶：跟著太陽或月亮
+  const useSun = elev > 0.05, gx = useSun ? sx : mxp, gEl = useSun ? elev : melev;
+  const gOp = clamp(gEl * 2, 0, 1) * (useSun ? .55 : .8);
+  [...$('glint').children].forEach((p, i) => {
+    const y = 326 + i * 10 + i * i * .4, w = 6 + i * 3 + Math.sin(T * 2 + i) * 3;
+    const x = gx + Math.sin(T * 1.3 + i * 1.7) * (3 + i);
+    p.setAttribute('d', `M${f1(x - w)} ${f1(y)} H${f1(x + w)}`);
+    p.setAttribute('opacity', f1(gOp * (1 - i / 14)));
+    p.style.stroke = useSun ? 'var(--sun)' : 'var(--moon)';
+  });
+  // 清晨湖霧（日出前後最濃）
+  const mistAmt = Math.max(0, 1 - Math.abs(tod - 0.27) / 0.07);
+  $('mistG').setAttribute('opacity', f1(mistAmt * .7));
+  $('milky').setAttribute('opacity', f1(smooth(.6, .95, nightAmt) * .55));
+
+  const mins = Math.floor(tod * 1440);
+  $('clock').textContent = `${String(Math.floor(mins / 60)).padStart(2, '0')}:${String(mins % 60).padStart(2, '0')}`;
+  $('timeRange').value = Math.round(tod * 1000);
+}
+
+function step(dt) {
+  T += dt;
+  if (target !== null) {
+    let d = target - tod; if (d > .5) d -= 1; if (d < -.5) d += 1;
+    tod = (tod + d * Math.min(1, dt * 2.2) + 1) % 1;
+    if (Math.abs(d) < 0.002) { tod = target; target = null; }
+  } else if (auto) tod = (tod + dt / DAY_SECONDS) % 1;
+  applyTime();
+
+  // 風：兩個正弦疊加＋陣風
+  wind = 0.45 + 0.3 * Math.sin(T * 0.21) + 0.2 * Math.sin(T * 0.67 + 1.3) + 0.1 * Math.sin(T * 2.1) + gust * 1.3;
+  // 【動畫】強風：魯冰花花瓣被吹散
+  if (gust > 0) {
+    gust = Math.max(0, gust - dt * .22);
+    if (dt > 0 && Math.random() < gust * 1.2) { const l = lupins[Math.floor(rand(0, lupins.length))]; emitPetal(l.x, l.y - l.h * rand(.5, 1), l.col); }
+  }
+  // 【動畫】天氣：雨絲斜落、雪花飄落，湖面在雨中冒出漣漪
+  const k = dt > .001 ? Math.min(1, dt * .8) : 1;
+  rainAmt += ((weather === 1 ? 1 : 0) - rainAmt) * k;
+  snowAmt += ((weather === 2 ? 1 : 0) - snowAmt) * k;
+  $('wxShade').setAttribute('opacity', f1((rainAmt * .38 + snowAmt * .18) * (1 - nightAmt * .5)));
+  wxDrops.forEach(d => {
+    const amt = d.snow ? snowAmt : rainAmt;
+    if (amt < .02) { d.el.setAttribute('opacity', 0); return; }
+    if (d.snow) { d.y += d.v * dt; d.x += (wind * 30 + Math.sin(T * 1.5 + d.ph) * 14) * dt; }
+    else { d.y += d.v * dt; d.x += (wind * 120 - 40) * dt; }
+    if (d.y > 610) { d.y = rand(-40, -5); d.x = rand(-100, 1700); }
+    if (d.x > 1700) d.x -= 1800; if (d.x < -100) d.x += 1800;
+    if (d.snow) d.el.setAttribute('transform', `translate(${f1(d.x)} ${f1(d.y)})`);
+    else d.el.setAttribute('transform', `translate(${f1(d.x)} ${f1(d.y)}) rotate(${f1(-8 - wind * 14)})`);
+    d.el.setAttribute('opacity', f1(amt * d.op));
+  });
+  if (rainAmt > .3 && dt > .001 && Math.random() < rainAmt * dt * 6) addRipple(rand(0, 1600), rand(345, 435), .45);
+
+  // 【動畫】流星雨：夜晚時在天空隨機劃過流星
+  if (meteorRain > 0) {
+    meteorRain -= dt;
+    if (nightAmt > .5 && dt > 0 && Math.random() < dt * 5) {
+      const m = el('line', { stroke: 'url(#meteorGrad)', 'stroke-width': 2, 'stroke-linecap': 'round' }, $('meteors'));
+      meteors.push({ el: m, x: rand(200, 1500), y: rand(20, 200), t: 0 });
+      auroraBoost = 1;
+    }
+  }
+
+  // 視差：雪山、雲、倒影
+  mxS += (mx - mxS) * Math.min(1, dt * 3);
+  $('farLayer').setAttribute('transform', `translate(${f1(-mxS * 14)} 0)`);
+  $('reflect').setAttribute('transform', `translate(${f1(-mxS * 14)} 0)`);
+  $('clouds').setAttribute('transform', `translate(${f1(-mxS * 22)} 0)`);
+  // 倒影隨波紋微微晃動
+  $('reflectInner').setAttribute('transform', `translate(${f1(Math.sin(T * .9) * 2)} 513.2) scale(1 ${f1(-.614 + Math.sin(T * 1.3) * .006)})`);
+
+  // 雲
+  clouds.forEach(c => {
+    c.x += (c.sp + wind * 8) * dt;
+    if (c.x > 1700) c.x = -260;
+    c.g.setAttribute('transform', `translate(${f1(c.x)} ${c.y})`);
+    c.g.style.opacity = 1 - nightAmt * .55;
+  });
+
+  // 星星閃爍、極光波動
+  stars.forEach(s => s.el.setAttribute('opacity', f1(nightAmt * (0.55 + 0.45 * Math.sin(T * s.sp + s.ph)))));
+  auroraBoost = Math.max(0, auroraBoost - dt * .12);
+  const aOp = smooth(.65, .95, nightAmt) * (.55 + auroraBoost * .45);
+  $('aurora').setAttribute('opacity', f1(aOp));
+  if (aOp > .01) aurora.forEach(a => {
+    let top = '', bot = '';
+    const pts = [];
+    for (let x = -60; x <= 1660; x += 60) {
+      const y = a.base + Math.sin(x / 210 + T * a.sp + a.ph) * 22 + Math.sin(x / 90 - T * a.sp * 1.7) * 8;
+      const h = a.h * (.6 + .4 * Math.sin(x / 150 + T * a.sp * 1.3 + a.ph)) * (1 + auroraBoost * .4);
+      pts.push([x, y, h]);
+    }
+    top = 'M' + pts.map(p => `${p[0]} ${f1(p[1] - p[2])}`).join(' L');
+    bot = pts.reverse().map(p => `L${p[0]} ${f1(p[1])}`).join(' ');
+    a.el.setAttribute('d', top + ' ' + bot + 'Z');
+  });
+
+  // 湖面波光
+  shimmer.forEach(s => {
+    s.x += (8 + wind * 10) * s.sp * dt * .4;
+    if (s.x > 1620) s.x = -30;
+    const o = (.25 + .3 * Math.sin(T * s.sp * 2 + s.ph)) * (1 - nightAmt * .4);
+    s.el.setAttribute('transform', `translate(${f1(s.x)} ${f1(s.y + Math.sin(T + s.ph) * .6)})`);
+    s.el.setAttribute('opacity', f1(Math.max(0, o)));
+  });
+
+  // 隨風擺動：柳枝、樹、蘆葦、風車、招牌、蕨
+  swayers.forEach(s => {
+    if (s.type === 'willow') {
+      const sw = wind * 10 + Math.sin(T * 1.4 + s.ph) * 3;
+      s.el.setAttribute('d', `M${f1(s.x)} ${f1(s.top)} q${f1(sw * .2)} ${f1(s.len * .5)} ${f1(sw)} ${f1(s.len)}`);
+    } else if (s.type === 'tree') {
+      s.el.setAttribute('transform', `rotate(${f1(wind * s.amp + Math.sin(T * 1.2 + s.ph) * .8)} ${s.x} ${s.y})`);
+    } else if (s.type === 'crown') {
+      s.el.setAttribute('transform', `translate(${s.x} ${s.y}) rotate(${f1(wind * s.amp + Math.sin(T * 1.8 + s.ph) * 2)})`);
+    } else if (s.type === 'reed') {
+      s.el.style.transform = `skewX(${f1(-wind * s.amp - Math.sin(T * 1.6) * 1.5)}deg)`;
+    } else if (s.type === 'mill') {
+      s.el.setAttribute('transform', s.el.getAttribute('transform').replace(/rotate\([^)]*\)/, '') + ` rotate(${f1(T * (60 + wind * 120))})`);
+    } else if (s.type === 'sign') {
+      s.el.setAttribute('transform', `rotate(${f1(-wind * s.amp + Math.sin(T * 2.2) * 2)} ${s.x} ${s.y})`);
+    } else if (s.type === 'fern') {
+      s.el.setAttribute('transform', `translate(${s.x} ${s.y}) rotate(${f1(s.a + Math.sin(T * 1.3 + s.ph) * s.amp + wind * 2)})`);
+    }
+  });
+  // 風向袋
+  windsock.setAttribute('transform', `translate(898 418) rotate(${f1(70 - wind * 85 + Math.sin(T * 3) * 4)}) scale(${f1(.8 + wind * .3)} 1)`);
+
+  // 魯冰花擺動（被點會晃更大）
+  lupins.forEach(l => {
+    l.kick *= Math.pow(.2, dt);
+    l.stem.setAttribute('transform', `rotate(${f1(wind * 4 + Math.sin(T * 1.7 + l.ph) * 2.2 + Math.sin(T * 9) * l.kick)})`);
+  });
+
+  // 燈光：窗戶逐盞亮、路燈偶爾閃、串燈、教堂窗
+  windows.forEach(w => {
+    const on = nightAmt > w.thr ? 1 : 0;
+    w.val += (on - w.val) * Math.min(1, dt * 3);
+    const fl = 0.92 + 0.08 * Math.sin(T * 7 + w.ph);
+    w.el.setAttribute('opacity', f1(w.val * .82 * fl));
+  });
+  lamps.forEach(l => {
+    const fl = Math.random() < 0.01 ? .25 : 1;
+    l.el.setAttribute('opacity', f1(smooth(.35, .7, nightAmt) * fl));
+  });
+  stringLights.forEach(s => {
+    const on = nightAmt > .4 && Math.sin(T * 2.4 + s.ph) > -0.6;
+    s.el.style.fill = on ? 'var(--glow)' : 'var(--paper)';
+  });
+  churchWin.setAttribute('opacity', f1(smooth(.5, .8, nightAmt) * (.85 + .15 * Math.sin(T * 5))));
+  worms.forEach(w => w.el.setAttribute('opacity', f1(smooth(.6, .9, nightAmt) * (.5 + .5 * Math.sin(T * w.sp + w.ph)))));
+  $('stargazers').setAttribute('opacity', f1(smooth(.7, .9, nightAmt)));
+
+  // 煙：煙囪、蒸汽船
+  chimneys.forEach(c => { if (Math.random() < c.rate * dt * 3) emitSmoke(c.x, c.y, .9); });
+  smokePool.forEach(p => {
+    if (p.life <= 0) return;
+    p.life -= dt;
+    p.x += (p.vx + wind * 18) * dt; p.y += p.vy * dt;
+    const k = 1 - p.life / p.max;
+    p.el.setAttribute('cx', f1(p.x)); p.el.setAttribute('cy', f1(p.y));
+    p.el.setAttribute('r', f1(p.r * (1 + k * 2.2)));
+    p.el.setAttribute('opacity', f1(Math.max(0, (1 - k) * .75)));
+  });
+  // 花瓣
+  petalPool.forEach(p => {
+    if (p.life <= 0) { p.el.setAttribute('opacity', 0); return; }
+    p.life -= dt; p.vx += wind * 30 * dt; p.vy += 22 * dt; p.rot += 200 * dt;
+    p.x += p.vx * dt; p.y += p.vy * dt + Math.sin(T * 6 + p.rot) * .3;
+    p.el.setAttribute('transform', `translate(${f1(p.x)} ${f1(p.y)}) rotate(${f1(p.rot)})`);
+    p.el.setAttribute('opacity', f1(Math.min(1, p.life)));
+  });
+
+  // 蒸汽船來回航行
+  steamer.horn = Math.max(0, steamer.horn - dt);
+  steamer.x += steamer.v * steamer.dir * dt * (1 + steamer.horn * .4);
+  if (steamer.x > 1460) steamer.dir = -1;
+  if (steamer.x < 140) steamer.dir = 1;
+  const sB = Math.sin(T * 1.5) * .8;
+  $('steamer').setAttribute('transform', `translate(${f1(steamer.x)} ${f1(356 + sB)}) scale(${steamer.dir * .55} .55)`);
+  if (Math.random() < dt * (1.2 + steamer.horn * 10)) emitSmoke(steamer.x - steamer.dir * 1, 356 - 30, .55 + steamer.horn * .4);
+  if (Math.random() < dt * 1.5) addRipple(steamer.x - steamer.dir * 36, 359, .6);
+
+  // 獨木舟
+  kayaks.forEach(k => {
+    k.x += k.v * k.dir * dt;
+    if (k.x > 1560) k.dir = -1; if (k.x < 60) k.dir = 1;
+    k.g.setAttribute('transform', `translate(${f1(k.x)} ${f1(k.y + Math.sin(T * 2 + k.ph) * .8)}) scale(${k.dir} 1)`);
+    k.paddle.setAttribute('transform', `rotate(${f1(Math.sin(T * 4 + k.ph) * 26)})`);
+    if (Math.random() < dt * .8) addRipple(k.x - k.dir * 20, k.y + 1, .5);
+  });
+  // 鴨子：浮沉、偶爾潛水
+  ducks.forEach(d => {
+    d.dive = Math.max(0, d.dive - dt);
+    d.x += Math.sin(T * .3 + d.ph) * 4 * dt;
+    const under = d.dive > .3 && d.dive < 1.6;
+    d.g.setAttribute('transform', `translate(${f1(d.x)} ${f1(d.y + Math.sin(T * 2.2 + d.ph) * .8 + (under ? 10 : 0))}) scale(${d.dir} 1)`);
+    d.g.style.opacity = under ? 0 : 1;
+  });
+  // 漣漪
+  for (let i = ripples.length - 1; i >= 0; i--) {
+    const r = ripples[i]; r.t += dt;
+    const k = r.t / (1.8 * r.big + .6);
+    r.el.setAttribute('rx', f1(2 + k * 40 * r.big)); r.el.setAttribute('ry', f1(.6 + k * 7 * r.big));
+    r.el.setAttribute('opacity', f1(Math.max(0, 1 - k)));
+    if (k >= 1) { r.el.remove(); ripples.splice(i, 1); }
+  }
+  // 躍出的鱒魚
+  for (let i = fishes.length - 1; i >= 0; i--) {
+    const f = fishes[i]; f.t += dt;
+    const k = f.t / .9;
+    const x = f.x + k * 34 * f.dir, y = f.y - Math.sin(k * Math.PI) * 34;
+    f.el.setAttribute('transform', `translate(${f1(x)} ${f1(y)}) rotate(${f1((k - .5) * 120 * f.dir)}) scale(${f.dir} 1)`);
+    if (k >= 1) { addRipple(x, f.y, 1); f.el.remove(); fishes.splice(i, 1); }
+  }
+
+  // 滑翔傘：從山上慢慢飄下來
+  glider.x -= (14 + wind * 6) * dt;
+  glider.y = 130 + Math.sin(T * .2) * 20 + (1300 - glider.x) * .04;
+  if (glider.x < -60) { glider.x = 1700; }
+  $('paraglider').setAttribute('transform', `translate(${f1(glider.x)} ${f1(glider.y)}) rotate(${f1(Math.sin(T * .8) * 4)})`);
+  $('paraglider').style.opacity = 1 - nightAmt;
+
+  // 水上小飛機：每隔一陣子飛過
+  if (plane.wait > 0) { plane.wait -= dt; plane.x = 1760; }
+  else {
+    plane.x += plane.v * dt;
+    plane.wob = Math.max(0, plane.wob - dt);
+    if (plane.x < -120) { plane.wait = rand(14, 26); plane.v = -90; }
+  }
+  const pr = Math.sin(T * 2) * 2 + Math.sin(plane.wob * 10) * plane.wob * 12;
+  $('plane').setAttribute('transform', `translate(${f1(plane.x)} ${f1(plane.y + Math.sin(T * .9) * 6)}) rotate(${f1(pr)}) scale(-.7 .7)`);
+  $('plane').querySelector('.prop').setAttribute('transform', `scale(1 ${f1(Math.sin(T * 40))})`);
+  $('plane').style.opacity = 1 - nightAmt * .9;
+
+  // 飛鳥群
+  for (let i = flock.length - 1; i >= 0; i--) {
+    const b = flock[i]; b.x += b.vx * dt; b.y += Math.sin(T * 2 + b.ph) * 8 * dt;
+    const wv = Math.sin(T * 9 + b.ph) * 4;
+    b.el.setAttribute('d', `M${f1(b.x - 7)} ${f1(b.y + wv)} Q${f1(b.x - 3)} ${f1(b.y - 2)} ${f1(b.x)} ${f1(b.y)} Q${f1(b.x + 3)} ${f1(b.y - 2)} ${f1(b.x + 7)} ${f1(b.y + wv)}`);
+    if (b.x > 1700 || b.x < -100) { b.el.remove(); flock.splice(i, 1); }
+  }
+  // 流星
+  for (let i = meteors.length - 1; i >= 0; i--) {
+    const m = meteors[i]; m.t += dt;
+    const k = m.t / .9;
+    const x = m.x + k * 260, y = m.y + k * 110;
+    m.el.setAttribute('x1', f1(x - 80)); m.el.setAttribute('y1', f1(y - 34)); m.el.setAttribute('x2', f1(x)); m.el.setAttribute('y2', f1(y));
+    m.el.setAttribute('opacity', f1(Math.sin(k * Math.PI)));
+    if (k >= 1) { m.el.remove(); meteors.splice(i, 1); }
+  }
+
+  // 羊：吃草（低頭）、慢慢走、被點會跳
+  sheep.forEach(s => {
+    s.jump = Math.max(0, s.jump - dt);
+    s.wait -= dt;
+    if (s.wait < 0 && Math.abs(s.tx - s.x) < 1) { s.tx = clamp(s.x + rand(-40, 40), 1200, 1590); s.wait = rand(4, 12); }
+    const dx = s.tx - s.x;
+    if (Math.abs(dx) > 1) { s.x += Math.sign(dx) * 6 * dt; s.dir = Math.sign(dx); }
+    const graze = Math.abs(dx) <= 1 && Math.sin(T * .7 + s.ph) > 0;
+    const jy = s.jump > 0 ? -Math.sin((1 - s.jump / .6) * Math.PI) * 22 : 0;
+    s.g.setAttribute('transform', `translate(${f1(s.x)} ${f1(s.y + jy)}) scale(${f1(s.dir * s.s)} ${f1(s.s)})`);
+    s.head.setAttribute('transform', graze ? `translate(2 7) rotate(18 18 -14)` : `translate(0 ${f1(Math.sin(T * 2 + s.ph) * .6)})`);
+  });
+
+  // 紫水雞：在蘆葦旁走來走去，受驚會快跑
+  puk.run = Math.max(0, puk.run - dt);
+  const pv = puk.run > 0 ? 90 : 10;
+  puk.x += puk.dir * pv * dt;
+  if (puk.x > 880) puk.dir = -1; if (puk.x < 736) puk.dir = 1;
+  puk.ph += dt * (puk.run > 0 ? 18 : 5);
+  const py = shoreY(puk.x) + 22;
+  $('pukeko').setAttribute('transform', `translate(${f1(puk.x)} ${f1(py - (puk.run > 0 ? Math.abs(Math.sin(puk.ph)) * 3 : 0))}) scale(${puk.dir * .9} .9)`);
+  $('pukeko').querySelector('.legs').setAttribute('d', `M-2 -8 L${f1(-4 + Math.sin(puk.ph) * 3)} 0 M3 -8 L${f1(5 - Math.sin(puk.ph) * 3)} 0`);
+
+  // 行人走路
+  walkers.forEach(w => {
+    w.x += w.v * dt;
+    if (w.x > 1660) w.x = -60; if (w.x < -60) w.x = 1660;
+    const dir = Math.sign(w.v), ph = T * Math.abs(w.v) * .28 + w.ph, sw = Math.sin(ph) * 6, a = Math.sin(ph) * 5;
+    w.g.setAttribute('transform', `translate(${f1(w.x)} ${f1(WALK - Math.abs(Math.cos(ph)) * 1.2)}) scale(${dir} 1)`);
+    const [lL, lR, aL, aR] = w.legs;
+    lL.setAttribute('d', `M-2 -18 L${f1(-2 + sw)} 0`); lR.setAttribute('d', `M2 -18 L${f1(2 - sw)} 0`);
+    aL.setAttribute('d', `M-5 -35 L${f1(-5 - a)} -20`); aR.setAttribute('d', `M5 -35 L${f1(5 + a)} -20`);
+    if (w.dog) {
+      w.dog.querySelector('.dl').setAttribute('d', `M-6 -9 L${f1(-6 + sw * .8)} 0 M6 -9 L${f1(6 - sw * .8)} 0`);
+      w.dog.querySelector('.tail').setAttribute('transform', `rotate(${f1(Math.sin(T * 12) * 18)} -10 -14)`);
+    }
+  });
+
+  // 車輛
+  traffic.forEach(c => {
+    c.boost = Math.max(0, (c.boost || 0) - dt);
+    c.x += c.v * c.dir * dt * (1 + (c.boost || 0) * .8);
+    if (c.dir > 0 && c.x > 1800) c.x = -rand(200, 700);
+    if (c.dir < 0 && c.x < -200) c.x = 1800 + rand(200, 900);
+    c.g.setAttribute('transform', `translate(${f1(c.x)} ${f1(c.y + (c.bike ? 0 : Math.sin(T * 8 + c.x * .05) * .5))}) scale(${c.dir} 1)`);
+    const ang = (c.x / 9) * 57.3 * c.dir;
+    c.g.querySelectorAll('.spin').forEach(s => s.setAttribute('transform', `rotate(${f1(ang)})`));
+    const bm = c.g.querySelector('.beam'); if (bm) bm.setAttribute('opacity', f1(smooth(.4, .7, nightAmt) * .9));
+    if (c.bike) {
+      const p = c.x / 9 * c.dir;
+      c.g.querySelector('.pedal').setAttribute('d', `M4 -22 L${f1(Math.cos(p) * 6)} ${f1(-4 + Math.sin(p) * 6)} M4 -22 L${f1(-Math.cos(p) * 6)} ${f1(-4 - Math.sin(p) * 6)}`);
+    }
+    const dh = c.g.querySelector('.dogHead'); if (dh) dh.setAttribute('transform', `translate(0 ${f1(Math.sin(T * 5) * 1.2)})`);
+  });
+
+  // 教堂鐘擺動
+  bellSwing.v += (-bellSwing.a * 30 - bellSwing.v * 2.2) * dt;
+  bellSwing.a += bellSwing.v * dt;
+  bell.setAttribute('transform', `translate(640 362) rotate(${f1(bellSwing.a)} 0 -4)`);
+
+  // 釣客：收竿動作
+  if (fishing.t > 0) {
+    fishing.t -= dt;
+    const k = 1 - fishing.t / 2.2;
+    const lift = Math.sin(Math.min(1, k * 2) * Math.PI / 2);
+    fisher.querySelector('.rod').setAttribute('d', `M14 -30 Q${f1(40 - lift * 6)} ${f1(-70 - lift * 20)} ${f1(68 - lift * 24)} ${f1(-60 - lift * 40)}`);
+    fisher.querySelector('.line').setAttribute('d', `M${f1(68 - lift * 24)} ${f1(-60 - lift * 40)} L${f1(72 - lift * 10)} ${f1(20 - lift * 60)}`);
+    fisher.querySelector('.catch').setAttribute('opacity', fishing.got && k > .3 ? 1 : 0);
+    fisher.querySelector('.catch').setAttribute('transform', `translate(${f1(-lift * 4)} ${f1(-lift * 40)}) rotate(${f1(Math.sin(T * 16) * 12)} 72 -8)`);
+    if (fishing.t <= 0) {
+      fisher.querySelector('.rod').setAttribute('d', 'M14 -30 Q40 -70 68 -60');
+      fisher.querySelector('.line').setAttribute('d', 'M68 -60 L72 20');
+      fisher.querySelector('.catch').setAttribute('opacity', 0);
+    }
+  }
+
+  // 泡泡
+  for (let i = bubbles.length - 1; i >= 0; i--) {
+    const b = bubbles[i]; b.t += dt;
+    const k = Math.min(1, b.t / .25);
+    b.g.setAttribute('transform', `translate(${b.x} ${f1(b.y - (reduced ? 0 : (1 - k) * 14))})`);
+    b.g.setAttribute('opacity', f1(Math.min(k, Math.max(0, (b.dur - b.t) / .3))));
+    if (b.t > b.dur) { b.g.remove(); bubbles.splice(i, 1); }
+  }
+}
+const fishes = [], flock = [], meteors = [];
+const bellSwing = { a: 0, v: 0 };
+const fishing = { t: 0, got: false };
+
+let last = 0, rafId = 0;
+function loop(now) {
+  const dt = Math.min(0.05, (now - last) / 1000); last = now;
+  step(dt);
+  rafId = requestAnimationFrame(loop);
+}
+/* 減少動態：停在一個畫面，只在互動時更新 */
+function renderStill() { step(0.0001); }
+function start() {
+  cancelAnimationFrame(rafId);
+  if (reduced) { auto = false; syncAuto(); renderStill(); }
+  else { last = performance.now(); rafId = requestAnimationFrame(loop); }
+}
+
+/* ---------------- 開始：依序畫出場景、角色 ---------------- */
+drawSky();
+drawMountains();
+drawLake();
+drawLand();
+drawJetty();
+drawChurch();
+drawTrees();
+drawFence();
+drawSheep();
+drawPukeko();
+drawStargazers();
+drawLakeLife();
+drawTown();
+drawLamps();
+drawWalkers();
+drawTraffic();
+drawFernBank();
+drawLupins();
+// 太陽光芒
+let rays = ''; for (let i = 0; i < 12; i++) { const a = i * Math.PI / 6; rays += `M${f1(Math.cos(a) * 32)} ${f1(Math.sin(a) * 32)} L${f1(Math.cos(a) * 42)} ${f1(Math.sin(a) * 42)}`; }
+el('path', { d: rays }, $('sunRays'));
+
+/* ---------------- ⑤ 互動 ---------------- */
+function onAct(node, fn) {
+  node.addEventListener('click', e => { e.stopPropagation(); fn(e); if (reduced) renderStill(); });
+  node.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); fn(e); if (reduced) renderStill(); } });
+}
+function svgPoint(e) {
+  const p = svg.createSVGPoint(); p.x = e.clientX; p.y = e.clientY;
+  return p.matrixTransform(svg.getScreenCTM().inverse());
+}
+// 羊：跳起來咩一聲
+function baa(s) {
+  s.jump = .6;
+  say(s.x, s.y - 34 * s.s, ['咩～', '咩咩！', 'Baa～'][Math.floor(rand(0, 3))]);
+  if (reduced) renderStill();
+}
+// 湖面：漣漪，偶爾鱒魚躍出
+onAct($('lakeHit'), e => {
+  const p = e.clientX !== undefined && e.type === 'click' ? svgPoint(e) : { x: 800, y: 400 };
+  addRipple(p.x, p.y, 1); setTimeout(() => addRipple(p.x, p.y, .6), 200);
+  if (Math.random() < .55 && !reduced) {
+    const f = el('path', { class: 'paper ink', d: 'M-10 0 q10 -8 20 0 q-10 8 -20 0z M10 0 l6 -5 v10z' }, $('fishJump'));
+    fishes.push({ el: f, x: p.x, y: p.y, t: 0, dir: Math.random() < .5 ? 1 : -1 });
+    addRipple(p.x, p.y, .8);
+  }
+  // 附近的鴨子會潛水
+  ducks.forEach(d => { if (Math.abs(d.x - p.x) < 80 && Math.abs(d.y - p.y) < 40) d.dive = 1.9; });
+});
+ducks.forEach(d => onAct(d.g, () => { d.dive = 1.9; say(d.x, d.y - 16, '呱！', 1.2); addRipple(d.x, d.y, .7); }));
+// 蒸汽船：鳴笛冒煙
+onAct($('steamer'), () => {
+  steamer.horn = 2;
+  say(steamer.x, 310, '嗚——嗚！', 1.8);
+  for (let i = 0; i < 8; i++) emitSmoke(steamer.x, 326, 1);
+});
+// 教堂：敲鐘
+onAct($('church'), () => {
+  bellSwing.v += 160;
+  say(640, 330, '噹～噹～', 1.8);
+});
+// 釣客：收竿
+onAct(fisher, () => {
+  if (fishing.t > 0) return;
+  fishing.t = 2.2; fishing.got = Math.random() < .6;
+  setTimeout(() => say(982, 340, fishing.got ? '釣到了！' : '跑掉了…', 1.6), 500);
+  addRipple(1027, 402, .8);
+});
+// 紫水雞：拍翅逃跑
+onAct($('pukeko'), () => { puk.run = 1.4; puk.dir *= -1; say(puk.x, shoreY(puk.x) - 14, '咕咕！', 1.2); });
+// 露營車：按喇叭加速
+onAct(traffic[0].g, () => { traffic[0].boost = 2; say(traffic[0].x + 10, LANE_A - 76, '叭叭！', 1.4); });
+// 水上小飛機：搖搖機翼
+onAct($('plane'), () => { plane.wob = 1.5; plane.v = -150; say(plane.x, plane.y - 22, '嗡～', 1.2); });
+// 魯冰花：花瓣隨風飛散
+$('lupins').addEventListener('click', e => {
+  e.stopPropagation();
+  const p = svgPoint(e);
+  lupins.forEach(l => {
+    const d = Math.abs(l.x - p.x);
+    if (d < 70 && l.y > 560) {
+      l.kick = 10 * (1 - d / 70);
+      if (!reduced) for (let i = 0; i < 2; i++) emitPetal(l.x, l.y - l.h * rand(.5, 1), l.col);
+    }
+  });
+});
+// 天空：白天飛過一群鳥、夜裡劃過流星＋極光增強
+svg.addEventListener('click', e => {
+  const p = svgPoint(e);
+  if (p.y > 320) return;
+  if (nightAmt > .5) {
+    auroraBoost = 1;
+    if (!reduced) for (let i = 0; i < 2; i++) {
+      const m = el('line', { stroke: 'url(#meteorGrad)', 'stroke-width': 2, 'stroke-linecap': 'round' }, $('meteors'));
+      meteors.push({ el: m, x: p.x - 120 + i * 90, y: p.y - 60 + i * 30, t: -i * .35 });
+    }
+    say(p.x, p.y, '許個願吧', 1.6);
+  } else if (!reduced) {
+    const dir = p.x < 800 ? 1 : -1;
+    for (let i = 0; i < 7; i++) {
+      const b = el('path', { class: 'thin' }, $('flock'));
+      flock.push({ el: b, x: p.x - dir * (i * 18 + rand(0, 10)), y: p.y + (i % 2 ? 10 : -6) * Math.ceil(i / 2), vx: dir * rand(90, 120), ph: rand(0, 6) });
+    }
+  }
+  if (reduced) renderStill();
+});
+// 滑鼠視差
+svg.addEventListener('pointermove', e => { const r = svg.getBoundingClientRect(); mx = ((e.clientX - r.left) / r.width - .5) * 2; });
+svg.addEventListener('pointerleave', () => { mx = 0; });
+
+// 控制列
+function syncAuto() { $('btnAuto').setAttribute('aria-pressed', String(auto)); $('btnAuto').textContent = auto ? '自動播放中' : '自動播放'; }
+function goTo(t) {
+  if (reduced) { tod = t; target = null; renderStill(); } else target = t;
+}
+$('btnDay').addEventListener('click', () => goTo(0.45));
+$('btnNight').addEventListener('click', () => goTo(0.95));
+$('btnAuto').addEventListener('click', () => { auto = !auto; target = null; syncAuto(); });
+// 吹一陣風：雲、旗子、樹與魯冰花一起被吹動，花瓣飛散
+$('btnGust').addEventListener('click', () => {
+  gust = 1;
+  lupins.forEach(l => { l.kick = rand(4, 9); });
+  if (reduced) renderStill();
+});
+// 天氣：晴天 → 下雨 → 下雪 → 晴天 輪流切換
+for (let i = 0; i < 220; i++) wxDrops.push({ snow: false, el: el('line', { x1: 0, y1: 0, x2: 0, y2: rand(14, 24), style: 'stroke:var(--rain);stroke-width:1.6;stroke-linecap:round', opacity: 0 }, $('wx')), x: rand(-100, 1700), y: rand(-20, 600), v: rand(520, 700), op: rand(.5, .9), ph: 0 });
+for (let i = 0; i < 110; i++) wxDrops.push({ snow: true, el: el('circle', { r: f1(rand(1.4, 3.2)), style: 'fill:var(--flake);stroke:var(--ink);stroke-width:.4', opacity: 0 }, $('wx')), x: rand(-100, 1700), y: rand(-20, 600), v: rand(26, 55), op: rand(.7, 1), ph: rand(0, 6) });
+$('btnWeather').addEventListener('click', () => {
+  weather = (weather + 1) % WEATHER.length;
+  const w = WEATHER[weather];
+  $('btnWeather').textContent = `${w.icon} 天氣：${w.name}`;
+  say(800, 140, ['放晴了！', '下雨囉，帶把傘', '下雪了！'][weather], 1.6);
+  if (reduced) renderStill();
+});
+// 流星雨：白天會先轉成夜晚，再連續落下流星、極光變亮
+$('btnMeteor').addEventListener('click', () => {
+  if (nightAmt < .5) { auto = false; syncAuto(); goTo(0.95); }
+  meteorRain = reduced ? 0 : 7;
+  auroraBoost = 1;
+  say(800, 120, '一起許願吧', 1.8);
+  if (reduced) renderStill();
+});
+$('timeRange').addEventListener('input', e => {
+  tod = e.target.value / 1000; target = null;
+  if (reduced) renderStill();
+});
+mq.addEventListener?.('change', e => { reduced = e.matches; if (!reduced) { auto = true; syncAuto(); } start(); });
+
+syncAuto();
+start();
+})();
+</script>
+
+<style id="pure-art">
+/* =========================================================
+   純插畫版：只顯示場景畫面，隱藏控制列與說明文字。
+   想恢復完整版，刪掉這整段 <style id="pure-art"> 即可。
+   ========================================================= */
+html,body{height:100%;margin:0!important;overflow:hidden}
+body{display:flex!important;align-items:center;justify-content:center;padding:0!important}
+body>.wrap{width:100%!important;max-width:min(100vw,calc(100vh * 8 / 3))!important;
+  margin:0!important;padding:0!important;gap:0!important;display:block!important}
+body>.wrap>:not(.stage){display:none!important}
+body>.wrap>.stage{width:100%!important;max-width:100%!important;margin:0!important;
+  border:0!important;border-radius:0!important;box-shadow:none!important}
+</style>
+</html>

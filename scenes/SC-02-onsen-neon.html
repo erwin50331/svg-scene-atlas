@@ -1,0 +1,1213 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>/* 基本重設 */ body{margin:0} img{max-width:100%} [hidden]{display:none!important}</style>
+<title>SC-02 湯煙橫丁</title>
+<style>
+/* =========================================================
+   SC-02 湯煙橫丁｜日本溫泉街・霓虹夜景
+   版面：單一寬版 SVG 舞台（1600×600）＋下方控制列
+   ---------------------------------------------------------
+   【色票 token】所有顏色都集中在這裡，改這裡就能換色。
+   ========================================================= */
+:root {
+  color-scheme: dark;
+
+  /* —— 頁面與控制列 —— */
+  --page-bg:        #0b0a1a;
+  --page-fg:        #ece8ff;
+  --page-muted:     #9d97c4;
+  --ui-surface:     #17142e;
+  --ui-line:        #2e2852;
+  --ui-accent:      #ff4fa3;
+
+  /* —— 天空（JS 依時間在這四組之間插值） —— */
+  --sky-night-top:  #05051a;
+  --sky-night-mid:  #1a0f44;
+  --sky-night-bot:  #44195f;
+  --sky-dawn-top:   #2b3778;
+  --sky-dawn-mid:   #b9739f;
+  --sky-dawn-bot:   #ffb48a;
+  --sky-day-top:    #3f98e0;
+  --sky-day-mid:    #86c4ee;
+  --sky-day-bot:    #d6eef8;
+  --sky-dusk-top:   #271c60;
+  --sky-dusk-mid:   #ad4787;
+  --sky-dusk-bot:   #ff8a5a;
+
+  --sun:            #fff1b8;
+  --moon:           #fdf6dc;
+  --moon-shade:     #d9cfa8;
+  --star:           #ffffff;
+  --cloud-day:      #ffffff;
+  --cloud-night:    #3a2a66;
+
+  /* —— 山、樹、遠景 —— */
+  --mtn-far:        #6f7fb0;
+  --mtn-near:       #3f5a6e;
+  --pine:           #2c4452;
+  --bldg-back:      #5a5f80;
+  --bldg-back-2:    #8a8ea8;
+  --ropeway:        #2a2a3a;
+  --cabin:          #d94a4a;
+
+  /* —— 建築材質 —— */
+  --wood-dark:      #3b2418;
+  --wood-mid:       #7a4a2c;
+  --wood-light:     #b07a4f;
+  --plaster:        #efe4cc;
+  --plaster-warm:   #e6cfa4;
+  --wall-dark:      #3d3550;
+  --roof:           #39404f;
+  --roof-ridge:     #23283a;
+  --chimney:        #9a5a46;
+  --chimney-band:   #5a3027;
+  --glass:          #5d6f86;
+  --sign-board:     #1c1626;
+  --noren-blue:     #23407a;
+  --noren-red:      #8c1f2b;
+  --awning-a:       #c8324a;
+  --awning-b:       #f5efe4;
+  --stone:          #8d8a92;
+  --stone-dark:     #5b5866;
+  --road:           #6a6575;
+  --road-line:      #7d7889;
+  --willow:         #6f9a4a;
+  --willow-trunk:   #3a2c22;
+  --vending:        #c9d4e6;
+
+  /* —— 水 —— */
+  --water-top:      #3d6f95;
+  --water-bot:      #1d3550;
+  --ripple:         #bfe2ff;
+  --footbath:       #8fc8d8;
+
+  /* —— 夜色疊層（multiply） —— */
+  --night-tint:     #241a5c;
+
+  /* —— 燈光 —— */
+  --win-warm:       #ffd27a;
+  --win-cool:       #c99bff;
+  --lantern:        #ffb347;
+  --lantern-red:    #ff4a4a;
+  --lantern-off:    #b7a690;
+  --lamp:           #ffe9a8;
+  --steam:          #ffffff;
+
+  /* —— 霓虹（點擊招牌會在這六色之間輪替） —— */
+  --neon-1:         #ff4fa3;  /* 粉紅 */
+  --neon-2:         #3ff2ff;  /* 青 */
+  --neon-3:         #ffb02e;  /* 琥珀 */
+  --neon-4:         #b16bff;  /* 紫 */
+  --neon-5:         #ff3b4e;  /* 紅 */
+  --neon-6:         #5dff8f;  /* 綠 */
+
+  /* —— 角色 —— */
+  --skin:           #f2c9a0;
+  --hair:           #1e1620;
+  --yukata-1:       #2f4f8f;
+  --yukata-2:       #e9e4f2;
+  --yukata-3:       #b8455a;
+  --yukata-4:       #3f7f6a;
+  --yukata-5:       #d8a640;
+  --obi:            #c8324a;
+  --towel:          #ffffff;
+  --cat:            #1a1420;
+  --bus-body:       #e9e1cf;
+  --bus-stripe:     #2f6f8f;
+  --tire:           #1b1b22;
+
+  --font-ui: "Hiragino Sans", "Noto Sans TC", "Noto Sans JP", "Microsoft JhengHei", system-ui, sans-serif;
+  --font-sign: "Hiragino Mincho ProN", "Noto Serif JP", "Noto Serif TC", "Yu Mincho", serif;
+}
+
+html, body { background: var(--page-bg); color: var(--page-fg); }
+body {
+  font-family: var(--font-ui);
+  padding-block: 20px 28px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+.wrap { max-width: 1600px; margin: 0 auto; display: grid; gap: 14px; }
+
+header { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 16px; }
+header h1 { margin: 0; font-size: clamp(20px, 2.4vw, 28px); letter-spacing: .04em; font-weight: 700; text-wrap: balance; }
+header h1 .code { color: var(--ui-accent); margin-right: .4em; font-variant-numeric: tabular-nums; }
+header p { margin: 0; color: var(--page-muted); font-size: 14px; }
+
+/* 舞台：RWD 自動縮放，維持 1600:600 比例 */
+.stage { position: relative; width: 100%; aspect-ratio: 1600 / 600; max-width: 100%;
+  border-radius: 10px; overflow: hidden; border: 1px solid var(--ui-line); background: var(--sky-night-top); }
+.stage svg { display: block; width: 100%; height: 100%; touch-action: manipulation; }
+
+/* 控制列 */
+.controls { display: flex; flex-wrap: wrap; gap: 10px 14px; align-items: center;
+  background: var(--ui-surface); border: 1px solid var(--ui-line); border-radius: 10px; padding: 10px 14px; }
+.controls .group { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.controls button {
+  font: inherit; font-size: 14px; color: var(--page-fg); background: transparent;
+  border: 1px solid var(--ui-line); border-radius: 999px; padding: 6px 14px; cursor: pointer;
+}
+.controls button:hover { border-color: var(--ui-accent); }
+.controls button[aria-pressed="true"] { background: var(--ui-accent); border-color: var(--ui-accent); color: var(--page-bg); font-weight: 700; }
+.controls button:focus-visible, .controls input:focus-visible { outline: 2px solid var(--neon-2); outline-offset: 2px; }
+.controls label { font-size: 13px; color: var(--page-muted); }
+.controls input[type=range] { width: min(260px, 60vw); accent-color: var(--ui-accent); }
+.clock { font-variant-numeric: tabular-nums; font-size: 15px; min-width: 3.2em; color: var(--page-fg); }
+.hint { color: var(--page-muted); font-size: 13px; line-height: 1.7; margin: 0; }
+.hint b { color: var(--page-fg); font-weight: 600; }
+
+/* SVG 內部：圖層與互動游標 */
+#layer-tint, #layer-steam, #layer-light, #layer-reflect { pointer-events: none; }
+.hit { pointer-events: auto; cursor: pointer; }
+#bathhouse, #cat, #vending { cursor: pointer; }
+.sign-text { font-family: var(--font-sign); font-weight: 700; }
+</style>
+
+<div class="wrap">
+
+  <div class="stage">
+  <!-- =====================================================
+       【場景】SVG 主體 viewBox 1600×600
+       圖層順序（由後到前）：
+       天空 → 星月 → 雲 → 山與遠景 → 建築 → 道路河川 → 角色交通
+       → 夜色疊層 → 燈光霓虹 → 水面倒影 → 湯煙 → 前景柳樹
+       ===================================================== -->
+  <svg id="scene" viewBox="0 0 1600 600" preserveAspectRatio="xMidYMid meet" role="img"
+       aria-label="日本溫泉街夜景：澡堂煙囪冒著湯煙，旅館和小店掛著霓虹招牌與燈籠，穿浴衣的行人在街上散步，前方是倒映霓虹的小河。">
+    <defs>
+      <!-- 天空漸層：三個色標由 JS 依時間更新 -->
+      <linearGradient id="skyGrad" x1="0" y1="0" x2="0" y2="1">
+        <stop id="sky0" offset="0"/>
+        <stop id="sky1" offset="0.55"/>
+        <stop id="sky2" offset="1"/>
+      </linearGradient>
+      <linearGradient id="waterGrad" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" style="stop-color:var(--water-top)"/>
+        <stop offset="1" style="stop-color:var(--water-bot)"/>
+      </linearGradient>
+      <linearGradient id="beamGrad" x1="1" y1="0" x2="0" y2="0">
+        <stop offset="0" style="stop-color:var(--lamp)" stop-opacity=".8"/>
+        <stop offset="1" style="stop-color:var(--lamp)" stop-opacity="0"/>
+      </linearGradient>
+      <radialGradient id="lampGlow">
+        <stop offset="0" style="stop-color:var(--lamp)" stop-opacity=".75"/>
+        <stop offset="1" style="stop-color:var(--lamp)" stop-opacity="0"/>
+      </radialGradient>
+      <radialGradient id="moonGlow">
+        <stop offset="0" style="stop-color:var(--moon)" stop-opacity=".45"/>
+        <stop offset="1" style="stop-color:var(--moon)" stop-opacity="0"/>
+      </radialGradient>
+      <radialGradient id="sunGlow">
+        <stop offset="0" style="stop-color:var(--sun)" stop-opacity=".7"/>
+        <stop offset="1" style="stop-color:var(--sun)" stop-opacity="0"/>
+      </radialGradient>
+      <!-- 霓虹光暈：兩層模糊疊加 -->
+      <filter id="neonGlow" x="-60%" y="-60%" width="220%" height="220%">
+        <feGaussianBlur in="SourceGraphic" stdDeviation="2.2" result="b1"/>
+        <feGaussianBlur in="SourceGraphic" stdDeviation="7" result="b2"/>
+        <feMerge><feMergeNode in="b2"/><feMergeNode in="b1"/><feMergeNode in="SourceGraphic"/></feMerge>
+      </filter>
+      <filter id="softGlow" x="-50%" y="-50%" width="200%" height="200%">
+        <feGaussianBlur stdDeviation="4" result="b"/>
+        <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+      </filter>
+      <filter id="blurSteam" x="-30%" y="-30%" width="160%" height="160%">
+        <feGaussianBlur stdDeviation="5"/>
+      </filter>
+      <filter id="blurReflect" x="-20%" y="-20%" width="140%" height="140%">
+        <feGaussianBlur stdDeviation="3 1.5"/>
+      </filter>
+      <!-- 倒影用的水平條紋遮罩，讓倒影像被水波切碎 -->
+      <pattern id="stripes" width="8" height="5" patternUnits="userSpaceOnUse">
+        <rect width="8" height="2.6" fill="#fff"/>
+      </pattern>
+      <mask id="reflectMask" maskUnits="userSpaceOnUse" x="0" y="540" width="1600" height="60">
+        <rect x="0" y="540" width="1600" height="60" fill="url(#stripes)"/>
+      </mask>
+      <clipPath id="riverClip"><rect x="0" y="548" width="1600" height="52"/></clipPath>
+    </defs>
+
+    <!-- ===== 場景：天空 ===== -->
+    <rect id="sky" x="0" y="0" width="1600" height="600" fill="url(#skyGrad)"/>
+    <g id="stars"></g>
+    <line id="shooting" x1="0" y1="0" x2="0" y2="0" style="stroke:var(--star)" stroke-width="2" stroke-linecap="round" opacity="0"/>
+    <g id="sun"><circle r="70" fill="url(#sunGlow)"/><circle r="26" style="fill:var(--sun)"/></g>
+    <g id="moon">
+      <circle r="80" fill="url(#moonGlow)"/>
+      <circle r="22" style="fill:var(--moon)"/>
+      <circle cx="-7" cy="-5" r="4" style="fill:var(--moon-shade)"/>
+      <circle cx="6" cy="6" r="3" style="fill:var(--moon-shade)"/>
+      <circle cx="8" cy="-8" r="2" style="fill:var(--moon-shade)"/>
+    </g>
+    <g id="clouds"></g>
+
+    <!-- ===== 場景：山與遠景 ===== -->
+    <path id="mtnFar" style="fill:var(--mtn-far)" d="M0,262 Q70,238 130,226 Q200,212 260,246 Q330,196 400,178 Q470,206 540,240 Q610,200 680,176 Q760,214 840,236 Q920,198 990,190 Q1070,220 1140,238 Q1220,190 1300,172 Q1380,206 1450,222 Q1530,204 1600,210 V600 H0 Z"/>
+    <!-- 纜車（遠山上的空中纜車） -->
+    <line x1="40" y1="268" x2="470" y2="170" style="stroke:var(--ropeway)" stroke-width="1.5"/>
+    <g id="cabin">
+      <line x1="0" y1="0" x2="0" y2="9" style="stroke:var(--ropeway)" stroke-width="1.5"/>
+      <rect x="-9" y="9" width="18" height="13" rx="3" style="fill:var(--cabin)"/>
+    </g>
+    <path id="mtnNear" style="fill:var(--mtn-near)" d="M0,350 Q200,292 400,335 T800,325 T1200,312 T1600,335 V600 H0 Z"/>
+    <g id="pines"></g>
+
+    <!-- 山坡上的大飯店 -->
+    <g id="hotel">
+      <rect x="1010" y="205" width="230" height="120" style="fill:var(--bldg-back-2)"/>
+      <rect x="1004" y="198" width="242" height="9" style="fill:var(--roof)"/>
+      <rect x="1100" y="170" width="50" height="28" style="fill:var(--bldg-back)"/>
+    </g>
+    <g id="backRow"></g>
+
+    <!-- ===== 場景：主街建築（可在此調整各棟位置與造型） ===== -->
+    <g id="buildings">
+
+      <!-- 建築 A：錢湯（大眾澡堂）＋高煙囪｜點擊會噴出一大團湯煙 -->
+      <g id="bathhouse" aria-label="澡堂">
+        <rect x="272" y="140" width="24" height="200" style="fill:var(--chimney)"/>
+        <rect x="268" y="134" width="32" height="9" style="fill:var(--chimney-band)"/>
+        <rect x="272" y="180" width="24" height="5" style="fill:var(--chimney-band)"/>
+        <rect x="272" y="230" width="24" height="5" style="fill:var(--chimney-band)"/>
+        <rect x="50" y="330" width="270" height="140" style="fill:var(--plaster)"/>
+        <rect x="50" y="440" width="270" height="30" style="fill:var(--wood-mid)"/>
+        <rect x="50" y="330" width="8" height="140" style="fill:var(--wood-dark)"/>
+        <rect x="128" y="330" width="8" height="140" style="fill:var(--wood-dark)"/>
+        <rect x="234" y="330" width="8" height="140" style="fill:var(--wood-dark)"/>
+        <rect x="312" y="330" width="8" height="140" style="fill:var(--wood-dark)"/>
+        <rect x="50" y="332" width="270" height="6" style="fill:var(--wood-dark)"/>
+        <!-- 唐破風屋頂 -->
+        <path d="M28,340 L342,340 L326,318 L44,318 Z" style="fill:var(--roof)"/>
+        <path d="M66,318 Q112,318 136,288 Q185,232 234,288 Q258,318 304,318 Z" style="fill:var(--roof)"/>
+        <path d="M66,318 Q112,318 136,288 Q185,232 234,288 Q258,318 304,318" fill="none" style="stroke:var(--wood-light)" stroke-width="4"/>
+        <path d="M150,300 Q185,262 220,300 Z" style="fill:var(--wood-mid)"/>
+        <!-- 入口與暖簾 -->
+        <rect x="148" y="378" width="74" height="92" style="fill:var(--wood-dark)"/>
+        <g id="noren">
+          <rect class="noren-p" x="150" y="380" width="22" height="42" style="fill:var(--noren-blue)"/>
+          <rect class="noren-p" x="174" y="380" width="22" height="42" style="fill:var(--noren-blue)"/>
+          <rect class="noren-p" x="198" y="380" width="22" height="42" style="fill:var(--noren-blue)"/>
+          <text x="185" y="410" text-anchor="middle" class="sign-text" font-size="24" style="fill:var(--plaster)">ゆ</text>
+        </g>
+        <!-- 木屐架與水桶（生活小物） -->
+        <rect x="236" y="452" width="20" height="18" style="fill:var(--wood-light)"/>
+        <rect x="80" y="455" width="14" height="15" rx="2" style="fill:var(--wood-light)"/>
+        <rect x="96" y="458" width="12" height="12" rx="2" style="fill:var(--noren-blue)"/>
+      </g>
+
+      <!-- 建築 B：三層木造旅館 -->
+      <g id="ryokan">
+        <rect x="355" y="250" width="255" height="220" style="fill:var(--wood-mid)"/>
+        <path d="M330,254 L635,254 L602,214 L363,214 Z" style="fill:var(--roof)"/>
+        <rect x="360" y="208" width="245" height="7" style="fill:var(--roof-ridge)"/>
+        <rect x="340" y="314" width="285" height="10" style="fill:var(--roof)"/>
+        <rect x="340" y="384" width="285" height="10" style="fill:var(--roof)"/>
+        <rect x="360" y="302" width="245" height="4" style="fill:var(--wood-dark)"/>
+        <rect x="360" y="372" width="245" height="4" style="fill:var(--wood-dark)"/>
+        <rect x="438" y="403" width="94" height="67" style="fill:var(--wood-dark)"/>
+        <rect x="372" y="440" width="50" height="30" style="fill:var(--wood-dark)"/>
+        <rect x="548" y="440" width="50" height="30" style="fill:var(--wood-dark)"/>
+        <!-- 盆栽 -->
+        <rect x="380" y="456" width="16" height="14" style="fill:var(--wood-light)"/>
+        <circle cx="388" cy="450" r="10" style="fill:var(--willow)"/>
+        <!-- 立式招牌的支架 -->
+        <rect x="610" y="250" width="12" height="4" style="fill:var(--wood-dark)"/>
+        <rect x="610" y="410" width="12" height="4" style="fill:var(--wood-dark)"/>
+      </g>
+
+      <!-- 建築 C：射的屋（射擊遊戲攤） -->
+      <g id="shateki">
+        <rect x="645" y="360" width="150" height="110" style="fill:var(--plaster-warm)"/>
+        <rect x="640" y="318" width="160" height="44" style="fill:var(--sign-board)"/>
+        <g id="awning"></g>
+        <rect x="650" y="445" width="140" height="12" style="fill:var(--wood-mid)"/>
+        <rect x="650" y="457" width="140" height="13" style="fill:var(--wood-dark)"/>
+      </g>
+
+      <!-- 建築 D：土產店＋幟旗 -->
+      <g id="omiyage">
+        <rect x="808" y="300" width="95" height="170" style="fill:var(--plaster)"/>
+        <path d="M800,302 L912,302 L895,280 L815,280 Z" style="fill:var(--roof)"/>
+        <rect x="800" y="384" width="112" height="8" style="fill:var(--roof)"/>
+        <rect x="815" y="398" width="82" height="62" style="fill:var(--wood-dark)"/>
+        <rect x="815" y="460" width="82" height="10" style="fill:var(--wood-light)"/>
+        <!-- 木招牌 -->
+        <rect x="832" y="364" width="48" height="18" style="fill:var(--wood-light)"/>
+        <text x="856" y="378" text-anchor="middle" class="sign-text" font-size="13" style="fill:var(--wood-dark)">土産</text>
+      </g>
+      <!-- 幟旗（隨風飄動） -->
+      <rect x="799" y="330" width="3" height="140" style="fill:var(--wood-dark)"/>
+      <g id="nobori">
+        <path d="M802,336 L822,336 L822,420 L802,420 Z" style="fill:var(--awning-a)"/>
+        <text x="812" y="356" text-anchor="middle" class="sign-text" font-size="13" style="fill:var(--awning-b)">温</text>
+        <text x="812" y="374" text-anchor="middle" class="sign-text" font-size="13" style="fill:var(--awning-b)">泉</text>
+        <text x="812" y="392" text-anchor="middle" class="sign-text" font-size="13" style="fill:var(--awning-b)">饅</text>
+        <text x="812" y="410" text-anchor="middle" class="sign-text" font-size="13" style="fill:var(--awning-b)">頭</text>
+      </g>
+
+      <!-- 自動販賣機｜點擊會掉出一罐飲料 -->
+      <g id="vending" aria-label="自動販賣機">
+        <rect x="912" y="408" width="36" height="62" rx="2" style="fill:var(--vending)"/>
+        <rect x="916" y="456" width="28" height="8" style="fill:var(--sign-board)"/>
+      </g>
+
+      <!-- 建築 E：小酒館「霞」 -->
+      <g id="snack">
+        <rect x="960" y="310" width="185" height="160" style="fill:var(--wall-dark)"/>
+        <rect x="955" y="304" width="195" height="8" style="fill:var(--roof-ridge)"/>
+        <rect x="1098" y="400" width="36" height="70" style="fill:var(--sign-board)"/>
+        <rect x="1110" y="330" width="26" height="18" style="fill:var(--stone)"/>
+        <rect x="1112" y="333" width="22" height="2" style="fill:var(--stone-dark)"/>
+        <rect x="966" y="456" width="16" height="14" style="fill:var(--wood-light)"/>
+        <circle cx="974" cy="448" r="11" style="fill:var(--willow)"/>
+      </g>
+
+      <!-- 電線杆與電線 -->
+      <rect x="1153" y="228" width="7" height="245" style="fill:var(--wood-dark)"/>
+      <rect x="1140" y="240" width="33" height="4" style="fill:var(--wood-dark)"/>
+      <path d="M1142,242 Q1040,262 920,244 M1172,242 Q1390,266 1600,246 M1142,242 Q1000,270 860,236" fill="none" style="stroke:var(--roof-ridge)" stroke-width="1.3"/>
+
+      <!-- 建築 F：拉麵店 -->
+      <g id="ramen">
+        <rect x="1175" y="330" width="220" height="140" style="fill:var(--wood-light)"/>
+        <path d="M1165,334 L1405,334 L1385,302 L1185,302 Z" style="fill:var(--roof)"/>
+        <rect x="1200" y="262" width="170" height="40" style="fill:var(--sign-board)"/>
+        <rect x="1215" y="302" width="6" height="10" style="fill:var(--wood-dark)"/>
+        <rect x="1350" y="302" width="6" height="10" style="fill:var(--wood-dark)"/>
+        <rect x="1340" y="288" width="14" height="16" style="fill:var(--stone-dark)"/>
+        <rect x="1240" y="356" width="90" height="114" style="fill:var(--wood-dark)"/>
+        <rect x="1242" y="358" width="86" height="40" style="fill:var(--noren-red)"/>
+        <text x="1285" y="386" text-anchor="middle" class="sign-text" font-size="22" style="fill:var(--plaster)">麺</text>
+        <!-- 停在門口的腳踏車 -->
+        <circle cx="1188" cy="460" r="9" fill="none" style="stroke:var(--tire)" stroke-width="2.5"/>
+        <circle cx="1220" cy="460" r="9" fill="none" style="stroke:var(--tire)" stroke-width="2.5"/>
+        <path d="M1188,460 L1200,446 L1214,446 L1220,460 M1200,446 L1205,460 L1214,446 M1198,442 L1204,442 M1214,446 L1212,440 L1218,440" fill="none" style="stroke:var(--bus-stripe)" stroke-width="2"/>
+      </g>
+
+      <!-- 建築 G：足湯亭 -->
+      <g id="ashiyu">
+        <rect x="1432" y="318" width="7" height="125" style="fill:var(--wood-dark)"/>
+        <rect x="1584" y="318" width="7" height="125" style="fill:var(--wood-dark)"/>
+        <path d="M1408,322 L1614,322 L1588,288 L1434,288 Z" style="fill:var(--roof)"/>
+        <rect x="1430" y="282" width="162" height="7" style="fill:var(--roof-ridge)"/>
+        <rect x="1420" y="440" width="180" height="30" style="fill:var(--stone)"/>
+        <rect x="1432" y="440" width="156" height="10" style="fill:var(--footbath)"/>
+        <rect x="1490" y="330" width="40" height="22" style="fill:var(--wood-light)"/>
+        <line x1="1496" y1="322" x2="1496" y2="330" style="stroke:var(--wood-dark)"/>
+        <line x1="1524" y1="322" x2="1524" y2="330" style="stroke:var(--wood-dark)"/>
+        <text x="1510" y="346" text-anchor="middle" class="sign-text" font-size="13" style="fill:var(--wood-dark)">足湯</text>
+      </g>
+
+      <!-- 街燈柱 -->
+      <rect x="336" y="352" width="5" height="120" style="fill:var(--roof-ridge)"/>
+      <rect x="1408" y="352" width="5" height="120" style="fill:var(--roof-ridge)"/>
+    </g>
+
+    <!-- 窗戶玻璃底色（白天看得到，夜晚由燈光層點亮） -->
+    <g id="windowsBase"></g>
+
+    <!-- ===== 場景：道路與河川 ===== -->
+    <rect x="0" y="470" width="1600" height="60" style="fill:var(--road)"/>
+    <g id="pavement"></g>
+    <ellipse cx="760" cy="500" rx="22" ry="6" style="fill:var(--stone-dark)"/>
+    <rect x="0" y="528" width="1600" height="6" style="fill:var(--stone)"/>
+    <rect x="0" y="534" width="1600" height="14" style="fill:var(--stone-dark)"/>
+    <g id="embank"></g>
+    <rect x="0" y="548" width="1600" height="52" fill="url(#waterGrad)"/>
+    <g id="ripples" clip-path="url(#riverClip)"></g>
+
+    <!-- ===== 角色：交通工具與行人 ===== -->
+    <g id="bus"></g>
+    <g id="staticPeople"></g>
+    <g id="walkers"></g>
+    <g id="bike"></g>
+    <!-- 屋頂上的貓｜點擊會跳一下 -->
+    <g id="cat" transform="translate(88,318)" aria-label="貓">
+      <path d="M-8,0 Q-10,-12 -5,-17 L-6,-24 L-1,-19 L3,-19 L7,-24 L6,-16 Q10,-10 8,0 Z" style="fill:var(--cat)"/>
+      <path id="catTail" d="M7,-2 Q18,-4 17,-14" fill="none" style="stroke:var(--cat)" stroke-width="3" stroke-linecap="round"/>
+      <g id="catBubble" opacity="0">
+        <rect x="-24" y="-52" width="48" height="20" rx="10" style="fill:var(--plaster)"/>
+        <text x="0" y="-37" text-anchor="middle" font-size="12" style="fill:var(--wood-dark)">にゃ〜</text>
+      </g>
+    </g>
+
+    <!-- ===== 夜色疊層：以 multiply 壓暗所有建築與角色 ===== -->
+    <rect id="layer-tint" x="0" y="168" width="1600" height="432" style="fill:var(--night-tint);mix-blend-mode:multiply" opacity="0"/>
+
+    <!-- ===== 燈光層：窗戶、燈籠、霓虹、路燈（夜晚亮起） ===== -->
+    <g id="layer-light">
+      <g id="lampGlows"></g>
+      <g id="windowsLit"></g>
+      <g id="interiors"></g>
+      <g id="busLights"></g>
+      <g id="neons"></g>
+      <g id="lanterns"></g>
+    </g>
+
+    <!-- 水面倒影 -->
+    <g clip-path="url(#riverClip)" mask="url(#reflectMask)"><g id="layer-reflect" filter="url(#blurReflect)"></g></g>
+
+    <!-- 湯煙粒子 -->
+    <g id="layer-steam" filter="url(#blurSteam)"></g>
+
+    <!-- 前景：柳樹（隨風擺動） -->
+    <g id="willow" style="pointer-events:none"></g>
+  </svg>
+  </div>
+
+  <div class="controls">
+    <div class="group">
+      <button id="btnAuto" type="button" aria-pressed="true">自動播放</button>
+    </div>
+    <div class="group" role="group" aria-label="切換時段">
+      <button type="button" data-time="0.27">清晨</button>
+      <button type="button" data-time="0.5">白天</button>
+      <button type="button" data-time="0.74">黃昏</button>
+      <button type="button" data-time="0.92">夜晚</button>
+    </div>
+    <div class="group">
+      <label for="timeRange">時間</label>
+      <input id="timeRange" type="range" min="0" max="1000" value="920">
+      <span id="clock" class="clock">22:05</span>
+    </div>
+  </div>
+  <p class="hint"><b>互動：</b>點燈籠開關燈並讓它搖晃；點霓虹招牌換顏色；點澡堂噴出湯煙；點屋頂的貓；點射的屋的靶子打倒它；點販賣機買飲料；滑鼠左右移動會改變風向。</p>
+</div>
+
+<script>
+(() => {
+'use strict';
+
+/* =========================================================
+   【設定】可調整的參數
+   ========================================================= */
+const CFG = {
+  cycleSeconds: 80,     // 一整天（24 小時）自動播放所需秒數
+  startTime: 0.92,      // 起始時間（0＝午夜、0.5＝正午）
+  walkerCount: 9,       // 街上行人數
+  steamPool: 170        // 湯煙粒子上限
+};
+
+const SVGNS = 'http://www.w3.org/2000/svg';
+const $ = (id) => document.getElementById(id);
+const svg = $('scene');
+const reduceMQ = window.matchMedia('(prefers-reduced-motion: reduce)');
+let motionOK = !reduceMQ.matches;
+
+/* ---------- 小工具 ---------- */
+function el(tag, attrs, parent) {
+  const n = document.createElementNS(SVGNS, tag);
+  for (const k in attrs) n.setAttribute(k, attrs[k]);
+  if (parent) parent.appendChild(n);
+  return n;
+}
+const css = getComputedStyle(document.documentElement);
+const token = (name) => css.getPropertyValue(name).trim();
+const v = (name) => `var(${name})`;
+const rand = (a, b) => a + Math.random() * (b - a);
+const clamp = (x, a, b) => Math.max(a, Math.min(b, x));
+const smooth = (x) => x * x * (3 - 2 * x);
+function hex2rgb(h) {
+  h = h.replace('#', '');
+  if (h.length === 3) h = h.split('').map(c => c + c).join('');
+  const n = parseInt(h, 16);
+  return [(n >> 16) & 255, (n >> 8) & 255, n & 255];
+}
+function mix(a, b, t) {
+  const r = a.map((x, i) => Math.round(x + (b[i] - x) * t));
+  return `rgb(${r[0]},${r[1]},${r[2]})`;
+}
+function mixRGB(a, b, t) { return a.map((x, i) => x + (b[i] - x) * t); }
+
+/* =========================================================
+   【場景】天空色彩關鍵影格（時間 → 三段色）
+   ========================================================= */
+const SKY = {
+  night: ['--sky-night-top', '--sky-night-mid', '--sky-night-bot'],
+  dawn:  ['--sky-dawn-top', '--sky-dawn-mid', '--sky-dawn-bot'],
+  day:   ['--sky-day-top', '--sky-day-mid', '--sky-day-bot'],
+  dusk:  ['--sky-dusk-top', '--sky-dusk-mid', '--sky-dusk-bot']
+};
+for (const k in SKY) SKY[k] = SKY[k].map(n => hex2rgb(token(n)));
+const SKY_KEYS = [
+  [0.00, 'night'], [0.19, 'night'], [0.27, 'dawn'], [0.36, 'day'],
+  [0.64, 'day'], [0.74, 'dusk'], [0.82, 'night'], [1.00, 'night']
+];
+const skyStops = [$('sky0'), $('sky1'), $('sky2')];
+const CLOUD_DAY = hex2rgb(token('--cloud-day'));
+const CLOUD_NIGHT = hex2rgb(token('--cloud-night'));
+
+/* 夜晚程度 0（白天）～ 1（深夜） */
+function nightness(t) {
+  if (t < 0.2 || t > 0.81) return 1;
+  if (t < 0.33) return 1 - smooth((t - 0.2) / 0.13);
+  if (t > 0.68) return smooth((t - 0.68) / 0.13);
+  return 0;
+}
+
+/* =========================================================
+   【場景】程式產生的重複元素
+   ========================================================= */
+
+// 星星
+const stars = [];
+for (let i = 0; i < 130; i++) {
+  const s = el('circle', { cx: rand(0, 1600).toFixed(1), cy: rand(0, 260).toFixed(1), r: rand(0.5, 1.7).toFixed(2), style: 'fill:var(--star)' }, $('stars'));
+  stars.push({ el: s, base: rand(0.4, 1), ph: rand(0, 6.28), sp: rand(1, 3) });
+}
+
+// 雲
+const clouds = [];
+for (let i = 0; i < 6; i++) {
+  const g = el('g', {}, $('clouds'));
+  const w = rand(90, 170);
+  for (let j = 0; j < 5; j++) {
+    el('ellipse', { cx: (j - 2) * w * 0.22 + rand(-8, 8), cy: rand(-10, 4), rx: w * rand(0.18, 0.3), ry: rand(12, 22) }, g);
+  }
+  clouds.push({ g, x: rand(0, 1600), y: rand(50, 165), sp: rand(6, 14), w });
+}
+
+// 山坡上的松樹
+(() => {
+  const hill = $('mtnNear');
+  const L = hill.getTotalLength();
+  for (let i = 0; i < 120; i++) {
+    const p = hill.getPointAtLength(rand(0, L));
+    if (p.y > 380 || p.x >= 1599 || p.x <= 1) continue;
+    const h = rand(10, 22), y = p.y + rand(2, 26);
+    el('path', { d: `M${p.x.toFixed(1)},${(y - h).toFixed(1)} l${h * 0.35},${h} l${-h * 0.7},0 Z`, style: 'fill:var(--pine)' }, $('pines'));
+  }
+})();
+
+// 後排建築剪影（主街後面的一排房子）
+const backWindows = [];
+(() => {
+  let x = -10;
+  while (x < 1600) {
+    const w = rand(60, 115), top = rand(248, 300);
+    el('rect', { x: x.toFixed(1), y: top.toFixed(1), width: w.toFixed(1), height: (470 - top).toFixed(1), style: 'fill:var(--bldg-back)' }, $('backRow'));
+    el('path', { d: `M${x - 4},${top} L${x + w + 4},${top} L${x + w - 8},${top - 12} L${x + 8},${top - 12} Z`, style: 'fill:var(--roof-ridge)' }, $('backRow'));
+    const n = Math.floor(w / 26);
+    for (let i = 0; i < n; i++) if (Math.random() < 0.7) backWindows.push([x + 8 + i * 26, top + 12, 12, 10, 'warm']);
+    x += w + rand(-6, 4);
+  }
+  // 飯店窗戶
+  for (let i = 0; i < 6; i++) for (let j = 0; j < 3; j++) backWindows.push([1024 + i * 36, 220 + j * 32, 18, 14, 'warm']);
+})();
+
+// 射的屋紅白條紋遮雨棚
+for (let i = 0; i < 8; i++) {
+  el('rect', { x: 640 + i * 20, y: 360, width: 20, height: 16, style: `fill:var(${i % 2 ? '--awning-b' : '--awning-a'})` }, $('awning'));
+  el('path', { d: `M${640 + i * 20},376 q10,10 20,0 Z`, style: `fill:var(${i % 2 ? '--awning-b' : '--awning-a'})` }, $('awning'));
+}
+
+// 石板路紋理
+for (let x = 0; x < 1600; x += 46) {
+  el('line', { x1: x, y1: 472, x2: x - 18, y2: 527, style: 'stroke:var(--road-line)', 'stroke-width': 1 }, $('pavement'));
+}
+el('line', { x1: 0, y1: 500, x2: 1600, y2: 500, style: 'stroke:var(--road-line)', 'stroke-width': 1, 'stroke-dasharray': '30 16' }, $('pavement'));
+for (let x = 0; x < 1600; x += 38) {
+  el('line', { x1: x, y1: 534, x2: x, y2: 548, style: 'stroke:var(--stone)', 'stroke-width': 1 }, $('embank'));
+}
+
+// 河面漣漪
+const ripples = [];
+for (let i = 0; i < 46; i++) {
+  const r = el('line', { y1: 0, y2: 0, style: 'stroke:var(--ripple)', 'stroke-width': 1.4, 'stroke-linecap': 'round' }, $('ripples'));
+  ripples.push({ el: r, x: rand(0, 1600), y: rand(554, 597), len: rand(10, 34), sp: rand(14, 30) });
+}
+
+/* ---------- 窗戶（底色 + 夜間燈光） ---------- */
+const WINDOWS = [
+  // [x, y, 寬, 高, 類型] 類型：shoji＝障子格、warm＝暖光、cool＝紫光
+  [68, 350, 50, 34, 'shoji'], [252, 350, 50, 34, 'shoji'],
+  [368, 262, 44, 40, 'shoji'], [426, 262, 44, 40, 'shoji'], [484, 262, 44, 40, 'shoji'], [542, 262, 44, 40, 'shoji'],
+  [368, 330, 44, 40, 'shoji'], [426, 330, 44, 40, 'shoji'], [484, 330, 44, 40, 'shoji'], [542, 330, 44, 40, 'shoji'],
+  [440, 405, 90, 65, 'shoji'],
+  [825, 314, 60, 36, 'shoji'],
+  [968, 398, 58, 42, 'cool'], [1104, 408, 24, 20, 'cool'],
+  [1190, 344, 40, 40, 'shoji'],
+  ...backWindows
+];
+const winLit = [];
+WINDOWS.forEach(([x, y, w, h, type]) => {
+  el('rect', { x, y, width: w, height: h, style: 'fill:var(--glass)' }, $('windowsBase'));
+  const g = el('g', {}, $('windowsLit'));
+  el('rect', { x, y, width: w, height: h, style: `fill:var(${type === 'cool' ? '--win-cool' : '--win-warm'})` }, g);
+  if (type === 'shoji') {
+    for (let i = 1; i < 4; i++) el('line', { x1: x + w * i / 4, y1: y, x2: x + w * i / 4, y2: y + h, style: 'stroke:var(--wood-dark)', 'stroke-width': 1.2 }, g);
+    el('line', { x1: x, y1: y + h / 2, x2: x + w, y2: y + h / 2, style: 'stroke:var(--wood-dark)', 'stroke-width': 1.2 }, g);
+  }
+  winLit.push({ g, on: Math.random() < 0.85 });
+});
+// 旅館三樓窗內的人影（剪影）
+el('path', { d: 'M500,302 l0,-14 q0,-8 6,-8 q-5,-3 -2,-9 q5,-4 8,1 q2,6 -3,8 q7,1 7,9 l0,13 Z', style: 'fill:var(--wood-dark)', opacity: 0.55 }, winLit[4].g);
+
+/* ---------- 店內燈光：射的屋、土產店、拉麵店、販賣機 ---------- */
+const interiors = $('interiors');
+el('rect', { x: 655, y: 378, width: 130, height: 66, style: 'fill:var(--win-warm)' }, interiors);
+el('rect', { x: 660, y: 404, width: 120, height: 4, style: 'fill:var(--wood-mid)' }, interiors);
+el('rect', { x: 660, y: 428, width: 120, height: 4, style: 'fill:var(--wood-mid)' }, interiors);
+// 下排獎品
+['--yukata-3', '--yukata-1', '--yukata-5', '--yukata-4', '--neon-4', '--yukata-3'].forEach((c, i) => {
+  el('rect', { x: 666 + i * 19, y: 416, width: 12, height: 12, rx: 2, style: `fill:var(${c})` }, interiors);
+});
+// 上排靶子（可點擊打倒）
+const targets = [];
+['--yukata-3', '--neon-2', '--yukata-5', '--neon-6', '--neon-1'].forEach((c, i) => {
+  const cx = 672 + i * 24;
+  const g = el('g', { class: 'hit', 'aria-label': '靶子' }, interiors);
+  el('rect', { x: cx - 6, y: 386, width: 12, height: 18, rx: 3, style: `fill:var(${c})` }, g);
+  el('circle', { cx, cy: 384, r: 5, style: `fill:var(${c})` }, g);
+  el('circle', { cx, cy: 395, r: 2.5, style: 'fill:var(--plaster)' }, g);
+  const tgt = { g, cx, ang: 0, down: false, timer: 0 };
+  g.addEventListener('click', () => { if (!tgt.down) { tgt.down = true; tgt.timer = 4; if (!motionOK) { tgt.ang = 90; render(0); } } });
+  targets.push(tgt);
+});
+// 土產店貨架
+el('rect', { x: 817, y: 400, width: 78, height: 58, style: 'fill:var(--win-warm)' }, interiors);
+for (let r = 0; r < 3; r++) for (let i = 0; i < 6; i++) {
+  const cs = ['--awning-a', '--yukata-1', '--yukata-5', '--yukata-4', '--neon-1', '--plaster'];
+  el('rect', { x: 820 + i * 12.5, y: 406 + r * 17, width: 9, height: 10, style: `fill:var(${cs[(i + r * 2) % 6]})` }, interiors);
+}
+// 拉麵店窗口＋廚師剪影
+el('rect', { x: 1338, y: 362, width: 46, height: 48, style: 'fill:var(--win-warm)' }, interiors);
+const chef = el('g', {}, interiors);
+el('path', { d: 'M1352,410 l0,-18 q0,-9 9,-9 q9,0 9,9 l0,18 Z', style: 'fill:var(--wood-dark)', opacity: 0.7 }, chef);
+el('circle', { cx: 1361, cy: 378, r: 6, style: 'fill:var(--wood-dark)', opacity: 0.7 }, chef);
+el('rect', { x: 1354, y: 368, width: 14, height: 6, rx: 2, style: 'fill:var(--plaster)' }, chef);
+// 販賣機發光面板
+const vendLit = el('g', {}, interiors);
+el('rect', { x: 916, y: 413, width: 28, height: 30, style: 'fill:var(--plaster)' }, vendLit);
+for (let r = 0; r < 2; r++) for (let i = 0; i < 4; i++) {
+  el('rect', { x: 918 + i * 6.5, y: 416 + r * 13, width: 4, height: 9, rx: 1.5, style: `fill:var(${['--neon-5', '--neon-2', '--yukata-5', '--neon-6'][(i + r) % 4]})` }, vendLit);
+}
+const can = el('rect', { x: 925, y: 456, width: 8, height: 10, rx: 2, style: 'fill:var(--neon-5)', opacity: 0 }, interiors);
+
+/* ---------- 路燈光暈 ---------- */
+[[338, 350], [1410, 350]].forEach(([x, y]) => {
+  el('circle', { cx: x + 1.5, cy: y, r: 60, fill: 'url(#lampGlow)', class: 'lamp-halo' }, $('lampGlows'));
+  el('path', { d: `M${x - 8},${y - 6} L${x + 11},${y - 6} L${x + 8},${y + 8} L${x - 5},${y + 8} Z`, style: 'fill:var(--lamp)' }, $('lampGlows'));
+  el('rect', { x: x - 10, y: y - 10, width: 23, height: 5, style: 'fill:var(--roof-ridge)' }, $('lampGlows'));
+});
+
+/* =========================================================
+   【場景】霓虹招牌（點擊換色）
+   每塊招牌：位置、文字、直/橫排、字級、起始色號
+   ========================================================= */
+const NEON_COLORS = ['--neon-1', '--neon-2', '--neon-3', '--neon-4', '--neon-5', '--neon-6'];
+const NEON_RGB = NEON_COLORS.map(n => hex2rgb(token(n)));
+const NEONS = [
+  { id: 'yu',     x: 185,  y: 290, text: '湯',     size: 22, color: 1, ring: 20 },
+  { id: 'ryokan', x: 633,  y: 262, text: '旅館月灯', size: 30, color: 0, vertical: true, board: [618, 244, 30, 172], flicker: true },
+  { id: 'shateki',x: 720,  y: 350, text: '射的',   size: 28, color: 2 },
+  { id: 'kasumi', x: 1062, y: 384, text: '霞',     size: 26, color: 3, ring: 25 },
+  { id: 'snack',  x: 1062, y: 424, text: 'スナック', size: 14, color: 3, flicker: true },
+  { id: 'ramen',  x: 1285, y: 292, text: 'らーめん', size: 26, color: 4 },
+  { id: 'hotel',  x: 1125, y: 191, text: 'ホテル山霞', size: 18, color: 1 },
+  { id: 'kuji',   x: 994,  y: 378, text: '♨',      size: 22, color: 5 }
+];
+const neonState = [];
+NEONS.forEach((n) => {
+  if (n.board) el('rect', { x: n.board[0], y: n.board[1], width: n.board[2], height: n.board[3], rx: 3, style: 'fill:var(--sign-board)' }, $('neons'));
+  const g = el('g', { class: 'hit neon', filter: 'url(#neonGlow)', 'aria-label': '霓虹招牌' }, $('neons'));
+  const parts = [];
+  if (n.ring) parts.push(el('circle', { cx: n.x, cy: n.y - n.size * 0.32, r: n.ring, fill: 'none', 'stroke-width': 2.5 }, g));
+  if (n.vertical) {
+    [...n.text].forEach((ch, i) => {
+      const t = el('text', { x: n.x, y: n.y + 6 + i * (n.size + 9), 'text-anchor': 'middle', 'font-size': n.size, class: 'sign-text', 'stroke-width': 0.6 }, g);
+      t.textContent = ch; parts.push(t);
+    });
+  } else {
+    const t = el('text', { x: n.x, y: n.y, 'text-anchor': 'middle', 'font-size': n.size, class: 'sign-text', 'stroke-width': 0.6 }, g);
+    t.textContent = n.text; parts.push(t);
+  }
+  // 透明點擊區，讓整塊招牌都好點
+  const bb = g.getBBox();
+  el('rect', { x: bb.x - 6, y: bb.y - 6, width: bb.width + 12, height: bb.height + 12, fill: 'transparent' }, g);
+  // 河面倒影（只有靠近河的招牌）
+  let refl = null;
+  if (n.y > 250 && n.id !== 'hotel') {
+    refl = el('rect', { x: n.x - bb.width / 2, y: 552, width: Math.max(bb.width, 24), height: 44 }, $('layer-reflect'));
+  }
+  const st = { cfg: n, g, parts, refl, color: n.color, flick: 0, burst: 0 };
+  applyNeonColor(st);
+  g.addEventListener('click', () => { st.color = (st.color + 1) % NEON_COLORS.length; st.burst = 0.6; applyNeonColor(st); if (!motionOK) render(0); });
+  neonState.push(st);
+});
+function applyNeonColor(st) {
+  const c = v(NEON_COLORS[st.color]);
+  st.parts.forEach(p => {
+    if (p.tagName === 'circle') p.style.stroke = c;
+    else { p.style.fill = c; p.style.stroke = c; }
+  });
+  if (st.refl) st.refl.style.fill = c;
+}
+
+/* =========================================================
+   【場景】燈籠（點擊：開關＋大幅搖晃）
+   ========================================================= */
+const lanterns = [];
+function lanternString(x1, x2, y, sag, count, color, big) {
+  if (!big) el('path', { d: `M${x1},${y} Q${(x1 + x2) / 2},${y + sag * 2} ${x2},${y}`, fill: 'none', style: 'stroke:var(--roof-ridge)', 'stroke-width': 1.2 }, $('lanterns'));
+  for (let i = 0; i < count; i++) {
+    const t = (i + 0.5) / count;
+    const x = x1 + (x2 - x1) * t;
+    const yy = big ? y : y + sag * 4 * t * (1 - t);
+    addLantern(x, yy, color, big);
+  }
+}
+function addLantern(x, y, color, big) {
+  const s = big ? 1.5 : 1;
+  const g = el('g', { class: 'hit', 'aria-label': '燈籠' }, $('lanterns'));
+  el('line', { x1: 0, y1: 0, x2: 0, y2: 8 * s, style: 'stroke:var(--roof-ridge)', 'stroke-width': 1 }, g);
+  const halo = el('ellipse', { cx: 0, cy: 20 * s, rx: 22 * s, ry: 24 * s, filter: 'url(#softGlow)', style: `fill:var(${color})`, opacity: 0.25 }, g);
+  const body = el('ellipse', { cx: 0, cy: 20 * s, rx: 9 * s, ry: 12 * s, style: `fill:var(${color})` }, g);
+  for (let k = -1; k <= 1; k++) el('path', { d: `M${-9 * s},${(20 + k * 5) * s} Q0,${(22 + k * 5) * s} ${9 * s},${(20 + k * 5) * s}`, fill: 'none', style: 'stroke:var(--wood-dark)', 'stroke-width': 0.6, opacity: 0.5 }, g);
+  el('rect', { x: -5 * s, y: 7 * s, width: 10 * s, height: 3 * s, style: 'fill:var(--roof-ridge)' }, g);
+  el('rect', { x: -5 * s, y: 30.5 * s, width: 10 * s, height: 3 * s, style: 'fill:var(--roof-ridge)' }, g);
+  if (big) { const t = el('text', { x: 0, y: 25 * s, 'text-anchor': 'middle', 'font-size': 11, class: 'sign-text', style: 'fill:var(--sign-board)' }, g); t.textContent = '酒'; }
+  const L = { g, x, y, body, halo, color, on: true, ang: rand(-3, 3), vel: 0, ph: rand(0, 6.28) };
+  g.addEventListener('click', () => {
+    L.on = !L.on; L.vel += (Math.random() < 0.5 ? -1 : 1) * 160;
+    if (!motionOK) render(0);
+  });
+  lanterns.push(L);
+}
+lanternString(342, 632, 384, 9, 5, '--lantern');
+lanternString(824, 1148, 296, 10, 6, '--lantern');
+addLantern(1208, 340, '--lantern-red', true);
+addLantern(1362, 340, '--lantern-red', true);
+
+/* =========================================================
+   【角色】行人（浴衣、木屐，各帶小道具）
+   ========================================================= */
+const YUKATA = ['--yukata-1', '--yukata-2', '--yukata-3', '--yukata-4', '--yukata-5'];
+const PROPS = ['towel', 'umbrella', 'fan', 'basket', 'none', 'towel', 'fan'];
+function makePerson(parent, opt) {
+  const g = el('g', {}, parent);
+  const inner = el('g', {}, g);
+  const legs = [];
+  for (const dx of [-3, 3]) {
+    legs.push(el('line', { x1: dx, y1: -15, x2: dx, y2: -1, style: 'stroke:var(--skin)', 'stroke-width': 3, 'stroke-linecap': 'round' }, inner));
+  }
+  // 木屐
+  legs.forEach(l => l._geta = el('rect', { x: -4, y: -2, width: 8, height: 2.5, style: 'fill:var(--wood-mid)' }, inner));
+  el('path', { d: 'M-9,-35 L9,-35 L12,-12 L-12,-12 Z', style: `fill:var(${opt.color})` }, inner);
+  el('path', { d: 'M-4,-35 L0,-28 L4,-35', fill: 'none', style: 'stroke:var(--skin)', 'stroke-width': 1.5 }, inner);
+  el('rect', { x: -10, y: -25, width: 20, height: 4.5, style: 'fill:var(--obi)' }, inner);
+  const arm = el('path', { d: 'M5,-33 L12,-22 L9,-20 Z', style: `fill:var(${opt.color})` }, inner);
+  el('circle', { cx: 0, cy: -41, r: 6.2, style: 'fill:var(--skin)' }, inner);
+  el('path', { d: opt.long ? 'M-6.5,-41 Q-7,-49 0,-48.5 Q7,-49 6.5,-41 L6,-34 L3,-38 Q0,-45 -3,-38 L-6,-34 Z' : 'M-6.5,-41 Q-7,-49 0,-48.5 Q7,-49 6.5,-42 Q2,-46 -6.5,-41 Z', style: 'fill:var(--hair)' }, inner);
+  if (opt.prop === 'towel') el('rect', { x: -9, y: -37, width: 6, height: 12, rx: 1, style: 'fill:var(--towel)' }, inner);
+  if (opt.prop === 'umbrella') {
+    el('line', { x1: 10, y1: -22, x2: 10, y2: -58, style: 'stroke:var(--wood-dark)', 'stroke-width': 1.5 }, inner);
+    el('path', { d: 'M-12,-56 Q10,-76 32,-56 Z', style: 'fill:var(--awning-a)' }, inner);
+  }
+  if (opt.prop === 'fan') {
+    el('line', { x1: 12, y1: -22, x2: 15, y2: -28, style: 'stroke:var(--wood-dark)', 'stroke-width': 1.2 }, inner);
+    el('circle', { cx: 16, cy: -32, r: 5, style: 'fill:var(--neon-2)' }, inner);
+  }
+  if (opt.prop === 'basket') el('path', { d: 'M8,-20 L18,-20 L16,-12 L10,-12 Z', style: 'fill:var(--wood-light)' }, inner);
+  return { g, inner, legs, arm };
+}
+const walkers = [];
+for (let i = 0; i < CFG.walkerCount; i++) {
+  const dir = Math.random() < 0.5 ? 1 : -1;
+  const scale = i === 3 ? 0.68 : rand(0.92, 1.08);   // 第 4 位是小孩
+  const p = makePerson($('walkers'), { color: YUKATA[i % YUKATA.length], prop: PROPS[i % PROPS.length], long: i % 2 === 1 });
+  walkers.push({ ...p, x: rand(0, 1600), y: rand(505, 524), dir, sp: rand(22, 38) * (scale < 0.8 ? 1.2 : 1), ph: rand(0, 6.28), scale });
+}
+walkers.sort((a, b) => a.y - b.y).forEach(w => $('walkers').appendChild(w.g));
+
+// 靜態人物：射的屋客人、足湯泡腳的兩人
+const staticPeople = [];
+(() => {
+  const c = makePerson($('staticPeople'), { color: '--yukata-4', prop: 'none' });
+  c.g.setAttribute('transform', 'translate(712,470) scale(-1,1)');
+  c.arm.setAttribute('d', 'M5,-33 L18,-31 L18,-28 Z');
+  el('line', { x1: -14, y1: -30, x2: -34, y2: -34, style: 'stroke:var(--wood-dark)', 'stroke-width': 3 }, c.inner); // 玩具槍
+  [[1478, '--yukata-2'], [1540, '--yukata-3']].forEach(([x, col], i) => {
+    const g = el('g', { transform: `translate(${x},440)` }, $('staticPeople'));
+    el('path', { d: 'M-9,-30 L9,-30 L11,-4 L-11,-4 Z', style: `fill:var(${col})` }, g);
+    el('rect', { x: -10, y: -20, width: 20, height: 4, style: 'fill:var(--obi)' }, g);
+    el('circle', { cx: 0, cy: -36, r: 6, style: 'fill:var(--skin)' }, g);
+    el('path', { d: 'M-6.5,-36 Q-7,-44 0,-43.5 Q7,-44 6.5,-37 Q2,-41 -6.5,-36 Z', style: 'fill:var(--hair)' }, g);
+    if (i === 0) el('rect', { x: -4, y: -46, width: 9, height: 4, rx: 1, style: 'fill:var(--towel)' }, g); // 頭上的毛巾
+    const feet = [];
+    for (const dx of [-4, 4]) feet.push(el('line', { x1: dx, y1: -4, x2: dx, y2: 8, style: 'stroke:var(--skin)', 'stroke-width': 3, 'stroke-linecap': 'round' }, g));
+    staticPeople.push({ feet, ph: i * 1.7 });
+  });
+})();
+
+// 巴士（溫泉循環巴士，往左行駛）
+const bus = { x: 1900, sp: 70, wait: 0 };
+(() => {
+  const g = $('bus');
+  el('rect', { x: 0, y: -48, width: 150, height: 42, rx: 8, style: 'fill:var(--bus-body)' }, g);
+  el('rect', { x: 0, y: -22, width: 150, height: 8, style: 'fill:var(--bus-stripe)' }, g);
+  el('rect', { x: 4, y: -52, width: 142, height: 6, rx: 3, style: 'fill:var(--bus-stripe)' }, g);
+  for (let i = 0; i < 5; i++) el('rect', { x: 24 + i * 24, y: -42, width: 19, height: 16, rx: 2, style: 'fill:var(--glass)' }, g);
+  el('rect', { x: 4, y: -42, width: 14, height: 26, rx: 2, style: 'fill:var(--glass)' }, g);
+    bus.wheels = [28, 120].map(cx => {
+    el('circle', { cx, cy: -4, r: 9, style: 'fill:var(--tire)' }, g);
+    const hub = el('g', {}, g);
+    el('circle', { cx, cy: -4, r: 4, style: 'fill:var(--stone)' }, hub);
+    el('line', { x1: cx - 4, y1: -4, x2: cx + 4, y2: -4, style: 'stroke:var(--tire)', 'stroke-width': 1.2 }, hub);
+    return { hub, cx };
+  });
+  const L = $('busLights');
+  el('polygon', { points: '0,-14 -170,-34 -170,6', fill: 'url(#beamGrad)' }, L);
+  for (let i = 0; i < 5; i++) el('rect', { x: 24 + i * 24, y: -42, width: 19, height: 16, rx: 2, style: 'fill:var(--win-warm)' }, L);
+  el('circle', { cx: 3, cy: -14, r: 3.5, style: 'fill:var(--lamp)' }, L);
+  el('circle', { cx: 148, cy: -14, r: 3, style: 'fill:var(--neon-5)' }, L);
+})();
+
+// 腳踏車騎士（往右）
+const bike = { x: -120, sp: 75 };
+(() => {
+  const g = $('bike');
+  bike.wheels = [-14, 14].map(cx => {
+    el('circle', { cx, cy: -9, r: 9, fill: 'none', style: 'stroke:var(--tire)', 'stroke-width': 2.4 }, g);
+    const sp = el('g', {}, g);
+    el('line', { x1: cx - 8, y1: -9, x2: cx + 8, y2: -9, style: 'stroke:var(--stone)', 'stroke-width': 0.8 }, sp);
+    el('line', { x1: cx, y1: -17, x2: cx, y2: -1, style: 'stroke:var(--stone)', 'stroke-width': 0.8 }, sp);
+    return { sp, cx };
+  });
+  el('path', { d: 'M-14,-9 L-4,-22 L10,-22 L14,-9 M-4,-22 L0,-9 L10,-22 M10,-22 L8,-28 L13,-28', fill: 'none', style: 'stroke:var(--neon-4)', 'stroke-width': 2 }, g);
+  el('path', { d: 'M-7,-26 L3,-26 L1,-46 L-7,-46 Z', style: 'fill:var(--yukata-1)' }, g);
+  el('line', { x1: -3, y1: -27, x2: 1, y2: -12, style: 'stroke:var(--skin)', 'stroke-width': 3, 'stroke-linecap': 'round' }, g);
+  el('line', { x1: 0, y1: -43, x2: 11, y2: -30, style: 'stroke:var(--yukata-1)', 'stroke-width': 3 }, g);
+  el('circle', { cx: -2, cy: -52, r: 6, style: 'fill:var(--skin)' }, g);
+  el('path', { d: 'M-9,-53 Q-2,-64 5,-53 Z', style: 'fill:var(--wood-light)' }, g); // 草帽
+})();
+
+/* ---------- 前景柳樹 ---------- */
+const willowBranches = [];
+(() => {
+  const g = $('willow');
+  el('path', { d: 'M-10,600 Q30,520 18,420 Q10,330 40,240 L52,244 Q28,330 36,420 Q48,520 18,600 Z', style: 'fill:var(--willow-trunk)' }, g);
+  el('path', { d: 'M40,250 Q80,200 130,190 M30,300 Q70,280 110,282', fill: 'none', style: 'stroke:var(--willow-trunk)', 'stroke-width': 5, 'stroke-linecap': 'round' }, g);
+  for (let i = 0; i < 18; i++) {
+    const tx = rand(-10, 150), ty = rand(170, 260), len = rand(140, 260);
+    const bg = el('g', {}, g);
+    const d = `M${tx},${ty} q${rand(-8, 8)},${len * 0.5} ${rand(-4, 10)},${len}`;
+    el('path', { d, fill: 'none', style: 'stroke:var(--willow-trunk)', 'stroke-width': 1, opacity: 0.7 }, bg);
+    el('path', { d, fill: 'none', style: 'stroke:var(--willow)', 'stroke-width': 4.5, 'stroke-dasharray': '3 4', 'stroke-linecap': 'round' }, bg);
+    willowBranches.push({ g: bg, tx, ty, ph: rand(0, 6.28), amp: rand(2, 5) });
+  }
+})();
+
+/* =========================================================
+   【動畫】湯煙粒子系統
+   ========================================================= */
+const steamLayer = $('layer-steam');
+const particles = [];
+for (let i = 0; i < CFG.steamPool; i++) {
+  particles.push({ el: el('circle', { r: 0, style: 'fill:var(--steam)', opacity: 0 }, steamLayer), alive: false });
+}
+// 湯煙來源：x, y, 每秒產生數, 水平擴散, 初始大小, 透明度, 上升速度
+const SOURCES = [
+  { x: 284,  y: 132, rate: 4.5, spread: 6,  size: 7,  alpha: 0.55, rise: 30 },  // 澡堂煙囪
+  { x: 600,  y: 328, rate: 1.2, spread: 60, size: 14, alpha: 0.22, rise: 10 },  // 山谷地獄谷
+  { x: 760,  y: 498, rate: 2.2, spread: 12, size: 5,  alpha: 0.4,  rise: 22 },  // 人孔蓋
+  { x: 1347, y: 286, rate: 3,   spread: 4,  size: 5,  alpha: 0.5,  rise: 26 },  // 拉麵店排氣口
+  { x: 1510, y: 442, rate: 3.2, spread: 70, size: 6,  alpha: 0.38, rise: 16 },  // 足湯
+  { x: 800,  y: 556, rate: 1.4, spread: 700,size: 8,  alpha: 0.16, rise: 8 }    // 河面霧氣
+];
+SOURCES.forEach(s => s.acc = 0);
+function spawn(s, extra) {
+  const p = particles.find(q => !q.alive);
+  if (!p) return;
+  p.alive = true;
+  p.x = s.x + rand(-s.spread, s.spread);
+  p.y = s.y + rand(-2, 2);
+  p.vx = rand(-4, 4); p.vy = -s.rise * rand(0.7, 1.3) * (extra ? 1.6 : 1);
+  p.r = s.size * rand(0.7, 1.2) * (extra ? 1.5 : 1);
+  p.life = 0; p.max = rand(3, 5.5);
+  p.alpha = s.alpha * (extra ? 1.3 : 1);
+}
+
+/* =========================================================
+   【動畫】主迴圈
+   ========================================================= */
+let time = CFG.startTime;            // 0～1 一天中的時間
+let auto = motionOK;                 // 是否自動推進時間
+let clockSec = 0;                    // 動畫累計秒數
+let wind = 0.3, windTarget = 0.3, mouseWind = null;
+let catJump = 0, vendT = 0, bathBurst = 0, shootT = -1, shoot = {};
+const sunEl = $('sun'), moonEl = $('moon'), tint = $('layer-tint');
+const cabin = $('cabin');
+
+function updateSky(t) {
+  let i = 0;
+  while (i < SKY_KEYS.length - 2 && t > SKY_KEYS[i + 1][0]) i++;
+  const [t0, k0] = SKY_KEYS[i], [t1, k1] = SKY_KEYS[i + 1];
+  const f = t1 === t0 ? 0 : smooth(clamp((t - t0) / (t1 - t0), 0, 1));
+  for (let j = 0; j < 3; j++) skyStops[j].setAttribute('stop-color', mix(SKY[k0][j], SKY[k1][j], f));
+}
+
+function render(dt) {
+  clockSec += dt;
+  if (auto && motionOK) time = (time + dt / CFG.cycleSeconds) % 1;
+  const n = nightness(time);
+
+  // —— 天空、日月、星星 ——
+  updateSky(time);
+  const sa = (time - 0.25) / 0.5;            // 太陽 0～1 跨越天空
+  sunEl.setAttribute('transform', `translate(${100 + 1400 * sa},${300 - 230 * Math.sin(Math.PI * clamp(sa, 0, 1))})`);
+  sunEl.setAttribute('opacity', sa > -0.05 && sa < 1.05 ? 1 : 0);
+  const ma = (((time + 0.5) % 1) - 0.25) / 0.5;
+  moonEl.setAttribute('transform', `translate(${100 + 1400 * ma},${300 - 220 * Math.sin(Math.PI * clamp(ma, 0, 1))})`);
+  moonEl.setAttribute('opacity', ma > -0.05 && ma < 1.05 ? 1 : 0);
+  $('stars').setAttribute('opacity', n);
+  if (n > 0.05) stars.forEach(s => s.el.setAttribute('opacity', (s.base * (0.6 + 0.4 * Math.sin(clockSec * s.sp + s.ph))).toFixed(2)));
+
+  // 流星（深夜偶爾出現）
+  const sh = $('shooting');
+  if (motionOK && n > 0.9 && shootT < 0 && Math.random() < dt * 0.08) {
+    shootT = 0; shoot = { x: rand(300, 1400), y: rand(30, 140) };
+  }
+  if (shootT >= 0) {
+    shootT += dt;
+    const k = shootT / 0.9;
+    const x = shoot.x + 260 * k, y = shoot.y + 90 * k;
+    sh.setAttribute('x1', x - 60); sh.setAttribute('y1', y - 21); sh.setAttribute('x2', x); sh.setAttribute('y2', y);
+    sh.setAttribute('opacity', (Math.sin(Math.PI * clamp(k, 0, 1)) * n).toFixed(2));
+    if (k >= 1) { shootT = -1; sh.setAttribute('opacity', 0); }
+  }
+
+  // —— 風：自然陣風＋滑鼠位置 ——
+  const gust = 0.35 + 0.25 * Math.sin(clockSec * 0.27) + 0.15 * Math.sin(clockSec * 1.3);
+  windTarget = mouseWind !== null ? mouseWind : gust;
+  wind += (windTarget - wind) * Math.min(1, dt * 1.5);
+
+  // —— 雲 ——
+  const cloudCol = mix(CLOUD_DAY, CLOUD_NIGHT, n);
+  clouds.forEach(c => {
+    c.x += (c.sp + wind * 18) * dt;
+    if (c.x > 1600 + c.w) c.x = -c.w;
+    if (c.x < -c.w - 10) c.x = 1600 + c.w;
+    c.g.setAttribute('transform', `translate(${c.x.toFixed(1)},${c.y})`);
+    c.g.setAttribute('fill', cloudCol);
+    c.g.setAttribute('opacity', 0.85 - n * 0.35);
+  });
+
+  // —— 夜色疊層與燈光 ——
+  tint.setAttribute('opacity', (n * 0.74).toFixed(3));
+  winLit.forEach(w => w.g.setAttribute('opacity', w.on ? n : 0));
+  if (motionOK && Math.random() < dt * 0.6) { const w = winLit[Math.floor(Math.random() * winLit.length)]; w.on = !w.on || Math.random() < 0.7; }
+  $('interiors').setAttribute('opacity', (0.55 + 0.45 * n).toFixed(2));
+  $('lampGlows').setAttribute('opacity', n.toFixed(2));
+  $('busLights').setAttribute('opacity', (0.15 + 0.85 * n).toFixed(2));
+
+  // 霓虹：白天只剩淡淡的燈管，夜晚全亮；部分招牌會閃爍
+  neonState.forEach(st => {
+    let a = 0.4 + 0.6 * n;
+    if (motionOK && st.cfg.flicker && Math.random() < dt * 0.5) st.flick = rand(0.05, 0.25);
+    if (st.flick > 0) { st.flick -= dt; if (Math.random() < 0.5) a *= 0.25; }
+    if (st.burst > 0) { st.burst -= dt; a *= (Math.sin(st.burst * 60) > 0 ? 1 : 0.2); }
+    st.g.setAttribute('opacity', a.toFixed(2));
+    if (st.refl) {
+      st.refl.setAttribute('opacity', (n * 0.55 * (a / (0.4 + 0.6 * n))).toFixed(2));
+      st.refl.setAttribute('transform', `translate(${(Math.sin(clockSec * 2 + st.cfg.x) * 3).toFixed(1)},0)`);
+    }
+  });
+
+  // —— 燈籠：簡易單擺物理＋風力 ——
+  lanterns.forEach(L => {
+    const force = wind * 9 + Math.sin(clockSec * 1.6 + L.ph) * 3;
+    L.vel += (-(L.ang - force) * 18 - L.vel * 2.2) * dt;
+    L.ang += L.vel * dt;
+    if (!motionOK) L.ang = 0;
+    L.g.setAttribute('transform', `translate(${L.x},${L.y}) rotate(${L.ang.toFixed(2)})`);
+    L.body.style.fill = v(L.on ? L.color : '--lantern-off');
+    L.halo.setAttribute('opacity', L.on ? (0.08 + 0.4 * n).toFixed(2) : 0);
+  });
+
+  // —— 河面漣漪 ——
+  ripples.forEach(r => {
+    r.x -= r.sp * dt;
+    if (r.x < -40) r.x = 1640;
+    r.el.setAttribute('x1', r.x.toFixed(1)); r.el.setAttribute('x2', (r.x + r.len).toFixed(1));
+    r.el.setAttribute('y1', r.y); r.el.setAttribute('y2', r.y);
+    r.el.setAttribute('opacity', (0.25 + 0.2 * Math.sin(clockSec * 2 + r.x * 0.05)).toFixed(2));
+  });
+
+  // —— 行人 ——
+  walkers.forEach(w => {
+    w.x += w.dir * w.sp * dt;
+    if (w.x > 1660) w.x = -60;
+    if (w.x < -60) w.x = 1660;
+    w.ph += dt * w.sp * 0.22;
+    const sw = Math.sin(w.ph) * 22;
+    w.g.setAttribute('transform', `translate(${w.x.toFixed(1)},${w.y.toFixed(1)}) scale(${w.dir * w.scale},${w.scale})`);
+    w.inner.setAttribute('transform', `translate(0,${(-Math.abs(Math.cos(w.ph)) * 1.2).toFixed(2)})`);
+    w.legs.forEach((l, i) => {
+      const a = i ? sw : -sw;
+      const tr = `rotate(${a.toFixed(1)} 0 -15)`;
+      l.setAttribute('transform', tr);
+      const rad = a * Math.PI / 180;
+      l._geta.setAttribute('transform', `translate(${(-Math.sin(rad) * 14 + (i ? 3 : -3) * Math.cos(rad) - (i ? 3 : -3)).toFixed(1)},${((1 - Math.cos(rad)) * -14).toFixed(1)})`);
+    });
+    w.arm.setAttribute('transform', `rotate(${(-sw * 0.6).toFixed(1)} 5 -33)`);
+  });
+  staticPeople.forEach(p => p.feet.forEach((f, i) => f.setAttribute('transform', `rotate(${(Math.sin(clockSec * 2 + p.ph + i * 2) * 12).toFixed(1)} ${i ? 4 : -4} -4)`)));
+
+  // —— 巴士 ——
+  if (bus.wait > 0) bus.wait -= dt;
+  else {
+    bus.x -= bus.sp * dt;
+    if (bus.x < -360) { bus.x = 1800; bus.wait = rand(6, 14); }
+  }
+  const busTr = `translate(${bus.x.toFixed(1)},500)`;
+  $('bus').setAttribute('transform', busTr);
+  $('busLights').setAttribute('transform', busTr);
+  bus.wheels.forEach(w => w.hub.setAttribute('transform', `rotate(${(-bus.x * 6.4) % 360} ${w.cx} -4)`));
+
+  // —— 腳踏車 ——
+  bike.x += bike.sp * dt;
+  if (bike.x > 1800) bike.x = -rand(200, 900);
+  $('bike').setAttribute('transform', `translate(${bike.x.toFixed(1)},528)`);
+  bike.wheels.forEach(w => w.sp.setAttribute('transform', `rotate(${(bike.x * 6.4) % 360} ${w.cx} -9)`));
+
+  // —— 纜車（來回） ——
+  const cp = 0.5 - 0.5 * Math.cos(clockSec * 0.12);
+  cabin.setAttribute('transform', `translate(${(48 + 410 * cp).toFixed(1)},${(266 - 94 * cp).toFixed(1)})`);
+
+  // —— 幟旗、暖簾、柳樹隨風 ——
+  const flag = wind * 10 + Math.sin(clockSec * 3) * 3;
+  $('nobori').setAttribute('transform', `translate(802,0) skewY(${flag.toFixed(2)}) translate(-802,0)`);
+  const norenSk = bathBurst > 0 ? Math.sin(clockSec * 20) * 14 * bathBurst : wind * 4;
+  $('noren').querySelectorAll('.noren-p').forEach((p, i) => {
+    const x0 = 150 + i * 24 + 11;
+    p.setAttribute('transform', `translate(${x0},380) skewX(${(norenSk + Math.sin(clockSec * 2 + i) * 1.5).toFixed(2)}) translate(${-x0},-380)`);
+  });
+  willowBranches.forEach(b => {
+    const a = wind * 6 + Math.sin(clockSec * 1.1 + b.ph) * b.amp;
+    b.g.setAttribute('transform', `rotate(${(-a).toFixed(2)} ${b.tx} ${b.ty})`);
+  });
+
+  // —— 屋頂的貓 ——
+  $('catTail').setAttribute('d', `M7,-2 Q18,-4 ${17 + Math.sin(clockSec * 2) * 4},-14`);
+  if (catJump > 0) catJump = Math.max(0, catJump - dt);
+  const cj = catJump > 0 ? Math.sin(Math.PI * (1 - catJump / 1.2) * 2) : 0;
+  $('cat').setAttribute('transform', `translate(88,${318 - Math.max(0, cj) * 26})`);
+  $('catBubble').setAttribute('opacity', catJump > 0 ? 1 : 0);
+
+  // —— 射的靶子 ——
+  targets.forEach(t => {
+    if (t.down) {
+      t.ang += (90 - t.ang) * Math.min(1, dt * 12);
+      t.timer -= dt;
+      if (t.timer <= 0 && motionOK) t.down = false;
+    } else t.ang += (0 - t.ang) * Math.min(1, dt * 6);
+    t.g.setAttribute('transform', `rotate(${t.ang.toFixed(1)} ${t.cx + 6} 404)`);
+  });
+
+  // —— 販賣機掉飲料 ——
+  if (vendT > 0) {
+    vendT -= dt;
+    can.setAttribute('opacity', clamp(vendT, 0, 1).toFixed(2));
+    can.setAttribute('y', (450 + Math.min(1, (1.8 - vendT) * 4) * 6).toFixed(1));
+  }
+  vendLit.setAttribute('opacity', vendT > 1.4 ? (Math.sin(clockSec * 40) > 0 ? 1 : 0.4) : 1);
+
+  // —— 湯煙 ——
+  if (bathBurst > 0) bathBurst = Math.max(0, bathBurst - dt * 0.6);
+  SOURCES.forEach((s, i) => {
+    let rate = s.rate * (i === 0 ? 1 + bathBurst * 8 : 1) * (0.7 + 0.3 * n + 0.3);
+    s.acc += rate * dt;
+    while (s.acc > 1) { s.acc -= 1; spawn(s, i === 0 && bathBurst > 0); }
+  });
+  particles.forEach(p => {
+    if (!p.alive) return;
+    p.life += dt;
+    if (p.life > p.max) { p.alive = false; p.el.setAttribute('opacity', 0); return; }
+    const k = p.life / p.max;
+    p.x += (p.vx + wind * 22 * k) * dt;
+    p.y += p.vy * dt;
+    p.vy *= 1 - dt * 0.15;
+    const r = p.r * (1 + k * 2.4);
+    p.el.setAttribute('cx', p.x.toFixed(1));
+    p.el.setAttribute('cy', p.y.toFixed(1));
+    p.el.setAttribute('r', r.toFixed(1));
+    p.el.setAttribute('opacity', (p.alpha * Math.sin(Math.PI * k) * (0.75 + 0.25 * n)).toFixed(3));
+  });
+
+  updateUI();
+}
+
+/* =========================================================
+   【互動】控制列與場景點擊
+   ========================================================= */
+const btnAuto = $('btnAuto'), range = $('timeRange'), clockEl = $('clock');
+const timeBtns = document.querySelectorAll('[data-time]');
+function updateUI() {
+  const mins = Math.floor(time * 24 * 60);
+  clockEl.textContent = `${String(Math.floor(mins / 60) % 24).padStart(2, '0')}:${String(mins % 60).padStart(2, '0')}`;
+  if (document.activeElement !== range) range.value = Math.round(time * 1000);
+  btnAuto.setAttribute('aria-pressed', String(auto && motionOK));
+}
+btnAuto.addEventListener('click', () => {
+  if (!motionOK) return;     // 減少動態模式下不自動播放
+  auto = !auto; updateUI();
+});
+timeBtns.forEach(b => b.addEventListener('click', () => {
+  time = parseFloat(b.dataset.time); auto = false; render(0);
+}));
+range.addEventListener('input', () => { time = range.value / 1000; auto = false; render(0); });
+
+// 滑鼠左右位置控制風向（-1 往左吹 ～ +1 往右吹）
+function svgPoint(evt) {
+  const pt = svg.createSVGPoint(); pt.x = evt.clientX; pt.y = evt.clientY;
+  return pt.matrixTransform(svg.getScreenCTM().inverse());
+}
+svg.addEventListener('pointermove', (e) => { if (e.pointerType === 'mouse') mouseWind = (svgPoint(e).x / 1600 - 0.5) * 2.4; });
+svg.addEventListener('pointerleave', () => { mouseWind = null; });
+
+$('bathhouse').addEventListener('click', () => {
+  bathBurst = 1;
+  if (!motionOK) { for (let i = 0; i < 25; i++) spawn(SOURCES[0], true); simulate(1.2); }
+});
+$('cat').addEventListener('click', () => { catJump = 1.2; if (!motionOK) { render(0); setTimeout(() => { catJump = 0; render(0); }, 1200); } });
+$('vending').addEventListener('click', () => { vendT = 1.8; if (!motionOK) { render(0); } });
+
+/* =========================================================
+   【動畫】啟動、減少動態模式
+   ========================================================= */
+function simulate(sec) {        // 不顯示地快轉，讓湯煙一開始就充滿畫面
+  const save = clockSec;
+  for (let s = 0; s < sec; s += 1 / 30) render(1 / 30);
+  if (!motionOK) clockSec = save;
+}
+let last = 0, rafId = 0;
+function frame(ts) {
+  const dt = last ? Math.min(0.05, (ts - last) / 1000) : 0;
+  last = ts;
+  render(dt);
+  rafId = requestAnimationFrame(frame);
+}
+function start() {
+  cancelAnimationFrame(rafId); last = 0;
+  if (motionOK) rafId = requestAnimationFrame(frame);
+  else render(0);
+}
+reduceMQ.addEventListener('change', (e) => {
+  motionOK = !e.matches;
+  if (!motionOK) auto = false;
+  start();
+});
+
+const keepTime = time;
+simulate(4);
+time = keepTime;
+if (!motionOK) { auto = false; }
+start();
+})();
+</script>
+
+</html>
