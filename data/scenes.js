@@ -29,7 +29,7 @@ window.SITE = {
   repo: "https://github.com/erwin50331/svg-scene-atlas",
   // 「聯絡」表單的收件端點（例如 Formspree：https://formspree.io/f/xxxxxxx）。
   // 收件信箱設定在 Formspree 後台，不會出現在網站程式碼裡。留空時表單會顯示「即將開放」。
-  contact: "",
+  contact: "https://formspree.io/f/xwloarjv",
   // 網站統計（GoatCounter，免費、不追蹤個人、不用 cookie）。到 goatcounter.com 註冊後，
   // 把你取的代碼填在這裡，例如 "svg-atlas"（或完整網址 https://svg-atlas.goatcounter.com/count）。
   // 留空時完全不載入統計程式。後台會看到每組的 open/SC-xx（打開）、download/SC-xx/…（下載）排行。
