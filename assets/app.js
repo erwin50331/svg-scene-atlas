@@ -511,8 +511,11 @@
   /* ---------------- 外觀（深色／淺色） ---------------- */
   const root = document.documentElement;
   const savedTheme = store.get("atlas-theme");
-  // 預設淺色；訪客按過右上角切換鈕後，記住他的選擇
-  root.dataset.theme = savedTheme === "dark" ? "dark" : "light";
+  // 預設跟著訪客系統的深色／淺色設定；按過右上角切換鈕後，記住他的選擇
+  const sysDark = window.matchMedia ? window.matchMedia("(prefers-color-scheme: dark)") : null;
+  const pickTheme = () => (savedTheme === "dark" || savedTheme === "light") ? savedTheme : (sysDark && sysDark.matches ? "dark" : "light");
+  root.dataset.theme = pickTheme();
+  if (sysDark && sysDark.addEventListener) sysDark.addEventListener("change", () => { if (!store.get("atlas-theme")) root.dataset.theme = sysDark.matches ? "dark" : "light"; });
   $("themeBtn").addEventListener("click", () => {
     const isDark = root.dataset.theme ? root.dataset.theme === "dark" : window.matchMedia("(prefers-color-scheme: dark)").matches;
     root.dataset.theme = isDark ? "light" : "dark";
