@@ -1,0 +1,577 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>場景骨架｜港邊小鎮</title>
+<!--
+  SVG 動畫場景骨架（可直接打開執行）
+  - 複製這個檔案當起點，換掉「② 場景」「③ 角色」與秀的內容
+  - 結構請保留：body > main.wrap > figure.stage > svg#scene，加上 .panel 控制列與 ul.hint 說明
+  - 有秀的話，最後用 tools/showstop_inject.py 注入「再按一下優雅停止」
+-->
+<style>
+:root{
+  /* ========== 色票：白天（d-）與夜晚（n-）各一組，程式依時段在兩組之間漸變 ========== */
+  --d-sky1:#7cc4f0; --d-sky2:#d8f0fb; --n-sky1:#0d1838; --n-sky2:#2a3a6a;
+  --d-far:#9cc7c9;  --n-far:#26375a;
+  --d-mid:#6fae8c;  --n-mid:#1d3048;
+  --d-near:#4f8f63; --n-near:#15233a;
+  --d-sea:#3d9fd0;  --n-sea:#12284c;
+  --d-wall:#f4ead8; --n-wall:#5a5f78;
+  --roof:#d8574a; --boat:#e8b04a; --sail:#fffaf0; --sun:#ffd76a; --moon:#f4f1dc;
+  --win-off:#5c6a80; --win-on:#ffd27a; --dusk:#ff9a6a; --rain:#b8cde0;
+  --cine-shade:#000000; --cine-light:#fff3dc;
+
+  /* ========== 頁面介面 ========== */
+  --page-bg:#f5f3ee; --page-fg:#1e2a3e; --page-muted:#5f6878;
+  --ui-surface:#ffffff; --ui-line:#d9dde4; --ui-accent:#d85a82;
+  --font-ui:"Noto Sans TC","PingFang TC","Microsoft JhengHei",system-ui,sans-serif;
+}
+html,body{background:var(--page-bg);color:var(--page-fg);margin:0}
+body{font-family:var(--font-ui)}
+.wrap{max-width:1600px;margin:0 auto;padding:20px max(16px,env(safe-area-inset-right,0px)) 32px max(16px,env(safe-area-inset-left,0px));
+  display:flex;flex-direction:column;gap:14px}
+.stage{margin:0;border-radius:14px;overflow:hidden;line-height:0;box-shadow:0 2px 12px #0000001f}
+#scene{display:block;width:100%;height:auto;touch-action:manipulation;user-select:none;-webkit-user-select:none}
+.panel{display:flex;flex-wrap:wrap;align-items:center;gap:10px 12px;background:var(--ui-surface);
+  border:1px solid var(--ui-line);border-radius:12px;padding:10px 14px}
+.panel button{font:500 14px/1 var(--font-ui);color:var(--page-fg);background:transparent;border:1px solid var(--ui-line);
+  border-radius:999px;padding:9px 14px;cursor:pointer}
+.panel button:hover{border-color:var(--ui-accent)}
+.panel button[aria-pressed="true"]{background:var(--page-fg);border-color:var(--page-fg);color:#fff;font-weight:700}
+.panel button.big{border-color:var(--ui-accent);color:#fff;background:var(--ui-accent);font-weight:700}
+.panel button:focus-visible,.panel input:focus-visible{outline:2px solid var(--ui-accent);outline-offset:3px}
+.timebox{display:flex;align-items:center;gap:10px;margin-left:auto;font-size:14px;color:var(--page-muted)}
+.timebox input{width:min(240px,40vw);accent-color:var(--ui-accent)}
+.clock{font:700 15px/1 ui-monospace,Menlo,Consolas,monospace;color:var(--page-fg);min-width:3.2em}
+.hint{margin:0;padding-left:1.2em;color:var(--page-muted);font-size:14px;line-height:1.75}
+.hint b{color:var(--page-fg)}
+#scene [role="button"]{cursor:pointer}
+#scene [tabindex]:focus{outline:none}
+#scene .bubble rect{fill:#fff;stroke:#1e2a3e;stroke-width:1.6}
+#scene .bubble text{fill:#1e2a3e;font:700 15px var(--font-ui);text-anchor:middle;dominant-baseline:central}
+</style>
+</head>
+<body>
+<main class="wrap">
+  <figure class="stage">
+  <svg id="scene" viewBox="0 0 1600 600" role="img" aria-label="港邊小鎮：山丘、小屋、帆船與海鷗，會隨時間從白天變成夜晚">
+    <defs>
+      <linearGradient id="gSky" x1="0" y1="0" x2="0" y2="1">
+        <stop id="sky1" offset="0"/><stop id="sky2" offset="1"/>
+      </linearGradient>
+    </defs>
+
+    <!-- ===== ② 場景：由遠到近 ===== -->
+    <rect width="1600" height="600" fill="url(#gSky)"/>
+    <rect id="duskGlow" width="1600" height="600" fill="var(--dusk)" opacity="0"/>
+    <g id="stars" opacity="0"></g>
+    <circle id="sun" r="38" fill="var(--sun)"/>
+    <circle id="moon" r="26" fill="var(--moon)"/>
+    <g id="meteors" pointer-events="none"></g>
+    <g id="clouds" fill="#fff" opacity=".9">
+      <g class="cloud" data-sp="9"><ellipse cx="0" cy="0" rx="70" ry="22"/><ellipse cx="-30" cy="-14" rx="36" ry="22"/><ellipse cx="26" cy="-18" rx="40" ry="26"/></g>
+      <g class="cloud" data-sp="5"><ellipse cx="0" cy="0" rx="54" ry="16"/><ellipse cx="18" cy="-12" rx="30" ry="18"/></g>
+    </g>
+    <g id="layerFar" data-px="6"><path id="far" d="M-40 360 Q200 250 420 330 T860 300 T1300 320 T1700 290 V600 H-40Z"/></g>
+    <rect id="sea" x="0" y="400" width="1600" height="200"/>
+    <g id="boatG"></g>
+    <g id="layerMid" data-px="14"><path id="mid" d="M-40 430 Q160 360 360 410 Q560 455 700 600 H-40Z"/>
+      <!-- 小屋：窗戶可以點 -->
+      <g transform="translate(250 330)">
+        <rect id="wall" x="0" y="20" width="120" height="80"/>
+        <path d="M-12 24 L60 -26 L132 24Z" fill="var(--roof)"/>
+        <rect id="win" class="win" x="20" y="44" width="30" height="28" rx="3" role="button" tabindex="0" aria-label="窗戶，點一下開燈或關燈"/>
+        <rect x="74" y="56" width="26" height="44" fill="#8a5a3c"/>
+      </g>
+    </g>
+    <g id="birds"></g>
+    <g id="layerNear" data-px="24"><path id="near" d="M900 600 Q1100 470 1320 500 T1700 470 V600Z"/></g>
+    <g id="rainG" opacity="0" stroke="var(--rain)" stroke-width="1.4" stroke-linecap="round"></g>
+    <g id="bubbles" pointer-events="none"></g>
+    <!-- 表演氛圍（取代寬銀幕黑邊）：四周輕微暗角＋中央微亮 -->
+    <g id="cineFx" opacity="0" pointer-events="none">
+      <defs>
+        <radialGradient id="cineShadeG" cx=".5" cy=".5" r=".72"><stop offset=".52" style="stop-color:var(--cine-shade);stop-opacity:0"/><stop offset="1" style="stop-color:var(--cine-shade);stop-opacity:.4"/></radialGradient>
+        <radialGradient id="cineLightG" cx=".5" cy=".45" r=".5"><stop offset="0" style="stop-color:var(--cine-light);stop-opacity:.08"/><stop offset="1" style="stop-color:var(--cine-light);stop-opacity:0"/></radialGradient>
+      </defs>
+      <rect width="1600" height="600" fill="url(#cineShadeG)"/>
+      <rect width="1600" height="600" fill="url(#cineLightG)"/>
+    </g>
+  </svg>
+  </figure>
+
+  <!-- ===== ⑤ 互動：控制列 ===== -->
+  <div class="panel">
+    <button id="btnShow" class="big" type="button">☄ 流星雨</button>
+    <button id="btnWeather" type="button">天氣：晴</button>
+    <button id="btnSound" type="button" aria-pressed="false">🔇 聲音：關</button>
+    <button id="btnTime" type="button">☀ 時段：白天</button>
+    <button id="btnAuto" type="button" aria-pressed="true">自動播放</button>
+    <label class="timebox" for="timeRange"><span>時間</span>
+      <input id="timeRange" type="range" min="0" max="1000" value="417"><span class="clock" id="clock">10:00</span></label>
+  </div>
+  <ul class="hint">
+    <li><b>流星雨</b>：夜空下起流星雨，配上一小段音樂；再按一下停止。</li>
+    <li><b>點一點</b>：小屋窗戶、帆船、海鷗。</li>
+    <li><b>滑鼠</b>：左右移動有遠近視差。</li>
+  </ul>
+</main>
+
+<script id="showstop">
+/* =========================================================
+   ShowStop｜表演「再按一下優雅停止」共用模組（2026-11-24）
+   用法：放在場景主程式 <script> 之前；主程式最後呼叫
+     ShowStop.init({
+       on:      () => show.on,                  // 表演中回傳真值（多種表演時回傳種類）
+       ff:      () => { show.t = show.dur - .02; },  // （選用）快轉到結尾，讓場景下一幀自己收尾
+       btn:     'btnShow' 或 { fire: 'btnFire', stars: 'btnStars' },
+       save:    () => ({ ... }),                // 表演開始前記下使用者設定（日夜、天氣…）
+       restore: s => { ... },                   // 停止時還原
+       stop:    () => { endShow(); ... },       // 立刻結束表演、清掉秀中物件（有 ff 時：快轉後仍未結束才呼叫）
+       after:   () => { ... },                  // （選用）最後再補的清理
+     });
+   停止時：畫面凍結成一張「殘影」疊在上面 1.8 秒淡出（底下已回到原狀），
+           還沒響的表演音符取消、正在響的長音淡出，表演排程的計時器取消，
+           #cineFx 燈光歸零。播放中按鈕顯示「■ 停止」。
+   ========================================================= */
+(function () {
+  'use strict';
+  const W = window;
+  const FADE = 1.8;                      // 殘影淡出秒數
+  let cfg = null, saved = null, epoch = 0, zone = 0, quiet = null;
+  const reducedQ = W.matchMedia ? W.matchMedia('(prefers-reduced-motion: reduce)') : { matches: false };
+  const isOn = () => { try { return cfg ? cfg.on() : false; } catch (e) { return false; } };
+
+  /* ---------- ① 計時器：記下「表演開始時排程」的 setTimeout / setInterval ---------- */
+  const _st = W.setTimeout, _ct = W.clearTimeout, _si = W.setInterval, _ci = W.clearInterval;
+  const zt = new Map();                  // id → { iv, keep }
+  // 音訊收尾、泡泡移除這類「善後」計時器保留，其餘（放煙火、下一段劇情）停止時取消
+  const KEEP = /\.remove\(\)|disconnect|duck|level\(|\.gain\b|removeChild|classList\.remove/;
+  function wrapFn(fn, ep) {
+    if (typeof fn !== 'function') return fn;
+    return function () {
+      if (ep !== epoch) return;          // 已被停止
+      zone++; try { return fn.apply(this, arguments); } finally { zone--; }
+    };
+  }
+  // 表演進行中排程的「台詞」（say／bubble／narr）也算表演的，停止時一起取消
+  const LINE = /\b(say|bubble|narr)\(/;
+  W.setTimeout = function (fn, ms, ...a) {
+    if (!zone && !(cfg && typeof fn === 'function' && ms > 0 && LINE.test(String(fn)) && isOn())) return _st(fn, ms, ...a);
+    let id; const keep = typeof fn === 'function' && KEEP.test(String(fn)) && String(fn).length < 400;
+    const g = keep ? fn : wrapFn(fn, epoch);
+    id = _st(function () { zt.delete(id); return g.apply(this, arguments); }, ms, ...a);
+    zt.set(id, { iv: false, keep }); return id;
+  };
+  W.clearTimeout = function (id) { zt.delete(id); return _ct(id); };
+  W.setInterval = function (fn, ms, ...a) {
+    if (!zone) return _si(fn, ms, ...a);
+    const id = _si(wrapFn(fn, epoch), ms, ...a); zt.set(id, { iv: true, keep: false }); return id;
+  };
+  W.clearInterval = function (id) { zt.delete(id); return _ci(id); };
+
+  /* ---------- ② 聲音：記下表演期間排程的音符；停止時取消未響的、淡掉長音 ---------- */
+  const srcs = new Set(); const outs = new WeakMap();
+  const SN = W.AudioScheduledSourceNode && W.AudioScheduledSourceNode.prototype;
+  if (SN) {
+    const _start = SN.start, _stop = SN.stop;
+    SN.start = function (when, ...a) {
+      const c = this.context, now = c.currentTime;
+      if (quiet) quiet.push(this);       // 停止過程中（快轉到結尾）冒出的聲音，稍後直接靜音
+      this.__ss = { at: Math.max(now, when || 0), end: Infinity, show: !!(zone || isOn()) };
+      if (this.__ss.show) { srcs.add(this); this.addEventListener('ended', () => srcs.delete(this)); }
+      return _start.call(this, when, ...a);
+    };
+    SN.stop = function (when, ...a) {
+      if (this.__ss) this.__ss.end = Math.max(this.context.currentTime, when || 0);
+      return _stop.call(this, when, ...a);
+    };
+  }
+  const AN = W.AudioNode && W.AudioNode.prototype;
+  if (AN) {   // 所有接到喇叭的線都先經過一顆總音量，停止時可以短暫壓低長音
+    const _conn = AN.connect;
+    AN.connect = function (dest, ...a) {
+      if (dest && dest === this.context.destination && !this.__ssOut) {
+        let g = outs.get(this.context);
+        if (!g) { g = this.context.createGain(); g.__ssOut = true; _conn.call(g, this.context.destination); outs.set(this.context, g); }
+        return _conn.call(this, g, ...a);
+      }
+      return _conn.call(this, dest, ...a);
+    };
+  }
+  function stopAudio() {
+    let longs = [], ctx = null;
+    for (const s of srcs) {
+      const c = s.context, now = c.currentTime, m = s.__ss; ctx = c;
+      if (!m || !m.show) continue;
+      if (m.at > now + .02) { try { s.stop(); } catch (e) {} srcs.delete(s); }      // 還沒響：直接取消
+      else if (isFinite(m.end) && m.end > now + 1.2) longs.push(s);                                     // 長音：淡掉再停
+    }
+    if (longs.length && ctx) {
+      const g = outs.get(ctx), now = ctx.currentTime;
+      if (g) {
+        g.gain.cancelScheduledValues(now); g.gain.setValueAtTime(g.gain.value, now);
+        g.gain.linearRampToValueAtTime(0, now + 1.1); g.gain.setValueAtTime(0, now + 1.2);
+        g.gain.linearRampToValueAtTime(1, now + 1.9);
+      }
+      longs.forEach(s => { try { s.stop(now + 1.15); } catch (e) {} srcs.delete(s); });
+    }
+    srcs.clear();
+  }
+
+  /* ---------- ③ 殘影：把目前畫面凍結複製一份疊上去再淡出 ---------- */
+  let ghostCss = false;
+  function ghost(svg) {
+    if (!svg || reducedQ.matches) return;
+    if (!ghostCss) {
+      ghostCss = true;
+      const st = document.createElement('style');
+      st.textContent = '.ss-ghost,.ss-ghost *{animation-play-state:paused!important;pointer-events:none!important}.ss-ghost{position:absolute!important;margin:0!important;will-change:opacity;transition:opacity ' + FADE + 's cubic-bezier(.4,0,.2,1)}';
+      document.head.appendChild(st);
+    }
+    const cl = svg.cloneNode(true);
+    cl.classList.add('ss-ghost'); cl.removeAttribute('tabindex'); cl.setAttribute('aria-hidden', 'true');
+    // 凍結色票：把目前的 CSS 變數抄到殘影上，底下換色不影響殘影
+    const cs = getComputedStyle(svg);
+    const names = new Set();
+    for (let i = 0; i < cs.length; i++) if (cs[i].startsWith('--')) names.add(cs[i]);
+    try { for (const sh of document.styleSheets) for (const r of sh.cssRules) if (r.style) for (const p of r.style) if (p.startsWith('--')) names.add(p); } catch (e) {}
+    for (const p of document.documentElement.style) if (p.startsWith('--')) names.add(p);
+    names.forEach(p => { const v = cs.getPropertyValue(p); if (v) cl.style.setProperty(p, v); });
+    // 漸層、濾鏡等定義改名，殘影只用自己那份（凍結）
+    const map = {};
+    cl.querySelectorAll('[id]').forEach(e => { const n = e.id + '__ss'; map[e.id] = n; e.id = n; });
+    cl.id = svg.id; delete map[svg.id];
+    const fix = v => v.replace(/url\(\s*['"]?#([^'")\s]+)['"]?\s*\)/g, (m, id) => map[id] ? 'url(#' + map[id] + ')' : m);
+    const all = cl.querySelectorAll('*'), orig = svg.querySelectorAll('*');
+    let needCs = false;
+    try { for (const sh of document.styleSheets) for (const r of sh.cssRules) if (r.cssText.includes('url(#') || r.cssText.includes('url("#')) { needCs = true; break; } } catch (e) {}
+    for (let i = 0; i < all.length; i++) {
+      const e = all[i];
+      for (const a of e.attributes) {
+        if (a.value.includes('url(')) e.setAttribute(a.name, fix(a.value));
+        else if ((a.name === 'href' || a.name === 'xlink:href') && a.value[0] === '#' && map[a.value.slice(1)]) e.setAttribute(a.name, '#' + map[a.value.slice(1)]);
+      }
+      if (needCs && orig[i]) {
+        const o = getComputedStyle(orig[i]);
+        for (const p of ['fill', 'stroke', 'filter', 'clip-path', 'mask']) { const v = o.getPropertyValue(p); if (v && v.includes('url(')) e.style.setProperty(p, fix(v.replace(/url\("?[^#")]*#/g, 'url(#').replace(/"\)/g, ')'))); }
+      }
+    }
+    const par = svg.parentElement;
+    if (getComputedStyle(par).position === 'static') par.style.position = 'relative';
+    const r = svg.getBoundingClientRect(), pr = par.getBoundingClientRect();
+    Object.assign(cl.style, { left: (r.left - pr.left + par.scrollLeft - par.clientLeft) + 'px', top: (r.top - pr.top + par.scrollTop - par.clientTop) + 'px', width: r.width + 'px', height: r.height + 'px', opacity: 1 });
+    svg.after(cl);
+    try { cl.pauseAnimations && cl.pauseAnimations(); } catch (e) {}
+    requestAnimationFrame(() => requestAnimationFrame(() => { cl.style.opacity = 0; }));
+    _st(() => cl.remove(), FADE * 1000 + 300);
+  }
+
+  /* ---------- ④ 秀中冒出的說話泡泡：停止時一起收掉 ---------- */
+  let added = [];
+  const mo = W.MutationObserver ? new MutationObserver(ms => { if (!isOn()) return; for (const m of ms) for (const n of m.addedNodes) if (n.nodeType === 1) added.push(n); }) : null;
+  const BUB = /bubble|say|speech|talk|tip/i;
+  function clearBubbles() {
+    if (mo) for (const m of mo.takeRecords()) for (const n of m.addedNodes) if (n.nodeType === 1) added.push(n);
+    added.forEach(n => {
+      if (!n.isConnected || n.closest('.ss-ghost')) return;
+      const p = n.parentElement;
+      if (BUB.test(n.getAttribute('class') || '') || (p && BUB.test((p.id || '') + ' ' + (p.getAttribute('class') || '')))) n.remove();
+    });
+    added = [];
+  }
+
+  /* ---------- ⑤ 停止 ---------- */
+  let stopping = false;
+  function cancel() {
+    if (stopping) return; stopping = true;
+    const svg = cfg.svg ? document.querySelector(cfg.svg) : (document.getElementById('scene') || document.querySelector('svg'));
+    try { ghost(svg); } catch (e) {}
+    epoch++;
+    for (const [id, z] of zt) if (!z.keep) { z.iv ? _ci(id) : _ct(id); zt.delete(id); }
+    try { stopAudio(); } catch (e) {}
+    quiet = [];
+    zone++;   // 收尾過程中（快轉那幾幀、stop、restore）排出的計時器，例如散場後的鳴笛、煙火，最後一起取消
+    // ff：把表演時間快轉到結尾，讓場景自己的收尾邏輯跑完一幀（殘影蓋著看不到），再補 stop
+    if (cfg.ff) {
+      try { cfg.ff(); } catch (e) { console.warn('ShowStop ff', e); }
+      let n = 0; const wait = () => { if (isOn() && n++ < 8) requestAnimationFrame(wait); else finish(); };
+      requestAnimationFrame(wait);
+    } else finish();
+  }
+  function finish() {
+    try { if (isOn() || !cfg.ff) cfg.stop && cfg.stop(); } catch (e) { console.warn('ShowStop stop', e); }
+    try { if (typeof W.setCine === 'function') W.setCine(0); } catch (e) {}
+    try { if (cfg.cine) cfg.cine(); } catch (e) {}
+    if (saved && cfg.restore) { try { cfg.restore(saved); } catch (e) { console.warn('ShowStop restore', e); } }
+    saved = null;
+    clearBubbles();
+    (quiet || []).forEach(s => { try { s.stop(); } catch (e) {} }); quiet = null;
+    zone = Math.max(0, zone - 1);
+    for (const [id, z] of zt) if (!z.keep) { z.iv ? _ci(id) : _ct(id); zt.delete(id); }
+    try { cfg.after && cfg.after(); } catch (e) {}
+    // 背景配樂（scene-bgm）表演時被壓小聲：停止後很快恢復
+    try { if (W.sceneMusic && W.sceneMusic.playing) W.sceneMusic.duck(.3); } catch (e) {}
+    stopping = false;
+    sync();
+  }
+
+  /* ---------- ⑥ 按鈕：開始時記下設定；表演中再按＝停止；文字顯示「■ 停止」 ---------- */
+  const btns = [];
+  function btnFor(kind) {
+    if (!kind) return null;
+    if (typeof cfg.btn === 'string') return document.getElementById(cfg.btn);
+    const id = cfg.btn[kind] || cfg.btn['*']; return id ? document.getElementById(id) : null;
+  }
+  function sync() {
+    const k = isOn(), act = btnFor(k);
+    btns.forEach(b => {
+      const st = b === act, txt = cfg.label || '■ 停止';
+      if (st && b.disabled) b.disabled = false;   // 有些作品表演中會把按鈕停用，這裡讓它能按「停止」
+      // 作品自己改了按鈕文字（例如收場時換成下一個特效名稱）就記下來，結束時還原成它
+      if (b.classList.contains('ss-stop') && b.textContent !== txt) { b.__ssLabel = b.innerHTML; if (st) b.textContent = txt; }
+      if (st && !b.classList.contains('ss-stop')) {
+        b.__ssLabel = b.innerHTML; b.classList.add('ss-stop');
+        b.textContent = cfg.label || '■ 停止'; b.title = '再按一下停止表演';
+      } else if (!st && b.classList.contains('ss-stop')) {
+        b.classList.remove('ss-stop'); b.innerHTML = b.__ssLabel; b.removeAttribute('title');
+      }
+    });
+  }
+  function loop() { sync(); requestAnimationFrame(loop); }
+
+  W.ShowStop = {
+    init(c) {
+      cfg = c;
+      const ids = typeof c.btn === 'string' ? [c.btn] : Object.values(c.btn);
+      [...new Set(ids)].forEach(id => {
+        const b = document.getElementById(id); if (!b) return;
+        b.__ssLabel = b.innerHTML; btns.push(b);
+        b.addEventListener('click', e => {
+          const k = isOn();
+          if (k && btnFor(k) === b) {
+            e.stopImmediatePropagation(); e.preventDefault();
+            if (e.isTrusted || c.allowSynthetic) cancel();
+            return;
+          }
+          if (!k) {
+            if (c.save) { try { saved = c.save(); } catch (er) { saved = null; } }
+            epoch++; zone++; added = [];
+            // 這次點擊同步排出的計時器都算表演的（點擊處理完就關掉）
+            let done = false; const off = () => { if (!done) { done = true; zone = Math.max(0, zone - 1); W.removeEventListener('click', off); } };
+            W.addEventListener('click', off); _st(off, 0);
+          }
+        }, true);
+      });
+      if (mo) { const s = c.svg ? document.querySelector(c.svg) : (document.getElementById('scene') || document.querySelector('svg')); if (s) mo.observe(s, { childList: true, subtree: true }); }
+      requestAnimationFrame(loop);
+    },
+    cancel: () => { if (isOn()) cancel(); },
+    get saved() { return saved; }
+  };
+})();
+</script>
+<script>
+/* ---- 表演氛圍：k = 0~1 ---- */
+let cineK = 0;
+function setCine(k, fx, fy) {
+  cineK = k = Math.max(0, Math.min(1, k));
+  document.getElementById('cineFx').setAttribute('opacity', k.toFixed(3));
+  if (fx != null) { const G = document.getElementById('cineLightG'); G.setAttribute('cx', (fx / 1600).toFixed(3)); G.setAttribute('cy', (fy / 600).toFixed(3)); }
+}
+
+/* =========================================================
+   程式區：①工具與色票 ②場景 ③角色 ④動畫 ⑤互動
+   ========================================================= */
+(() => {
+'use strict';
+/* ---------------- ① 工具與色票 ---------------- */
+const $ = id => document.getElementById(id);
+const NS = 'http://www.w3.org/2000/svg';
+const el = (tag, attrs, parent) => { const e = document.createElementNS(NS, tag); for (const k in attrs) e.setAttribute(k, attrs[k]); if (parent) parent.appendChild(e); return e; };
+const css = getComputedStyle(document.documentElement);
+const hex = v => { const h = css.getPropertyValue(v).trim().slice(1); return [0, 2, 4].map(i => parseInt(h.substr(i, 2), 16)); };
+const mix = (a, b, k) => 'rgb(' + a.map((x, i) => Math.round(x + (b[i] - x) * k)).join(',') + ')';
+const PAL = {}; ['sky1', 'sky2', 'far', 'mid', 'near', 'sea', 'wall'].forEach(n => PAL[n] = [hex('--d-' + n), hex('--n-' + n)]);
+const reduced = matchMedia('(prefers-reduced-motion: reduce)');
+
+/* ---------------- ② 場景：星星 ---------------- */
+for (let i = 0; i < 70; i++) el('circle', { cx: Math.random() * 1600, cy: Math.random() * 300, r: Math.random() * 1.4 + .4, fill: '#fff' }, $('stars'));
+for (let i = 0; i < 60; i++) el('line', { x1: 0, y1: 0, x2: -4, y2: 14 }, $('rainG'));
+
+/* ---------------- ③ 角色：帆船（朝向跟著行進方向）、海鷗 ---------------- */
+const boat = { x: 1000, dir: 1, sp: 22, g: el('g', { role: 'button', tabindex: 0, 'aria-label': '帆船，點一下掉頭' }, $('boatG')) };
+el('path', { d: 'M-40 0 H40 L28 16 H-30Z', fill: 'var(--boat)' }, boat.g);
+el('path', { d: 'M2 -4 V-62 L34 -6Z', fill: 'var(--sail)' }, boat.g);           // 帆在船頭那側（+x）
+el('rect', { x: 0, y: -64, width: 3, height: 62, fill: '#6b4a32' }, boat.g);
+const birds = [];
+for (let i = 0; i < 4; i++) {
+  const g = el('path', { d: 'M-12 0 Q-6 -8 0 0 Q6 -8 12 0', fill: 'none', stroke: '#2b3446', 'stroke-width': 2.2, 'stroke-linecap': 'round', role: 'button', tabindex: 0, 'aria-label': '海鷗' }, $('birds'));
+  birds.push({ g, x: 200 + i * 330, y: 120 + i * 22, sp: 30 + i * 6, ph: i, flee: 0 });
+}
+
+/* ---------------- ④ 動畫：時間、天氣 ---------------- */
+const T = { t: 10 / 24, auto: true, target: null };          // t：一天中的比例（0 = 午夜）
+let raining = false, rainK = 0, winOn = false;
+function darkness(t) {                                       // 0 = 白天、1 = 夜晚，清晨與黃昏漸變
+  const h = t * 24;
+  if (h >= 7 && h <= 17) return 0;
+  if (h >= 19 || h <= 5) return 1;
+  return h < 12 ? (7 - h) / 2 : (h - 17) / 2;
+}
+function applyTime() {
+  const d = darkness(T.t), h = T.t * 24;
+  $('sky1').setAttribute('stop-color', mix(...PAL.sky1, d)); $('sky2').setAttribute('stop-color', mix(...PAL.sky2, d));
+  ['far', 'mid', 'near', 'sea', 'wall'].forEach(n => $(n).setAttribute('fill', mix(...PAL[n], Math.min(1, d + rainK * .25))));
+  $('clouds').setAttribute('fill', mix([255, 255, 255], [96, 106, 134], Math.min(1, d * .8 + rainK * .5)));   // 夜裡、雨天雲變暗
+  $('stars').setAttribute('opacity', (d * (1 - rainK)).toFixed(2));
+  $('duskGlow').setAttribute('opacity', (d > 0 && d < 1 ? Math.sin(d * Math.PI) * .35 : 0).toFixed(2));
+  const sa = (h - 6) / 12 * Math.PI, ma = (h < 12 ? h + 6 : h - 18) / 12 * Math.PI;  // 日月沿弧線移動
+  $('sun').setAttribute('cx', 800 - Math.cos(sa) * 700); $('sun').setAttribute('cy', 420 - Math.sin(sa) * 340);
+  $('moon').setAttribute('cx', 800 - Math.cos(ma) * 700); $('moon').setAttribute('cy', 420 - Math.sin(ma) * 340);
+  $('win').setAttribute('fill', winOn || d > .6 ? 'var(--win-on)' : 'var(--win-off)');
+  const hh = Math.floor(h), mm = Math.floor((h - hh) * 60);
+  $('clock').textContent = String(hh).padStart(2, '0') + ':' + String(mm).padStart(2, '0');
+  $('timeRange').value = Math.round(T.t * 1000);
+  $('btnTime').textContent = d >= 1 ? '☾ 時段：夜晚' : d <= 0 ? '☀ 時段：白天' : h < 12 ? '🌅 時段：清晨' : '🌇 時段：黃昏';
+}
+
+/* ---------------- ④ 動畫：秀（流星雨） ---------------- */
+const show = { on: false, t: 0, dur: 16 };
+function startShow() {
+  if (show.on) return;
+  show.on = true; show.t = 0; T.target = 22 / 24;           // 自動轉到夜晚
+  playShowMusic();
+}
+function endShow() {
+  show.on = false; T.target = null; $('meteors').replaceChildren();
+}
+function spawnMeteor() {
+  const x = 300 + Math.random() * 1300, y = Math.random() * 180, len = 80 + Math.random() * 90;
+  const m = el('line', { x1: x, y1: y, x2: x + len, y2: y - len * .45, stroke: '#fff', 'stroke-width': 2, 'stroke-linecap': 'round', opacity: 1 }, $('meteors'));
+  m.__v = 0;
+}
+
+/* ---------------- ⑤ 互動：聲音（音樂軌、音效軌分開） ---------------- */
+let actx = null, master = null, sfxBus = null, musBus = null, soundOn = false;
+function ensureAudio() {
+  if (!actx) {
+    const AC = window.AudioContext || window.webkitAudioContext; if (!AC) return null;
+    actx = new AC();
+    master = actx.createGain(); master.gain.value = soundOn ? .5 : 0;
+    const comp = actx.createDynamicsCompressor(); comp.threshold.value = -16; comp.ratio.value = 3;
+    master.connect(comp); comp.connect(actx.destination);
+    sfxBus = actx.createGain(); sfxBus.connect(master);
+    musBus = actx.createGain(); musBus.gain.value = .64; musBus.connect(master);   // 音樂軌預設 0.64
+  }
+  if (actx.state === 'suspended') actx.resume();
+  return actx;
+}
+const hz = n => 440 * Math.pow(2, (n - 69) / 12);          // MIDI 音高 → 頻率
+function tone(f, t, d, v, bus, type = 'sine') {
+  const o = actx.createOscillator(), g = actx.createGain(); o.type = type; o.frequency.value = f;
+  g.gain.setValueAtTime(.0001, t); g.gain.linearRampToValueAtTime(v, t + .01); g.gain.exponentialRampToValueAtTime(.0001, t + d);
+  o.connect(g); g.connect(bus); o.start(t); o.stop(t + d + .05);
+}
+function bell(f, t, d, v, bus) { [1, 2, 3].forEach((k, i) => tone(f * k, t, d / (i + 1), v / (i + 1.5), bus)); }  // 只用整數泛音
+function sfx(fn) { if (actx && soundOn) fn(actx.currentTime + .02); }
+function playShowMusic() {
+  if (!ensureAudio() || !soundOn) return;
+  // C – Am – F – G – C，每小節 2 秒；旋律強拍都是和弦音
+  const t0 = actx.currentTime + .1, chords = [[48, 60, 64, 67], [45, 57, 60, 64], [41, 57, 60, 65], [43, 55, 59, 62], [48, 60, 64, 67]];
+  const mel = [[76, 79, 84], [76, 72, 69], [72, 77, 81], [79, 74, 71], [72, 76, 84]];
+  chords.forEach((c, i) => {
+    const t = t0 + i * 2.6;
+    tone(hz(c[0]), t, 2.6, .12, musBus, 'triangle');
+    c.slice(1).forEach((n, k) => tone(hz(n), t + k * .12, 2.2, .04, musBus));
+    mel[i].forEach((n, k) => bell(hz(n), t + k * .8, 1.6, .07, musBus));
+  });
+}
+
+/* ---------------- ⑤ 互動：小泡泡 ---------------- */
+function say(x, y, text, sec = 1.6) {
+  const g = el('g', { class: 'bubble', transform: `translate(${x} ${y})` }, $('bubbles'));
+  const w = text.length * 16 + 28;
+  el('rect', { x: -w / 2, y: -18, width: w, height: 36, rx: 18 }, g); el('text', {}, g).textContent = text;
+  setTimeout(() => g.remove(), sec * 1000);
+}
+
+/* ---------------- ⑤ 互動：點擊與鍵盤 ---------------- */
+function onAct(node, fn) {
+  node.addEventListener('click', fn);
+  node.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); fn(e); } });
+}
+onAct($('win'), () => { winOn = !winOn; applyTime(); sfx(t => tone(1200, t, .06, .05, sfxBus, 'square')); });
+onAct(boat.g, () => { boat.dir *= -1; say(boat.x, 330, '掉頭！'); sfx(t => bell(hz(79), t, .8, .06, sfxBus)); });
+birds.forEach(b => onAct(b.g, () => { b.flee = 1.5; sfx(t => tone(1800, t, .12, .04, sfxBus, 'triangle')); }));
+$('btnShow').addEventListener('click', () => { if (!show.on) startShow(); });
+$('btnWeather').addEventListener('click', () => { raining = !raining; $('btnWeather').textContent = '天氣：' + (raining ? '雨' : '晴'); });
+$('btnSound').addEventListener('click', () => {
+  soundOn = !soundOn; ensureAudio();
+  if (master) master.gain.setValueAtTime(soundOn ? .5 : 0, actx.currentTime);   // 關聲音立刻全停
+  $('btnSound').setAttribute('aria-pressed', soundOn); $('btnSound').textContent = soundOn ? '🔊 聲音：開' : '🔇 聲音：關';
+});
+const STEPS = [10, 18, 22, 6];                               // 白天 → 黃昏 → 夜晚 → 清晨（一顆鈕輪播）
+$('btnTime').addEventListener('click', () => {
+  const h = T.t * 24, next = STEPS.find(s => s > h + .5) ?? STEPS[0];
+  T.target = (next === 6 && h > 6.5 ? 6 + 24 : next) / 24;
+});
+$('btnAuto').addEventListener('click', () => { T.auto = !T.auto; $('btnAuto').setAttribute('aria-pressed', T.auto); });
+$('timeRange').addEventListener('input', e => { T.t = e.target.value / 1000; T.target = null; applyTime(); });
+let px = 0;
+$('scene').addEventListener('pointermove', e => { const r = $('scene').getBoundingClientRect(); px = (e.clientX - r.left) / r.width - .5; });
+
+/* ---------------- ④ 動畫：主迴圈（只有一個 requestAnimationFrame） ---------------- */
+let last = performance.now();
+function frame(now) {
+  const dt = Math.min(.05, (now - last) / 1000); last = now;
+  const slow = reduced.matches ? .3 : 1;
+  // 時間：自動播放一天約 4 分鐘；有目標時段就平滑轉過去
+  if (T.target != null) { let d = T.target - T.t; T.t += d * Math.min(1, dt * 1.6); if (Math.abs(d) < .002) { T.t = T.target % 1; T.target = null; } }
+  else if (T.auto) T.t = (T.t + dt / 240) % 1;
+  rainK += ((raining ? 1 : 0) - rainK) * Math.min(1, dt * 2);
+  applyTime();
+  // 雲、視差
+  document.querySelectorAll('.cloud').forEach((c, i) => { c.__x = ((c.__x ?? 300 + i * 700) + c.dataset.sp * dt * slow) % 1800; c.setAttribute('transform', `translate(${c.__x - 100} ${80 + i * 50})`); });
+  ['layerFar', 'layerMid', 'layerNear'].forEach(id => $(id).setAttribute('transform', `translate(${(-px * $(id).dataset.px).toFixed(1)} 0)`));
+  // 帆船：碰到邊界掉頭；整艘船依方向翻轉，船頭永遠朝行進方向
+  boat.x += boat.dir * boat.sp * dt * slow;
+  if (boat.x > 1500) boat.dir = -1; if (boat.x < 820) boat.dir = 1;
+  boat.g.setAttribute('transform', `translate(${boat.x.toFixed(1)} ${418 + Math.sin(now / 700) * 2}) scale(${boat.dir} 1)`);
+  // 海鷗：往右飛、拍翅；被點到時加速往上飛
+  birds.forEach(b => {
+    b.flee = Math.max(0, b.flee - dt);
+    b.x = (b.x + (b.sp + b.flee * 160) * dt * slow) % 1700; b.y += (b.flee ? -40 : (130 - b.y) * .3) * dt;
+    const flap = Math.sin(now / 160 + b.ph) * .35 + .9;
+    b.g.setAttribute('transform', `translate(${(b.x - 50).toFixed(1)} ${b.y.toFixed(1)}) scale(1 ${flap.toFixed(2)})`);
+  });
+  // 雨
+  $('rainG').setAttribute('opacity', rainK.toFixed(2));
+  if (rainK > .02) [...$('rainG').children].forEach((l, i) => { const x = (i * 97 + now * .5) % 1640, y = (i * 53 + now * .9) % 620; l.setAttribute('transform', `translate(${x.toFixed(0)} ${y.toFixed(0)})`); });
+  // 秀：開場 2.5 秒淡入表演氛圍、中段下流星、最後 2.5 秒淡出
+  if (show.on) {
+    show.t += dt;
+    setCine(Math.min(1, show.t / 2.5, (show.dur - show.t) / 2.5), 1000, 160);
+    if (show.t > 2 && show.t < show.dur - 3 && Math.random() < dt * (reduced.matches ? 1 : 6)) spawnMeteor();
+    if (show.t >= show.dur) { endShow(); setCine(0); }
+  }
+  [...$('meteors').children].forEach(m => { m.__v += dt; const k = m.__v / .9; m.setAttribute('transform', `translate(${-k * 260} ${k * 117})`); m.setAttribute('opacity', Math.max(0, 1 - k).toFixed(2)); if (k >= 1) m.remove(); });
+  requestAnimationFrame(frame);
+}
+applyTime(); requestAnimationFrame(frame);
+document.body.addEventListener('keydown', () => document.body.classList.add('kbd'));
+/* ShowStop：再按一下優雅停止表演（共用模組在上方 <script id="showstop">） */
+ShowStop.init({
+  on: () => show.on || null,
+  btn: 'btnShow',
+  save: () => ({ t: T.t, auto: T.auto }),
+  stop: () => { endShow(); setCine(0); },
+  restore: s => { T.t = s.t; T.auto = s.auto; T.target = null; applyTime(); }
+});
+/* /ShowStop */
+})();
+</script>
+</body>
+</html>

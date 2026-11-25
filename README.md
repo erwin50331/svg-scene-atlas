@@ -95,6 +95,8 @@
 
 **5. 自己做一組**：每組都有一段「Prompt」，複製後貼到你自己的 Claude 對話，就能生成類似的場景，或換成你想要的地點與風格。網站不會呼叫任何 AI 服務。
 
+**6. 用 Skill 做出同樣品質**：[`skill/svg-scene-maker/`](skill/svg-scene-maker/) 是把這 101 組的做法打包成的 Claude Skill，內容有畫風寫法、秀的設計、配樂和聲規則、交件檢查清單和一個場景骨架。[下載 zip](skill/svg-scene-maker.zip)，到 Claude 設定的「技能（Skills）」頁面上傳；Claude Code 則複製到 `~/.claude/skills/`。
+
 ## 🛠 專案結構
 
 ```
@@ -106,6 +108,7 @@ scenes/               場景完整版（SC-編號-代稱.html）
 scenes/pure/          純插畫版，由 tools/make-pure.py 產生
 thumbs/               預覽縮圖（白天／夜晚各一張，960×360）
 tools/make-pure.py    產生純插畫版的小工具
+skill/                Claude Skill：自己做同樣品質的場景（另附 zip）
 ```
 
 純靜態網站：沒有伺服器、沒有資料庫、不需要任何 API 金鑰，也沒有建置步驟。本機預覽：

@@ -253,6 +253,9 @@
   $("statRegions").textContent = regions.filter((r) => !["原創地點", "太空", "深海", "高空"].includes(r)).length;
   $("year").textContent = new Date().getFullYear();
   if (SITE.repo) { const r = $("repoLink"); r.href = SITE.repo; r.hidden = false; }
+  /* ---------------- Skill 下載 ---------------- */
+  if (SITE.repo) $("skillSrc").href = SITE.repo.replace(/\/$/, "") + "/tree/main/skill/svg-scene-maker";
+  $("skillDl").addEventListener("click", () => track("download", "skill", "zip"));
 
   /* ---------------- 聯絡 ---------------- */
   if (SITE.repo) { const c = $("contactRepo"); c.href = SITE.repo; c.hidden = false; $("contactRepoSoon").hidden = true; }
