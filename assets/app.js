@@ -541,6 +541,17 @@
     store.set("atlas-theme", root.dataset.theme);
   });
 
+  /* ---------------- 手機選單 ---------------- */
+  (() => {
+    const bar = document.querySelector(".topbar"), btn = $("menuBtn"), nav = $("mainNav");
+    const set = (on) => { bar.classList.toggle("open", on); btn.setAttribute("aria-expanded", String(on)); btn.setAttribute("aria-label", on ? "關閉選單" : "開啟選單"); };
+    btn.addEventListener("click", (e) => { e.stopPropagation(); set(!bar.classList.contains("open")); });
+    nav.addEventListener("click", (e) => { if (e.target.closest("a")) set(false); });
+    document.addEventListener("click", (e) => { if (!bar.contains(e.target)) set(false); });
+    document.addEventListener("keydown", (e) => { if (e.key === "Escape" && bar.classList.contains("open")) { set(false); btn.focus(); } });
+    window.addEventListener("resize", () => { if (innerWidth > 560) set(false); });
+  })();
+
   /* ---------------- 預覽視窗 ---------------- */
   const dlg = $("viewer");
   let current = null;
