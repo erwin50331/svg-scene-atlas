@@ -36,7 +36,7 @@ window.SITE = {
   analytics: "erwin50331",
   // MP4／GIF 下載：放在 GitHub Releases 的資料夾網址（結尾要有 /）。檔名是場景檔名把 .html 換成 .mp4／.gif。
   // 留空時下載視窗只提供 HTML。
-  clips: "",
+  clips: "https://github.com/erwin50331/svg-scene-atlas/releases/download/clips-v1/",
   // Threads、LinkedIn 等個人連結，可留空
   links: [],
   // 作者精選：填場景編號，順序就是精選區的排列順序；留空陣列就不顯示精選區
