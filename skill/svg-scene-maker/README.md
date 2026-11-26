@@ -2,7 +2,7 @@
 
 讓 Claude 幫你做出像《[SVG 動畫圖鑑](https://svg-scene-atlas.pages.dev/)》那樣的互動 SVG 動畫場景：一個 HTML 檔、會日夜循環、可以點、有一段值得按的「秀」和原創配樂。
 
-這是 101 組作品一路修正下來的做法，包括畫風寫法、秀的設計、配樂和聲規則與交件前的品質檢查清單。
+這是 101 組作品一路修正下來的做法，包括畫風寫法、秀的設計、配樂和聲規則，以及分成「在地查證、物理舒適、使用體驗、構圖美感、技術」五類的驗收清單。
 
 ## 安裝
 
@@ -28,9 +28,12 @@ svg-scene-maker/
 ├── SKILL.md                     流程與不能妥協的規則
 ├── references/
 │   ├── styles.md                20 種畫風的畫法
-│   ├── show-and-motion.md       秀、表演氛圍、優雅停止、移動物規則
+│   ├── show-and-motion.md       秀、表演氛圍、優雅停止、移動物與步態
 │   ├── sound.md                 聲音架構與配樂和聲規則
-│   └── checklist.md             交件前品質檢查
+│   ├── local-facts.md           在地細節查證
+│   ├── composition.md           前中後景、上下構圖、創意視角
+│   ├── delivery.md              交付檔案與下載設計
+│   └── checklist.md             驗收清單
 ├── templates/
 │   └── scene-skeleton.html      可以直接打開的最小場景骨架
 └── tools/
