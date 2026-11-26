@@ -1,6 +1,6 @@
 # svg-scene-maker
 
-目前版本：**v1.1**（2026-11-26）。想知道手上的是不是最新版，打開 `SKILL.md` 看開頭的版本；沒有寫版本的就是 v1.0。更新內容見 [CHANGELOG.md](CHANGELOG.md)，最新版在[網站](https://svg-scene-atlas.pages.dev/#skillStep)下載。
+目前版本：**v1.2**（2026-11-26）。想知道手上的是不是最新版，打開 `SKILL.md` 看開頭的版本；沒有寫版本的就是 v1.0。更新內容見 [CHANGELOG.md](CHANGELOG.md)，最新版在[網站](https://svg-scene-atlas.pages.dev/#skillStep)下載。
 
 讓 Claude 幫你做出像《[SVG 動畫圖鑑](https://svg-scene-atlas.pages.dev/)》那樣的互動 SVG 動畫場景：一個 HTML 檔、會日夜循環、可以點、有一段值得按的「秀」和原創配樂。
 
@@ -35,7 +35,7 @@ svg-scene-maker/
 │   ├── sound.md                 聲音架構與配樂和聲規則
 │   ├── local-facts.md           在地細節查證
 │   ├── composition.md           前中後景、上下構圖、創意視角
-│   ├── delivery.md              交付檔案與下載設計
+│   ├── delivery.md              交付檔案與輸出規格
 │   └── checklist.md             驗收清單
 ├── templates/
 │   └── scene-skeleton.html      可以直接打開的最小場景骨架

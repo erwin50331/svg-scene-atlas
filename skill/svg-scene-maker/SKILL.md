@@ -5,7 +5,7 @@ description: 製作可互動的寬幅 SVG 動畫場景（單一 HTML 檔、日�
 
 # SVG 動畫場景製作
 
-> 版本 **v1.1**（2026-11-26）。開頭沒有寫版本的是 v1.0。最新版與更新紀錄：https://svg-scene-atlas.pages.dev/#skillStep ，或看 `CHANGELOG.md`。
+> 版本 **v1.2**（2026-11-26）。開頭沒有寫版本的是 v1.0。最新版與更新紀錄：https://svg-scene-atlas.pages.dev/#skillStep ，或看 `CHANGELOG.md`。
 
 這份 skill 是《SVG 動畫圖鑑》101 組作品累積下來的做法。目標是做出一個**單一、自包含的 HTML 檔**：打開就是一幅 1600×600 的寬幅插畫，會隨時間流動、可以點、有一兩段值得按的「秀」，還有好聽的原創配樂。
 
@@ -18,7 +18,7 @@ description: 製作可互動的寬幅 SVG 動畫場景（單一 HTML 檔、日�
 | `references/sound.md` | 聲音架構、配樂和聲規則、音量 | 寫聲音前 |
 | `references/local-facts.md` | 在地細節查證方法與常見地雷 | 選題後、動筆前 |
 | `references/composition.md` | 前中後景、上下構圖、創意視角 | 規劃畫面時 |
-| `references/delivery.md` | 交付檔案、影片規格、下載按鈕設計 | 交件與做作品集網站時 |
+| `references/delivery.md` | 交付檔案、影片規格、作品內的下載按鈕 | 交件時 |
 | `references/checklist.md` | 驗收清單（查證、物理、使用體驗、美感、技術） | 交件前逐條自檢 |
 | `templates/scene-skeleton.html` | 可直接執行的最小場景骨架 | 開工時複製一份當起點 |
 | `tools/showstop.js`＋`tools/showstop_inject.py` | 「表演再按一下優雅停止」共用模組與注入工具 | 有秀的場景都要用 |
