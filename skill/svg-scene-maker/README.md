@@ -1,5 +1,7 @@
 # svg-scene-maker
 
+目前版本：**v1.1**（2026-11-26）。想知道手上的是不是最新版，打開 `SKILL.md` 看開頭的版本；沒有寫版本的就是 v1.0。更新內容見 [CHANGELOG.md](CHANGELOG.md)，最新版在[網站](https://svg-scene-atlas.pages.dev/#skillStep)下載。
+
 讓 Claude 幫你做出像《[SVG 動畫圖鑑](https://svg-scene-atlas.pages.dev/)》那樣的互動 SVG 動畫場景：一個 HTML 檔、會日夜循環、可以點、有一段值得按的「秀」和原創配樂。
 
 這是 101 組作品一路修正下來的做法，包括畫風寫法、秀的設計、配樂和聲規則，以及分成「在地查證、物理舒適、使用體驗、構圖美感、技術」五類的驗收清單。
@@ -26,6 +28,7 @@ Claude 會先列出內容讓你確認，再照 skill 裡的規則做出單一 HT
 ```
 svg-scene-maker/
 ├── SKILL.md                     流程與不能妥協的規則
+├── CHANGELOG.md                 更新紀錄
 ├── references/
 │   ├── styles.md                20 種畫風的畫法
 │   ├── show-and-motion.md       秀、表演氛圍、優雅停止、移動物與步態

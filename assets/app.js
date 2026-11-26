@@ -255,6 +255,7 @@
   if (SITE.repo) { const r = $("repoLink"); r.href = SITE.repo; r.hidden = false; }
   /* ---------------- Skill 下載 ---------------- */
   if (SITE.repo) $("skillSrc").href = SITE.repo.replace(/\/$/, "") + "/tree/main/skill/svg-scene-maker";
+  if (SITE.repo) $("skillLog").href = SITE.repo.replace(/\/$/, "") + "/blob/main/skill/svg-scene-maker/CHANGELOG.md";
   $("skillDl").addEventListener("click", () => track("download", "skill", "zip"));
 
   /* ---------------- 聯絡 ---------------- */
