@@ -43,7 +43,9 @@
     get(k) { try { return localStorage.getItem(k); } catch (e) { return null; } },
     set(k, v) { try { localStorage.setItem(k, v); } catch (e) {} }
   };
-  const reduceMotion = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  // 減少動態：照網站右上角的開關（沒按過就照系統設定），見 assets/motion.js
+  const rmq = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)");
+  const isReduced = () => !!(rmq && rmq.matches);
   // 在別人的頁框裡（例如預覽環境）瀏覽器可能擋下載，改成開新分頁
   const framed = (() => { try { return window.self !== window.top; } catch (e) { return true; } })();
 
@@ -139,6 +141,7 @@
   const fileUrl = (s, ver) => ver === "pure" ? pureUrl(s) : sceneUrl(s);
   const dlName = (s, ver, quiet) => s.file.replace(/\.html$/, (ver === "pure" ? "-pure" : "") + (quiet ? "-" + quiet : "") + ".html");
   const BGM_RE = /<script id="scene-bgm">[\s\S]*?<\/script>\n?/;
+  const MOTION_RE = /<script id="site-motion">[\s\S]*?<\/script>\n?/;  // 網站專用的減少動態開關，下載時拿掉
   const MUTE = '<script id="scene-mute">/* 下載時選了不要點擊音效：場景本身的聲音一律靜音（背景配樂不受影響） */' +
     '(function(){var A=window.AudioContext||window.webkitAudioContext;if(!A)return;window.__SceneAudioContext=A;' +
     'function M(o){var c=new A(o);c.suspend();c.resume=function(){return Promise.resolve();};return c;}M.prototype=A.prototype;' +
@@ -154,6 +157,7 @@
     return { music, sfx: /AudioContext/.test(html.replace(BGM_RE, "")) };
   }
   function shape(html, o) {
+    html = html.replace(MOTION_RE, "");
     if (!o.music) html = html.replace(BGM_RE, "").replace(/\n?\s*<button id="btnMusic"[^>]*>[^<]*<\/button>/, "");
     if (!o.sfx) html = /<head[^>]*>/i.test(html) ? html.replace(/<head[^>]*>/i, (m) => m + "\n" + MUTE) : MUTE + html;
     return html;
@@ -169,7 +173,7 @@
   const CLIPS = String(SITE.clips || "").trim().replace(/([^/])$/, "$1/").replace(/^\/$/, "");
   // 下載鈕：箭頭落下 → 進度圈 → 打勾（約 1 秒），再關視窗
   function downloadAnim(b) {
-    if (!b || reduceMotion) return Promise.resolve();
+    if (!b || isReduced()) return Promise.resolve();
     b.classList.remove("ok"); b.classList.add("busy"); b.disabled = true;
     return new Promise((r) => setTimeout(() => { b.classList.remove("busy"); b.classList.add("ok"); setTimeout(() => { b.classList.remove("ok"); b.disabled = false; r(); }, 520); }, 760));
   }
@@ -307,10 +311,8 @@
     $("heroTitle").textContent = `${latest.title}・${latest.place}`;
     $("heroPlate").setAttribute("aria-label", `預覽最新場景：${latest.title}`);
     $("heroPlate").addEventListener("click", () => openViewer(latest));
-    if (!reduceMotion) {
-      let night = false;
-      setInterval(() => { night = !night; $("heroNight").style.opacity = night ? 1 : 0; }, 4200);
-    }
+    let night = false;
+    setInterval(() => { night = !night && !isReduced(); $("heroNight").style.opacity = night ? 1 : 0; }, 4200);
   }
 
   /* ---------------- 篩選狀態 ---------------- */
@@ -431,8 +433,9 @@
     clearTimeout(liveTimer);
     if (livePlate) { const f = livePlate.querySelector("iframe.live"); if (f) f.remove(); livePlate = null; }
   }
-  if (canHover && !reduceMotion) {
+  if (canHover) {
     $("grid").addEventListener("pointerover", (e) => {
+      if (isReduced()) return;
       const plate = e.target.closest(".card .plate");
       if (!plate || plate === livePlate) return;
       stopLive(); livePlate = plate;
@@ -541,6 +544,28 @@
     root.dataset.theme = isDark ? "light" : "dark";
     store.set("atlas-theme", root.dataset.theme);
   });
+
+  /* ---------------- 減少動態開關 ---------------- */
+  // 只存在這個網站（localStorage 的 atlas-motion），不改瀏覽器或系統設定；沒按過就照系統的「減少動態效果」
+  (() => {
+    const M = window.atlasMotion; if (!M) return;
+    const nav = $("motionNav"), btn = $("motionBtn");
+    const sync = () => {
+      const on = M.reduced();
+      btn.setAttribute("aria-pressed", String(on)); btn.title = on ? "減少動態：開（再按一下恢復動畫）" : "減少動態：關";
+      nav.setAttribute("aria-checked", String(on));
+    };
+    const toggle = () => {
+      M.set(M.reduced() ? "full" : "reduce"); sync();
+      // 首屏精選、預覽視窗裡的作品重新載入，套用新設定
+      ["pickFrame", "vFrame"].forEach((id) => { const f = $(id); if (f && f.src && !/about:blank/.test(f.src)) f.src = f.src; });
+      stopLive();
+    };
+    btn.addEventListener("click", toggle);
+    nav.addEventListener("click", (e) => { e.stopPropagation(); toggle(); });
+    if (rmq && rmq.addEventListener) rmq.addEventListener("change", sync);
+    sync();
+  })();
 
   /* ---------------- 手機選單 ---------------- */
   (() => {
